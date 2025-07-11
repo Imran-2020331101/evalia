@@ -1,0 +1,9 @@
+@import "tailwindcss";
+@tailwind utilities;
+
+.neon-glow {
+    background: white;
+    box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.6),
+        0 0 30px 10px rgba(255, 255, 255, 0.3);
+    opacity: 0.6;
+}
