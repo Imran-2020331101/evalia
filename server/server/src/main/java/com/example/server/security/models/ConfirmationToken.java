@@ -16,12 +16,12 @@ import java.time.LocalDateTime;
 public class ConfirmationToken {
     @Id
     private ObjectId Id;
-    private String confirmationToken;
+    private String token;
     private String userEmail;
     private LocalDateTime expiryDate;
 
     public ConfirmationToken(int number) {
-        this.confirmationToken = String.valueOf(number);
+        this.token = String.valueOf(number);
     }
 
     public boolean isExpired() {
