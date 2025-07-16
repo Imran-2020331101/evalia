@@ -12,7 +12,7 @@ const FloatingBackground = () => {
   useEffect(() => {
     const newDivs = Array.from({ length: NUM_DIVS }, (_, i) => ({
       id: i,
-      size: getRandom(250, 400),
+      size: getRandom(300, 450),
       top: getRandom(0, 100),
       left: getRandom(0, 100),
     }));
@@ -31,7 +31,7 @@ const FloatingBackground = () => {
 const FloatingBall = ({ size, top, left }: any) => {
   const [x, setX] = useState(0);
   const [y, setY] = useState(0);
-  const [duration, setDuration] = useState(getRandom(13, 20));
+  const [duration, setDuration] = useState(getRandom(20, 24));
 
   useEffect(() => {
     animateToNewPosition();
@@ -40,7 +40,7 @@ const FloatingBall = ({ size, top, left }: any) => {
   const animateToNewPosition = () => {
     setX(getRandom(-window.innerWidth, window.innerWidth));
     setY(getRandom(-window.innerHeight, window.innerHeight));
-    setDuration(getRandom(13, 20));
+    setDuration(getRandom(20, 24));
   };
 
   return (
