@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ConfirmationTokenRepository extends MongoRepository<ConfirmationToken, ObjectId> {
-    ConfirmationToken findByConfirmationToken(String confirmationToken);
+    ConfirmationToken findByToken(String token);
 }

@@ -93,12 +93,42 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
     }
 
     private String getEmailFromAttributes(Map<String, Object> attributes) {
-        // GitHub returns email in different field
+        String provider = "";
+        if (attributes.containsKey("provider")) {
+            provider = (String) attributes.get("provider");
+        }
+
+        // GitHub specific handling
+        if (provider.equals("github") || attributes.containsKey("login")) {
+            // GitHub email might be private, check if we have it directly
+            String email = (String) attributes.get("email");
+
+            // If no email is directly available, try to extract from other fields
+            if (email == null || email.isEmpty()) {
+                // You could use their login as a fallback
+                String login = (String) attributes.get("login");
+                if (login != null && !login.isEmpty()) {
+                    email = login + "@github.user";
+                }
+            }
+            return email;
+        }
+
+        // Default fallback
         return (String) attributes.get("email");
     }
 
     private String getNameFromAttributes(Map<String, Object> attributes) {
-        // GitHub returns name in different field
+        // GitHub returns name differently
+        if (attributes.containsKey("login")) {
+            String name = (String) attributes.get("name");
+            // If name is not available, use login as fallback
+            if (name == null || name.isEmpty()) {
+                return (String) attributes.get("login");
+            }
+            return name;
+        }
+
         return (String) attributes.get("name");
     }
 

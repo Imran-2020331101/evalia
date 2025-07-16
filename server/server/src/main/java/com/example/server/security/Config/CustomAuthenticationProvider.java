@@ -1,24 +1,23 @@
 package com.example.server.security.Config;
 
-import com.example.server.security.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 
-//@Component
+@Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
-    private final UserRepository userRepository;
+    private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
-
-    @Autowired
-    public CustomAuthenticationProvider(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
+    
+    public CustomAuthenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -27,9 +26,15 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String email = authentication.getName(); // This will contain the email from the login form
         String password = authentication.getCredentials().toString();
 
-        // Load user by email (instead of username)
-        UserDetails userDetails = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BadCredentialsException("Email not found"));
+        /**
+         * The loadUserByUserName method actually uses Email from Email Repository.
+         * method:
+            public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+            return userRepository.findByEmail(email)
+            .orElseThrow(() -> new UsernameNotFoundException("Email not found"));
+            }
+         * */
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
         if (passwordEncoder.matches(password, userDetails.getPassword())) {
             return new UsernamePasswordAuthenticationToken(
