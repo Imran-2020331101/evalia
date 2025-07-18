@@ -96,6 +96,13 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         String provider = "";
         if (attributes.containsKey("provider")) {
             provider = (String) attributes.get("provider");
+        } else {
+            // Try to detect provider based on attribute patterns
+            if (attributes.containsKey("login")) {
+                provider = "github";
+            } else if (attributes.containsKey("sub")) {
+                provider = "google";
+            }
         }
 
         // GitHub specific handling
@@ -114,6 +121,11 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
             return email;
         }
 
+        // Google specific handling
+        if (provider.equals("google") || attributes.containsKey("sub")) {
+            return (String) attributes.get("email");
+        }
+
         // Default fallback
         return (String) attributes.get("email");
     }
@@ -129,11 +141,37 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
             return name;
         }
 
+        // Google usually provides name directly
+        if (attributes.containsKey("sub")) {
+            String name = (String) attributes.get("name");
+            if (name == null || name.isEmpty()) {
+                // Try given_name + family_name as fallback
+                String givenName = (String) attributes.get("given_name");
+                String familyName = (String) attributes.get("family_name");
+                if (givenName != null && familyName != null) {
+                    return givenName + " " + familyName;
+                }
+            }
+            return name;
+        }
+
         return (String) attributes.get("name");
     }
 
     private String getIdFromAttributes(Map<String, Object> attributes) {
-        // GitHub returns id as an Integer, so convert to String
+        // Provider-specific ID extraction
+        if (attributes.containsKey("login")) {
+            // GitHub returns id as an Integer, so convert to String
+            Object id = attributes.get("id");
+            return id != null ? id.toString() : null;
+        }
+
+        if (attributes.containsKey("sub")) {
+            // Google uses "sub" as the unique identifier
+            return (String) attributes.get("sub");
+        }
+
+        // Fallback to id if available
         Object id = attributes.get("id");
         return id != null ? id.toString() : null;
     }

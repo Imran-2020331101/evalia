@@ -38,13 +38,13 @@ public class EmailService {
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
 
         helper.setTo(to);
-        helper.setSubject("Aicademy - Complete Your Registration");
+        helper.setSubject("Evalia - Complete Your Registration");
 
         String htmlContent = "<html>" +
                 "<body style='font-family: Arial, sans-serif;'>" +
                 "<div style='max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;'>"
                 +
-                "<h1 style='color:#3f51b5; text-align: center;'>Welcome to Aicademy!</h1>" +
+                "<h1 style='color:#3f51b5; text-align: center;'>Welcome to Evalia</h1>" +
                 "<p>Thank you for registering. To complete your registration, please verify your email with the OTP below:</p>"
                 +
                 "<div style='background-color: #f5f5f5; padding: 15px; text-align: center; margin: 20px 0;'>" +
