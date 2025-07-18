@@ -40,9 +40,9 @@ const LoginPage = () => {
         <div className="w-full h-[40px]  flex justify-center items-center mt-[-10px]">
           <button className='flex justify-center items-center gap-[10px] cursor-pointer'>
             <Image src={google} width={34} height={34} alt='google icon' className='w-[20px] h-[20px] object-cover'/>
-            <p className='hover:underline min-[1200px]:text-[14px] min-[1600px]:text-[16px]'>
+            <a href='http://localhost:8080/oauth2/authorization/google' className='hover:underline min-[1200px]:text-[14px] min-[1600px]:text-[16px]'>
                 Sign in with Google
-            </p>
+            </a>
           </button>
         </div>
         <div>
