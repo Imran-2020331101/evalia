@@ -35,78 +35,100 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
+        String provider = userRequest.getClientRegistration().getRegistrationId();
+        System.out.println("=== OAuth2 Login Debug Info ===");
+        System.out.println("OAuth2 Provider: " + provider);
+        System.out.println("OAuth2 Attributes: " + oAuth2User.getAttributes());
+        System.out.println("Client Registration: " + userRequest.getClientRegistration().getClientName());
+
         try {
-            return processOAuth2User(userRequest, oAuth2User);
+            OAuth2User result = processOAuth2User(userRequest, oAuth2User);
+            System.out.println("OAuth2 user processing completed successfully");
+            return result;
         } catch (Exception ex) {
+            System.err.println("Error in OAuth2 loadUser: " + ex.getMessage());
+            ex.printStackTrace(); // Enhanced error logging
             throw new InternalAuthenticationServiceException(ex.getMessage(), ex.getCause());
         }
     }
 
     private OAuth2User processOAuth2User(OAuth2UserRequest oAuth2UserRequest, OAuth2User oAuth2User) {
         String provider = oAuth2UserRequest.getClientRegistration().getRegistrationId();
+        System.out.println("Processing user for provider: " + provider);
 
         // Extract attributes based on the provider
         Map<String, Object> attributes = oAuth2User.getAttributes();
-        String email = getEmailFromAttributes(attributes);
-        String name = getNameFromAttributes(attributes);
-        String providerId = getIdFromAttributes(attributes);
+        String email = getEmailFromAttributes(attributes, provider);
+        String name = getNameFromAttributes(attributes, provider);
+        String providerId = getIdFromAttributes(attributes, provider);
+
+        System.out.println("Extracted email: " + email);
+        System.out.println("Extracted name: " + name);
+        System.out.println("Extracted providerId: " + providerId);
 
         if (email == null || email.isEmpty()) {
             throw new OAuth2AuthenticationException("Email not found from OAuth2 provider");
         }
 
-        // Check if user exists
-        Optional<userEntity> userOptional = userRepository.findByEmail(email);
-        userEntity user;
+        try {
+            // Check if user exists
+            Optional<userEntity> userOptional = userRepository.findByEmail(email);
+            userEntity user;
 
-        if (userOptional.isPresent()) {
-            // Update existing user with OAuth2 details if needed
-            user = userOptional.get();
-            // You can update additional fields here if needed
-        } else {
-            // Create a new user with OAuth2 details
-            user = new userEntity();
-            user.setEmail(email);
-            user.setName(name);
-            user.setUsername(email); // Using email as username
-            user.setProvider(provider);
-            user.setProviderId(providerId);
-            user.setEnabled(true); // OAuth2 users are auto-verified
+            if (userOptional.isPresent()) {
+                // Update existing user with OAuth2 details if needed
+                user = userOptional.get();
+                System.out.println("Found existing user: " + user.getEmail());
 
-            // Set a default role
-            Role userRole = roleRepository.findByName("USER")
-                    .orElseThrow(() -> new RuntimeException("Default role not found"));
-            user.setRoles(Collections.singletonList(userRole));
+                // Update provider info if not set
+                if (user.getProvider() == null || user.getProvider().isEmpty()) {
+                    user.setProvider(provider);
+                    user.setProviderId(providerId);
+                    user.setEnabled(true);
+                    user.setEmailVerified(true); // OAuth2 users are auto-verified
+                    user = userRepository.save(user);
+                    System.out.println("Updated existing user with OAuth2 details");
+                }
+            } else {
+                // Create a new user with OAuth2 details
+                System.out.println("Creating new user with email: " + email);
+                user = new userEntity();
+                user.setEmail(email);
+                user.setName(name);
+                user.setUsername(email); // Using email as username
+                user.setProvider(provider);
+                user.setProviderId(providerId);
+                user.setEnabled(true); // OAuth2 users are auto-verified
+                user.setEmailVerified(true); // OAuth2 users are auto-verified
 
-            userRepository.save(user);
+                // Set a default role
+                Role userRole = roleRepository.findByName("USER")
+                        .orElseThrow(() -> new RuntimeException("Default role not found"));
+                user.setRoles(Collections.singletonList(userRole));
+
+                user = userRepository.save(user);
+                System.out.println("New user created with ID: " + user.getId());
+            }
+
+            // Create a new OAuth2User with our custom attributes
+            Map<String, Object> customAttributes = new HashMap<>(attributes);
+            customAttributes.put("userId", user.getId());
+
+            return new DefaultOAuth2User(
+                    Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
+                    customAttributes,
+                    oAuth2UserRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint()
+                            .getUserNameAttributeName());
+        } catch (Exception e) {
+            System.err.println("Error processing OAuth2 user: " + e.getMessage());
+            e.printStackTrace();
+            throw e; // Re-throw to be caught by the calling method
         }
-
-        // Create a new OAuth2User with our custom attributes
-        Map<String, Object> customAttributes = new HashMap<>(attributes);
-        customAttributes.put("userId", user.getId());
-
-        return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
-                customAttributes,
-                oAuth2UserRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint()
-                        .getUserNameAttributeName());
     }
 
-    private String getEmailFromAttributes(Map<String, Object> attributes) {
-        String provider = "";
-        if (attributes.containsKey("provider")) {
-            provider = (String) attributes.get("provider");
-        } else {
-            // Try to detect provider based on attribute patterns
-            if (attributes.containsKey("login")) {
-                provider = "github";
-            } else if (attributes.containsKey("sub")) {
-                provider = "google";
-            }
-        }
-
+    private String getEmailFromAttributes(Map<String, Object> attributes, String provider) {
         // GitHub specific handling
-        if (provider.equals("github") || attributes.containsKey("login")) {
+        if (provider.equals("github")) {
             // GitHub email might be private, check if we have it directly
             String email = (String) attributes.get("email");
 
@@ -122,7 +144,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         }
 
         // Google specific handling
-        if (provider.equals("google") || attributes.containsKey("sub")) {
+        if (provider.equals("google")) {
             return (String) attributes.get("email");
         }
 
@@ -130,9 +152,9 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         return (String) attributes.get("email");
     }
 
-    private String getNameFromAttributes(Map<String, Object> attributes) {
+    private String getNameFromAttributes(Map<String, Object> attributes, String provider) {
         // GitHub returns name differently
-        if (attributes.containsKey("login")) {
+        if (provider.equals("github")) {
             String name = (String) attributes.get("name");
             // If name is not available, use login as fallback
             if (name == null || name.isEmpty()) {
@@ -142,7 +164,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         }
 
         // Google usually provides name directly
-        if (attributes.containsKey("sub")) {
+        if (provider.equals("google")) {
             String name = (String) attributes.get("name");
             if (name == null || name.isEmpty()) {
                 // Try given_name + family_name as fallback
@@ -158,20 +180,19 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         return (String) attributes.get("name");
     }
 
-    private String getIdFromAttributes(Map<String, Object> attributes) {
+    private String getIdFromAttributes(Map<String, Object> attributes, String provider) {
         // Provider-specific ID extraction
-        if (attributes.containsKey("login")) {
+        if (provider.equals("github")) {
             // GitHub returns id as an Integer, so convert to String
             Object id = attributes.get("id");
             return id != null ? id.toString() : null;
         }
 
-        if (attributes.containsKey("sub")) {
+        if (provider.equals("google")) {
             // Google uses "sub" as the unique identifier
             return (String) attributes.get("sub");
         }
 
-        // Fallback to id if available
         Object id = attributes.get("id");
         return id != null ? id.toString() : null;
     }
