@@ -2,6 +2,7 @@ package com.example.server.security.Config;
 
 import com.example.server.security.JWT.JwtAuthenticationFilter;
 import com.example.server.security.JWT.JwtAuthEntryPoint;
+import com.example.server.security.Service.CustomOidcUserService;
 import com.example.server.security.Service.CustomUserDetailsService;
 import com.example.server.security.Service.OAuth2AuthenticationSuccessHandler;
 import com.example.server.security.Service.OAuth2UserService;
@@ -33,6 +34,7 @@ public class SecurityConfig {
     private final JwtAuthEntryPoint authEntryPoint;
     private final UserDetailsService userDetailsService;
     private final OAuth2UserService oAuth2UserService;
+    private final CustomOidcUserService customOidcUserService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final AuthenticationProvider authenticationProvider;
     private final PasswordEncoder passwordEncoder;
@@ -44,6 +46,7 @@ public class SecurityConfig {
             JwtAuthEntryPoint authEntryPoint,
             JwtAuthenticationFilter jwtAuthenticationFilter,
             OAuth2UserService oAuth2UserService,
+            CustomOidcUserService customOidcUserService,
             OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler) {
         this.passwordEncoder = passwordEncoder;
         this.authenticationProvider = authenticationProvider;
@@ -51,6 +54,7 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
         this.authEntryPoint = authEntryPoint;
         this.oAuth2UserService = oAuth2UserService;
+        this.customOidcUserService = customOidcUserService;
         this.oAuth2AuthenticationSuccessHandler = oAuth2AuthenticationSuccessHandler;
     }
 
@@ -58,25 +62,30 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        
+
         http.authenticationProvider(authenticationProvider);
-        
+
         // Configure OAuth2 login
         http.oauth2Login(oauth2 -> oauth2
                 .userInfoEndpoint(userInfo -> userInfo
-                        .userService(oAuth2UserService))
+                        .userService(oAuth2UserService)
+                        .oidcUserService(customOidcUserService)) // Add OIDC user service
                 .successHandler(oAuth2AuthenticationSuccessHandler));
-        
 
         http
                 .cors(Customizer.withDefaults()) // Enable CORS with default configuration
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)) // Changed from
+                                                                                                    // STATELESS to
+                                                                                                    // IF_REQUIRED for
+                                                                                                    // OAuth2
                 .exceptionHandling(h -> h.authenticationEntryPoint(authEntryPoint))
                 .securityMatcher("/**")
                 .authorizeHttpRequests(
                         registry -> registry
-                                .requestMatchers("/api/auth/**","/swagger-ui*/**","/api-docs/**", "/login", "/oauth2/**", "/login/oauth2/**").permitAll()
+                                .requestMatchers("/api/auth/**", "/swagger-ui*/**", "/api-docs/**", "/login",
+                                        "/oauth2/**", "/login/oauth2/**", "/test-oauth2")
+                                .permitAll()
                                 .anyRequest().authenticated());
         return http.build();
     }
@@ -89,7 +98,6 @@ public class SecurityConfig {
                 .passwordEncoder(passwordEncoder);
         return builder.build();
     }
-
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

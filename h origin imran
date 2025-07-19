@@ -1,0 +1,19 @@
+*[33m-[m[33m.[m   [33m6d285bb[m[33m ([m[1;35mrefs/stash[m[33m)[m WIP on imran: 8e4d1c6 Merge pull request #2 from Imran-2020331101/imran
+[31m|[m[32m\[m [33m\[m  
+[31m|[m [32m|[m * [33mab0dc37[m untracked files on imran: 8e4d1c6 Merge pull request #2 from Imran-2020331101/imran
+[31m|[m * [33m8878d77[m index on imran: 8e4d1c6 Merge pull request #2 from Imran-2020331101/imran
+[31m|[m[31m/[m  
+[31m|[m * [33m5f65e11[m[33m ([m[1;36mHEAD -> [m[1;32mimran[m[33m, [m[1;32mmain[m[33m)[m functional github login
+[31m|[m[31m/[m  
+[31m|[m * [33m5bf20cc[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m home page -> hero section
+[31m|[m[31m/[m  
+*   [33m8e4d1c6[m[33m ([m[1;31morigin/imran[m[33m)[m Merge pull request #2 from Imran-2020331101/imran
+[36m|[m[1;31m\[m  
+[36m|[m *   [33m0f2f0d8[m Merge pull request #1 from Imran-2020331101/main
+[36m|[m [1;32m|[m[36m\[m  
+[36m|[m [1;32m|[m[36m/[m  
+[36m|[m[36m/[m[1;32m|[m   
+* [1;32m|[m [33mf531417[m Backend server created with basic authentication features
+[1;32m|[m[1;32m/[m  
+* [33m39caf35[m client initial setup and auth pages
+* [33mb984df7[m Initial commit
