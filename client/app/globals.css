@@ -7,3 +7,30 @@
         0 0 30px 10px rgba(255, 255, 255, 0.3);
     opacity: 0.6;
 }
+
+
+.scrollbar-hidden {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+}
+
+.scroll-container {
+    scrollbar-width: thin;
+    scrollbar-color: #0B192C transparent;
+}
+.scroll-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #a29bfe, #6c5ce7);
+    border-radius: 8px;
+}
