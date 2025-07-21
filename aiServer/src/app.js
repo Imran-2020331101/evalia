@@ -1,6 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-const fileUpload = require("express-fileupload");
 const path = require("path");
 
 // Import configuration and utilities
@@ -37,22 +36,6 @@ app.use(requestLogger);
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// File upload middleware
-app.use(
-  fileUpload({
-    limits: {
-      fileSize: config.MAX_FILE_SIZE,
-    },
-    abortOnLimit: true,
-    responseOnLimit: "File size limit exceeded",
-    useTempFiles: true,
-    tempFileDir: path.join(__dirname, "../uploads/temp"),
-    preserveExtension: true,
-    safeFileNames: true,
-    debug: config.NODE_ENV === "development",
-  })
-);
-
 // Static files
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
@@ -80,16 +63,5 @@ app.use("*", (req, res) => {
 
 // Global error handler (must be last)
 app.use(errorHandler);
-
-// Graceful shutdown
-process.on("SIGTERM", () => {
-  logger.info("SIGTERM received. Shutting down gracefully...");
-  process.exit(0);
-});
-
-process.on("SIGINT", () => {
-  logger.info("SIGINT received. Shutting down gracefully...");
-  process.exit(0);
-});
 
 module.exports = app;
