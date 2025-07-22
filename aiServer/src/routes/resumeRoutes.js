@@ -14,26 +14,7 @@ const router = express.Router();
  */
 router.post("/upload", upload.single("file"), resumeController.uploadResume);
 
-/**
- * @route   GET /api/resume/user/:email
- * @desc    Get all resumes for a specific user
- * @access  Public
- */
-router.get("/user/:email", resumeController.getUserResumes);
 
-/**
- * @route   GET /api/resume/search/skills
- * @desc    Search resumes by skills
- * @access  Public
- */
-router.get("/search/skills", resumeController.searchBySkills);
-
-/**
- * @route   GET /api/resume/search/sections
- * @desc    Search resumes by section content
- * @access  Public
- */
-router.get("/search/sections", resumeController.searchBySections);
 
 /**
  * @route   GET /api/resume/:id

@@ -24,8 +24,7 @@ async function ResumeBot(message) {
 
   const response = completion.choices[0].message;
 
-  console.log(response);
-  return response;
+  return response.content;
 }
 
 module.exports = ResumeBot;

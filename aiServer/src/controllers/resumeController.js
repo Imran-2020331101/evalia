@@ -40,7 +40,9 @@ class ResumeController {
       const extractedData = await resumeService.extractText(pdfFile.buffer);
 
       // Analyze resume content (skills, experience, etc.)
-      const analysis = resumeService.analyzeResume(extractedData.text);
+      const analysis = await resumeService.analyzeResume(extractedData.text);
+
+
 
       // Upload PDF to Cloudinary
       const folderName = "evalia/resume/pdf";
@@ -67,14 +69,18 @@ class ResumeController {
           keywords: analysis.keywords,
         },
 
-        // Flattened structured data
         skills: analysis.skills,
         experience: analysis.experience,
         education: analysis.education,
-        contact: analysis.contact,
+        projects: analysis.projects,
 
-        // Dynamic sections from resume
-        sections: analysis.allSections,
+        contact: {
+          emails: analysis.email,
+          phones: analysis.phone,
+          linkedin: analysis.linkedin,
+          github: analysis.github,
+          location: analysis.location,
+        },
 
         uploadedBy: userEmail,
         status: "completed",
@@ -99,17 +105,9 @@ class ResumeController {
         },
       };
 
-      logger.info("Resume processing completed successfully", {
-        resumeId: savedResume._id,
-        filename: pdfFile.originalname,
-        userEmail: userEmail,
-        textLength: extractedData.text.length,
-        sectionsFound: savedResume.analysis.sections.length,
-        skillsFound:
-          savedResume.skills.technical.length + savedResume.skills.soft.length,
-        experienceYears: savedResume.experience.totalYearsEstimate,
-        companiesFound: savedResume.experience.companies.length,
-      });
+      logger.info(
+        "ResumeContoller :: line 106 :: Resume processing completed successfully"
+      );
 
       res.status(200).json(response);
     } catch (error) {
