@@ -5,8 +5,6 @@ const streamifier = require("streamifier");
 const cloudinary = require("../config/Cloudinary");
 
 class ResumeService {
-
-  
   async uploadToCloudinary(buffer, originalName, folderName) {
     return new Promise((resolve, reject) => {
       // Clean filename - remove extension and special characters
@@ -68,10 +66,6 @@ class ResumeService {
     }
   }
 
-
-
-
-
   /**
    * Analyze resume content using AI parsing
    * @param {string} text - Extracted text from resume
@@ -94,10 +88,8 @@ class ResumeService {
           ),
       };
 
-      // Get AI analysis
       const aiAnalysis = await this._parseResumeThroughAI(text);
 
-      // Combine basic metrics with AI results
       const analysis = {
         ...basicMetrics,
         ...aiAnalysis,
@@ -115,12 +107,7 @@ class ResumeService {
     }
   }
 
-
-
-
-
-
-  async _parseResumeThroughAI(content) {
+  async _parseResumeThroughAI(content,industry) {
     const prompt = `Given the following raw resume text, extract and return the structured information in **valid JSON** format.
     
     Required JSON keys:
@@ -130,16 +117,21 @@ class ResumeService {
     - "linkedin": LinkedIn profile URL
     - "github": GitHub profile URL (if available)
     - "location": address or location (if available)
-    - "skills": array of technical and soft skills
+    - skills: {
+      technical: [String],
+      soft: [String],
+      languages: [String],
+      other: [String],
+    },
     - "education": array of education entries with {"degree", "institution", "year", "gpa"} (if available)
-    - "experience": array of work experience entries with {"job_title", "company", "duration", "location", "description", "achievements"}(if available)
+    - "experience": array of work experience entries with {"job_title", "company", "duration", "description", "achievements"}(if available)
     - "certifications": array of certifications (if available)
     - "projects": array of projects with {"title", "description", "technologies", "url"} (if available)
     - "languages": array of spoken languages (if mentioned)
     - "awards": array of awards and honors (if available)
     - "volunteer": array of volunteer experience (if available)
     - "interests": array of hobbies and interests (if available)
-    
+    - "keywords" : array of keywords based on which the resume can be searched and sorted. Keep in mind the industry: ${industry} he/she is working. (must)
     Important instructions:
     1. Extract ALL information present in the resume
     2. If any section is missing, return an empty array [] or empty string ""
@@ -147,7 +139,8 @@ class ResumeService {
     4. For skills, categorize into technical and soft skills if possible
     5. Extract dates in a consistent format
     6. Return ONLY valid JSON, no additional text or formatting
-    
+    7. Return the output as raw JSON only — do not include any markdown, triple backticks, or code formatting.
+
     Resume Text:
     """
     ${content}
@@ -156,27 +149,20 @@ class ResumeService {
     try {
       const res = await openRouter(prompt);
 
-      const aiContent = res.content || res;
 
-      if (typeof aiContent === "string") {
-        // Clean the response to extract JSON if it's wrapped in markdown or other text
-        const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          return JSON.parse(jsonMatch[0]);
-        }
-
-        // If no JSON found, try parsing the entire content
-        try {
-          return JSON.parse(aiContent.trim());
-        } catch (parseError) {
-          logger.warn(
-            "Could not parse AI response as JSON, returning raw content"
-          );
-          return { error: "Failed to parse JSON", rawResponse: aiContent };
-        }
+      if (typeof res === "string") {
+        const cleaned = res
+          .replace(/^```json\s*/i, "") // Remove starting ```json
+          .replace(/^```\s*/i, "") // Or just ``` if not tagged
+          .replace(/```$/, "") // Remove ending ```
+          .trim();
+        
+        return JSON.parse(cleaned);
       }
 
-      return aiContent;
+      console.log(res);
+
+      return res;
     } catch (error) {
       logger.error("AI resume parsing failed:", error);
       throw new Error("Failed to parse resume through AI");
