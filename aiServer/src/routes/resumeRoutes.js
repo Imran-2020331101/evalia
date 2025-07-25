@@ -12,9 +12,14 @@ const router = express.Router();
  * @desc    Upload and process resume PDF
  * @access  Public
  */
-router.post("/upload", upload.single("file"), resumeController.uploadResume);
+router.post("/upload", upload.single("file"), resumeController.extractResume);
 
-
+/**
+ * @route   POST /api/resume/save
+ * @desc    Save processed resume data to database
+ * @access  Public
+ */
+router.post("/save", resumeController.saveResume);
 
 /**
  * @route   GET /api/resume/:id

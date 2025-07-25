@@ -1,22 +1,24 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
-import { Upload, FileText, X, CheckCircle, AlertCircle, Download } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Upload, FileText, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 
-interface UploadedFile {
-  file: File
-  id: string
-  progress: number
-  status: 'uploading' | 'success' | 'error'
-  errorMessage?: string
+interface UploadState {
+  file: File | null
+  isUploading: boolean
+  error: string | null
 }
 
 export default function PDFUploadPage() {
-  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
+  const [uploadState, setUploadState] = useState<UploadState>({
+    file: null,
+    isUploading: false,
+    error: null
+  })
   const [isDragOver, setIsDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const generateId = () => Math.random().toString(36).substr(2, 9)
+  const router = useRouter()
 
   const validateFile = (file: File): string | null => {
     // Check file type
@@ -33,60 +35,61 @@ export default function PDFUploadPage() {
     return null
   }
 
-  const simulateUpload = (fileId: string) => {
-    let progress = 0
-    const interval = setInterval(() => {
-      progress += Math.random() * 30
-      if (progress >= 100) {
-        progress = 100
-        clearInterval(interval)
-        setUploadedFiles(prev =>
-          prev.map(f =>
-            f.id === fileId
-              ? { ...f, progress: 100, status: 'success' }
-              : f
-          )
-        )
-      } else {
-        setUploadedFiles(prev =>
-          prev.map(f =>
-            f.id === fileId
-              ? { ...f, progress: Math.min(progress, 100) }
-              : f
-          )
-        )
-      }
-    }, 200)
+  const uploadToBackend = async (file: File): Promise<any> => {
+    const formData = new FormData()
+    formData.append('file', file) // Changed from 'pdf' to 'file' to match backend
+    formData.append('userEmail', 'imranbinazad777@gmail.com') // Changed from 'email' to 'userEmail' to match backend
+
+    const response = await fetch('http://localhost:5000/api/resume/upload', {
+      method: 'POST',
+      body: formData,
+    })
+
+    if (!response.ok) {
+      throw new Error(`Upload failed: ${response.statusText}`)
+    }
+
+    return response.json()
   }
 
-  const handleFileUpload = useCallback((files: FileList) => {
-    Array.from(files).forEach(file => {
-      const validationError = validateFile(file)
-      const fileId = generateId()
+  const handleFileUpload = useCallback(async (files: FileList) => {
+    if (files.length === 0) return
 
-      if (validationError) {
-        setUploadedFiles(prev => [...prev, {
-          file,
-          id: fileId,
-          progress: 0,
-          status: 'error',
-          errorMessage: validationError
-        }])
-        return
-      }
+    const file = files[0] // Only take the first file
+    const validationError = validateFile(file)
 
-      // Add file to upload queue
-      setUploadedFiles(prev => [...prev, {
-        file,
-        id: fileId,
-        progress: 0,
-        status: 'uploading'
-      }])
+    if (validationError) {
+      setUploadState({
+        file: null,
+        isUploading: false,
+        error: validationError
+      })
+      return
+    }
 
-      // Simulate upload process
-      simulateUpload(fileId)
+    // Set uploading state
+    setUploadState({
+      file,
+      isUploading: true,
+      error: null
     })
-  }, [])
+
+    try {
+      const result = await uploadToBackend(file)
+      
+      // Store the result in sessionStorage for the preview page
+      sessionStorage.setItem('resumeData', JSON.stringify(result))
+      
+      // Redirect to preview page
+      router.push('/upload/preview')
+    } catch (error) {
+      setUploadState({
+        file,
+        isUploading: false,
+        error: error instanceof Error ? error.message : 'Upload failed. Please try again.'
+      })
+    }
+  }, [router])
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault()
@@ -115,8 +118,15 @@ export default function PDFUploadPage() {
     }
   }
 
-  const removeFile = (fileId: string) => {
-    setUploadedFiles(prev => prev.filter(f => f.id !== fileId))
+  const clearUpload = () => {
+    setUploadState({
+      file: null,
+      isUploading: false,
+      error: null
+    })
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
   }
 
   const formatFileSize = (bytes: number) => {
@@ -129,14 +139,14 @@ export default function PDFUploadPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto mt-20">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Upload Your CV/Resume
           </h1>
           <p className="text-gray-600">
-            Upload your resume in PDF format to get started with your application
+            Upload your resume in PDF format. It will be automatically processed and you'll be taken to review the extracted information.
           </p>
         </div>
 
@@ -144,29 +154,44 @@ export default function PDFUploadPage() {
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
           <div
             className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-200 ${
-              isDragOver
+              uploadState.isUploading
+                ? 'border-gray-200 bg-gray-50 cursor-not-allowed'
+                : isDragOver
                 ? 'border-blue-500 bg-blue-50'
                 : 'border-gray-300 hover:border-gray-400'
             }`}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
+            onDragOver={uploadState.isUploading ? undefined : handleDragOver}
+            onDragLeave={uploadState.isUploading ? undefined : handleDragLeave}
+            onDrop={uploadState.isUploading ? undefined : handleDrop}
           >
-            <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Drag and drop your PDF file here
-            </h3>
-            <p className="text-sm text-gray-600 mb-4">
-              or click to browse and select a file
-            </p>
+            {uploadState.isUploading ? (
+              <Loader2 className="mx-auto h-12 w-12 text-blue-500 animate-spin mb-4" />
+            ) : (
+              <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+            )}
             
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-            >
-              <Upload className="w-4 h-4 mr-2" />
-              Choose File
-            </button>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              {uploadState.isUploading 
+                ? 'Processing your resume...' 
+                : 'Drag and drop your PDF file here'}
+            </h3>
+            
+            {!uploadState.isUploading && (
+              <>
+                <p className="text-sm text-gray-600 mb-4">
+                  or click to browse and select a file
+                </p>
+                
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                  disabled={uploadState.isUploading}
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Choose File
+                </button>
+              </>
+            )}
             
             <input
               ref={fileInputRef}
@@ -174,116 +199,87 @@ export default function PDFUploadPage() {
               accept=".pdf"
               onChange={handleFileSelect}
               className="hidden"
+              disabled={uploadState.isUploading}
             />
             
             <div className="mt-4 text-xs text-gray-500">
               <p>• PDF files only</p>
               <p>• Maximum file size: 10MB</p>
-              <p>• Recommended: Keep file size under 5MB for faster upload</p>
+              <p>• One resume at a time</p>
             </div>
           </div>
         </div>
 
-        {/* Upload Progress */}
-        {uploadedFiles.length > 0 && (
+        {/* Upload Progress/Status */}
+        {(uploadState.file || uploadState.error) && (
           <div className="bg-white rounded-lg shadow-lg p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
-              Upload Progress
+              Upload Status
             </h3>
             
-            <div className="space-y-4">
-              {uploadedFiles.map((uploadedFile) => (
-                <div key={uploadedFile.id} className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center">
-                      <FileText className="w-8 h-8 text-red-500 mr-3" />
-                      <div>
-                        <p className="font-medium text-gray-900 truncate max-w-xs">
-                          {uploadedFile.file.name}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {formatFileSize(uploadedFile.file.size)}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      {uploadedFile.status === 'success' && (
-                        <CheckCircle className="w-5 h-5 text-green-500" />
-                      )}
-                      {uploadedFile.status === 'error' && (
-                        <AlertCircle className="w-5 h-5 text-red-500" />
-                      )}
-                      <button
-                        onClick={() => removeFile(uploadedFile.id)}
-                        className="text-gray-400 hover:text-red-500 transition-colors"
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
-                    </div>
+            <div className="border rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center">
+                  <FileText className="w-8 h-8 text-red-500 mr-3" />
+                  <div>
+                    <p className="font-medium text-gray-900 truncate max-w-xs">
+                      {uploadState.file?.name || 'Resume upload'}
+                    </p>
+                    {uploadState.file && (
+                      <p className="text-sm text-gray-500">
+                        {formatFileSize(uploadState.file.size)}
+                      </p>
+                    )}
                   </div>
-                  
-                  {uploadedFile.status === 'uploading' && (
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${uploadedFile.progress}%` }}
-                      />
-                    </div>
-                  )}
-                  
-                  {uploadedFile.status === 'success' && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-green-600 font-medium">
-                        Upload completed successfully!
-                      </span>
-                      <button className="flex items-center text-sm text-blue-600 hover:text-blue-700">
-                        <Download className="w-4 h-4 mr-1" />
-                        Download
-                      </button>
-                    </div>
-                  )}
-                  
-                  {uploadedFile.status === 'error' && (
-                    <div className="text-sm text-red-600">
-                      <p className="font-medium">Upload failed</p>
-                      <p>{uploadedFile.errorMessage}</p>
-                    </div>
-                  )}
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Success Message */}
-        {uploadedFiles.some(f => f.status === 'success') && (
-          <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
-            <div className="flex items-center">
-              <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
-              <div>
-                <h4 className="font-medium text-green-900">
-                  Resume uploaded successfully!
-                </h4>
-                <p className="text-sm text-green-700 mt-1">
-                  Your resume has been processed and is ready for review. You can now proceed to the next step.
-                </p>
+                
+                <div className="flex items-center space-x-2">
+                  {uploadState.isUploading && (
+                    <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+                  )}
+                  {uploadState.error && (
+                    <AlertCircle className="w-5 h-5 text-red-500" />
+                  )}
+                  <button
+                    onClick={clearUpload}
+                    className="text-gray-400 hover:text-red-500 transition-colors"
+                    disabled={uploadState.isUploading}
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
-            </div>
-            
-            <div className="mt-4 flex space-x-3">
-              <button className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
-                Continue to Application
-              </button>
-              <button className="bg-white text-green-600 border border-green-300 px-4 py-2 rounded-md hover:bg-green-50 transition-colors">
-                Upload Another Resume
-              </button>
+              
+              {uploadState.isUploading && (
+                <div className="mb-2">
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-blue-600 h-2 rounded-full animate-pulse w-1/2" />
+                  </div>
+                  <p className="text-sm text-blue-600 mt-2">
+                    Processing your resume...
+                  </p>
+                </div>
+              )}
+              
+              {uploadState.error && (
+                <div className="text-sm text-red-600">
+                  <p className="font-medium">Upload failed</p>
+                  <p>{uploadState.error}</p>
+                  <button
+                    onClick={clearUpload}
+                    className="mt-2 text-blue-600 hover:text-blue-700 underline"
+                  >
+                    Try again
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}
 
         {/* Tips Section */}
         <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <h3 className="font-medium text-blue-900 mb-3">Tips for Best Results</h3>
           <ul className="space-y-2 text-sm text-blue-800">
             <li className="flex items-start">
               <span className="inline-block w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
@@ -299,7 +295,7 @@ export default function PDFUploadPage() {
             </li>
             <li className="flex items-start">
               <span className="inline-block w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-              Include relevant keywords related to your target position
+              Your resume will be automatically processed and you'll be redirected to review the extracted information
             </li>
           </ul>
         </div>
