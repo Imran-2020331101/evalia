@@ -142,7 +142,7 @@ class ResumeController {
       });
 
       // Optional: Add to vector database for search
-      // const vectorResult = await addToVectordb(savedResume.uploadedBy, savedResume);
+      const vectorResult = await addToVectordb(savedResume.uploadedBy, savedResume);
 
       res.status(200).json({
         success: true,

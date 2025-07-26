@@ -1,0 +1,87 @@
+// Helper function to convert skills object to string
+function skillsToString(skills) {
+  if (!skills) return "";
+
+  const parts = [];
+  if (skills.technical && skills.technical.length > 0) {
+    parts.push(skills.technical.join(" "));
+  }
+  if (skills.soft && skills.soft.length > 0) {
+    parts.push(skills.soft.join(" "));
+  }
+  if (skills.languages && skills.languages.length > 0) {
+    parts.push(skills.languages.join(" "));
+  }
+  if (skills.tools && skills.tools.length > 0) {
+    parts.push(skills.tools.join(" "));
+  }
+  if (skills.other && skills.other.length > 0) {
+    parts.push(skills.other.join(" "));
+  }
+
+  return parts.join(" ");
+}
+
+
+
+// Helper function to convert education array to string
+function educationToString(education) {
+  if (!education || !Array.isArray(education)) return "";
+
+  return education
+    .map((edu) => {
+      const parts = [];
+      if (edu.degree) parts.push(edu.degree);
+      if (edu.institution) parts.push(edu.institution);
+      if (edu.gpa) parts.push("CGPA :" + edu.gpa);
+      return parts.join(" ");
+    })
+    .join(" ");
+}
+
+
+// Helper function to convert projects array to string
+function projectsToString(projects) {
+  if (!projects || !Array.isArray(projects)) return "";
+
+  return projects
+    .map((project) => {
+      const parts = [];
+      if (project.title) parts.push(project.title);
+      if (project.description) parts.push(project.description);
+      if (project.technologies && project.technologies.length > 0) {
+        parts.push(project.technologies.join(" "));
+      }
+      return parts.join(" ");
+    })
+    .join(" ");
+}
+
+// Helper function to convert experience array to string
+function experienceToString(experience) {
+  if (!experience || !Array.isArray(experience)) return "";
+
+  return experience
+    .map((exp) => {
+      const parts = [];
+      if (exp.job_title) parts.push(exp.job_title);
+      if (exp.company) parts.push(exp.company);
+      if (exp.duration) parts.push(exp.duration);
+      if (exp.description && exp.description.length > 0) {
+        parts.push(exp.description.join(" "));
+      }
+      if (exp.achievements && exp.achievements.length > 0) {
+        parts.push(exp.achievements.join(" "));
+      }
+      return parts.join(" ");
+    })
+    .join(" ");
+}
+
+
+module.exports = {
+    skillsToString,
+    experienceToString,
+    educationToString,
+    projectsToString
+};

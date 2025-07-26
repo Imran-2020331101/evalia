@@ -1,87 +1,14 @@
 const { Pinecone } = require("@pinecone-database/pinecone");
 const logger = require("../utils/logger");
+const {
+  skillsToString,
+  educationToString,
+  projectsToString,
+  experienceToString,
+} = require("../utils/resumeHelper");
 
 const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
 const indexName = "resume-bot"; // initialized once
-
-// Helper function to convert skills object to string
-function skillsToString(skills) {
-  if (!skills) return "";
-
-  const parts = [];
-  if (skills.technical && skills.technical.length > 0) {
-    parts.push(skills.technical.join(" "));
-  }
-  if (skills.soft && skills.soft.length > 0) {
-    parts.push(skills.soft.join(" "));
-  }
-  if (skills.languages && skills.languages.length > 0) {
-    parts.push(skills.languages.join(" "));
-  }
-  if (skills.tools && skills.tools.length > 0) {
-    parts.push(skills.tools.join(" "));
-  }
-  if (skills.other && skills.other.length > 0) {
-    parts.push(skills.other.join(" "));
-  }
-
-  return parts.join(" ");
-}
-
-// Helper function to convert education array to string
-function educationToString(education) {
-  if (!education || !Array.isArray(education)) return "";
-
-  return education
-    .map((edu) => {
-      const parts = [];
-      if (edu.degree) parts.push(edu.degree);
-      if (edu.institution) parts.push(edu.institution);
-      if (edu.year) parts.push(edu.year);
-      if (edu.gpa) parts.push(edu.gpa);
-      return parts.join(" ");
-    })
-    .join(" ");
-}
-
-// Helper function to convert projects array to string
-function projectsToString(projects) {
-  if (!projects || !Array.isArray(projects)) return "";
-
-  return projects
-    .map((project) => {
-      const parts = [];
-      if (project.title) parts.push(project.title);
-      if (project.description) parts.push(project.description);
-      if (project.technologies && project.technologies.length > 0) {
-        parts.push(project.technologies.join(" "));
-      }
-      if (project.url) parts.push(project.url);
-      return parts.join(" ");
-    })
-    .join(" ");
-}
-
-// Helper function to convert experience array to string
-function experienceToString(experience) {
-  if (!experience || !Array.isArray(experience)) return "";
-
-  return experience
-    .map((exp) => {
-      const parts = [];
-      if (exp.job_title) parts.push(exp.job_title);
-      if (exp.company) parts.push(exp.company);
-      if (exp.duration) parts.push(exp.duration);
-      if (exp.description && exp.description.length > 0) {
-        parts.push(exp.description.join(" "));
-      }
-      if (exp.achievements && exp.achievements.length > 0) {
-        parts.push(exp.achievements.join(" "));
-      }
-      return parts.join(" ");
-    })
-    .join(" ");
-}
 
 async function addToVectordb(email, data) {
   // Convert structured data to strings
@@ -92,51 +19,41 @@ async function addToVectordb(email, data) {
 
   const records = [
     {
-      id: email + "_skills",
-      values: skillsText,
-      metadata: {
-        section: "skills",
-        original_text: skillsText,
-        candidate_email: email,
-      },
+      "_id": email + "_skills",
+      "text": skillsText,
+      "section": "skills",
+      "candidate_email": email,
     },
     {
-      id: email + "_education",
-      values: educationText,
-      metadata: {
-        section: "education",
-        original_text: educationText,
-        candidate_email: email,
-      },
+      "_id": email + "_education",
+      "text": educationText,
+      "section": "education",
+      "candidate_email": email,
+
     },
     {
-      id: email + "_projects",
-      values: projectsText,
-      metadata: {
-        section: "projects",
-        original_text: projectsText,
-        candidate_email: email,
-      },
+      "_id": email + "_projects",
+      "text": projectsText,
+      "section": "projects",
+      "candidate_email": email,
+
     },
     {
-      id: email + "_experience",
-      values: experienceText,
-      metadata: {
-        section: "experience",
-        original_text: experienceText,
-        candidate_email: email,
-      },
+      "_id": email + "_experience",
+      "text": experienceText,
+      "section": "experience",
+      "candidate_email": email,
     },
   ];
-
+  console.log(email);
   // Target the index
-  const index = pc.index(indexName).namespace("example-namespace");
+  const index = pc.index(indexName).namespace("resume");
 
   // Upsert the records into a namespace
-  const res = await index.upsert(records);
+  const res = await index.upsertRecords(records);
 
-  logger.info("Vector DB Service :: Response from vector DB :: ", res);
-  return res;
+  console.log("Vector DB Service :: Response from vector DB :: ", res);
+  return res || null;
 }
 
 async function searchVectordb(referenceCV, industry) {
