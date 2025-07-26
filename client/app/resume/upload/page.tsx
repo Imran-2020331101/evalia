@@ -37,12 +37,12 @@ export default function PDFUploadPage() {
 
   const uploadToBackend = async (file: File): Promise<any> => {
     const formData = new FormData()
-    formData.append('file', file) // Changed from 'pdf' to 'file' to match backend
-    formData.append('userEmail', 'imranbinazad777@gmail.com') // Changed from 'email' to 'userEmail' to match backend
+    formData.append('file', file) 
 
-    const response = await fetch('http://localhost:5000/api/resume/upload', {
+    const response = await fetch('http://localhost:8080/api/resume/upload', {
       method: 'POST',
       body: formData,
+      credentials: 'include',
     })
 
     if (!response.ok) {
