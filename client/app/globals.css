@@ -8,7 +8,6 @@
     opacity: 0.6;
 }
 
-
 .scrollbar-hidden {
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -34,3 +33,4 @@
     background: linear-gradient(180deg, #a29bfe, #6c5ce7);
     border-radius: 8px;
 }
+
