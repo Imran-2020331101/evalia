@@ -58,8 +58,8 @@ interface ResumeData {
       title: string
       provider: string
       date: string
-      description: string
-    }> | string[]
+      link: string
+    }> 
     awards: Array<{
       title: string
       organization: string
@@ -113,11 +113,11 @@ export default function PreviewPage() {
         setResumeData(data)
       } catch (error) {
         console.error('Failed to parse resume data:', error)
-        router.push('/upload/pdf')
+        router.push('/resume/upload')
       }
     } else {
       // No data found, redirect back to upload
-      router.push('/upload/pdf')
+      router.push('/resume/upload')
     }
     setIsLoading(false)
   }, [router])
@@ -129,12 +129,13 @@ export default function PreviewPage() {
     setSaveStatus('idle')
 
     try {
-      const response = await fetch('http://localhost:5000/api/resume/save', {
+      const response = await fetch('http://localhost:8080/api/resume/save', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(resumeData.data),
+        credentials: 'include',
       })
 
       if (!response.ok) {
@@ -158,7 +159,7 @@ export default function PreviewPage() {
 
   const handleRetry = () => {
     sessionStorage.removeItem('resumeData')
-    router.push('/upload/pdf')
+    router.push('/resume/upload')
   }
 
   if (isLoading) {
@@ -180,7 +181,7 @@ export default function PreviewPage() {
           <h2 className="text-xl font-semibold text-gray-900 mb-2">No Resume Data Found</h2>
           <p className="text-gray-600 mb-4">Please upload a resume first.</p>
           <button
-            onClick={() => router.push('/upload/pdf')}
+            onClick={() => router.push('/resume/upload')}
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
           >
             Go to Upload
@@ -516,8 +517,8 @@ export default function PreviewPage() {
                         <div key={index} className="text-gray-700">
                           <p className="font-medium">{cert.title}</p>
                           <p className="text-sm text-gray-600">{cert.provider} • {cert.date}</p>
-                          {cert.description && (
-                            <p className="text-sm text-gray-600 mt-1">{cert.description}</p>
+                          {cert.link && (
+                            <p className="text-sm text-gray-600 mt-1">{cert.link}</p>
                           )}
                         </div>
                       )
@@ -595,7 +596,7 @@ export default function PreviewPage() {
         {/* Footer Actions */}
         <div className="mt-8 flex justify-between items-center">
           <button
-            onClick={() => router.push('/upload/pdf')}
+            onClick={() => router.push('/resume/upload')}
             className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
