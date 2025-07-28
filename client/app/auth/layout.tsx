@@ -11,7 +11,7 @@ const AuthLayout = ({
     children: React.ReactNode;
   }>) => {
   return (
-    <div className='w-full h-full flex justify-center gap-[2%] items-center '>
+    <div className='w-full h-full flex justify-center gap-[2%] items-center bg-gray-950/90 '>
         <div className="w-[78%] h-full pr-[10%] pl-[15%] py-[5%]">
             <div className='w-full h-full gap-[20px] flex '>
               <div className="w-[58%] h-full">
