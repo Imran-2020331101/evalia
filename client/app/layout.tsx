@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import FloatingBackground from "@/components/utils/RootAnimation";
 import NavBar from "@/components/nav/NavBar";
+import HamburgerMenu from "@/components/modal/HamburgerMenu";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,7 @@ export default function RootLayout({
       >
         <main className="w-screen h-screen bg-neutral-950 text-neutral-100 ">
             <NavBar/>
+            {/* <HamburgerMenu/> */}
             {children}
         </main>
       </body>
