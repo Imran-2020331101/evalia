@@ -31,8 +31,10 @@ interface Candidate {
 
 interface Filters {
   institution: string
+  degree: string
   minGPA: number
   minExperience: number
+  industry: string
   skills: string
   technologies: string
 }
@@ -55,8 +57,10 @@ const ResumeSearchPage = () => {
   // Filters state
   const [filters, setFilters] = useState<Filters>({
     institution: '',
+    degree: '',
     minGPA: 0,
     minExperience: 0,
+    industry: '',
     skills: '',
     technologies: ''
   })
@@ -76,6 +80,16 @@ const ResumeSearchPage = () => {
   // Sample institutions for filter dropdown
   const [institutions, setInstitutions] = useState<string[]>([
     'MIT', 'Stanford University', 'Harvard University', 'UC Berkeley', 'Carnegie Mellon','Shahjalal University Of Science and Technology',
+  ])
+
+  // Sample degrees for filter dropdown
+  const [degrees, setDegrees] = useState<string[]>([
+    'Bachelor of Science', 'Bachelor of Engineering', 'Master of Science', 'Master of Engineering', 'PhD', 'Bachelor of Arts', 'Master of Business Administration'
+  ])
+
+  // Sample industries for filter dropdown
+  const [industries, setIndustries] = useState<string[]>([
+    'Technology', 'Healthcare', 'Finance', 'Education', 'Manufacturing', 'Retail', 'Consulting', 'Media & Entertainment', 'Real Estate', 'Telecommunications'
   ])
 
   const searchCandidates = async () => {
@@ -135,8 +149,10 @@ const ResumeSearchPage = () => {
   const clearFilters = () => {
     setFilters({
       institution: '',
+      degree: '',
       minGPA: 0,
       minExperience: 0,
+      industry: '',
       skills: '',
       technologies: ''
     })
@@ -190,6 +206,21 @@ const ResumeSearchPage = () => {
               </div>
             </div>
 
+            {/* Industry Filters */}
+            <div className="mb-4">
+              <h3 className="text-sm font-medium text-white mb-2">Industry</h3>
+              <select
+                value={filters.industry}
+                onChange={(e) => setFilters(prev => ({ ...prev, industry: e.target.value }))}
+                className="w-full px-2 py-2 text-sm border border-gray-600 bg-gray-800 text-white rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="">All Industries</option>
+                {industries.map(industry => (
+                  <option key={industry} value={industry}>{industry}</option>
+                ))}
+              </select>
+            </div>
+
             {/* Skills Filter */}
             <div className="mb-4">
               <h3 className="text-sm font-medium text-white mb-2">Skills</h3>
@@ -237,6 +268,19 @@ const ResumeSearchPage = () => {
                   <option value="">All Institutions</option>
                   {institutions.map(inst => (
                     <option key={inst} value={inst}>{inst}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mb-3">
+                <select
+                  value={filters.degree}
+                  onChange={(e) => setFilters(prev => ({ ...prev, degree: e.target.value }))}
+                  className="w-full px-2 py-2 text-sm border border-gray-600 bg-gray-800 text-white rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  <option value="">All Degrees</option>
+                  {degrees.map(degree => (
+                    <option key={degree} value={degree}>{degree}</option>
                   ))}
                 </select>
               </div>
