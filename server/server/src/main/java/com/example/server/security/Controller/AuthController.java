@@ -69,7 +69,8 @@ public class AuthController {
         }
 
         try {
-            String result = authService.confirmEmail(verifyDTO.getOtp());
+            logger.info("verifyEmail: service being called " + verifyDTO.getOtp());
+            String result = authService.confirmEmail(verifyDTO);
             logger.info("Email verification successful for OTP: " + verifyDTO.getOtp());
             return new ResponseEntity<>(result, HttpStatus.OK);
 

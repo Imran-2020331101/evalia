@@ -1,11 +1,9 @@
-package com.example.server.resume;
+package com.example.server.resume.Proxy;
 
 import com.example.server.resume.Config.FeignMultipartSupportConfig;
-import com.example.server.resume.DTO.ResumeDataRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,10 +17,6 @@ public interface ResumeProxy {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
     String forwardResumeToProcessingEngine(
             @RequestPart("file") MultipartFile file,@RequestPart("userEmail") String userEmail);
-
-
-    @PostMapping(value = "/save", consumes = MediaType.APPLICATION_JSON_VALUE)
-    String saveResume(@RequestBody ResumeDataRequest resumeData);
 
 }
 

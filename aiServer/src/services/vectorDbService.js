@@ -5,49 +5,65 @@ const {
   educationToString,
   projectsToString,
   experienceToString,
+  aggregateResultsByCandidate,
 } = require("../utils/resumeHelper");
 
 const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
-const indexName = "resume-bot"; // initialized once
+const indexName = "resume-bot";
 
-async function addToVectordb(email, data) {
+async function addToVectordb(email, data, userId, userName) {
   // Convert structured data to strings
   const skillsText = skillsToString(data.skills);
   const educationText = educationToString(data.education);
   const projectsText = projectsToString(data.projects);
   const experienceText = experienceToString(data.experience);
 
-  const records = [
+  // Array of potential sections to add
+  const potentialSections = [
     {
-      "_id": email + "_skills",
-      "text": skillsText,
-      "section": "skills",
-      "candidate_email": email,
+      text: skillsText,
+      section: "skills",
     },
     {
-      "_id": email + "_education",
-      "text": educationText,
-      "section": "education",
-      "candidate_email": email,
-
+      text: educationText,
+      section: "education",
     },
     {
-      "_id": email + "_projects",
-      "text": projectsText,
-      "section": "projects",
-      "candidate_email": email,
-
+      text: projectsText,
+      section: "projects",
     },
     {
-      "_id": email + "_experience",
-      "text": experienceText,
-      "section": "experience",
-      "candidate_email": email,
+      text: experienceText,
+      section: "experience",
     },
   ];
-  console.log(email);
+
+  // Only add records for non-empty sections
+  const records = [];
+
+  potentialSections.forEach(({ text, section }) => {
+    if (text && text.trim() !== "") {
+      records.push({
+        _id: email + "_" + section,
+        text: text,
+        section: section,
+        candidate_email: email,
+        candidate_id: userId,
+        candidate_name: userName,
+      });
+    }
+  });
+
+  // Only proceed if we have at least one record
+  if (records.length === 0) {
+    logger.warn(`No valid sections found for candidate ${email}`);
+    return null;
+  }
+
+  console.log(`Adding ${records.length} records for ${email}`);
+
   // Target the index
-  const index = pc.index(indexName).namespace("resume");
+  const index = pc.index(indexName).namespace(data.industry);
 
   // Upsert the records into a namespace
   const res = await index.upsertRecords(records);
@@ -56,29 +72,89 @@ async function addToVectordb(email, data) {
   return res || null;
 }
 
-async function searchVectordb(referenceCV, industry) {
+async function naturalLanguageSearch(requirements) {
+  const { industry, skills, experience, projects, education } = requirements;
+
+  if (!industry) {
+    logger.error("NO industry found for the job description");
+    return [];
+  }
+
+  console.log("natural Language Search function called");
+
   try {
     const index = pc.index(indexName).namespace(industry);
+    const allResults = [];
 
-    // Search the index using Pinecone's built-in embedding
-    const results = await index.query({
-      data: referenceCV,
-      topK: 10,
-      includeMetadata: true,
-    });
+    // Define sections to search with their corresponding query text
+    const sectionsToSearch = [
+      { section: "skills", queryText: skills || "" },
+      { section: "experience", queryText: experience || "" },
+      { section: "projects", queryText: projects || "" },
+      { section: "education", queryText: education || "" },
+    ];
 
-    logger.info("Vector search results:", results.matches.length);
+    // Search each section separately
+    for (const { section, queryText } of sectionsToSearch) {
+      if (queryText && queryText.trim() !== "") {
+        logger.info(
+          `Searching in ${section} section with query: ${queryText.substring(
+            0,
+            70
+          )}...`
+        );
 
-    // Return the results with metadata
-    return results.matches.map((match) => ({
-      id: match.id,
-      score: match.score,
-      section: match.metadata.section,
-      candidateEmail: match.metadata.candidate_email,
-      originalText: match.metadata.original_text,
-    }));
+        const response = await index.searchRecords({
+          query: {
+            topK: 10,
+            inputs: { text: queryText },
+            filter: { section: section },
+          },
+          fields: [
+            "text",
+            "section",
+            "candidate_email",
+            "candidate_name",
+            "candidate_id",
+          ],
+        });
+
+        console.log("Pinecone search response received");
+
+        if (response && response.result && response.result.hits) {
+          // Add section info to each result
+          const sectionResults = response.result.hits.map((record) => {
+            return {
+              id: record._id,
+              score: record._score || 0,
+              section: section,
+              candidateEmail: record.fields?.candidate_email,
+              candidateName: record.fields?.candidate_name,
+              candidateId: record.fields?.candidate_id,
+              originalText: record.fields?.text,
+              querySection: section,
+            };
+          });
+
+          allResults.push(...sectionResults);
+        }
+      }
+    }
+
+    logger.info(
+      `Vector search completed. Found ${allResults.length} total matches across all sections`
+    );
+
+    // Aggregate results by candidate
+    const aggregatedCandidates = aggregateResultsByCandidate(allResults);
+
+    logger.info(
+      `Aggregated into ${aggregatedCandidates.length} unique candidates`
+    );
+
+    return aggregatedCandidates.length > 0 ? aggregatedCandidates : [];
   } catch (error) {
-    logger.error("Error in searchVectordb:", error);
+    logger.error("Error in naturalLanguageSearch:", error);
     return [];
   }
 }
@@ -159,7 +235,7 @@ async function weightedSearch(recruiterQuery, industry = "example-namespace") {
 
 module.exports = {
   addToVectordb,
-  searchVectordb,
+  naturalLanguageSearch,
   advancedSearch,
   weightedSearch,
 };

@@ -8,8 +8,11 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.logging.Logger;
+
 @Service
 public class EmailService {
+    private static final Logger logger = Logger.getLogger(EmailService.class.getName());
     private final JavaMailSender javaMailSender;
 
     @Autowired
@@ -34,6 +37,9 @@ public class EmailService {
      * @throws MessagingException if email cannot be sent
      */
     public void sendVerificationEmail(String to, String otp) throws MessagingException {
+
+        logger.info("Sending verification email to: " + to + " with OTP: " + otp);
+
         MimeMessage mimeMessage = createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
 
@@ -52,7 +58,7 @@ public class EmailService {
                 "</div>" +
                 "<p>This OTP will expire in 10 minutes.</p>" +
                 "<p>If you did not request this, please ignore this email.</p>" +
-                "<p>Thank you,<br/>The Aicademy Team</p>" +
+                "<p>Thank you,<br/>The Evalia Team</p>" +
                 "</div>" +
                 "</body>" +
                 "</html>";

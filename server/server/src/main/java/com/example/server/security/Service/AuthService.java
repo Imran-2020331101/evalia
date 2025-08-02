@@ -4,6 +4,7 @@ import com.example.server.security.JWT.JwtService;
 import com.example.server.security.authDTO.LoginDto;
 import com.example.server.security.authDTO.LoginResponseDTO;
 import com.example.server.security.authDTO.RegisterDto;
+import com.example.server.security.authDTO.VerifyDTO;
 import com.example.server.security.models.ConfirmationToken;
 import com.example.server.security.models.Role;
 import com.example.server.security.models.userEntity;
@@ -111,7 +112,6 @@ public class AuthService {
     }
 
     public ResponseEntity<?> register(RegisterDto registerDto) {
-        logger.info("Registration attempt for password: " + registerDto.getPassword());
 
         if (Boolean.TRUE.equals(userRepository.existsByEmail(registerDto.getEmail()))) {
             return new ResponseEntity<>("Email is already in use!", HttpStatus.BAD_REQUEST);
@@ -121,7 +121,9 @@ public class AuthService {
         user.setName(registerDto.getName());
         user.setEmail(registerDto.getEmail());
         user.setPassword(passwordEncoder.encode((registerDto.getPassword())));
-        
+
+        logger.info("Registration details set for user: " + registerDto.getEmail() + registerDto.getRole());
+
         Role roles = roleRepository.findByName(registerDto.getRole()).get();
         user.setRoles(Collections.singletonList(roles));
         logger.info("Roles set for registration");
@@ -137,7 +139,13 @@ public class AuthService {
         return new ResponseEntity<>("User registered success!", HttpStatus.OK);
     }
 
-    public String confirmEmail(String confirmationToken) throws Exception {
+    public String confirmEmail(VerifyDTO verifyDTO) throws Exception {
+
+        String confirmationToken = verifyDTO.getOtp();
+        String email = verifyDTO.getEmail();
+
+        logger.info("Received OTP for verification: " + confirmationToken + " for email: " + email);
+
         // Input validation
         if (confirmationToken == null || confirmationToken.trim().isEmpty()) {
             throw new Exception("Confirmation token cannot be empty");
@@ -147,6 +155,7 @@ public class AuthService {
                 confirmationTokenRepository.findByToken(confirmationToken));
 
         if (token.isPresent()) {
+            logger.info("Token found in database for verification: " + confirmationToken);
             ConfirmationToken confirmToken = token.get();
 
             // Check if token has expired
@@ -161,7 +170,7 @@ public class AuthService {
 
             // Get the user associated with this token and mark as verified
             String userEmail = confirmToken.getUserEmail();
-            if (userEmail != null) {
+            if (userEmail != null && userEmail.equals(email)) {
                 userEntity user = userRepository.findByEmail(userEmail)
                         .orElseThrow(() -> new Exception("User not found for the given token"));
 
