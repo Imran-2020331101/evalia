@@ -1,13 +1,17 @@
 import DynamicBreadcrumbs from "@/components/ui/dynamicBreadCrumb";
 import CandidatesWorkSpaceMenu from "@/components/workspace/menu/CandidatesWorkSpaceMenu";
+import RecruitersWorkSpaceMenu from "@/components/workspace/menu/RecruitersWorkSpaceMenu";
+import JobPreview from "@/components/workspace/modals/JobPreview";
 
 const WorkSpaceLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   return (
     <div className="fixed inset-0 z-[100] bg-neutral-950 h-screen">
+      <JobPreview/>
       <div className="flex w-full h-full bg-gray-950/90 min-h-0">
         {/* Sidebar */}
         <section className="h-full w-[240px]">
-          <CandidatesWorkSpaceMenu />
+          {/* <CandidatesWorkSpaceMenu /> */}
+          <RecruitersWorkSpaceMenu/>
         </section>
 
         {/* Main content */}

@@ -1,19 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import FloatingBackground from "@/components/utils/RootAnimation";
+import { ReduxProvider } from "./providers";
 import NavBar from "@/components/nav/NavBar";
 import HamburgerMenu from "@/components/modal/HamburgerMenu";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "EVALIA",
@@ -28,13 +17,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable}  antialiased`}
       >
-        <main className="w-screen h-screen bg-neutral-950 text-neutral-100 ">
-            <NavBar/>
-            {/* <HamburgerMenu/> */}
-            {children}
-        </main>
+        <ReduxProvider>
+          <main className="w-screen h-screen bg-neutral-950 text-neutral-100 ">
+              <NavBar/>
+              <HamburgerMenu/>
+              {children}
+          </main>
+        </ReduxProvider>
       </body>
     </html>
   );

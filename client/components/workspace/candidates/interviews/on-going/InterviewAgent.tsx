@@ -108,7 +108,7 @@ const InterviewAgent = ({setTranscript}:interviewAgentType) => {
       }
     }
     try {
-    await vapi?.start(assistantOptions);
+    // await vapi?.start(assistantOptions);
   } catch (err) {
     console.error("Failed to start interview:", err);
   }
