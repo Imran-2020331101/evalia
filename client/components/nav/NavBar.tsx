@@ -5,12 +5,17 @@ import { useGSAP } from '@gsap/react';
 import { SplitText } from 'gsap/all';
 import { Major_Mono_Display } from 'next/font/google';
 import Link from 'next/link';
+import { useAppDispatch } from '@/redux/lib/hooks';
+import { toggleIsShowHamburgerMenu } from '@/redux/features/utils';
 
 const majorMono = Major_Mono_Display({ weight: '400', subsets: ['latin'] });
 
 gsap.registerPlugin(SplitText);
 
 const NavBar = () => {
+
+  const dispatch = useAppDispatch()
+
   useGSAP(() => {
     const startAnimation = () => {
       const navSplit = new SplitText('.navSplit', { type: 'lines' });
@@ -83,7 +88,7 @@ const NavBar = () => {
         </p>
       </div>
       <div className="w-[20%] h-full flex justify-end items-end pr-[30px]">
-        <button style={{ visibility: 'hidden' }} className="flex w-[80px] h-[15px] flex-col justify-between group cursor-pointer hamburger-line">
+        <button onClick={()=>dispatch(toggleIsShowHamburgerMenu())} style={{ visibility: 'hidden' }} className="flex w-[80px] h-[15px] flex-col justify-between group cursor-pointer hamburger-line">
           <div className="w-[80%] h-[3px] bg-white self-start group-hover:translate-x-[8px]  transition-transform duration-500"></div>
           <div className="w-[80%] h-[3px] bg-white self-end group-hover:translate-x-[-8px] transition-transform duration-500"></div>
         </button>
