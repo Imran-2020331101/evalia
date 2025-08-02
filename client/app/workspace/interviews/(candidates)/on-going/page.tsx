@@ -1,15 +1,14 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import ConsentPage from '@/components/interview/ConsentModal'
+import ConsentPage from '@/components/workspace/candidates/interviews/on-going/ConsentModal'
 import { Didact_Gothic } from 'next/font/google'
-import MediaHandler from '@/components/interview/MediaHandler'
-import InterviewAgent from '@/components/interview/InterviewAgent'
+import InterviewAgent from '@/components/workspace/candidates/interviews/on-going/InterviewAgent'
 
 
 const didact_gothic = Didact_Gothic({ weight: ['400'], subsets: ['latin'] })
 
-const InterviewPage = () => {
+const InterviewOngoingPage = () => {
     const [transcript, setTranscript] = useState<{ role: string; text: string }[]>([{role:'user',text:'user text'}, {role:'assistant', text:'assistant text'}]);
     const [isStarted , setIsStarted] = useState<boolean>(true)
 
@@ -42,4 +41,4 @@ const InterviewPage = () => {
   )
 }
 
-export default InterviewPage
+export default InterviewOngoingPage

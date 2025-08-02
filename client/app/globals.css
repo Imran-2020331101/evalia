@@ -1,6 +1,20 @@
 @import "tailwindcss";
 @tailwind utilities;
 
+textarea{
+    resize: none;
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type='number'] {
+    -moz-appearance: textfield;
+}
+
 .neon-glow {
     background: white;
     box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.6),

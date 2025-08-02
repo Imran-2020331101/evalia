@@ -24,7 +24,7 @@ const CandidatesWorkSpaceMenu = () => {
   return (
     <div className='w-full h-full flex flex-col justify-between px-[10px] py-[6%]'>
       <div className="w-full h-auto flex flex-col justify-start">
-        <Link href={'/'} className={`${majorMono.className} text-xl`}>EVALIA</Link>
+        <Link href={'/'} className={`${majorMono.className} text-2xl`}>EVALIA</Link>
         <div className="w-full h-auto mt-[20px] flex flex-col justify-start items-start pl-[10px] text-gray-400 font-semibold">
           <button className="flex justify-start items-center gap-1" onClick={()=>setIsShowJobCategory((prev)=>!prev)}>
             <Image src={jobLogo} alt="coursesLogo" className="h-[15px] w-auto"/>
@@ -38,6 +38,10 @@ const CandidatesWorkSpaceMenu = () => {
             <Link href={'/workspace/jobs/explore'} className="flex justify-start items-center gap-1 hover:text-gray-300">
               <Image src={exploreLogo} alt="explore" className="h-[13px] w-auto"/>
               <p className="text-sm  cursor-pointer">Explore</p>
+            </Link>
+            <Link href={'/workspace/jobs/applied'} className="flex justify-start items-center gap-1 hover:text-gray-300">
+              <Image src={completedLogo} alt="applied" className="h-[13px] w-auto"/>
+              <p className="text-sm  cursor-pointer">Applied</p>
             </Link>
           </ul>
           <button className="flex justify-start items-center gap-1 mt-2" onClick={()=>setIsShowCourseCategory((prev)=>!prev)}>
