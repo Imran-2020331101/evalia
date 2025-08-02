@@ -41,5 +41,11 @@ router.get("/:id/download", resumeController.downloadResume);
  * @access  Public
  */
 router.get("/status", resumeController.getUploadStatus);
+/**
+ * @route   GET /api/resume/basic-search
+ * @desc    Search the best matching candidates using Natural Language
+ * @access  Public
+ */
+router.post("/basic-search", resumeController.searchCandidatesUsingNLP);
 
 module.exports = router;

@@ -22,8 +22,6 @@ function skillsToString(skills) {
   return parts.join(" ");
 }
 
-
-
 // Helper function to convert education array to string
 function educationToString(education) {
   if (!education || !Array.isArray(education)) return "";
@@ -38,7 +36,6 @@ function educationToString(education) {
     })
     .join(" ");
 }
-
 
 // Helper function to convert projects array to string
 function projectsToString(projects) {
@@ -78,10 +75,72 @@ function experienceToString(experience) {
     .join(" ");
 }
 
+// Utility function to aggregate search results by candidate
+function aggregateResultsByCandidate(searchResults) {
+  const candidateMap = {};
+
+  // Initialize or update candidate scores
+  searchResults.forEach((result) => {
+    const email = result.candidateEmail;
+
+    if (!candidateMap[email]) {
+      candidateMap[email] = {
+        id: result.candidateId || "default Id",
+        name: result.candidateName || "name not found",
+        email: email,
+        skills: { score: 0, details: [] },
+        experience: { score: 0, years: 0, companies: [] },
+        projects: { score: 0, count: 0, projects: [] },
+        education: { score: 0, degree: "", institution: "", gpa: 0 },
+        totalScore: 0,
+      };
+    }
+
+    // Add score to the appropriate section
+    switch (result.section) {
+      case "skills":
+        candidateMap[email].skills.score += result.score;
+        break;
+      case "experience":
+        candidateMap[email].experience.score += result.score;
+        break;
+      case "projects":
+        candidateMap[email].projects.score += result.score;
+        break;
+      case "education":
+        candidateMap[email].education.score += result.score;
+        break;
+    }
+  });
+
+  // Calculate total scores and convert to array
+  const candidates = Object.values(candidateMap).map((candidate) => {
+    candidate.totalScore =
+      candidate.skills.score +
+      candidate.experience.score +
+      candidate.projects.score +
+      candidate.education.score;
+
+    // Round scores to 2 decimal places
+    candidate.skills.score = Math.round(candidate.skills.score * 100) / 100;
+    candidate.experience.score =
+      Math.round(candidate.experience.score * 100) / 100;
+    candidate.projects.score = Math.round(candidate.projects.score * 100) / 100;
+    candidate.education.score =
+      Math.round(candidate.education.score * 100) / 100;
+    candidate.totalScore = Math.round(candidate.totalScore * 100) / 100;
+
+    return candidate;
+  });
+
+  // Sort by total score in descending order
+  return candidates.sort((a, b) => b.totalScore - a.totalScore);
+}
 
 module.exports = {
-    skillsToString,
-    experienceToString,
-    educationToString,
-    projectsToString
+  skillsToString,
+  experienceToString,
+  educationToString,
+  projectsToString,
+  aggregateResultsByCandidate,
 };

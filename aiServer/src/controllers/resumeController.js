@@ -5,46 +5,45 @@ const Resume = require("../models/Resume");
 const ResumeDTO = require("../dto/ResumeDTO");
 const {
   addToVectordb,
-  searchVectordb,
+  naturalLanguageSearch,
   advancedSearch,
   weightedSearch,
 } = require("../services/vectorDbService");
 
 class ResumeController {
-  
   async extractResume(req, res) {
     try {
       //using multer config. don't touch
       const pdfFile = req.file;
       const { userEmail, userId } = req.body;
-      
+
       if (!pdfFile) {
         return res.status(400).json({
           success: false,
           error: "No PDF file provided",
         });
       }
-      
+
       if (!userEmail) {
         return res.status(400).json({
           success: false,
           error: "User email is required",
         });
       }
-      
+
       logger.info("Processing resume upload", {
         filename: pdfFile.originalname,
         size: pdfFile.size,
         mimetype: pdfFile.mimetype,
         userEmail: userEmail,
       });
-      
+
       // Extract text from PDF buffer
       const extractedData = await resumeService.extractText(pdfFile.buffer);
-      
+
       // Analyze resume content (skills, experience, etc.)
       const analysis = await resumeService.analyzeResume(extractedData.text);
-      
+
       // Upload PDF to Cloudinary
       const folderName = "evalia/resume/pdf";
       const cloudinaryResult = await resumeService.uploadToCloudinary(
@@ -52,14 +51,14 @@ class ResumeController {
         pdfFile.originalname,
         folderName
       );
-      
+
       // Create proper download URL for PDF
       const downloadUrl = cloudinary.url(cloudinaryResult.public_id, {
         resource_type: "raw",
         flags: "attachment",
         format: "pdf",
       });
-      
+
       // Create ResumeDTO with analyzed data for frontend
       const extractedResume = new ResumeDTO({
         filename: cloudinaryResult.public_id,
@@ -83,7 +82,7 @@ class ResumeController {
         interests: analysis.interests,
         status: "completed",
       });
-      
+
       const response = {
         success: true,
         data: {
@@ -103,11 +102,11 @@ class ResumeController {
           processedAt: new Date(),
         },
       };
-      
+
       logger.info(
         "ResumeContoller :: line 106 :: Resume processing completed successfully"
       );
-      
+
       res.status(200).json(response);
     } catch (error) {
       logger.error("Resume extraction failed:", error);
@@ -118,11 +117,10 @@ class ResumeController {
       });
     }
   }
-  
 
   async saveResume(req, res) {
     try {
-      const resumeData = req.body;
+      const { resumeData, userId, userName } = req.body;
 
       if (!resumeData) {
         return res.status(400).json({
@@ -142,7 +140,12 @@ class ResumeController {
       });
 
       // Optional: Add to vector database for search
-      const vectorResult = await addToVectordb(savedResume.uploadedBy, savedResume);
+      const vectorResult = await addToVectordb(
+        savedResume.uploadedBy,
+        savedResume,
+        userId,
+        userName
+      );
 
       res.status(200).json({
         success: true,
@@ -163,7 +166,6 @@ class ResumeController {
       });
     }
   }
-
 
   /**
    * Get specific resume by ID
@@ -294,9 +296,41 @@ class ResumeController {
     }
   }
 
-  async getTopCandidates(req, res) {
-    const { skills, experience, education, projects, userId } = req.body;
-    //TODO:
+  async searchCandidatesUsingNLP(req, res) {
+    try {
+      const { job_description } = req.body;
+
+      if (!job_description) {
+        return res.status(400).json({
+          success: false,
+          error: "Job description is required",
+        });
+      }
+
+      const requirement = await resumeService._extractDetailsFromJobDescription(
+        job_description
+      );
+
+      console.log("job_description parsed ", requirement.industry);
+
+      const Candidates = await naturalLanguageSearch(requirement);
+
+      console.log("Candidates from search:", Candidates);
+      console.log("Is Candidates an array?", Array.isArray(Candidates));
+
+      res.status(200).json({
+        success: true,
+        candidates: Candidates,
+        message: "Basic search completed successfully",
+      });
+    } catch (error) {
+      logger.error("Basic search failed:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to perform basic search",
+        details: error.message,
+      });
+    }
   }
 }
 

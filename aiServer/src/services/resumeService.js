@@ -3,7 +3,8 @@ const logger = require("../utils/logger");
 const openRouter = require("../config/OpenRouter");
 const streamifier = require("streamifier");
 const cloudinary = require("../config/Cloudinary");
-const { Pinecone } = require("@pinecone-database/pinecone");
+const parseResumePrompt = require("../prompts/parseResumePrompt");
+const parseJobDescriptionPrompt = require("../prompts/parseJobDescriptionPrompt");
 
 class ResumeService {
   async uploadToCloudinary(buffer, originalName, folderName) {
@@ -89,10 +90,7 @@ class ResumeService {
           ),
       };
 
-      const aiAnalysis = await this._parseResumeThroughAI(
-        text,
-        "Software Engineering"
-      );
+      const aiAnalysis = await this._parseResumeThroughAI(text);
 
       const analysis = {
         ...basicMetrics,
@@ -111,52 +109,8 @@ class ResumeService {
     }
   }
 
-  async _parseResumeThroughAI(content, industry) {
-    const prompt = `Given the following raw resume text, extract and return the structured information in **valid JSON** format.
-    
-    Required JSON keys:
-    - "name": candidate's full name
-    - "email": email address
-    - "phone": phone number
-    - "linkedin": LinkedIn profile URL
-    - "github": GitHub profile URL (if available)
-    - "location": address or location (if available)
-    - skills: {
-      technical: [String],
-      soft: [String],
-      languages: [String],
-      tools: [String],
-      other: [String],
-    },
-    - "education": array of education entries with {"degree", "institution", "year", "gpa"} (if available)
-    - "experience": array of work experience entries with {"job_title", "company", "duration", "description", "achievements"}(if available)
-    - "certifications": array of certification object.(if available)
-        such as: 
-        {
-          title: String,
-          provider: String,
-          date: String,
-          link: String,
-        }
-    - "projects": array of projects with {"title", "description", "technologies", "url"} (if available)
-    - "languages": array of spoken languages (if mentioned)
-    - "awards": array of awards and honors (if available)
-    - "volunteer": array of volunteer experience (if available)
-    - "interests": array of hobbies and interests (if available)
-    - "keywords" : array of 15 keywords based on which the resume can be searched and sorted. Keep in mind the industry: ${industry} the resume owner is working. (must)
-    Important instructions:
-    1. Extract ALL information present in the resume
-    2. If any section is missing, return an empty array [] or empty string ""
-    3. For experience, include bullet points as achievements array
-    4. For skills, categorize into technical and soft skills if possible
-    5. Extract dates in a consistent format
-    6. Return ONLY valid JSON, no additional text or formatting
-    7. Return the output as raw JSON only — do not include any markdown, triple backticks, or code formatting.
-
-    Resume Text:
-    """
-    ${content}
-    """`;
+  async _parseResumeThroughAI(content) {
+    const prompt = parseResumePrompt(content);
 
     try {
       const res = await openRouter(prompt);
@@ -175,12 +129,37 @@ class ResumeService {
         "resume service :: line 163 :: Successfully cleaned response :" + res
       );
 
-      logger.info("parsed resume: ", res);
-
       return res;
     } catch (error) {
       logger.error("AI resume parsing failed:", error);
       throw new Error("Failed to parse resume through AI");
+    }
+  }
+
+  async _extractDetailsFromJobDescription(jobDescription) {
+    const prompt = parseJobDescriptionPrompt(jobDescription);
+
+    try {
+      logger.info("Starting job description parse....");
+      const res = await openRouter(prompt);
+
+      const toParse = `${res}`;
+      if (typeof toParse === "string") {
+        const cleaned = res
+          .replace(/^```json\s*/i, "") // Remove starting ```json
+          .replace(/^```\s*/i, "") // Or just ``` if not tagged
+          .replace(/```$/, "") // Remove ending ```
+          .trim();
+
+          console.log("extracted job description ",cleaned);
+        return JSON.parse(cleaned);
+      }
+
+
+      return res;
+    } catch (error) {
+      logger.error("Job description Failed", error);
+      throw new Error("Failed to parse job description through AI");
     }
   }
 }
