@@ -81,7 +81,7 @@ export default function PDFUploadPage() {
       sessionStorage.setItem('resumeData', JSON.stringify(result))
       
       // Redirect to preview page
-      router.push('/upload/preview')
+      router.push('/resume/preview')
     } catch (error) {
       setUploadState({
         file,
