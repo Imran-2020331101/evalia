@@ -2,6 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Roboto_Mono } from "next/font/google"
+
+const robotoMono = Roboto_Mono({
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700"],
+})
 
 interface FormData {
   // User Information
@@ -372,11 +378,11 @@ const RecruiterRegisterPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black py-12 px-4 sm:px-6 lg:px-8">
+    <div className={`min-h-screen bg-black py-12 px-4 sm:px-6 lg:px-8 pt-25 ${robotoMono.className}`}>
       <div className="max-w-7xl mx-auto">
         <div className="bg-gray-900 shadow-2xl rounded-xl overflow-hidden border border-gray-800">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
-            <h1 className="text-3xl font-bold text-white">Company Registration</h1>
+          <div className="bg-indigo-950 px-8 py-6">
+            <h1 className="text-3xl font-bold text-white">Employer Registration Form</h1>
             <p className="text-blue-100 mt-2">Join our platform to find the best talent for your organization</p>
           </div>
 
