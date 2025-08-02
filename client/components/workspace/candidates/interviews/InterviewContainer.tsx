@@ -15,7 +15,7 @@ const InterviewContainer = () => {
   const [isShowFilter, setIsShowFilter] = useState(false)
 
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="w-full h-full flex flex-col items-center">
       <div className="w-full h-[40px] shrink-0  flex justify-start pl-[20px] items-center relative">
         <button onClick={()=>setIsShowFilter((prev)=>!prev)} className=' cursor-pointer flex gap-2 w-auto h-full items-center'>
           <Image src={filterLogo} alt='filter logo' className='w-[15px] h-auto'/>
@@ -29,7 +29,7 @@ const InterviewContainer = () => {
                                 <p className='group-hover:text-gray-200'>Day</p>
                               </div>
                               <Image src={rightArrowLogo} alt='go right' className='w-[18px] h-auto'/>
-                              <div className="absolute w-[100px] h-[60px] group-hover:flex flex-col hidden border-[1px] border-gray-700 left-[100%] bg-gray-900 top-[50%]">
+                              <div className="absolute w-[120px] h-[60px] group-hover:flex flex-col hidden border-[1px] border-gray-700 left-[100%] bg-gray-900 top-[50%]">
                                 <button className="h-[30px] hover:text-gray-200 w-full border-b-[1px] border-b-gray-700 flex justify-center items-center gap-2">
                                     <p >Ascending</p>
                                     <Image src={sortUpLogo} alt='ascending' className='w-[12px] self-end'/>
@@ -46,7 +46,7 @@ const InterviewContainer = () => {
                                 <p className='group-hover:text-gray-200'>Name</p>
                               </div>
                               <Image src={rightArrowLogo} alt='go right' className='w-[18px] h-auto'/>
-                              <div className="absolute w-[100px] h-[60px] group-hover:flex flex-col hidden border-[1px] border-gray-700 left-[100%] bg-gray-900 top-[50%]">
+                              <div className="absolute w-[120px] h-[60px] group-hover:flex flex-col hidden border-[1px] border-gray-700 left-[100%] bg-gray-900 top-[50%]">
                                 <button className="h-[30px] hover:text-gray-200 w-full border-b-[1px] border-b-gray-700 flex justify-center items-center gap-2">
                                     <p >Ascending</p>
                                     <Image src={sortUpLogo} alt='ascending' className='w-[12px] self-end'/>
@@ -60,9 +60,9 @@ const InterviewContainer = () => {
                           </div>
         }
       </div>
-      <div className='w-full flex-1 overflow-y-auto flex flex-col gap-2  scroll-container'>
+      <div className='w-[60%] flex-1 overflow-y-auto flex flex-col gap-2 scrollbar-hidden'>
         {
-          Array.from({ length: 5 }, (_, index) => (
+          Array.from({ length: 50 }, (_, index) => (
             <InterviewCard
               key={index}
               detailsCardId={detailsCardId}

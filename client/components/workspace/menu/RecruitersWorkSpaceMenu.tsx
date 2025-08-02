@@ -14,13 +14,14 @@ import completedLogo from '../../../public/completed.svg'
 import pendingLogo from '../../../public/pending.svg'
 import interviewLogo from '../../../public/interview.svg'
 import expiredLogo from '../../../public/ban.svg'
+import createLogo from '../../../public/create.svg'
 
 const majorMono = Major_Mono_Display({ weight: '400', subsets: ['latin'] });
 
-const CandidatesWorkSpaceMenu = () => {
-  const [isShowCourseCategory, setIsShowCourseCategory]=useState(false);
-  const [isShowJobCategory, setIsShowJobCategory]=useState(false);
-  const [isShowInterviewCategory, setIsShowInterviewCategory]=useState(false);
+
+const RecruitersWorkSpaceMenu = () => {
+    const [isShowJobCategory, setIsShowJobCategory]=useState(false);
+    const [isShowInterviewCategory, setIsShowInterviewCategory]=useState(false);
   return (
     <div className='w-full h-full flex flex-col justify-between px-[10px] py-[6%]'>
       <div className="w-full h-auto flex flex-col justify-start">
@@ -31,32 +32,14 @@ const CandidatesWorkSpaceMenu = () => {
             <p className="hover:text-gray-300">Jobs</p>
           </button>
           <ul className={`pl-4 ${isShowJobCategory?'flex flex-col':'hidden'}  gap-1`}>
-            <Link href={'/workspace/jobs/saved'} className="flex justify-start items-center gap-1 hover:text-gray-300">
-              <Image src={bookMarkLogo} alt="saved" className="h-[13px] w-auto"/>
-              <p className="text-sm  cursor-pointer">Saved</p>
+            <Link href={'/workspace/jobs/my-jobs'} className="flex justify-start items-center gap-1 hover:text-gray-300">
+              <Image src={allLogo} alt="all" className="h-[13px] w-auto"/>
+              <p className="text-sm  cursor-pointer">My Jobs</p>
             </Link>
-            <Link href={'/workspace/jobs/explore'} className="flex justify-start items-center gap-1 hover:text-gray-300">
-              <Image src={exploreLogo} alt="explore" className="h-[13px] w-auto"/>
-              <p className="text-sm  cursor-pointer">Explore</p>
+            <Link href={'/workspace/jobs/create'} className="flex justify-start items-center gap-1 hover:text-gray-300">
+              <Image src={createLogo} alt="create" className="h-[13px] w-auto"/>
+              <p className="text-sm  cursor-pointer">Create</p>
             </Link>
-            <Link href={'/workspace/jobs/applied'} className="flex justify-start items-center gap-1 hover:text-gray-300">
-              <Image src={completedLogo} alt="applied" className="h-[13px] w-auto"/>
-              <p className="text-sm  cursor-pointer">Applied</p>
-            </Link>
-          </ul>
-          <button className="flex justify-start items-center gap-1 mt-2" onClick={()=>setIsShowCourseCategory((prev)=>!prev)}>
-            <Image src={coursesLogo} alt="coursesLogo" className="h-[17px] w-auto"/>
-            <p className="hover:text-gray-300">Courses</p>
-          </button>
-          <ul className={`pl-4 ${isShowCourseCategory?'flex flex-col':'hidden'} gap-1`}>
-            <li className="flex justify-start items-center gap-1 hover:text-gray-300">
-              <Image src={bookMarkLogo} alt="saved" className="h-[13px] w-auto"/>
-              <p className="text-sm  cursor-pointer">Saved</p>
-            </li>
-            <li className="flex justify-start items-center gap-1 hover:text-gray-300">
-              <Image src={exploreLogo} alt="explore" className="h-[13px] w-auto"/>
-              <p className="text-sm  cursor-pointer">Explore</p>
-            </li>
           </ul>
           <button className="flex justify-start items-center gap-1 mt-2" onClick={()=>setIsShowInterviewCategory((prev)=>!prev)}>
             <Image src={interviewLogo} alt="coursesLogo" className="h-[15px] w-auto"/>
@@ -92,4 +75,4 @@ const CandidatesWorkSpaceMenu = () => {
   )
 }
 
-export default CandidatesWorkSpaceMenu
+export default RecruitersWorkSpaceMenu
