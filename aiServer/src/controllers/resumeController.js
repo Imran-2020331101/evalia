@@ -31,11 +31,21 @@ class ResumeController {
         });
       }
 
-      logger.info("Processing resume upload", {
-        filename: pdfFile.originalname,
-        size: pdfFile.size,
-        mimetype: pdfFile.mimetype,
-        userEmail: userEmail,
+      //clean to ensure consistency if in case any manipulation occurs
+      const cleanUserId = String(userId).replace(/[^a-zA-Z0-9]/g, "_");
+
+      // Upload PDF to Cloudinary
+      const folderName = "evalia/resume/pdf";
+      const cloudinaryResult = await resumeService.uploadToCloudinary(
+        pdfFile.buffer,
+        folderName,
+        cleanUserId
+      );
+
+      const downloadUrl = cloudinary.url(`${folderName}/${cleanUserId}`, {
+        resource_type: "raw",
+        flags: `attachment:${userId}.pdf`, // sets download filename
+        version: cloudinaryResult.version,
       });
 
       // Extract text from PDF buffer
@@ -43,21 +53,6 @@ class ResumeController {
 
       // Analyze resume content (skills, experience, etc.)
       const analysis = await resumeService.analyzeResume(extractedData.text);
-
-      // Upload PDF to Cloudinary
-      const folderName = "evalia/resume/pdf";
-      const cloudinaryResult = await resumeService.uploadToCloudinary(
-        pdfFile.buffer,
-        pdfFile.originalname,
-        folderName
-      );
-
-      // Create proper download URL for PDF
-      const downloadUrl = cloudinary.url(cloudinaryResult.public_id, {
-        resource_type: "raw",
-        flags: "attachment",
-        format: "pdf",
-      });
 
       // Create ResumeDTO with analyzed data for frontend
       const extractedResume = new ResumeDTO({
@@ -129,17 +124,36 @@ class ResumeController {
         });
       }
 
-      // Create Resume model instance and save to MongoDB
-      const newResume = new Resume(resumeData);
-      const savedResume = await newResume.save();
+      // Check if user already has a resume (one resume per email)
+      const existingResume = await Resume.findOne({
+        uploadedBy: resumeData.uploadedBy,
+      });
+      let savedResume;
+
+      if (existingResume) {
+        // Update the existing resume with new data
+        logger.info("Updating existing resume for user", {
+          userEmail: resumeData.uploadedBy,
+          existingResumeId: existingResume._id,
+        });
+
+        // Update all fields from resumeData
+        Object.assign(existingResume, resumeData);
+        savedResume = await existingResume.save();
+      } else {
+        // Create a new resume if one doesn't exist
+        const newResume = new Resume(resumeData);
+        savedResume = await newResume.save();
+      }
 
       logger.info("Resume Controller :: Resume saved to MongoDB", {
         resumeId: savedResume._id,
         filename: savedResume.filename,
         userEmail: savedResume.uploadedBy,
+        isUpdate: !!existingResume,
       });
 
-      // Optional: Add to vector database for search
+      // Add or update in vector database for search
       const vectorResult = await addToVectordb(
         savedResume.uploadedBy,
         savedResume,
@@ -149,12 +163,15 @@ class ResumeController {
 
       res.status(200).json({
         success: true,
-        message: "Resume saved successfully",
+        message: existingResume
+          ? "Resume updated successfully"
+          : "Resume saved successfully",
         data: {
           id: savedResume._id,
           filename: savedResume.filename,
           originalName: savedResume.originalName,
           status: savedResume.status,
+          isUpdate: !!existingResume,
         },
       });
     } catch (error) {
@@ -200,6 +217,7 @@ class ResumeController {
       logger.info("Retrieved resume by ID", {
         resumeId: id,
         userEmail: resume.uploadedBy,
+        downloadUrl,
       });
 
       res.status(200).json({
@@ -211,6 +229,52 @@ class ResumeController {
       });
     } catch (error) {
       logger.error("Failed to retrieve resume by ID:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to retrieve resume",
+        details: error.message,
+      });
+    }
+  }
+
+  /**
+   * Get resume by email address
+   */
+  async getResumeByEmail(req, res) {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(400).json({
+          success: false,
+          error: "Email address is required",
+        });
+      }
+
+      const resume = await Resume.findOne({ uploadedBy: email });
+
+      if (!resume) {
+        return res.status(404).json({
+          success: false,
+          error: "Resume not found for this email",
+        });
+      }
+
+      logger.info("Retrieved resume by email", {
+        email: email,
+        resumeId: resume._id,
+        downloadUrl,
+      });
+
+      res.status(200).json({
+        success: true,
+        data: {
+          ...resume.toObject(),
+          downloadUrl: downloadUrl,
+        },
+      });
+    } catch (error) {
+      logger.error("Failed to retrieve resume by email:", error);
       res.status(500).json({
         success: false,
         error: "Failed to retrieve resume",

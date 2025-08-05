@@ -28,6 +28,8 @@ router.post("/save", resumeController.saveResume);
  */
 router.get("/:id", resumeController.getResumeById);
 
+router.get("/fetch", resumeController.getResumeByEmail);
+
 /**
  * @route   GET /api/resume/:id/download
  * @desc    Download resume PDF file
