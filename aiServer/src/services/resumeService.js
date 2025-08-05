@@ -7,26 +7,23 @@ const parseResumePrompt = require("../prompts/parseResumePrompt");
 const parseJobDescriptionPrompt = require("../prompts/parseJobDescriptionPrompt");
 
 class ResumeService {
-  async uploadToCloudinary(buffer, originalName, folderName) {
-    return new Promise((resolve, reject) => {
-      // Clean filename - remove extension and special characters
-      const cleanName = originalName
-        .replace(/\.[^/.]+$/, "")
-        .replace(/[^a-zA-Z0-9]/g, "_");
-      const publicId = `${Date.now()}_${cleanName}`;
+  async uploadToCloudinary(buffer,folderName, userId) {
 
+    return new Promise((resolve, reject) => {
+
+      const publicId = `${userId}.pdf`;
       const stream = cloudinary.uploader.upload_stream(
         {
           resource_type: "raw",
           folder: folderName,
           public_id: publicId,
-          use_filename: false,
+          use_filename: true,
           unique_filename: false,
           overwrite: true,
           invalidate: true,
-          // Don't set format - let Cloudinary detect PDF
+          access_mode: "public",
         },
-        (error, result) => {
+        async (error, result) => {
           if (result) {
             resolve(result);
           } else {
@@ -151,10 +148,9 @@ class ResumeService {
           .replace(/```$/, "") // Remove ending ```
           .trim();
 
-          console.log("extracted job description ",cleaned);
+        console.log("extracted job description ", cleaned);
         return JSON.parse(cleaned);
       }
-
 
       return res;
     } catch (error) {
