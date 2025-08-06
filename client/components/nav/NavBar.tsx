@@ -55,7 +55,7 @@ const NavBar = () => {
   }, []);
 
   return (
-    <div className="fixed top-0 left-0 right-0 h-[90px] pb-[10px] flex justify-between px-[20px] z-50 backdrop-blur-sm">
+    <div className="fixed top-0 left-0 right-0 h-[70px] pb-[10px] flex justify-between px-[20px] z-50 backdrop-blur-sm">
       <div className="w-[20%] h-full flex justify-start items-end pl-[30px]">
         <p
           className={`uppercase text-3xl ${majorMono.className} navSplit`}
