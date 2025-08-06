@@ -1,0 +1,457 @@
+import { Request, Response } from 'express';
+import { JobDetailsModel, IJobDetailsDocument } from '../models/JobDetails';
+import { logger } from '../config/logger';
+import { 
+  CreateJobRequestSchema, 
+  JobFilterSchema, 
+  ApiResponse, 
+  Pagination
+} from '../types/job.types';
+import { z } from 'zod';
+
+export class JobController {
+  /**
+   * Create a new job posting
+   * @route POST /api/jobs
+   */
+  async createJob(req: Request, res: Response): Promise<void> {
+    try {
+      // Validate request body with Zod
+      const validationResult = CreateJobRequestSchema.safeParse(req.body);
+      
+      if (!validationResult.success) {
+        const errors = validationResult.error.errors.map(err => 
+          `${err.path.join('.')}: ${err.message}`
+        );
+        res.status(400).json({
+          success: false,
+          error: "Validation failed",
+          details: errors,
+        } as ApiResponse);
+        return;
+      }
+
+      const {
+        title,
+        jobDescription,
+        jobLocation,
+        salaryFrom,
+        salaryTo,
+        deadline,
+        jobType,
+        workPlaceType,
+        employmentLevel,
+        requirements,
+        responsibilities,
+        skills,
+        postedBy,
+        company,
+      } = validationResult.data;
+
+      // Create job data object
+      const jobData = {
+        title,
+        jobDescription,
+        jobLocation,
+        salary: {
+          from: salaryFrom,
+          to: salaryTo,
+        },
+        deadline,
+        jobType,
+        workPlaceType,
+        employmentLevel,
+        requirements,
+        responsibilities,
+        skills,
+        postedBy,
+        company,
+        status: "active" as const, // Set as active by default
+      };
+
+      // Create new job
+      const newJob = new JobDetailsModel(jobData);
+      const savedJob = await newJob.save();
+
+      logger.info("New job created successfully", {
+        jobId: savedJob._id.toString(),
+        title: savedJob.title,
+        company: savedJob.company?.name,
+        postedBy: savedJob.postedBy,
+      });
+
+      res.status(201).json({
+        success: true,
+        message: "Job created successfully",
+        data: {
+          jobId: savedJob._id,
+          title: savedJob.title,
+          company: savedJob.company?.name,
+          status: savedJob.status,
+          createdAt: savedJob.createdAt,
+        },
+      } as ApiResponse);
+    } catch (error: any) {
+      logger.error("Error creating job", {
+        error: error.message,
+        stack: error.stack,
+      });
+
+      if (error.name === "ValidationError") {
+        const validationErrors = Object.values(error.errors).map(
+          (err: any) => err.message
+        );
+        res.status(400).json({
+          success: false,
+          error: "Validation failed",
+          details: validationErrors,
+        } as ApiResponse);
+        return;
+      }
+
+      res.status(500).json({
+        success: false,
+        error: "Internal server error while creating job",
+      } as ApiResponse);
+    }
+  }
+
+  /**
+   * Get single job details by ID
+   * @route GET /api/jobs/:jobId
+   */
+  async getJobById(req: Request, res: Response): Promise<void> {
+    try {
+      const { jobId } = req.params;
+
+      if (!jobId) {
+        res.status(400).json({
+          success: false,
+          error: "Job ID is required",
+        } as ApiResponse);
+        return;
+      }
+
+      // Find job by ID
+      const job = await JobDetailsModel.findById(jobId);
+
+      if (!job) {
+        res.status(404).json({
+          success: false,
+          error: "Job not found",
+        } as ApiResponse);
+        return;
+      }
+
+      // Increment view count
+      await JobDetailsModel.findByIdAndUpdate(jobId, { $inc: { views: 1 } });
+
+      logger.info("Job details retrieved", {
+        jobId: job._id.toString(),
+        title: job.title,
+        views: job.views + 1,
+      });
+
+      res.json({
+        success: true,
+        message: "Job details retrieved successfully",
+        data: job,
+      } as ApiResponse<IJobDetailsDocument>);
+    } catch (error: any) {
+      logger.error("Error fetching job details", {
+        error: error.message,
+        jobId: req.params.jobId,
+      });
+
+      res.status(500).json({
+        success: false,
+        error: "Internal server error while fetching job details",
+      } as ApiResponse);
+    }
+  }
+
+  /**
+   * Get all jobs by company name with pagination and filtering
+   * @route GET /api/jobs/company/:companyName
+   */
+  async getJobsByCompany(req: Request, res: Response): Promise<void> {
+    try {
+      const { companyName } = req.params;
+
+      if (!companyName) {
+        res.status(400).json({
+          success: false,
+          error: "Company name is required",
+        } as ApiResponse);
+        return;
+      }
+
+      // Validate query parameters
+      const filterValidation = JobFilterSchema.safeParse(req.query);
+      if (!filterValidation.success) {
+        const errors = filterValidation.error.errors.map(err => 
+          `${err.path.join('.')}: ${err.message}`
+        );
+        res.status(400).json({
+          success: false,
+          error: "Invalid query parameters",
+          details: errors,
+        } as ApiResponse);
+        return;
+      }
+
+      const { page, limit, sortBy, sortOrder, status } = filterValidation.data;
+
+      // Build query
+      const query: any = {
+        "company.name": { $regex: companyName, $options: "i" },
+      };
+
+      if (status) {
+        query.status = status;
+      }
+
+      // Calculate pagination
+      const skip = (page - 1) * limit;
+
+      // Execute query with pagination
+      const [jobs, totalCount] = await Promise.all([
+        JobDetailsModel.find(query)
+          .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
+          .skip(skip)
+          .limit(limit)
+          .lean(),
+        JobDetailsModel.countDocuments(query),
+      ]);
+
+      const totalPages = Math.ceil(totalCount / limit);
+      const hasNextPage = page < totalPages;
+      const hasPrevPage = page > 1;
+
+      const pagination: Pagination = {
+        currentPage: page,
+        totalPages,
+        totalCount,
+        hasNextPage,
+        hasPrevPage,
+        limit,
+      };
+
+      logger.info("Jobs retrieved by company", {
+        companyName,
+        jobsCount: jobs.length,
+        totalCount,
+        page,
+        limit,
+      });
+
+      res.json({
+        success: true,
+        message: `Jobs retrieved successfully for company: ${companyName}`,
+        data: {
+          jobs,
+          pagination,
+        },
+      } as ApiResponse<{ jobs: IJobDetailsDocument[]; pagination: Pagination }>);
+    } catch (error: any) {
+      logger.error("Error fetching jobs by company", {
+        error: error.message,
+        companyName: req.params.companyName,
+      });
+
+      res.status(500).json({
+        success: false,
+        error: "Internal server error while fetching jobs",
+      } as ApiResponse);
+    }
+  }
+
+  /**
+   * Get all jobs with pagination and filtering
+   * @route GET /api/jobs
+   */
+  async getAllJobs(req: Request, res: Response): Promise<void> {
+    try {
+      // Validate query parameters
+      const filterValidation = JobFilterSchema.safeParse(req.query);
+      if (!filterValidation.success) {
+        const errors = filterValidation.error.errors.map(err => 
+          `${err.path.join('.')}: ${err.message}`
+        );
+        res.status(400).json({
+          success: false,
+          error: "Invalid query parameters",
+          details: errors,
+        } as ApiResponse);
+        return;
+      }
+
+      const { page, limit, sortBy, sortOrder, status } = filterValidation.data;
+
+      // Build query
+      const query: any = {};
+      if (status) {
+        query.status = status;
+      }
+
+      // Calculate pagination
+      const skip = (page - 1) * limit;
+
+      // Execute query with pagination
+      const [jobs, totalCount] = await Promise.all([
+        JobDetailsModel.find(query)
+          .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
+          .skip(skip)
+          .limit(limit)
+          .lean(),
+        JobDetailsModel.countDocuments(query),
+      ]);
+
+      const totalPages = Math.ceil(totalCount / limit);
+      const hasNextPage = page < totalPages;
+      const hasPrevPage = page > 1;
+
+      const pagination: Pagination = {
+        currentPage: page,
+        totalPages,
+        totalCount,
+        hasNextPage,
+        hasPrevPage,
+        limit,
+      };
+
+      logger.info("All jobs retrieved", {
+        jobsCount: jobs.length,
+        totalCount,
+        page,
+        limit,
+      });
+
+      res.json({
+        success: true,
+        message: "Jobs retrieved successfully",
+        data: {
+          jobs,
+          pagination,
+        },
+      } as ApiResponse<{ jobs: IJobDetailsDocument[]; pagination: Pagination }>);
+    } catch (error: any) {
+      logger.error("Error fetching all jobs", {
+        error: error.message,
+      });
+
+      res.status(500).json({
+        success: false,
+        error: "Internal server error while fetching jobs",
+      } as ApiResponse);
+    }
+  }
+
+  /**
+   * Update job status
+   * @route PUT /api/jobs/:jobId/status
+   */
+  async updateJobStatus(req: Request, res: Response): Promise<void> {
+    try {
+      const { jobId } = req.params;
+      const { status } = req.body;
+
+      // Validate status
+      const validStatuses = ['draft', 'active', 'paused', 'closed', 'filled'];
+      if (!validStatuses.includes(status)) {
+        res.status(400).json({
+          success: false,
+          error: `Invalid status. Valid statuses are: ${validStatuses.join(', ')}`,
+        } as ApiResponse);
+        return;
+      }
+
+      const updatedJob = await JobDetailsModel.findByIdAndUpdate(
+        jobId,
+        { status },
+        { new: true, runValidators: true }
+      );
+
+      if (!updatedJob) {
+        res.status(404).json({
+          success: false,
+          error: "Job not found",
+        } as ApiResponse);
+        return;
+      }
+
+      logger.info("Job status updated", {
+        jobId: updatedJob._id.toString(),
+        newStatus: status,
+        title: updatedJob.title,
+      });
+
+      res.json({
+        success: true,
+        message: "Job status updated successfully",
+        data: {
+          jobId: updatedJob._id,
+          status: updatedJob.status,
+          title: updatedJob.title,
+        },
+      } as ApiResponse);
+    } catch (error: any) {
+      logger.error("Error updating job status", {
+        error: error.message,
+        jobId: req.params.jobId,
+      });
+
+      res.status(500).json({
+        success: false,
+        error: "Internal server error while updating job status",
+      } as ApiResponse);
+    }
+  }
+
+  /**
+   * Delete a job
+   * @route DELETE /api/jobs/:jobId
+   */
+  async deleteJob(req: Request, res: Response): Promise<void> {
+    try {
+      const { jobId } = req.params;
+
+      const deletedJob = await JobDetailsModel.findByIdAndDelete(jobId);
+
+      if (!deletedJob) {
+        res.status(404).json({
+          success: false,
+          error: "Job not found",
+        } as ApiResponse);
+        return;
+      }
+
+      logger.info("Job deleted", {
+        jobId: deletedJob._id.toString(),
+        title: deletedJob.title,
+        company: deletedJob.company.name,
+      });
+
+      res.json({
+        success: true,
+        message: "Job deleted successfully",
+        data: {
+          jobId: deletedJob._id,
+          title: deletedJob.title,
+        },
+      } as ApiResponse);
+    } catch (error: any) {
+      logger.error("Error deleting job", {
+        error: error.message,
+        jobId: req.params.jobId,
+      });
+
+      res.status(500).json({
+        success: false,
+        error: "Internal server error while deleting job",
+      } as ApiResponse);
+    }
+  }
+}
+
+export const jobController = new JobController();
