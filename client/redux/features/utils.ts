@@ -3,12 +3,14 @@ import { RootState } from "../lib/store";
 
 interface initialStateType{
     isShowHamburgerMenu:boolean,
-    previewedJob:any
+    previewedJob:any,
+    previewedCandidate:any
 }
 
 const initialState:initialStateType = {
     isShowHamburgerMenu:false,
     previewedJob :null,
+    previewedCandidate:null,
 }
 
 const utilsSlice = createSlice({
@@ -20,11 +22,15 @@ const utilsSlice = createSlice({
         },
         setPreviewedJob(state, action){
             state.previewedJob=action.payload
+        },
+        setPreviewedCandidate(state, action){
+            state.previewedCandidate=action.payload
         }
     }
 })
 
 export default utilsSlice.reducer;
-export const {toggleIsShowHamburgerMenu, setPreviewedJob} = utilsSlice.actions;
+export const {toggleIsShowHamburgerMenu, setPreviewedJob, setPreviewedCandidate} = utilsSlice.actions;
 export const isShowHamburgerMenu = (state:RootState) =>state.utils.isShowHamburgerMenu;
 export const previewedJob = (state:RootState)=>state.utils.previewedJob;
+export const previewedCandidate = (state:RootState)=>state.utils.previewedCandidate;
