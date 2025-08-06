@@ -1,3 +1,4 @@
+const ResumeDTO = require("../dto/ResumeDTO");
 // Helper function to convert skills object to string
 function skillsToString(skills) {
   if (!skills) return "";
@@ -137,10 +138,65 @@ function aggregateResultsByCandidate(searchResults) {
   return candidates.sort((a, b) => b.totalScore - a.totalScore);
 }
 
+
+function mapToResumeDTO(source) {
+  return new ResumeDTO({
+    filename: source.filename,
+    originalName: source.originalName,
+    fileLink: source.fileLink,
+    industry: source.industry,
+    skills: {
+      technical: source.skills?.technical || [],
+      soft: source.skills?.soft || [],
+      languages: source.skills?.languages || [],
+      tools: source.skills?.tools || [],
+      other: source.skills?.other || [],
+    },
+    experience: source.experience?.map(exp => ({
+      job_title: exp.job_title,
+      company: exp.company,
+      duration: exp.duration,
+      description: exp.description || [],
+      achievements: exp.achievements || [],
+    })) || [],
+    education: source.education?.map(edu => ({
+      degree: edu.degree,
+      institution: edu.institution,
+      year: edu.year,
+      gpa: edu.gpa,
+    })) || [],
+    projects: source.projects?.map(project => ({
+      title: project.title,
+      description: project.description,
+      technologies: project.technologies || [],
+      url: project.url || null,
+    })) || [],
+    contact: {
+      email: source.contact?.email || "",
+      phone: source.contact?.phone || "",
+      linkedin: source.contact?.linkedin || "",
+      github: source.contact?.github || "",
+      location: source.contact?.location || "",
+    },
+    certifications: source.certifications?.map(cert => ({
+      title: cert.title,
+      provider: cert.provider,
+      date: cert.date,
+      link: cert.link,
+    })) || [],
+    awards: source.awards || [],
+    volunteer: source.volunteer || [],
+    interests: source.interests || [],
+    status: source.status || "completed"
+  });
+}
+
+
 module.exports = {
   skillsToString,
   experienceToString,
   educationToString,
   projectsToString,
   aggregateResultsByCandidate,
+  mapToResumeDTO
 };

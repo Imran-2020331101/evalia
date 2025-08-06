@@ -3,6 +3,7 @@ const logger = require("../utils/logger");
 const cloudinary = require("../config/Cloudinary");
 const Resume = require("../models/Resume");
 const ResumeDTO = require("../dto/ResumeDTO");
+const {mapToResumeDTO} = require("../utils/resumeHelper")
 const {
   addToVectordb,
   naturalLanguageSearch,
@@ -263,15 +264,18 @@ class ResumeController {
       logger.info("Retrieved resume by email", {
         email: email,
         resumeId: resume._id,
-        downloadUrl,
+        downloadUrl: resume.fileLink,
       });
 
+      const resumeDTO = mapToResumeDTO(resume);
+
+      const { isValid, errors } = resumeDTO.validate();
+      if (!isValid) {
+        console.error("Validation errors:", errors);
+      }
+
       res.status(200).json({
-        success: true,
-        data: {
-          ...resume.toObject(),
-          downloadUrl: downloadUrl,
-        },
+        ...resumeDTO.toObject(),
       });
     } catch (error) {
       logger.error("Failed to retrieve resume by email:", error);
