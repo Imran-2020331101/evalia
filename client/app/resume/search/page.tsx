@@ -41,7 +41,7 @@ const ResumeSearchPage = () => {
   const basicSearch = async () => {
     setLoading(true)
     try {
-      const response = await fetch('/api/resume/basic-search', {
+      const response = await fetch('http://localhost:8080/api/resume/basic-search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -53,6 +53,7 @@ const ResumeSearchPage = () => {
       })
 
       const data = await response.json()
+      console.log(data);
       if (data.success) {
         setCandidates(data.candidates)
         setFilteredCandidates(data.candidates)

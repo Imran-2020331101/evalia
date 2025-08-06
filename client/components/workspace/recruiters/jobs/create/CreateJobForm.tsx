@@ -2,6 +2,50 @@
 
 import { useEffect, useState } from "react"
 import { ChevronDown } from "lucide-react";
+import { useRouter } from 'next/navigation'
+
+/**
+ * the data type used in backend:
+ * This is how the input should go to backend:
+ * 
+ file name = types/JobFormInput.ts 
+
+export type ImportanceLevel = 'critical' | 'high' | 'moderate' | 'low' | 'optional';
+
+export interface DomainItem {
+  type: ImportanceLevel;
+  category: string;
+  description: string;
+}
+
+export interface Salary {
+  from: number;
+  to: number;
+}
+
+export interface CompanyInfo {
+  name: string;
+  website?: string;
+  industry?: string;
+}
+
+export interface JobFormInput {
+  title: string;
+  jobDescription: string;
+  jobLocation: string;
+  salary: Salary;
+  deadline: string | Date; // Accept both types depending on UI
+  jobType: 'Full-time' | 'Part-time' | 'Contract' | 'Internship' | 'Freelance';
+  workPlaceType: 'On-site' | 'Remote' | 'Hybrid';
+  employmentLevel: 'Entry' | 'Mid' | 'Senior' | 'Executive' | 'Director';
+  requirements: DomainItem[];
+  responsibilities: DomainItem[];
+  skills: DomainItem[];
+  postedBy: string; // Likely the user ID or email
+  company: CompanyInfo;
+}
+
+ */
 
 const IMPORTANCE_OPTIONS = [
   { value: "critical", label: "🔴 Critical" },
@@ -40,7 +84,11 @@ interface domainType{
 }
 
 const CreateJobForm = () => {
-  const[title, setTitle] = useState('');
+
+  // Redirect code added after successfull job creation: you need to uncomment it
+  const router = useRouter();
+
+  const [title, setTitle] = useState('');
   const [jobDescription, setJobDescription]=useState('');
   const [jobLocation, setJobLocation]=useState('');
   const [salaryFrom, setSalaryFrom] = useState('0');
@@ -96,9 +144,47 @@ const CreateJobForm = () => {
     setSkillsDescription('')
   }
 
-  const handleCreateJob = ()=>{
+  //This state should be use to show the loading UI
+  //If felt unneccesary you can delete it @Azwoad
+  const [isSaving, setIsSaving] = useState(false);
 
-  }
+  /**
+   * I assumed the name of the variable that will represent the job details is "jobData"
+   * Replace jobData with the object you will create.
+   * Currently there is no variable named jobData so it would show error.
+   */
+  // const handleCreateJob = async ()=>{
+  //   if (!jobData) return
+
+  //   setIsSaving(true)
+
+  //   try {
+  //     const response = await fetch('http://localhost:7000/api/jobs/create', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(jobData),
+  //       credentials: 'include',
+  //     })
+
+  //     if (!response.ok) {
+  //       throw new Error('Failed to save resume')
+  //     }
+
+   
+  //     // Clear session storage and redirect after successful save
+  //     setTimeout(() => {
+  //       sessionStorage.removeItem('resumeData')
+  //       router.push('/dashboard') // or wherever you want to redirect after save
+  //     }, 2000)
+  //   } catch (error) {
+  //     console.error('Save failed:', error)
+  //   } finally {
+  //     setIsSaving(false)
+  //   }
+  // }
+
   useEffect(()=>console.log(requirement,'requirement'),[requirement])
   useEffect(()=>console.log(responsibilities,'responsibility'),[responsibilities])
   useEffect(()=>console.log(skills,'skills'),[skills])

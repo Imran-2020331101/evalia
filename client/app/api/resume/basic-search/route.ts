@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { includes } from 'zod/v4'
 
 export async function POST(request: NextRequest) {
   try {
@@ -6,7 +7,7 @@ export async function POST(request: NextRequest) {
     console.log('Received request body:', requestBody)
     
     const { job_description } = requestBody
-    console.log('Extracted job_description:', job_description)
+    console.log('Extracted job_description:', request.headers);
 
     const aiServerResponse = await fetch('http://localhost:8080/api/resume/basic-search', {
       method: 'POST',
@@ -14,6 +15,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ job_description }),
+      credentials: 'include'
     })
 
     if (!aiServerResponse.ok) {
