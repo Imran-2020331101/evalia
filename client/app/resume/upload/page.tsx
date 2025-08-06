@@ -33,7 +33,7 @@ export default function PDFUploadPage() {
     }
 
     return null
-  }
+  } 
 
   const uploadToBackend = async (file: File): Promise<any> => {
     const formData = new FormData()
@@ -138,39 +138,39 @@ export default function PDFUploadPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-black py-8 px-4">
       <div className="max-w-4xl mx-auto mt-20">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-white mb-2">
             Upload Your CV/Resume
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-400">
             Upload your resume in PDF format. It will be automatically processed and you'll be taken to review the extracted information.
           </p>
         </div>
 
         {/* Upload Area */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-xl p-6 mb-8">
           <div
             className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-200 ${
               uploadState.isUploading
-                ? 'border-gray-200 bg-gray-50 cursor-not-allowed'
+                ? 'border-gray-600 bg-gray-800 cursor-not-allowed'
                 : isDragOver
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-300 hover:border-gray-400'
+                ? 'border-blue-400 bg-gray-800'
+                : 'border-gray-600 hover:border-gray-500'
             }`}
             onDragOver={uploadState.isUploading ? undefined : handleDragOver}
             onDragLeave={uploadState.isUploading ? undefined : handleDragLeave}
             onDrop={uploadState.isUploading ? undefined : handleDrop}
           >
             {uploadState.isUploading ? (
-              <Loader2 className="mx-auto h-12 w-12 text-blue-500 animate-spin mb-4" />
+              <Loader2 className="mx-auto h-12 w-12 text-blue-400 animate-spin mb-4" />
             ) : (
               <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
             )}
             
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <h3 className="text-lg font-medium text-white mb-2">
               {uploadState.isUploading 
                 ? 'Processing your resume...' 
                 : 'Drag and drop your PDF file here'}
@@ -178,7 +178,7 @@ export default function PDFUploadPage() {
             
             {!uploadState.isUploading && (
               <>
-                <p className="text-sm text-gray-600 mb-4">
+                <p className="text-sm text-gray-300 mb-4">
                   or click to browse and select a file
                 </p>
                 
@@ -202,7 +202,7 @@ export default function PDFUploadPage() {
               disabled={uploadState.isUploading}
             />
             
-            <div className="mt-4 text-xs text-gray-500">
+            <div className="mt-4 text-xs text-gray-400">
               <p>• PDF files only</p>
               <p>• Maximum file size: 10MB</p>
               <p>• One resume at a time</p>
@@ -212,21 +212,21 @@ export default function PDFUploadPage() {
 
         {/* Upload Progress/Status */}
         {(uploadState.file || uploadState.error) && (
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
+          <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-xl p-6">
+            <h3 className="text-lg font-medium text-white mb-4">
               Upload Status
             </h3>
             
-            <div className="border rounded-lg p-4">
+            <div className="border border-gray-600 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center">
-                  <FileText className="w-8 h-8 text-red-500 mr-3" />
+                  <FileText className="w-8 h-8 text-red-400 mr-3" />
                   <div>
-                    <p className="font-medium text-gray-900 truncate max-w-xs">
+                    <p className="font-medium text-white truncate max-w-xs">
                       {uploadState.file?.name || 'Resume upload'}
                     </p>
                     {uploadState.file && (
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-400">
                         {formatFileSize(uploadState.file.size)}
                       </p>
                     )}
@@ -235,14 +235,14 @@ export default function PDFUploadPage() {
                 
                 <div className="flex items-center space-x-2">
                   {uploadState.isUploading && (
-                    <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+                    <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
                   )}
                   {uploadState.error && (
-                    <AlertCircle className="w-5 h-5 text-red-500" />
+                    <AlertCircle className="w-5 h-5 text-red-400" />
                   )}
                   <button
                     onClick={clearUpload}
-                    className="text-gray-400 hover:text-red-500 transition-colors"
+                    className="text-gray-400 hover:text-red-400 transition-colors"
                     disabled={uploadState.isUploading}
                   >
                     <X className="w-5 h-5" />
@@ -252,22 +252,22 @@ export default function PDFUploadPage() {
               
               {uploadState.isUploading && (
                 <div className="mb-2">
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-600 h-2 rounded-full animate-pulse w-1/2" />
+                  <div className="w-full bg-gray-700 rounded-full h-2">
+                    <div className="bg-blue-400 h-2 rounded-full animate-pulse w-1/2" />
                   </div>
-                  <p className="text-sm text-blue-600 mt-2">
+                  <p className="text-sm text-blue-400 mt-2">
                     Processing your resume...
                   </p>
                 </div>
               )}
               
               {uploadState.error && (
-                <div className="text-sm text-red-600">
+                <div className="text-sm text-red-400">
                   <p className="font-medium">Upload failed</p>
                   <p>{uploadState.error}</p>
                   <button
                     onClick={clearUpload}
-                    className="mt-2 text-blue-600 hover:text-blue-700 underline"
+                    className="mt-2 text-blue-400 hover:text-blue-300 underline"
                   >
                     Try again
                   </button>
@@ -278,9 +278,9 @@ export default function PDFUploadPage() {
         )}
 
         {/* Tips Section */}
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="font-medium text-blue-900 mb-3">Tips for Best Results</h3>
-          <ul className="space-y-2 text-sm text-blue-800">
+        <div className="mt-8 bg-gray-900 border border-gray-700 rounded-lg shadow-xl p-6">
+          <h3 className="font-medium text-white mb-3">Tips for Best Results</h3>
+          <ul className="space-y-2 text-sm text-gray-300">
             <li className="flex items-start">
               <span className="inline-block w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
               Ensure your PDF is text-searchable (not a scanned image)
