@@ -22,13 +22,18 @@ router.post("/upload", upload.single("file"), resumeController.extractResume);
 router.post("/save", resumeController.saveResume);
 
 /**
+ * @route   POST /api/resume/get-resume
+ * @desc    Get resume by email address
+ * @access  Public
+ */
+router.post("/get-resume", resumeController.getResumeByEmail);
+
+/**
  * @route   GET /api/resume/:id
  * @desc    Get specific resume by ID
  * @access  Public
  */
 router.get("/:id", resumeController.getResumeById);
-
-router.get("/fetch", resumeController.getResumeByEmail);
 
 /**
  * @route   GET /api/resume/:id/download
