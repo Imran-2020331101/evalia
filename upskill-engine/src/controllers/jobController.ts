@@ -7,6 +7,7 @@ import {
   ApiResponse, 
   Pagination
 } from '../types/job.types';
+import { JobService } from '@/services/jobService';
 import { z } from 'zod';
 
 export class JobController {
@@ -16,103 +17,12 @@ export class JobController {
    */
   async createJob(req: Request, res: Response): Promise<void> {
     try {
-      // Validate request body with Zod
-      const validationResult = CreateJobRequestSchema.safeParse(req.body);
-      
-      if (!validationResult.success) {
-        const errors = validationResult.error.errors.map(err => 
-          `${err.path.join('.')}: ${err.message}`
-        );
-        res.status(400).json({
-          success: false,
-          error: "Validation failed",
-          details: errors,
-        } as ApiResponse);
-        return;
-      }
-
-      const {
-        title,
-        jobDescription,
-        jobLocation,
-        salaryFrom,
-        salaryTo,
-        deadline,
-        jobType,
-        workPlaceType,
-        employmentLevel,
-        requirements,
-        responsibilities,
-        skills,
-        postedBy,
-        company,
-      } = validationResult.data;
-
-      // Create job data object
-      const jobData = {
-        title,
-        jobDescription,
-        jobLocation,
-        salary: {
-          from: salaryFrom,
-          to: salaryTo,
-        },
-        deadline,
-        jobType,
-        workPlaceType,
-        employmentLevel,
-        requirements,
-        responsibilities,
-        skills,
-        postedBy,
-        company,
-        status: "active" as const, // Set as active by default
-      };
-
-      // Create new job
-      const newJob = new JobDetailsModel(jobData);
-      const savedJob = await newJob.save();
-
-      logger.info("New job created successfully", {
-        jobId: savedJob._id.toString(),
-        title: savedJob.title,
-        company: savedJob.company?.name,
-        postedBy: savedJob.postedBy,
-      });
-
-      res.status(201).json({
-        success: true,
-        message: "Job created successfully",
-        data: {
-          jobId: savedJob._id,
-          title: savedJob.title,
-          company: savedJob.company?.name,
-          status: savedJob.status,
-          createdAt: savedJob.createdAt,
-        },
-      } as ApiResponse);
+      const result = await JobService.createJob(req.body);
+      const status = result.success ? 201 : (result.details || result.error === 'Validation failed') ? 400 : 500;
+      res.status(status).json(result);
     } catch (error: any) {
-      logger.error("Error creating job", {
-        error: error.message,
-        stack: error.stack,
-      });
-
-      if (error.name === "ValidationError") {
-        const validationErrors = Object.values(error.errors).map(
-          (err: any) => err.message
-        );
-        res.status(400).json({
-          success: false,
-          error: "Validation failed",
-          details: validationErrors,
-        } as ApiResponse);
-        return;
-      }
-
-      res.status(500).json({
-        success: false,
-        error: "Internal server error while creating job",
-      } as ApiResponse);
+      logger.error("Error creating job", { error: error.message, stack: error.stack });
+      res.status(500).json({ success: false, error: "Internal server error while creating job" } as ApiResponse);
     }
   }
 
@@ -122,51 +32,20 @@ export class JobController {
    */
   async getJobById(req: Request, res: Response): Promise<void> {
     try {
-      const { jobId } = req.params;
 
-      if (!jobId) {
-        res.status(400).json({
-          success: false,
-          error: "Job ID is required",
-        } as ApiResponse);
-        return;
-      }
+      const { jobId } = z.object({ jobId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID") }).parse(req.params);
 
-      // Find job by ID
-      const job = await JobDetailsModel.findById(jobId);
+      const result = await JobService.findJobById(jobId);
+      const status = result.success ? 200 : (result.details || result.error === 'Validation failed') ? 400 : 500;
+      res.status(status).json(result);
 
-      if (!job) {
-        res.status(404).json({
-          success: false,
-          error: "Job not found",
-        } as ApiResponse);
-        return;
-      }
-
-      // Increment view count
-      await JobDetailsModel.findByIdAndUpdate(jobId, { $inc: { views: 1 } });
-
-      logger.info("Job details retrieved", {
-        jobId: job._id.toString(),
-        title: job.title,
-        views: job.views + 1,
-      });
-
-      res.json({
-        success: true,
-        message: "Job details retrieved successfully",
-        data: job,
-      } as ApiResponse<IJobDetailsDocument>);
     } catch (error: any) {
-      logger.error("Error fetching job details", {
-        error: error.message,
-        jobId: req.params.jobId,
-      });
-
-      res.status(500).json({
-        success: false,
-        error: "Internal server error while fetching job details",
-      } as ApiResponse);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ success: false, error: error.errors.map(e => e.message).join(", ") } as ApiResponse);
+        return;
+      }
+      logger.error("Error fetching job details", { error: error.message, stack: error.stack });
+      res.status(500).json({ success: false, error: "Internal server error while fetching job details", } as ApiResponse);
     }
   }
 
