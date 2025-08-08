@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import { jobController } from '@/controllers/jobController';
 
 const router = express.Router();
 
@@ -11,13 +12,7 @@ router.get("/", (req: Request, res: Response) => {
   });
 });
 
-router.post("/", (req: Request, res: Response) => {
-  res.json({
-    success: true,
-    message: "Job creation endpoint",
-    data: req.body
-  });
-});
+router.post("/create", jobController.createJob.bind(jobController));
 
 router.get("/:jobId", (req: Request, res: Response) => {
   res.json({
