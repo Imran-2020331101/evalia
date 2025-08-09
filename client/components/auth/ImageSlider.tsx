@@ -25,8 +25,8 @@ const ImageSlider = () => {
     },[dir])
   return (
     <div className='w-full h-full bg-[#352121]/30 px-[10px] py-[10px] relative'>
-        <div className="absolute top-0 left-0 w-[50px] h-[50px] border-t-[1px] border-l-[1px] border-[#ac8e8e]"></div>
-        <div className="absolute bottom-0 left-0 w-[50px] h-[50px] border-b-[1px] border-l-[1px] border-[#ac8e8e]"></div>
+        <div className="absolute top-0 left-0 w-[50px] h-[50px] border-t-[1px] border-l-[1px] border-gray-700"></div>
+        <div className="absolute bottom-0 left-0 w-[50px] h-[50px] border-b-[1px] border-l-[1px] border-gray-700"></div>
       <div className="w-full h-full flex overflow-hidden">
         {
             imagesArray.map((item)=>
