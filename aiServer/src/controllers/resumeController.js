@@ -59,7 +59,7 @@ class ResumeController {
       const extractedResume = new ResumeDTO({
         filename: cloudinaryResult.public_id,
         originalName: pdfFile.originalname,
-        fileLink: cloudinaryResult.secure_url,
+        fileLink: downloadUrl,
         industry: analysis.industry,
         skills: analysis.skills,
         experience: analysis.experience,
@@ -207,13 +207,6 @@ class ResumeController {
           error: "Resume not found",
         });
       }
-
-      // Add download URL to response
-      const downloadUrl = cloudinary.url(resume.filename, {
-        resource_type: "raw",
-        flags: "attachment",
-        format: "pdf",
-      });
 
       logger.info("Retrieved resume by ID", {
         resumeId: id,
