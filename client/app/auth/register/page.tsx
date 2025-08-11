@@ -70,22 +70,22 @@ const RegisterPage = () => {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6 w-[80%] text-gray-300">
         {error && (
           <div className="w-full p-3 bg-red-900/30 border border-red-500 rounded-lg text-red-400 text-sm">
             {error}
           </div>
         )}
         
-        <div className="w-full min-[1200px]:h-[35px] min-[1600px]:h-[40px] relative border-[1px] border-[#ac8e8e] rounded-lg">
+        <div className="w-full min-[1200px]:h-[35px] min-[1600px]:h-[40px] relative border-[1px] border-gray-700 rounded-lg">
           <label 
-            className='absolute rounded-md top-[-12px] bg-[#3E3232] px-1 cursor-pointer left-3 min-[1200px]:text-[12px] min-[1600px]:text-[14px] font-semibold tracking-wider' 
+            className='absolute rounded-md top-[-12px] bg-slate-900 px-1 cursor-pointer left-3 min-[1200px]:text-[12px] min-[1600px]:text-[14px] font-semibold tracking-wider' 
             htmlFor="name"
           >
             Name
           </label>
           <input 
-            className='w-full h-full px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A87C7C] bg-transparent text-white' 
+            className='w-full h-full px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 bg-transparent text-white' 
             id='name' 
             name='name'
             type="text"
@@ -95,15 +95,15 @@ const RegisterPage = () => {
           />
         </div>
 
-        <div className="w-full min-[1200px]:h-[35px] min-[1600px]:h-[40px] relative border-[1px] border-[#ac8e8e] rounded-lg">
+        <div className="w-full min-[1200px]:h-[35px] min-[1600px]:h-[40px] relative border-[1px] border-gray-700 rounded-lg">
           <label 
-            className='absolute rounded-md top-[-12px] bg-[#3E3232] px-1 cursor-pointer left-3 min-[1200px]:text-[12px] min-[1600px]:text-[14px] font-semibold tracking-wider' 
+            className='absolute rounded-md top-[-12px] bg-gray-900 px-1 cursor-pointer left-3 min-[1200px]:text-[12px] min-[1600px]:text-[14px] font-semibold tracking-wider' 
             htmlFor="email"
           >
             Email
           </label>
           <input 
-            className='w-full h-full px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A87C7C] bg-transparent text-white' 
+            className='w-full h-full px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 bg-transparent text-white' 
             id='email' 
             name='email'
             type="email"
@@ -113,15 +113,15 @@ const RegisterPage = () => {
           />
         </div>
 
-        <div className="w-full min-[1200px]:h-[35px] min-[1600px]:h-[40px] relative border-[1px] border-[#ac8e8e] rounded-lg">
+        <div className="w-full min-[1200px]:h-[35px] min-[1600px]:h-[40px] relative border-[1px] border-gray-700 rounded-lg">
           <label 
-            className='absolute rounded-md top-[-12px] bg-[#3E3232] px-1 cursor-pointer left-3 min-[1200px]:text-[12px] min-[1600px]:text-[14px] font-semibold tracking-wider' 
+            className='absolute rounded-md top-[-12px] bg-gray-900 px-1 cursor-pointer left-3 min-[1200px]:text-[12px] min-[1600px]:text-[14px] font-semibold tracking-wider' 
             htmlFor="password"
           >
             Password
           </label>
           <input 
-            className='w-full h-full px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A87C7C] bg-transparent text-white' 
+            className='w-full h-full px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 bg-transparent text-white' 
             id='password' 
             name='password'
             type="password"
@@ -134,16 +134,16 @@ const RegisterPage = () => {
         <button 
           type="submit"
           disabled={loading}
-          className='w-full min-[1200px]:h-[40px] min-[1600px]:h-[45px] cursor-pointer bg-[#503C3C] text-[#c5b2b2] hover:bg-[#473535] hover:text-[#cec8c8] min-[1200px]:text-[14px] min-[1600px]:text-[16px] font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200'
+          className='w-full min-[1200px]:h-[40px] min-[1600px]:h-[45px] cursor-pointer bg-gray-800  hover:bg-gray-700 hover:text-[#cec8c8] min-[1200px]:text-[14px] min-[1600px]:text-[16px] font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200'
         >
           {loading ? 'Signing Up...' : 'Sign Up'}
         </button>
       </form>
 
       <div className="w-full h-[30px] flex justify-center items-center gap-[5px]">
-        <div className="w-[35%] h-[1px] bg-[#ac8e8e]"></div>
+        <div className="w-[35%] h-[1px] bg-gray-700"></div>
         <p className='text-sm min-[1200px]:text-[14px] min-[1600px]:text-[16px]'>Or</p>
-        <div className="w-[35%] h-[1px] bg-[#ac8e8e]"></div>
+        <div className="w-[35%] h-[1px] bg-gray-700"></div>
       </div>
 
       <div className="w-full h-[40px] flex justify-center items-center mt-[-10px]">
@@ -152,7 +152,7 @@ const RegisterPage = () => {
 
       <div className="w-full h-[30px] flex text-sm mt-[-20px] justify-center items-center">
         <p className='text-xs min-[1200px]:text-[12px] min-[1600px]:text-[14px]'>Already have an account?</p>
-        <Link href={'/auth/login'} className='underline cursor-pointer text-[#c5b2b2] min-[1200px]:text-[14px] min-[1600px]:text-[16px]'>{' Sign in :)'}</Link>
+        <Link href={'/auth/login'} className='underline cursor-pointer text-gray-50 min-[1200px]:text-[14px] min-[1600px]:text-[16px]'>{' Sign in :)'}</Link>
       </div>
     </>
   )

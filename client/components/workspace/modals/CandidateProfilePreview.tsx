@@ -1,4 +1,5 @@
 'use client'
+
 import Image from "next/image"
 import bg from '../../../public/gradient_bg.jpg'
 import {  Mail, MapPin, SlidersVertical, X } from "lucide-react"

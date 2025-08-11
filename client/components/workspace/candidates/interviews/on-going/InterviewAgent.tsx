@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Vapi from '@vapi-ai/web';
+import ConfidenceAnalysis from './ConfidenceAnalysis';
 
 
 const Questions = [
@@ -23,14 +24,16 @@ interface interviewAgentType{
     role: string;
     text: string;
 }[]>>
+,
+ setIsSpeaking:React.Dispatch<React.SetStateAction<boolean>>,
+setOverallPerformance:React.Dispatch<React.SetStateAction<number>>
 }
 const apiKey : string = process.env.NEXT_PUBLIC_VAPI_KEY || "";
 
-const InterviewAgent = ({setTranscript}:interviewAgentType) => {
+const InterviewAgent = ({setTranscript, setIsSpeaking, setOverallPerformance}:interviewAgentType) => {
 
   const [vapi, setVapi] = useState<any>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
 
   useEffect(()=>{
     const vapiInstance = new Vapi(apiKey);
@@ -108,7 +111,7 @@ const InterviewAgent = ({setTranscript}:interviewAgentType) => {
       }
     }
     try {
-    // await vapi?.start(assistantOptions);
+    await vapi?.start(assistantOptions);
   } catch (err) {
     console.error("Failed to start interview:", err);
   }
@@ -120,7 +123,7 @@ const InterviewAgent = ({setTranscript}:interviewAgentType) => {
   },[vapi])
   return (
     <div className='w-full h-full absolute'>
-      
+      <ConfidenceAnalysis setOverallPerformance={setOverallPerformance}/>
     </div>
   )
 }
