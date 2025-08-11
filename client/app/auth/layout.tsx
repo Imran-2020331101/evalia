@@ -11,7 +11,8 @@ const AuthLayout = ({
     children: React.ReactNode;
   }>) => {
   return (
-    <div className='w-full h-full flex justify-center gap-[2%] items-center bg-gray-950/90 '>
+    <div className='fixed top-0 left-0 right-0 bottom-0 z-[130] bg-gray-900 '>
+      <div className="w-full h-full flex justify-center gap-[2%] items-center bg-gray-950/60">
         <div className="w-[78%] h-full pr-[10%] pl-[15%] py-[5%]">
             <div className='w-full h-full gap-[20px] flex '>
               <div className="w-[58%] h-full">
@@ -19,9 +20,9 @@ const AuthLayout = ({
                 {/* <Image width={600} height={800} src={'https://i.pinimg.com/736x/28/3b/45/283b45f465ff4f511a927ea5a9d0779f.jpg'} alt='' className='w-full h-full object-cover'/> */}
               </div>
               <div className="w-[42%] h-full">
-                <div className="w-full h-full text-[#a79393] flex justify-center items-center p-[10px] border-t-[1px] border-b-[1px] border-r-[1px] border-[#ac8e8e] rounded-r-lg">
-                  <div className="w-full h-full bg-[#352121]/30 rounded-2xl px-[25px] py-[20px] flex flex-col justify-center items-center gap-[25px]">
-                      <p className={` ${majorMono.className}  font-semibold  text-4xl`}>EVALIA</p>
+                <div className="w-full h-full text-gray-400 flex justify-center items-center p-[10px] border-t-[1px] border-b-[1px] border-r-[1px] border-gray-700 rounded-r-lg">
+                  <div className="w-full h-full bg-gray-900/80 rounded-2xl px-[25px] py-[20px] flex flex-col justify-center items-center gap-[25px]">
+                      <p className={` ${majorMono.className}  font-semibold  text-white text-4xl`}>EVALIA</p>
                       {children}
                   </div>
                 </div>
@@ -44,6 +45,7 @@ const AuthLayout = ({
             </div>
             </div>
         </div>
+      </div>
     </div>
   )
 }
