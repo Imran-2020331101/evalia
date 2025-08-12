@@ -57,7 +57,7 @@ const InterviewOngoingPage = () => {
         <div className="w-full h-full absolute  border-[1px] border-gray-700 shadow-gray-900 shadow-lg rounded-2xl">
           <div className="w-full h-full relative">
             <div className="absolute top-0 left-0 w-full h-[50px]  rounded-t-2xl backdrop-blur-2xl flex justify-center items-center">
-              <p className='text-[13px] font-semibold tracking-widest scale-125'>Live Transcription</p>
+              <p className='text-[13px] font-semibold tracking-widest scale-125'>Live Transcript</p>
             </div>
             <div className={`${didact_gothic.className} tracking-wider w-full h-full flex flex-col justify-start gap-3 overflow-y-scroll scrollbar-hidden pt-[60px] p-[10px]`}>
               {transcript.map((item, index) => (
