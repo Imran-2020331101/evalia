@@ -1,33 +1,24 @@
 import express, { Request, Response } from 'express';
-import { jobController } from '@/controllers/jobController';
+import { jobController } from '../controllers/jobController';
+
 
 const router = express.Router();
 
-// Simple job routes for testing
+// Route handlers
 router.get("/", (req: Request, res: Response) => {
-  res.json({
-    success: true,
-    message: "Jobs endpoint working",
-    data: []
-  });
+  res.json({ success: true, message: "Jobs endpoint working", data: [] });
 });
 
-router.post("/create", jobController.createJob.bind(jobController));
-
-router.get("/:jobId", (req: Request, res: Response) => {
-  res.json({
-    success: true,
-    message: `Job details for ${req.params.jobId}`,
-    data: { jobId: req.params.jobId }
-  });
+router.post("/", (req: Request, res: Response) => {
+  res.json({ success: true, message: "Create job endpoint", data: {} });
 });
 
-router.get("/company/:companyName", (req: Request, res: Response) => {
-  res.json({
-    success: true,
-    message: `Jobs for company: ${req.params.companyName}`,
-    data: []
-  });
-});
+// Comment out controller methods for now to test basic routing
+// router.get("/", jobController.getAllJobs.bind(jobController));
+// router.post("/", jobController.createJob.bind(jobController));
+// router.get("/:jobId", jobController.getJobById.bind(jobController));
+// router.put("/:jobId/status", jobController.updateJobStatus.bind(jobController));
+// router.delete("/:jobId", jobController.deleteJob.bind(jobController));
+// router.get("/company/:companyName", jobController.getJobsByCompany.bind(jobController));
 
 export default router;

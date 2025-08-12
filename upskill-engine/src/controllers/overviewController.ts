@@ -3,8 +3,9 @@ import { OverviewService } from "../services/overviewService";
 import upskillBot from "../config/OpenRouter";
 import { overviewPrompt } from "../prompts/overview";
 import { z } from 'zod';
-import { JobService } from "@/services/jobService";
-import { logger } from "../config/logger";
+import { JobService } from "../services/jobService";
+import {logger} from "../config/logger"; // no curly braces for default export
+
 
 const overviewRequestSchema = z.object({
   resumeId: z.string().min(1, "resumeId is required"),
@@ -13,12 +14,11 @@ const overviewRequestSchema = z.object({
 
 type OverviewRequest = z.infer<typeof overviewRequestSchema>
 
-class overviewController {
-
-
-  async getResumeOverview(req: Request, res: Response): Promise<void> {
+class OverviewControllerClass {
+  getResumeOverview = async (req: Request, res: Response): Promise<void> => {
+    console.log("OverviewController file loaded");
     try {
-  // Validate input; throws on error and will be caught below
+      // Validate input; throws on error and will be caught below
       const { resumeId, jobId } = overviewRequestSchema.parse(req.body);
 
       // 1) Fetch resume JSON from AI Server
@@ -32,7 +32,10 @@ class overviewController {
       if (!jobResult.success) {
         const msg = jobResult.error || "Failed to fetch job";
         const status = msg === "Invalid job ID" ? 400 : msg === "Job not found" ? 404 : 500;
-        res.status(status).json({ success: false, error: msg });
+        res.json({
+        success: false,
+        data: "failed to create assessment",
+      });
         return;
       }
 
@@ -61,4 +64,5 @@ class overviewController {
   }
 }
 
-export const OverviewController = new overviewController();
+export const OverviewController = new OverviewControllerClass();
+ 

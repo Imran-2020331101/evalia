@@ -4,6 +4,8 @@ import { OverviewController } from '../controllers/overviewController';
 const router = express.Router();
 
 // POST /api/overview
-router.post('/', OverviewController.getResumeOverview.bind(OverviewController));
+console.log("In routes file, OverviewController =", OverviewController);
+
+router.post('/', OverviewController.getResumeOverview);
 
 export default router;

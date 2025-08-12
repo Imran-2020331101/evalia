@@ -7,7 +7,7 @@ import {
   ApiResponse, 
   Pagination
 } from '../types/job.types';
-import { JobService } from '@/services/jobService';
+import { JobService } from '../services/jobService';
 import { z } from 'zod';
 
 export class JobController {
