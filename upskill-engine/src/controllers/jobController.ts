@@ -262,7 +262,6 @@ export class JobController {
       logger.info("Job status updated", {
         jobId: updatedJob._id.toString(),
         newStatus: status,
-        title: updatedJob.title,
       });
 
       res.json({
@@ -271,7 +270,6 @@ export class JobController {
         data: {
           jobId: updatedJob._id,
           status: updatedJob.status,
-          title: updatedJob.title,
         },
       } as ApiResponse);
     } catch (error: any) {
@@ -307,8 +305,7 @@ export class JobController {
 
       logger.info("Job deleted", {
         jobId: deletedJob._id.toString(),
-        title: deletedJob.title,
-        company: deletedJob.company.name,
+        company: deletedJob.company.id,
       });
 
       res.json({
@@ -316,7 +313,7 @@ export class JobController {
         message: "Job deleted successfully",
         data: {
           jobId: deletedJob._id,
-          title: deletedJob.title,
+          title: deletedJob.id,
         },
       } as ApiResponse);
     } catch (error: any) {

@@ -22,20 +22,22 @@ class jobService{
         }
 
         const {
-          title,
-          jobDescription,
-          jobLocation,
-          salaryFrom,
-          salaryTo,
-          deadline,
-          jobType,
-          workPlaceType,
-          employmentLevel,
-          requirements,
-          responsibilities,
-          skills,
-          postedBy,
-          company,
+          companyInfo,
+          basic: {
+            title,
+            jobDescription,
+            jobLocation,
+            salaryFrom,
+            salaryTo,
+            deadline,
+            jobType,
+            workPlaceType,
+            employmentLevelType,
+          },
+          requirement,
+          responsibility,
+          skill,
+          interviewQA,
         } = validationResult.data;
 
         const jobData = {
@@ -43,16 +45,17 @@ class jobService{
           jobDescription,
           jobLocation,
           salary: { from: salaryFrom, to: salaryTo },
-          deadline,
+          deadline: new Date(deadline),
           jobType,
           workPlaceType,
-          employmentLevel,
-          requirements,
-          responsibilities,
-          skills,
-          postedBy,
-          company,
+          employmentLevel: employmentLevelType,
+          requirements: requirement,
+          responsibilities: responsibility,
+          skills: skill,
+          postedBy: companyInfo.id, // Using company ID as postedBy for now
+          company: { id: companyInfo.id },
           status: "active" as const,
+          interviewQA: interviewQA || [],
         };
 
         const newJob = new JobDetailsModel(jobData);
@@ -60,8 +63,7 @@ class jobService{
 
         logger.info("New job created successfully", {
           jobId: savedJob._id.toString(),
-          title: savedJob.title,
-          company: savedJob.company?.name,
+          company: savedJob.company?.id,
           postedBy: savedJob.postedBy,
         });
 
@@ -70,8 +72,7 @@ class jobService{
           message: "Job created successfully",
           data: {
             jobId: savedJob._id,
-            title: savedJob.title,
-            company: savedJob.company?.name,
+            company: savedJob.company?.id,
             status: savedJob.status,
             createdAt: savedJob.createdAt,
           },
@@ -113,7 +114,6 @@ class jobService{
 
         logger.info("Job details retrieved", {
           jobId: job._id.toString(),
-          title: job.title,
           views: (job.views ?? 0) + 1,
         });
 

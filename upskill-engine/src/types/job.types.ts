@@ -43,9 +43,7 @@ export type Salary = z.infer<typeof SalarySchema>;
 
 // Company schema
 export const CompanySchema = z.object({
-  name: z.string().min(1, 'Company name is required').trim(),
-  website: z.string().url('Please enter a valid website URL').optional(),
-  industry: z.string().trim().optional()
+  id: z.string()
 });
 export type Company = z.infer<typeof CompanySchema>;
 
@@ -58,9 +56,9 @@ export const ApplicationSchema = z.object({
 });
 export type Application = z.infer<typeof ApplicationSchema>;
 
+
 // Base job schema
 export const JobDetailsSchema = z.object({
-  title: z.string().min(1, 'Job title is required').max(200, 'Job title cannot exceed 200 characters').trim(),
   jobDescription: z.string().min(1, 'Job description is required').max(5000, 'Job description cannot exceed 5000 characters').trim(),
   jobLocation: z.string().min(1, 'Job location is required').max(100, 'Job location cannot exceed 100 characters').trim(),
   salary: SalarySchema,
@@ -79,36 +77,39 @@ export const JobDetailsSchema = z.object({
   applications: z.array(ApplicationSchema).default([]),
   views: z.number().min(0).default(0),
   featured: z.boolean().default(false),
-  tags: z.array(z.string().trim()).default([])
+  tags: z.array(z.string().trim()).default([]),
+  interviewQA: z.array(z.object({
+    question: z.string().min(1).max(5000),
+    referenceAnswer: z.string().optional(),
+  })).optional(),
 });
 export type JobDetails = z.infer<typeof JobDetailsSchema>;
 
+
 // Request schemas for API endpoints
 export const CreateJobRequestSchema = z.object({
-  title: z.string().min(1).max(200).trim(),
-  jobDescription: z.string().min(1).max(5000).trim(),
-  jobLocation: z.string().min(1).max(100).trim(),
-  salaryFrom: z.string().transform((val: string) => parseInt(val, 10)).pipe(z.number().min(0)),
-  salaryTo: z.string().transform((val: string) => parseInt(val, 10)).pipe(z.number().min(0)),
-  deadline: z.string().transform((str: string) => {
-    // Handle dd-mm-yy format
-    const dateParts = str.split('-');
-    if (dateParts.length === 3) {
-      const [day, month, year] = dateParts;
-      const fullYear = year.length === 2 ? `20${year}` : year;
-      return new Date(`${fullYear}-${month}-${day}`);
-    }
-    return new Date(str);
-  }).pipe(z.date()),
-  jobType: JobType,
-  workPlaceType: WorkplaceType,
-  employmentLevel: EmploymentLevel,
-  requirements: z.array(DomainItemSchema).min(1),
-  responsibilities: z.array(DomainItemSchema).min(1),
-  skills: z.array(DomainItemSchema).min(1),
-  postedBy: z.string().min(1),
-  company: CompanySchema
-}).refine((data: { salaryFrom: number; salaryTo: number }) => data.salaryTo >= data.salaryFrom, {
+  companyInfo: z.object({
+    id: z.string().min(1),
+  }),
+  basic: z.object({
+    title: z.string().min(1).max(200).trim(),
+    jobDescription: z.string().min(1).max(5000).trim(),
+    jobLocation: z.string().min(1).max(100).trim(),
+    salaryFrom: z.string().transform((val: string) => parseInt(val, 10)).pipe(z.number().min(0)),
+    salaryTo: z.string().transform((val: string) => parseInt(val, 10)).pipe(z.number().min(0)),
+    deadline: z.string(),
+    jobType: JobType,
+    workPlaceType: WorkplaceType,
+    employmentLevelType: EmploymentLevel,
+  }),
+  requirement: z.array(DomainItemSchema).min(1),
+  responsibility: z.array(DomainItemSchema).min(1),
+  skill: z.array(DomainItemSchema).min(1),
+  interviewQA: z.array(z.object({
+    question: z.string().min(1).max(5000),
+    referenceAnswer: z.string().optional(),
+  })).optional(),
+}).refine((data) => data.basic.salaryTo >= data.basic.salaryFrom, {
   message: 'Maximum salary must be greater than or equal to minimum salary'
 });
 export type CreateJobRequest = z.infer<typeof CreateJobRequestSchema>;
