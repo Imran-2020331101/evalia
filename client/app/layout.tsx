@@ -22,7 +22,7 @@ export default function RootLayout({
           <main className="w-screen h-screen bg-neutral-950 text-neutral-100 ">
               <NavBar/>
               <HamburgerMenu/>
-              <NotificationListener />
+              {/* <NotificationListener /> */}
               {children}
           </main>
         </ReduxProvider>
