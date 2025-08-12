@@ -3,6 +3,7 @@ import "./globals.css";
 import { ReduxProvider } from "./providers";
 import NavBar from "@/components/nav/NavBar";
 import HamburgerMenu from "@/components/modal/HamburgerMenu";
+import {Toaster} from 'sonner'
 import NotificationListener from "@/components/notification/NotificationListener";
 
 export const metadata: Metadata = {
@@ -22,10 +23,8 @@ export default function RootLayout({
           <main className="w-screen h-screen bg-neutral-950 text-neutral-100 ">
               <NavBar/>
               <HamburgerMenu/>
-              
-              {/* TODO: Render this component : NotificationListener : only if the user is logged in */}
-              <NotificationListener />
-
+              <Toaster richColors expand={false} visibleToasts={3} position='bottom-center'/>
+              {/* <NotificationListener /> */}
               {children}
           </main>
         </ReduxProvider>
