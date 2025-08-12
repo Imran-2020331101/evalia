@@ -337,18 +337,6 @@ upskill-engine/
 npm run dev          # Start with nodemon and ts-node
 npm run build        # Compile TypeScript to dist/
 npm run start        # Start production server
-npm run watch        # Watch mode compilation
-
-# Code Quality
-npm run lint         # ESLint code checking
-npm run format       # Prettier code formatting
-npm run type-check   # TypeScript type checking
-
-# Testing
-npm run test         # Run test suite
-npm run test:unit    # Unit tests only
-npm run test:integration # Integration tests
-npm run test:coverage    # Test coverage report
 
 # Database
 npm run db:seed      # Seed sample job data
@@ -360,17 +348,17 @@ npm run db:migrate   # Run database migrations
 ```json
 {
   "dependencies": {
-    "express": "^4.21.2",      // Web framework
-    "mongoose": "^8.17.0",     // MongoDB ODM
-    "openai": "^5.11.0",       // OpenRouter AI client
+    "express": "^4.21.2",      
+    "mongoose": "^8.17.0",     
+    "openai": "^5.11.0",       
     "zod": "^3.22.4",          // Runtime type validation
-    "winston": "^3.17.0",      // Structured logging
-    "swagger-ui-express": "^5.0.1" // API documentation
+    "winston": "^3.17.0",      
+    "swagger-ui-express": "^5.0.1" 
   },
   "devDependencies": {
-    "typescript": "^5.3.3",    // TypeScript compiler
-    "ts-node": "^10.9.2",      // TypeScript execution
-    "nodemon": "^3.1.10"       // Development auto-reload
+    "typescript": "^5.3.3",    
+    "ts-node": "^10.9.2",      
+    "nodemon": "^3.1.10"       
   }
 }
 ```
@@ -431,7 +419,7 @@ describe('Job Controller', () => {
 });
 ```
 
-## 🚀 Deployment
+##  Deployment
 
 ### Production Build
 
@@ -470,29 +458,6 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 CMD ["node", "dist/index.js"]
 ```
 
-### Environment-Specific Configuration
-
-#### Development
-```env
-NODE_ENV=development
-LOG_LEVEL=debug
-MONGODB_URI=mongodb://localhost:27017/evalia-dev
-```
-
-#### Staging
-```env
-NODE_ENV=staging
-LOG_LEVEL=info
-MONGODB_URI=mongodb://staging-cluster/evalia-staging
-```
-
-#### Production
-```env
-NODE_ENV=production
-LOG_LEVEL=warn
-MONGODB_URI=mongodb://prod-cluster/evalia-production
-```
-
 ### Monitoring & Health Checks
 
 #### Health Endpoint Response
@@ -514,13 +479,7 @@ MONGODB_URI=mongodb://prod-cluster/evalia-production
 }
 ```
 
-#### Performance Metrics
-- **Response Times**: API endpoint latency tracking
-- **Database Performance**: Query execution times
-- **AI Service Usage**: OpenRouter API call metrics
-- **Error Rates**: Failed requests and error categorization
-
-## 📊 Monitoring & Analytics
+##  Monitoring & Analytics
 
 ### Key Metrics
 
@@ -559,25 +518,6 @@ logger.info('Job analysis completed', {
 - **Analysis Dashboard**: Displays resume-job compatibility
 - **Career Recommendations**: Shows upskilling suggestions
 
-## 🤝 Contributing
-
-### Development Guidelines
-
-1. **Code Style**: Follow TypeScript best practices
-2. **Testing**: Write tests for new features
-3. **Documentation**: Update API docs for endpoint changes
-4. **Type Safety**: Use Zod for runtime validation
-5. **Error Handling**: Implement comprehensive error handling
-
-### Pull Request Process
-
-1. Fork the repository
-2. Create feature branch: `git checkout -b feature/job-filtering-enhancement`
-3. Make changes following coding standards
-4. Add/update tests as needed
-5. Update documentation if required
-6. Commit with conventional format: `feat: add advanced job filtering`
-7. Push and create Pull Request
 
 ### Code Standards
 
@@ -590,13 +530,6 @@ logger.info('Job analysis completed', {
 ## 📄 License
 
 This project is part of the Evalia platform and is proprietary software. All rights reserved.
-
-## 📞 Support
-
-- **Documentation**: [Evalia Docs](https://docs.evalia.com)
-- **API Issues**: [GitHub Issues](https://github.com/Imran-2020331101/evalia/issues)
-- **Developer Chat**: [Discord Community](https://discord.gg/evalia)
-- **Technical Support**: dev@evalia.com
 
 ## 🔗 Related Services
 

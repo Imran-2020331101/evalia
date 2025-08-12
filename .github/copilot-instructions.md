@@ -66,7 +66,7 @@ const sectionResults = response.result.hits.map((record) => ({
 
 ### AI Server
 ```bash
-cd aiServer && npm run dev  # nodemon server.js on port 5000
+cd aiServer && npm run dev  # nodemon server.js (PORT from env, default 5001)
 ```
 
 ### Client  
@@ -77,6 +77,13 @@ cd client && npm run dev    # Next.js on port 3000
 ### Spring Boot Server
 ```bash
 cd server/server && ./mvnw spring-boot:run  # port 8080
+```
+
+### Upskill Engine (TypeScript)
+```bash
+cd upskill-engine
+npm run dev           # ts-node/nodemon (PORT from env, default 7001)
+npm run build; npm start  # build to dist and run
 ```
 
 ## Environment Dependencies
@@ -119,3 +126,24 @@ cd server/server && ./mvnw spring-boot:run  # port 8080
 - **Cloudinary**: PDF storage with download URL generation  
 - **OpenAI**: Resume content analysis and job description parsing
 - **MongoDB**: Structured resume data with embedded subdocuments
+
+## Service Ports & Key Endpoints
+
+- Client (Next.js): http://localhost:3000
+- Spring Boot Auth: http://localhost:8080
+- AI Server (Node/Express): http://localhost:5001
+  - Health: GET /api/health
+  - Resume:
+    - GET /api/resume/:id
+    - POST /api/resume/upload
+    - POST /api/resume/save
+    - GET /api/resume/:id/download
+    - POST /api/resume/basic-search
+- Upskill Engine (Node/Express TS): http://localhost:7001
+  - Health: GET /api/health
+  - Jobs: GET/POST /api/jobs, GET /api/jobs/:jobId, GET /api/jobs/company/:companyName
+  - Overview: POST /api/overview  (body: { resumeId, jobDescription })
+
+Notes:
+- Upskill Engine calls AI Server to fetch resumes by ID at GET /api/resume/:id.
+- OpenRouter is used inside Upskill Engine for resume vs JD comparison (requires OPENAI/OPEN_ROUTER key).

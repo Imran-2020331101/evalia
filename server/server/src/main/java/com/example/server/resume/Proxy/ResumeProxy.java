@@ -16,7 +16,10 @@ public interface ResumeProxy {
             value = "/upload",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
     String forwardResumeToProcessingEngine(
-            @RequestPart("file") MultipartFile file,@RequestPart("userEmail") String userEmail);
+            @RequestPart("file") MultipartFile file,
+            @RequestPart("userEmail") String userEmail,
+            @RequestPart("userId") String userId
+    );
 
 }
 

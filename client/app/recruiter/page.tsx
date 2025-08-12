@@ -2,7 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Roboto_Mono } from "next/font/google"
+import { Roboto_Mono } from 'next/font/google'
+import { useSelector } from 'react-redux'
+import { selectNotifications } from '@/redux/notificationSlice'
+
+
 
 const robotoMono = Roboto_Mono({
   subsets: ["latin"],
@@ -44,6 +48,7 @@ interface FormData {
 
 const RecruiterRegisterPage = () => {
   const router = useRouter()
+  const notifications = useSelector(selectNotifications)
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
@@ -70,6 +75,7 @@ const RecruiterRegisterPage = () => {
 
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({})
   const [loading, setLoading] = useState(false)
+  const [notification, setNotification] = useState([""])
 
   const employeeRanges = [
     '1-25',
@@ -385,7 +391,47 @@ const RecruiterRegisterPage = () => {
             <h1 className="text-3xl font-bold text-white">Employer Registration Form</h1>
             <p className="text-blue-100 mt-2">Join our platform to find the best talent for your organization</p>
           </div>
-
+          
+          <div>
+            {/* Notifications Section */}
+            {notifications.length > 0 && (
+              <div className="bg-gray-800 mx-8 mt-6 p-6 rounded-lg border border-gray-700">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                  <span className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold mr-3">
+                    {notifications.filter(n => !n.isRead).length}
+                  </span>
+                  Notifications
+                </h3>
+                <div className="space-y-3 max-h-48 overflow-y-auto">
+                  {notifications.slice(0, 5).map((notification) => (
+                    <div
+                      key={notification.id}
+                      className={`p-3 rounded-lg border transition-all ${
+                        notification.isRead
+                          ? 'bg-gray-700 border-gray-600 text-gray-300'
+                          : 'bg-blue-900/30 border-blue-600 text-white'
+                      }`}
+                    >
+                      <p className="text-sm">{notification.message}</p>
+                      {!notification.isRead && (
+                        <span className="inline-block mt-2 px-2 py-1 text-xs bg-blue-600 text-white rounded-full">
+                          New
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                  {notifications.length > 5 && (
+                    <div className="text-center">
+                      <span className="text-sm text-gray-400">
+                        +{notifications.length - 5} more notifications
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          
           <form onSubmit={handleSubmit} className="p-8 lg:p-12 space-y-12">
             {/* User Information Section */}
             <div className="bg-gray-800 p-8 rounded-xl border border-gray-700 shadow-lg">
