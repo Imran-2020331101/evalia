@@ -22,7 +22,10 @@ export default function RootLayout({
           <main className="w-screen h-screen bg-neutral-950 text-neutral-100 ">
               <NavBar/>
               <HamburgerMenu/>
+              
+              {/* TODO: Render this component : NotificationListener : only if the user is logged in */}
               <NotificationListener />
+
               {children}
           </main>
         </ReduxProvider>

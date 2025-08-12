@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class FindUsersResumeRequest {
+public class ForwardProfileRequest {
     private String email;
 }

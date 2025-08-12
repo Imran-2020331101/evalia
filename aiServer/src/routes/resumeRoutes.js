@@ -14,6 +14,7 @@ const router = express.Router();
  */
 router.post("/upload", upload.single("file"), resumeController.extractResume);
 
+
 /**
  * @route   POST /api/resume/save
  * @desc    Save processed resume data to database
@@ -29,6 +30,20 @@ router.post("/save", resumeController.saveResume);
 router.post("/get-resume", resumeController.getResumeByEmail);
 
 /**
+ * @route   GET /api/resume/status
+ * @desc    Get upload service status
+ * @access  Public
+ */
+router.get("/status", resumeController.getUploadStatus);
+
+/**
+ * @route   GET /api/resume/basic-search
+ * @desc    Search the best matching candidates using Natural Language
+ * @access  Public
+ */
+router.post("/basic-search", resumeController.searchCandidatesUsingNLP);
+
+/**
  * @route   GET /api/resume/:id
  * @desc    Get specific resume by ID
  * @access  Public
@@ -42,17 +57,5 @@ router.get("/:id", resumeController.getResumeById);
  */
 router.get("/:id/download", resumeController.downloadResume);
 
-/**
- * @route   GET /api/resume/status
- * @desc    Get upload service status
- * @access  Public
- */
-router.get("/status", resumeController.getUploadStatus);
-/**
- * @route   GET /api/resume/basic-search
- * @desc    Search the best matching candidates using Natural Language
- * @access  Public
- */
-router.post("/basic-search", resumeController.searchCandidatesUsingNLP);
 
 module.exports = router;
