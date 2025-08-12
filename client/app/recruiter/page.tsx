@@ -11,7 +11,7 @@ const robotoMono = Roboto_Mono({
 
 interface FormData {
   // User Information
-  username: string
+  email: string
   password: string
   confirmPassword: string
   
@@ -45,7 +45,7 @@ interface FormData {
 const RecruiterRegisterPage = () => {
   const router = useRouter()
   const [formData, setFormData] = useState<FormData>({
-    username: '',
+    email: '',
     password: '',
     confirmPassword: '',
     companyName: '',
@@ -318,7 +318,7 @@ const RecruiterRegisterPage = () => {
     const newErrors: Partial<Record<keyof FormData, string>> = {}
 
     // User Information validation
-    if (!formData.username.trim()) newErrors.username = 'Username is required'
+    if (!formData.email.trim()) newErrors.email = 'email is required'
     if (!formData.password) newErrors.password = 'Password is required'
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match'
@@ -396,16 +396,16 @@ const RecruiterRegisterPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Username <span className="text-red-400">*</span>
+                    email <span className="text-red-400">*</span>
                   </label>
                   <input
                     type="text"
-                    value={formData.username}
-                    onChange={(e) => handleInputChange('username', e.target.value)}
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-600 bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-gray-400"
-                    placeholder="Enter your username"
+                    placeholder="Enter your email"
                   />
-                  {errors.username && <p className="text-red-400 text-sm mt-1">{errors.username}</p>}
+                  {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email}</p>}
                 </div>
 
                 <div>

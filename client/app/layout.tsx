@@ -3,6 +3,7 @@ import "./globals.css";
 import { ReduxProvider } from "./providers";
 import NavBar from "@/components/nav/NavBar";
 import HamburgerMenu from "@/components/modal/HamburgerMenu";
+import NotificationListener from "@/components/notification/NotificationListener";
 
 export const metadata: Metadata = {
   title: "EVALIA",
@@ -21,6 +22,7 @@ export default function RootLayout({
           <main className="w-screen h-screen bg-neutral-950 text-neutral-100 ">
               <NavBar/>
               <HamburgerMenu/>
+              <NotificationListener />
               {children}
           </main>
         </ReduxProvider>
