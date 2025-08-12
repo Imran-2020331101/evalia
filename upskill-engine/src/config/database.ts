@@ -3,6 +3,7 @@ import { logger } from './logger';
 
 const connectDB = async (): Promise<void> => {
   try {
+    console.log(process.env.MONGODB_URI)
     const conn = await mongoose.connect(
       process.env.MONGODB_URI || "mongodb://localhost:27017/evalia_ai"
     );

@@ -1,4 +1,4 @@
-import { ExtractedResume } from "@/types/resume.types";
+import { ExtractedResume } from "../types/resume.types";
 import logger from "../config/logger";
 
 class overviewService {
