@@ -5,27 +5,7 @@ import Image from "next/image"
 import { useAppDispatch } from "@/redux/lib/hooks"
 import TitleParagraphSkeleton from "@/components/ui/TitleParagraphSkeleton"
 import { useEffect, useState } from "react"
-
-interface domainType{
-  type:string,
-  category:string,
-  description:string,
-}
-
-interface basicStateType{
-  title:string,
-  jobDescription:string,
-  jobLocation:string,
-  salaryFrom:string,
-  salaryTo:string,
-  deadline:string,
-  jobType:string,
-  isOpenJobType:boolean,
-  workPlaceType:string,
-  isOpenWorkPlaceType:boolean,
-  employmentLevelType:string,
-  isOpenEmploymentLevelType:boolean
-}
+import { domainType, basicStateType, interviewQAStateType } from "@/types/create-job"
 
 interface propType{
   requirement:domainType[],
@@ -35,18 +15,13 @@ interface propType{
   basicState:basicStateType
 }
 
-interface interviewQAStateType{
-  question:string,
-  referenceAnswer:string
-}
-
 const PreviewCreatedJob = ({requirement, responsibilities, skills, basicState, interviewQA}:propType) => {
     const {title, jobDescription, jobLocation, salaryFrom, salaryTo, deadline, jobType, employmentLevelType, workPlaceType}= basicState
     const [isShowJobPreview, setIsShowJobPreview]=useState(true)
     useEffect(()=>console.log(interviewQA, 'interviewQA'))
   return (
     <div className={` w-full h-full relative tracking-wider border-l-[1px] border-gray-700`}>
-      <div className="absolute left-0 top-0 w-full h-[50px] backdrop-blur-2xl z-20 flex justify-center items-end pb-[8px] gap-2 text-[13px] font-bold">
+      <div className="absolute left-0 top-0 w-full h-[50px] backdrop-blur-md z-20 flex justify-center items-end pb-[8px] gap-2 text-[13px] font-bold">
         <button onClick={()=>setIsShowJobPreview(true)} className={`cursor-pointer hover:text-blue-500 ${isShowJobPreview?'text-blue-500':''}`}>Job Preview</button>
         <div className="w-[2px] h-[13px] bg-gray-400"></div>
         <button onClick={()=>setIsShowJobPreview(false)} className={`cursor-pointer hover:text-blue-500 ${!isShowJobPreview?'text-blue-500':''}`}>Interview Questions</button>
@@ -67,7 +42,10 @@ const PreviewCreatedJob = ({requirement, responsibilities, skills, basicState, i
                     </div>
                 </section>
                 <section className="w-full h-auto flex flex-col justify-start items-start mt-6">
-                    <p className="font-semibold text-[20px]">{title?title :'Please create your job title here...'}</p>
+                    {
+                        title?<p className="font-semibold text-[20px]">{title}</p>
+                        :<p>🏷️ Job title will appear here</p>
+                    }
                     <div className="w-full overflow-hidden flex justify-start items-center gap-2 text-gray-100">
                         <p className="text-[13px]">{`$${salaryFrom}k - $${salaryTo}k`}</p><p>{` | `}</p>
                         <p className="text-[13px]">{jobType}</p><p>{` | `}</p>
@@ -89,8 +67,10 @@ const PreviewCreatedJob = ({requirement, responsibilities, skills, basicState, i
                             </p>
                         </>
                        : <div className="w-full shrink-0 flex flex-col gap-2 m-3 text-gray-300">
-                            {/* <p className="text-[14px] font-bold">Job Description here ...</p> */}
-                            <TitleParagraphSkeleton/>
+                            <p className="text-[14px] italic">📝 Description will appear here</p>
+                            <div className="pl-[5%] pr-[10%]">
+                                <TitleParagraphSkeleton/>
+                            </div>
                        </div>
                     }
                 </section>
@@ -111,8 +91,10 @@ const PreviewCreatedJob = ({requirement, responsibilities, skills, basicState, i
                     </div>)
                     }
                 </section> :<div className="w-full shrink-0 flex flex-col gap-2 m-3 text-gray-300">
-                            {/* <p className="text-[14px] font-bold">Job Requirements here ...</p> */}
-                            <TitleParagraphSkeleton/>
+                            <p className="text-[14px]  italic ">✅ Requirements will appear here</p>
+                            <div className="pl-[5%] pr-[10%]">
+                                <TitleParagraphSkeleton/>
+                            </div>
                        </div>
                 }
                 
@@ -135,8 +117,10 @@ const PreviewCreatedJob = ({requirement, responsibilities, skills, basicState, i
                         }
                     </section>
                     :<div className="w-full shrink-0 flex flex-col gap-2 m-3 text-gray-300">
-                            {/* <p className="text-[14px] font-bold">Job Responsibilities here ...</p> */}
-                            <TitleParagraphSkeleton/>
+                            <p className="text-[14px]  italic ">📌 Responsibilities will appear here</p>
+                            <div className="pl-[5%] pr-[10%]">
+                                <TitleParagraphSkeleton/>
+                            </div>
                        </div>
                 }
                 {
@@ -158,8 +142,10 @@ const PreviewCreatedJob = ({requirement, responsibilities, skills, basicState, i
                         }
                     </section>
                     :<div className="w-full shrink-0 flex flex-col gap-2 m-3 text-gray-300">
-                            {/* <p className="text-[14px] font-bold">Preferred Skills here ...</p> */}
-                            <TitleParagraphSkeleton/>
+                            <p className="text-[14px]  italic ">🎯 Preferred Skills will appear here</p>
+                            <div className="pl-[5%] pr-[10%]">
+                                <TitleParagraphSkeleton/>
+                            </div>
                        </div>
                 }
             </div>
@@ -169,7 +155,7 @@ const PreviewCreatedJob = ({requirement, responsibilities, skills, basicState, i
                     interviewQA.length?<div className="w-full h-full flex flex-col justify-start items-start gap-4">
                         <p className="text-sm font-semibold mb-3 text-gray-50">Interview Questions and Reference Answers </p>
                         {
-                            interviewQA.map((item,index)=><div className="w-full h-auto flex text-[12px] gap-2 text-gray-300">
+                            interviewQA.map((item,index)=><div key={index} className="w-full h-auto flex text-[12px] gap-2 text-gray-300">
                                 <div className="w-[20px] h-full flex justify-center items-start"><p className="text-3xl font-extrabold mt-[-14px]">.</p></div>
                                 <div className="w-full h-auto flex-col justify-start items-start">
                                     <p className="mb-1"><span className="font-bold text-gray-100">Question : </span> {item.question}</p>
@@ -178,8 +164,10 @@ const PreviewCreatedJob = ({requirement, responsibilities, skills, basicState, i
                             </div>)
                         }
                     </div>:<div className="w-full shrink-0 flex flex-col gap-2 m-3 text-gray-300">
-                            {/* <p className="text-[14px] font-bold">No interview Questions yet...</p> */}
-                            <TitleParagraphSkeleton/>
+                            <p className="text-[14px]  italic ">❓ Questions will appear here</p>
+                            <div className="pl-[5%] pr-[10%]">
+                                <TitleParagraphSkeleton/>
+                            </div>
                        </div>
                 }
         </section>

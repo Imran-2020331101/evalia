@@ -3,31 +3,7 @@ import { useState } from 'react'
 import CreateJobForm from '@/components/workspace/recruiters/jobs/create/CreateJobForm'
 import PreviewCreatedJob from '@/components/workspace/recruiters/jobs/create/PreviewCreatedJob'
 import { SlidersVertical } from 'lucide-react'
-
-interface domainType{
-  type:string,
-  category:string,
-  description:string,
-}
-
-interface interviewQAStateType{
-  question:string,
-  referenceAnswer:string
-}
-interface basicStateType{
-  title:string,
-  jobDescription:string,
-  jobLocation:string,
-  salaryFrom:string,
-  salaryTo:string,
-  deadline:string,
-  jobType:string,
-  isOpenJobType:boolean,
-  workPlaceType:string,
-  isOpenWorkPlaceType:boolean,
-  employmentLevelType:string,
-  isOpenEmploymentLevelType:boolean
-}
+import { domainType, interviewQAStateType, basicStateType } from '@/types/create-job'
 
 const CreateJobPage = () => {
   const [basicState, setBasicState] = useState<basicStateType>({

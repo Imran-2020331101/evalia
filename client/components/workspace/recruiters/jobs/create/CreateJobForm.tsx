@@ -3,32 +3,8 @@
 import React,{ useEffect, useState } from "react"
 import { ChevronDown } from "lucide-react";
 import { JOB_TYPE, WORKPLACE_TYPE, IMPORTANCE_OPTIONS,EMPLOYMENT_LEVEL } from "@/Data/create-job";
-
-interface domainType{
-  type:string,
-  category:string,
-  description:string,
-}
-
-interface interviewQAStateType{
-  question:string,
-  referenceAnswer:string
-}
-interface basicStateType{
-  title:string,
-  jobDescription:string,
-  jobLocation:string,
-  salaryFrom:string,
-  salaryTo:string,
-  deadline:string,
-  jobType:string,
-  isOpenJobType:boolean,
-  workPlaceType:string,
-  isOpenWorkPlaceType:boolean,
-  employmentLevelType:string,
-  isOpenEmploymentLevelType:boolean
-}
-
+import { toast } from "sonner";
+import { domainType, interviewQAStateType, basicStateType } from "@/types/create-job";
 interface propType{
   requirement:domainType[],
   responsibilities:domainType[],
@@ -81,6 +57,14 @@ const CreateJobForm = ({requirement, responsibilities, skills, basicState, setRe
 
   const handleAddRequirement = ()=>{
     const {selectedType, description, category} = requirementState 
+    if(!category) {
+      toast.error('Please provide a category')
+      return 
+    }
+    if(!description){
+      toast.error('Please write description')
+      return
+    }
     setRequirement([...requirement,{type:selectedType,category,description}]);
     setRequirementState({
       isOpen: false,
@@ -88,10 +72,19 @@ const CreateJobForm = ({requirement, responsibilities, skills, basicState, setRe
       category: "",
       description: "",
     })
+    toast.success('requirement is successfully added')
   }
 
   const handleAddResponsibilities =()=>{
     const {selectedType, description, category} = responsibilityState 
+    if(!category) {
+      toast.error('Please provide a category')
+      return 
+    }
+    if(!description){
+      toast.error('Please write description')
+      return
+    }
     setResponsibilities([...responsibilities,{type:selectedType,category,description}]);
     setResponsibilityState({
       isOpen: false,
@@ -99,10 +92,19 @@ const CreateJobForm = ({requirement, responsibilities, skills, basicState, setRe
       category: "",
       description: "",
     })
+    toast.success('responsibility is successfully added')
   }
 
   const handleAddSkills = ()=>{
     const {selectedType, description, category} = skillState 
+    if(!category) {
+      toast.error('Please provide a category')
+      return 
+    }
+    if(!description){
+      toast.error('Please write description')
+      return
+    }
     setSkills([...skills,{type:selectedType,category,description}]);
     setSkillState({
       isOpen: false,
@@ -110,14 +112,79 @@ const CreateJobForm = ({requirement, responsibilities, skills, basicState, setRe
       category: "",
       description: "",
     })
+    toast.success('skill is successfully added')
   }
-
+  const validateJobBasic = ()=>{
+    const {title,jobDescription,jobLocation,salaryFrom,salaryTo, deadline,jobType,workPlaceType,employmentLevelType}=basicState;
+    if(!title) {
+      toast.error('Please provide a title')
+      return false;
+    }
+    if(!jobDescription){
+      toast.error('Please write jobDescription')
+      return false;
+    }
+    if(!jobLocation) {
+      toast.error('Please provide a jobLocation')
+      return false; 
+    }
+    if(!salaryFrom){
+      toast.error('Please write salaryFrom')
+      return false;
+    }
+    if(!salaryTo) {
+      toast.error('Please provide a salaryTo')
+      return false; 
+    }
+    if(!deadline){
+      toast.error('Please write deadline')
+      return false;
+    }
+    if(!jobType) {
+      toast.error('Please provide a jobType')
+      return false; 
+    }
+    if(!workPlaceType){
+      toast.error('Please write workPlaceType')
+      return false;
+    }if(!employmentLevelType) {
+      toast.error('Please provide a employmentLevelType')
+      return false; 
+    }
+    return true;
+  }
   const handleAddInterviewQA = ()=>{
+    const {question, referenceAnswer}=interviewQAState;
+    if(!question) {
+      toast.error('Please provide a question')
+      return 
+    }
     setInterviewQA([...interviewQA, {...interviewQAState}])
     setInterviewQAState({
       question:'',
       referenceAnswer:''
     })
+    toast.success('Question is successfully added')
+  }
+
+  const handleCreateJob = ()=>{
+    const companyInfo={
+      id:''
+    } // will be fetched later from the recruiter profile ; no need to worry for now !
+    const {title,jobDescription,jobLocation,salaryFrom,salaryTo, deadline,jobType,workPlaceType,employmentLevelType}=basicState;
+    if(!validateJobBasic()) return;
+    const basic = {title,jobDescription,jobLocation,salaryFrom,salaryTo, deadline,jobType,workPlaceType,employmentLevelType};
+    const job = {
+      companyInfo,
+      basic,
+      requirement,
+      responsibility:[...responsibilities],
+      skill:[...skills],
+      interviewQA
+
+    }
+    console.log(job)
+    toast.success('Job successfully created !')
   }
 
   useEffect(()=>console.log(requirement,'requirement'),[requirement])
@@ -440,7 +507,7 @@ const CreateJobForm = ({requirement, responsibilities, skills, basicState, setRe
                     </textarea>
                   </div>
                   <div className="w-full h-[100px]  flex flex-col justify-start items-start gap-1">
-                    <label htmlFor="answer" className='font-semibold'>Reference answer : </label>
+                    <label htmlFor="answer" className='font-semibold'>Reference answer (optional): </label>
                     <textarea 
                     onChange={(e)=>updateInterviewQA('referenceAnswer', e.target.value)}
                     value={interviewQAState.referenceAnswer}
@@ -457,7 +524,7 @@ const CreateJobForm = ({requirement, responsibilities, skills, basicState, setRe
         :null
        }
         <div className="w-full h-[50px] rounded-2xl shrink-0 mt-8">
-            <button className=" w-full h-full flex items-center justify-center p-0.5 overflow-hidden text-lg font-semibold tracking-widest cursor-pointer text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800">
+            <button onClick={handleCreateJob} className=" w-full h-full flex items-center justify-center p-0.5 overflow-hidden text-lg font-semibold tracking-widest cursor-pointer text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800">
               <span className=" w-full h-full transition-all flex items-center justify-center ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-transparent group-hover:dark:bg-transparent">
                 Create A Job
               </span>
