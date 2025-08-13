@@ -5,6 +5,8 @@ import { ChevronDown } from "lucide-react";
 import { JOB_TYPE, WORKPLACE_TYPE, IMPORTANCE_OPTIONS,EMPLOYMENT_LEVEL } from "@/Data/create-job";
 import { toast } from "sonner";
 import { domainType, interviewQAStateType, basicStateType } from "@/types/create-job";
+import { createJob, createJobStatus } from "@/redux/features/job";
+import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks";
 interface propType{
   requirement:domainType[],
   responsibilities:domainType[],
@@ -19,6 +21,9 @@ interface propType{
 }
 
 const CreateJobForm = ({requirement, responsibilities, skills, basicState, setRequirement, setResponsibilities, setSkills, setBasicState, setInterviewQA, interviewQA}:propType) => {
+
+  const dispatch = useAppDispatch()
+  const currentCreateJobStatus = useAppSelector(createJobStatus)
 
   const [tabIndex, setTabIndex] = useState(1)
   const [isChecked, setIsChecked] = useState(false)
@@ -167,24 +172,24 @@ const CreateJobForm = ({requirement, responsibilities, skills, basicState, setRe
     toast.success('Question is successfully added')
   }
 
-  const handleCreateJob = ()=>{
+  const handleCreateJob = async()=>{
     const companyInfo={
       id:''
     } // will be fetched later from the recruiter profile ; no need to worry for now !
     const {title,jobDescription,jobLocation,salaryFrom,salaryTo, deadline,jobType,workPlaceType,employmentLevelType}=basicState;
     if(!validateJobBasic()) return;
     const basic = {title,jobDescription,jobLocation,salaryFrom,salaryTo, deadline,jobType,workPlaceType,employmentLevelType};
-    const job = {
+    const data = {
       companyInfo,
       basic,
       requirement,
       responsibility:[...responsibilities],
       skill:[...skills],
       interviewQA
-
     }
-    console.log(job)
-    toast.success('Job successfully created !')
+    await dispatch(createJob(data))
+    if(currentCreateJobStatus==='error') toast.error('something went wrong! please try again later..')
+    else if (currentCreateJobStatus==='success') toast.success('Job successfully created !')
   }
 
   useEffect(()=>console.log(requirement,'requirement'),[requirement])
@@ -524,8 +529,8 @@ const CreateJobForm = ({requirement, responsibilities, skills, basicState, setRe
         :null
        }
         <div className="w-full h-[50px] rounded-2xl shrink-0 mt-8">
-            <button onClick={handleCreateJob} className=" w-full h-full flex items-center justify-center p-0.5 overflow-hidden text-lg font-semibold tracking-widest cursor-pointer text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800">
-              <span className=" w-full h-full transition-all flex items-center justify-center ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-transparent group-hover:dark:bg-transparent">
+            <button disabled={currentCreateJobStatus==='pending'?true:false} onClick={handleCreateJob} className={` w-full h-full flex items-center justify-center p-0.5 overflow-hidden text-lg font-semibold tracking-widest cursor-pointer text-gray-900 rounded-lg group ${currentCreateJobStatus==='pending'?'bg-transparent':'bg-gradient-to-br'}  from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800`}>
+              <span className={` w-full h-full transition-all flex items-center justify-center ease-in duration-75 ${currentCreateJobStatus==='pending'?'bg-gray-600 text-gray-300 rounded-lg':'bg-white dark:bg-gray-900 rounded-md group-hover:bg-transparent group-hover:dark:bg-transparent'}`}>
                 Create A Job
               </span>
             </button>

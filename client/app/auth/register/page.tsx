@@ -70,7 +70,7 @@ const RegisterPage = () => {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="space-y-6 w-[80%] text-gray-300">
+      <form onSubmit={handleSubmit} className="space-y-6 w-[80%] text-gray-300 ">
         {error && (
           <div className="w-full p-3 bg-red-900/30 border border-red-500 rounded-lg text-red-400 text-sm">
             {error}

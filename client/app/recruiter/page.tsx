@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Roboto_Mono } from 'next/font/google'
 import { useSelector } from 'react-redux'
-import { selectNotifications } from '@/redux/notificationSlice'
+import { selectNotifications } from '@/redux/features/notification'
 
 
 
