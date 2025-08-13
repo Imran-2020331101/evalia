@@ -1,11 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit'
 import utils from '../features/utils'
-import notifications from '../notificationSlice'
+import notifications from '../features/notification'
+import job from '../features/job'
 
 export const store = configureStore({
   reducer: {
     utils,
     notifications,
+    job
   },
 })
 
