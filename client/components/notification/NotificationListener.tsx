@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { io } from "socket.io-client";
 import { useDispatch, useSelector } from "react-redux";
-import { addNotification } from "../../redux/notificationSlice";
+import { addNotification } from "../../redux/features/notification";
 
 const API_BASE = process.env.NEXT_PUBLIC_NOTIFICATION_WS!;
 
