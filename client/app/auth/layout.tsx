@@ -1,4 +1,5 @@
-import React from 'react'
+'use client'
+
 import ImageSlider from '@/components/auth/ImageSlider';
 import { Major_Mono_Display } from 'next/font/google';
 
@@ -17,10 +18,10 @@ const AuthLayout = ({
             <div className='w-full h-full gap-[20px] flex '>
               <div className="w-[58%] h-full">
                 <ImageSlider/>
-                {/* <Image width={600} height={800} src={'https://i.pinimg.com/736x/28/3b/45/283b45f465ff4f511a927ea5a9d0779f.jpg'} alt='' className='w-full h-full object-cover'/> */}
               </div>
-              <div className="w-[42%] h-full">
-                <div className="w-full h-full text-gray-400 flex justify-center items-center p-[10px] border-t-[1px] border-b-[1px] border-r-[1px] border-gray-700 rounded-r-lg">
+              <div className="w-[42%] h-full ">
+                <div className="overflow-hidden group relative w-full h-full text-gray-400 flex justify-center items-center p-[10px] border-t-[1px] border-b-[1px] border-r-[1px] border-gray-700 rounded-r-lg">
+                  {/* <div className="absolute w-full h-full top-0 right-0 bg-amber-600 z-10 translate-x-[100%] group-hover:translate-x-0 transition-transform duration-500"></div> */}
                   <div className="w-full h-full bg-gray-900/80 rounded-2xl px-[25px] py-[20px] flex flex-col justify-center items-center gap-[25px]">
                       <p className={` ${majorMono.className}  font-semibold  text-white text-4xl`}>EVALIA</p>
                       {children}
@@ -39,7 +40,7 @@ const AuthLayout = ({
                 muted
                 playsInline
             >
-                <source src={'https://videos.pexels.com/video-files/4622990/4622990-uhd_1440_2560_30fps.mp4'} type="video/mp4" />
+                <source src={'https://cdn.pixabay.com/video/2024/07/27/223442_large.mp4'} type="video/mp4" />
                 Your browser does not support the video tag.
             </video>
             </div>

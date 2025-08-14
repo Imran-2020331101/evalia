@@ -22,3 +22,25 @@ export interface basicStateType{
   employmentLevelType:string,
   isOpenEmploymentLevelType:boolean
 }
+
+
+export interface jobType {
+    companyInfo: {
+        id: string;
+    };
+    basic: {
+        title: string;
+        jobDescription: string;
+        jobLocation: string;
+        salaryFrom: string;
+        salaryTo: string;
+        deadline: string;
+        jobType: string;
+        workPlaceType: string;
+        employmentLevelType: string;
+    };
+    requirement: domainType[];
+    responsibility: domainType[];
+    skill: domainType[];
+    interviewQA: interviewQAStateType[];
+}
