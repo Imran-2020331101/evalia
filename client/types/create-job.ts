@@ -8,6 +8,26 @@ export interface interviewQAStateType{
   question:string,
   referenceAnswer:string
 }
+export enum JobType {
+  PART_TIME = "PART_TIME",
+  INTERN = "INTERN",
+  FULL_TIME = "FULL_TIME",
+  CONTRACT = "CONTRACT"
+}
+
+export enum WorkPlaceType {
+  HYBRID = "HYBRID",
+  ONSITE = "ONSITE",
+  REMOTE = "REMOTE",
+}
+
+export enum EmploymentLevelType {
+  ENTRY = "ENTRY",
+  MID = "MID",
+  SENIOR = "SENIOR",
+}
+
+
 export interface basicStateType{
   title:string,
   jobDescription:string,
@@ -15,11 +35,11 @@ export interface basicStateType{
   salaryFrom:string,
   salaryTo:string,
   deadline:string,
-  jobType:string,
+  jobType:JobType,
   isOpenJobType:boolean,
-  workPlaceType:string,
+  workPlaceType:WorkPlaceType,
   isOpenWorkPlaceType:boolean,
-  employmentLevelType:string,
+  employmentLevelType: EmploymentLevelType,
   isOpenEmploymentLevelType:boolean
 }
 
