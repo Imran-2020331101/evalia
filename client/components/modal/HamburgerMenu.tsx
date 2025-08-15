@@ -33,6 +33,11 @@ const HamburgerMenu = () => {
     router.push('/workspace');
   }
 
+  const handleNavToProfile = ()=>{
+    dispatch(toggleIsShowHamburgerMenu());
+    router.push('/profile');
+  }
+
 
   useGSAP(() => {
   if (!currentIsShowHamburgerMenu) return;
@@ -111,14 +116,14 @@ const HamburgerMenu = () => {
 
             </div>
             <div className="w-1/2 h-full flex justify-end items-start pt-[14%] pr-[10%]  tracking-widest ">
-                <div className={` ${michroma.className} w-[20%] h-auto flex flex-col justify-center items-start  `}>
+                <div className={` ${michroma.className}  w-auto h-auto flex flex-col justify-center items-start  `}>
                   <div id='profile' className="flex items-center gap-4 group leading-none">
                     <Dot size={54} className='group-hover:text-blue-500 transition-colors duration-500' />
-                    <Link href={''} className="text-2xl font-medium leading-none ">Profile</Link>
+                    <button onClick={handleNavToProfile} className="text-2xl cursor-pointer ">Profile</button>
                   </div>
                   <div id='workspace' className="flex items-center gap-4 group leading-none">
                     <Dot size={54} className='group-hover:text-blue-500 transition-colors duration-500' />
-                    <button onClick={handleNavToWorkspace} className="text-2xl font-medium leading-none cursor-pointer">Workspace</button>
+                    <button onClick={handleNavToWorkspace} className="text-2xl cursor-pointer">Workspace</button>
                   </div>
               </div>
             </div>

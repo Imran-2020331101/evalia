@@ -83,20 +83,6 @@ const RecruiterForm = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-400 mb-1">
-                Business Description <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                name="businessDescription"
-                value={formData.businessDescription}
-                onChange={handleChange}
-                required
-                rows={4}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-              ></textarea>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">
                 Industry Type <span className="text-red-500">*</span>
               </label>
               <select
@@ -141,6 +127,19 @@ const RecruiterForm = () => {
                 onChange={handleChange}
                 className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">
+                Business Description <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                name="businessDescription"
+                value={formData.businessDescription}
+                onChange={handleChange}
+                required
+                rows={4}
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              ></textarea>
             </div>
           </div>
         </section>

@@ -55,17 +55,17 @@ const NavBar = () => {
   }, []);
 
   return (
-    <div className="fixed top-0 left-0 right-0 h-[70px] pb-[10px] flex justify-between px-[20px] z-50 backdrop-blur-sm">
+    <div className="fixed top-0 left-0 right-0 h-[60px] pb-[10px] flex justify-between px-[20px] z-50 backdrop-blur-sm">
       <div className="w-[20%] h-full flex justify-start items-end pl-[30px]">
-        <p
+        <Link href={'/'}
           className={`uppercase text-3xl ${majorMono.className} navSplit`}
           style={{ visibility: 'hidden' }} 
         >
           Evalia
-        </p>
+        </Link>
         <div className="ml-[30px] mb-[5px] h-[20px] w-[1px] bg-neutral-100 line-divider"></div>
       </div>
-      <div className="w-[30%] h-full flex justify-center items-end gap-[25px] text-neutral-300">
+      {/* <div className="w-[30%] h-full flex justify-center items-end gap-[25px] text-neutral-300">
         <Link
           href="/"
           className="text-xl font-sans tracking-wider font-extralight hover:text-white cursor-pointer navSplit"
@@ -86,8 +86,8 @@ const NavBar = () => {
         >
           Services
         </p>
-      </div>
-      <div className="w-[20%] h-full flex justify-end items-end pr-[30px]">
+      </div> */}
+      <div className="w-[20%] h-full flex justify-end items-end pr-[30px] ">
         <button onClick={()=>dispatch(toggleIsShowHamburgerMenu())} style={{ visibility: 'hidden' }} className="flex w-[80px] h-[15px] flex-col justify-between group cursor-pointer hamburger-line">
           <div className="w-[80%] h-[3px] bg-white self-start group-hover:translate-x-[8px]  transition-transform duration-500"></div>
           <div className="w-[80%] h-[3px] bg-white self-end group-hover:translate-x-[-8px] transition-transform duration-500"></div>
