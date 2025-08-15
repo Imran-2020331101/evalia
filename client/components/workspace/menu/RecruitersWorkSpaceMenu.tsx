@@ -38,11 +38,11 @@ const RecruitersWorkSpaceMenu = () => {
             }
           </button>
           <ul className={`pl-10 ${isShowJobCategory?'flex flex-col':'hidden'}  gap-1`}>
-            <Link href={'/workspace/jobs/my-jobs'} className="flex justify-start items-center gap-1 hover:text-gray-300">
+            <Link prefetch href={'/workspace/jobs/my-jobs'} className="flex justify-start items-center gap-1 hover:text-gray-300">
               <Image src={allLogo} alt="all" className="h-[13px] w-auto"/>
               <p className="text-sm  cursor-pointer">My Jobs</p>
             </Link>
-            <Link href={'/workspace/jobs/create'} className="flex justify-start items-center gap-1 hover:text-gray-300">
+            <Link prefetch href={'/workspace/jobs/create'} className="flex justify-start items-center gap-1 hover:text-gray-300">
               <Image src={createLogo} alt="create" className="h-[13px] w-auto"/>
               <p className="text-sm  cursor-pointer">Create</p>
             </Link>

@@ -4,6 +4,8 @@ import { useState } from 'react'
 import GoogleAuth from '@/components/auth/GoogleAuth'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useAppDispatch } from '@/redux/lib/hooks'
+import { setTranslateX } from '@/redux/features/utils'
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -15,6 +17,7 @@ const RegisterPage = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
+  const dispatch = useAppDispatch()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -70,7 +73,7 @@ const RegisterPage = () => {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="space-y-6 w-[80%] text-gray-300 ">
+      <form onSubmit={handleSubmit} className="space-y-6 w-[80%]  ">
         {error && (
           <div className="w-full p-3 bg-red-900/30 border border-red-500 rounded-lg text-red-400 text-sm">
             {error}
@@ -152,8 +155,10 @@ const RegisterPage = () => {
 
       <div className="w-full h-[30px] flex text-sm mt-[-20px] justify-center items-center">
         <p className='text-xs min-[1200px]:text-[12px] min-[1600px]:text-[14px]'>Already have an account?</p>
-        <Link href={'/auth/login'} className='underline cursor-pointer text-gray-50 min-[1200px]:text-[14px] min-[1600px]:text-[16px]'>{' Sign in :)'}</Link>
+        <Link prefetch href={'/auth/login'} className='underline cursor-pointer text-gray-50 min-[1200px]:text-[14px] min-[1600px]:text-[16px]'>{' Sign in :)'}</Link>
       </div>
+        {/* test translate */}
+      <button onClick={()=>dispatch(setTranslateX(-100))} className="">Test Translate</button>
     </>
   )
 }
