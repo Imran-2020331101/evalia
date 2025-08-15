@@ -2,7 +2,8 @@
 
 import { useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Upload, FileText, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
+import { Upload, FileText, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import axios from 'axios';
 
 interface UploadState {
   file: File | null
@@ -39,17 +40,21 @@ export default function PDFUploadPage() {
     const formData = new FormData()
     formData.append('file', file) 
 
-    const response = await fetch('http://localhost:8080/api/resume/upload', {
-      method: 'POST',
-      body: formData,
-      credentials: 'include',
-    })
+    const response = await axios.post(
+      'http://localhost:8080/api/resume/upload',
+      formData,
+      {
+        timeout: 5 * 60 * 1000,
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
 
-    if (!response.ok) {
-      throw new Error(`Upload failed: ${response.statusText}`)
-    }
+    console.log(response.data);
 
-    return response.json()
+    return response.data;
   }
 
   const handleFileUpload = useCallback(async (files: FileList) => {
