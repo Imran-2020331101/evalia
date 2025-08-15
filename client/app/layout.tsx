@@ -24,7 +24,7 @@ export default function RootLayout({
               <NavBar/>
               <HamburgerMenu/>
               <Toaster richColors expand={false} visibleToasts={3} position='bottom-center'/>
-              {/* <NotificationListener /> */}
+              <NotificationListener />
               {children}
           </main>
         </ReduxProvider>

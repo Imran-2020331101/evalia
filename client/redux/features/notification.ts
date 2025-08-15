@@ -3,9 +3,13 @@ import { RootState } from "../lib/store";
 
 export interface Notification {
   id: string;
+  userId: string;
+  title: string;
   message: string;
+  type: string;
+  link?: string;
   isRead: boolean;
-  [key: string]: any;
+  createdAt: Date;
 }
 
 const notificationsSlice = createSlice({
