@@ -118,7 +118,7 @@ const LoginPage = () => {
         </div>
         <div className="w-full h-[30px] flex text-sm mt-[-20px] justify-center items-center">
           <p className='text-xs min-[1200px]:text-[12px] min-[1600px]:text-[14px]'>Don't have any account?</p>
-          <Link href={'/auth/register'} className='underline cursor-pointer text-gray-200 min-[1200px]:text-[14px] min-[1600px]:text-[16px]'>
+          <Link prefetch href={'/auth/register'} className='underline cursor-pointer text-gray-200 min-[1200px]:text-[14px] min-[1600px]:text-[16px]'>
             {' Create a new one :)'}
           </Link>
         </div>

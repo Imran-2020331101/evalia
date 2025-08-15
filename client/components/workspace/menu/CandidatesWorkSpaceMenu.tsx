@@ -24,22 +24,22 @@ const CandidatesWorkSpaceMenu = () => {
   return (
     <div className='w-full h-full flex flex-col justify-between px-[10px] py-[6%]'>
       <div className="w-full h-auto flex flex-col justify-start">
-        <Link href={'/'} className={`${majorMono.className} text-2xl`}>EVALIA</Link>
+        <Link prefetch href={'/'} className={`${majorMono.className} text-2xl`}>EVALIA</Link>
         <div className="w-full h-auto mt-[20px] flex flex-col justify-start items-start pl-[10px] text-gray-400 font-semibold">
           <button className="flex justify-start items-center gap-1" onClick={()=>setIsShowJobCategory((prev)=>!prev)}>
             <Image src={jobLogo} alt="coursesLogo" className="h-[15px] w-auto"/>
             <p className="hover:text-gray-300">Jobs</p>
           </button>
           <ul className={`pl-4 ${isShowJobCategory?'flex flex-col':'hidden'}  gap-1`}>
-            <Link href={'/workspace/jobs/saved'} className="flex justify-start items-center gap-1 hover:text-gray-300">
+            <Link prefetch href={'/workspace/jobs/saved'} className="flex justify-start items-center gap-1 hover:text-gray-300">
               <Image src={bookMarkLogo} alt="saved" className="h-[13px] w-auto"/>
               <p className="text-sm  cursor-pointer">Saved</p>
             </Link>
-            <Link href={'/workspace/jobs/explore'} className="flex justify-start items-center gap-1 hover:text-gray-300">
+            <Link prefetch href={'/workspace/jobs/explore'} className="flex justify-start items-center gap-1 hover:text-gray-300">
               <Image src={exploreLogo} alt="explore" className="h-[13px] w-auto"/>
               <p className="text-sm  cursor-pointer">Explore</p>
             </Link>
-            <Link href={'/workspace/jobs/applied'} className="flex justify-start items-center gap-1 hover:text-gray-300">
+            <Link prefetch href={'/workspace/jobs/applied'} className="flex justify-start items-center gap-1 hover:text-gray-300">
               <Image src={completedLogo} alt="applied" className="h-[13px] w-auto"/>
               <p className="text-sm  cursor-pointer">Applied</p>
             </Link>
@@ -65,19 +65,19 @@ const CandidatesWorkSpaceMenu = () => {
           <ul className={`pl-4 ${isShowInterviewCategory?'flex flex-col':'hidden'}  gap-1`}>
             <li className="flex justify-start items-center gap-1 hover:text-gray-300">
               <Image src={allLogo} alt="saved" className="h-[13px] w-auto"/>
-              <Link href={'/workspace/interviews/all'} className="text-sm  cursor-pointer">All</Link>
+              <Link prefetch href={'/workspace/interviews/all'} className="text-sm  cursor-pointer">All</Link>
             </li>
             <li className="flex justify-start items-center gap-1 hover:text-gray-300">
               <Image src={pendingLogo} alt="saved" className="h-[13px] w-auto"/>
-              <Link href={'/workspace/interviews/pending'} className="text-sm  cursor-pointer">Pending</Link>
+              <Link prefetch href={'/workspace/interviews/pending'} className="text-sm  cursor-pointer">Pending</Link>
             </li>
             <li className="flex justify-start items-center gap-1 hover:text-gray-300">
               <Image src={completedLogo} alt="explore" className="h-[13px] w-auto"/>
-              <Link href={'/workspace/interviews/completed'} className="text-sm  cursor-pointer">Completed</Link>
+              <Link prefetch href={'/workspace/interviews/completed'} className="text-sm  cursor-pointer">Completed</Link>
             </li>
             <li className="flex justify-start items-center gap-1 hover:text-gray-300">
               <Image src={expiredLogo} alt="expire" className="h-[13px] w-auto"/>
-              <Link href={'/workspace/interviews/expired'} className="text-sm  cursor-pointer">Expired</Link>
+              <Link prefetch href={'/workspace/interviews/expired'} className="text-sm  cursor-pointer">Expired</Link>
             </li>
           </ul>
         </div>
