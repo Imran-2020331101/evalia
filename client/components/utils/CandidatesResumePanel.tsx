@@ -130,10 +130,14 @@ type CandidateProfileProps = {
   }>;
 };
 
-const CandidatesResumePanel = () => {
+interface propType{
+  isScroll:boolean
+}
+
+const CandidatesResumePanel = ({isScroll}:propType) => {
     const {skills,experience,education,projects,certifications,awards}=dummyCandidateData
   return (
-    <div className="w-full h-full overflow-y-auto scroll-container bg-slate-900 text-gray-100 p-6 space-y-8">
+    <div className={`w-full min-h-full ${isScroll?'overflow-y-auto  ':''} scroll-container pl-[7%] bg-slate-900 text-gray-100 p-6 space-y-8`}>
       
       {/* Skills */}
       {skills && Object.values(skills).some(arr => arr && arr.length > 0) && (

@@ -11,7 +11,7 @@ import lego from '../../../public/lego.png'
 import { useRef, useState, useEffect } from "react"
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
 import { previewedCandidate, setPreviewedCandidate } from "@/redux/features/utils"
-import CandidatesResumePanel from "./utils/CandidatesResumePanel"
+import CandidatesResumePanel from "../../utils/CandidatesResumePanel"
 
 const CandidateProfilePreview = () => {
     const modalRef = useRef<HTMLDivElement>(null)
@@ -87,7 +87,7 @@ const CandidateProfilePreview = () => {
                         <SlidersVertical size={20} />
                     </button>
                 </section>
-                <CandidatesResumePanel/>
+                <CandidatesResumePanel isScroll={true}/>
                 <section className={`absolute top-0 right-0 w-full h-full transition-transform duration-300 origin-top-right bg-slate-900 flex flex-col py-[20px] px-[30px] pt-[10%] overflow-y-scroll scroll-container ${isShowModal?'scale-100':'scale-0'}`}>
                     { isReportGenerated?
                      <>
