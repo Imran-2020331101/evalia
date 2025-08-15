@@ -6,8 +6,8 @@ import type { jobType } from '@/types/create-job';
 export const createJob = createAsyncThunk('job/createJob', async (data:jobType, thunkAPI)=>{
     try {
         const response = await axios.post(
-            'http://localhost:7000/api/jobs/',data,{
-                // withCredentials:true,
+            'http://localhost:8080/api/job/create',data,{
+            withCredentials: true,
             })
             console.log('inside thunk', response.data)
         return response.data;

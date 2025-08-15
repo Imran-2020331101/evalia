@@ -6,24 +6,29 @@ export const IMPORTANCE_OPTIONS = [
   { value: "optional", label: "⚪ Optional" },
 ];
 
+import { JobType } from "@/types/create-job";
+
 export const JOB_TYPE = [
-  { value: "Full-time", label: "🕐 Full-time" },
-  { value: "Part-time", label: "🕞 Part-time" },
-  { value: "Contract", label: "📃 Contract" },
-  { value: "Internship", label: "🎓 Internship" },
-  { value: "Freelance", label: "🧑‍💻 Freelance" }
-]
+  { value: JobType.FULL_TIME, label: "🕐 Full-time" },
+  { value: JobType.PART_TIME, label: "🕞 Part-time" },
+  { value: JobType.CONTRACT, label: "📃 Contract" },
+  { value: JobType.INTERN, label: "🎓 Internship" }
+] as const;
+
+import { WorkPlaceType } from "@/types/create-job";
 
 export const WORKPLACE_TYPE = [
-  { value: "On-site", label: "🏢 On-site" },
-  { value: "Remote", label: "🏠 Remote" },
-  { value: "Hybrid", label: "🔀 Hybrid" }
-]
+  { value: WorkPlaceType.ONSITE, label: "🏢 On-site" },
+  { value: WorkPlaceType.REMOTE, label: "🏠 Remote" },
+  { value: WorkPlaceType.HYBRID, label: "🔀 Hybrid" }
+] as const;
+
+import { EmploymentLevelType } from "@/types/create-job";
 
 export const EMPLOYMENT_LEVEL = [
-  { value: "Entry", label: "🧩 Entry Level" },
-  { value: "Mid", label: "⚙️ Mid Level" },
-  { value: "Senior", label: "🎯 Senior Level" },
-  { value: "Executive", label: "💼 Executive" },
-  { value: "Director", label: "📊 Director" }
-]
+  { value: EmploymentLevelType.ENTRY, label: "🧩 Entry Level" },
+  { value: EmploymentLevelType.MID, label: "⚙️ Mid Level" },
+  { value: EmploymentLevelType.SENIOR, label: "🎯 Senior Level" },
+  { value: "EXECUTIVE", label: "💼 Executive" },
+  { value: "DIRECTOR", label: "📊 Director" }
+] as const;
