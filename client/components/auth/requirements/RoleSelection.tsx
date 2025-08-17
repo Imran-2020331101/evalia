@@ -11,7 +11,7 @@ interface propType{
 const RoleSelection = ({userType,setUserType, setIsNext}:propType) => {
 
   return (
-        <div className="w-full h-full flex flex-col justify-start pt-[40%] gap-[20px] items-center   relative">
+        <div className="w-full h-full flex flex-col justify-center gap-[20px] items-center   relative">
             <div className="w-[70%] h-[70px] bg-gray-800 rounded-3xl flex justify-center items-center gap-4 ">
                 <input
                 onChange={()=>setUserType('candidate')}

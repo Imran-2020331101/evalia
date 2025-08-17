@@ -6,16 +6,14 @@ import CandidateRequirementContainer from './candidate/CandidateRequirementConta
 import RecruiterRequirementContainer from './recruiter/RecruiterRequirementContainer'
 
 interface propType{
-    translate:number,
     userType:'recruiter' | 'candidate' | null,
     setUserType:React.Dispatch<React.SetStateAction<'recruiter' | 'candidate' | null>>,
 }
 
-const RequirementContainer = ({translate, userType, setUserType}:propType) => {
+const RequirementContainer = ({userType, setUserType}:propType) => {
     const [isNext, setIsNext] = useState<boolean>(false);
-    useEffect(()=>console.log(isNext, userType))
-  return (
-    <div style={{transform:`translateX(${translate}%)`}} className={`min-w-full h-full top-0 right-0 z-10 transition-transform duration-500  p-[10px]`}>
+    return (
+    <div  className={`min-w-full h-full transition-transform duration-500  p-[10px]`}>
         <div className="w-full h-full bg-slate-900 flex">
             
             {

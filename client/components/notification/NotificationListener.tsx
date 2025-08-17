@@ -11,29 +11,29 @@ export default function NotificationListener() {
 
   const SOCKET_URL = "http://localhost:6001";
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    const socket = io(SOCKET_URL, { 
-      withCredentials: true, 
-    });
+  //   const socket = io(SOCKET_URL, { 
+  //     withCredentials: true, 
+  //   });
     
-    socket.on("connect", () => {
-      console.log("Connected to notification service");
-    });
+  //   socket.on("connect", () => {
+  //     console.log("Connected to notification service");
+  //   });
     
-    socket.on("notification", (notif) => {
-      console.log("New notification received:", notif);
-      dispatch(addNotification(notif));
-    });
+  //   socket.on("notification", (notif) => {
+  //     console.log("New notification received:", notif);
+  //     dispatch(addNotification(notif));
+  //   });
     
-    socket.on("connect_error", (error) => {
-      console.error("Socket connection error:", error);
-    });
+  //   socket.on("connect_error", (error) => {
+  //     console.error("Socket connection error:", error);
+  //   });
 
-    return () => {
-      socket.disconnect();
-    };
-  }, [ dispatch]);
+  //   return () => {
+  //     socket.disconnect();
+  //   };
+  // }, [ dispatch]);
 
   return null; 
 }
