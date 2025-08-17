@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { useAppDispatch } from '@/redux/lib/hooks'
+import { toggleIsShowAuthRole } from '@/redux/features/utils'
 
 const VerifyOTPPage = () => {
   const [otp, setOtp] = useState('')
@@ -13,6 +15,7 @@ const VerifyOTPPage = () => {
   const [countdown, setCountdown] = useState(0)
   
   const router = useRouter()
+  const dispatch = useAppDispatch()
   const searchParams = useSearchParams()
   const email = searchParams.get('email')
   const message = searchParams.get('message')
@@ -74,10 +77,12 @@ const VerifyOTPPage = () => {
       const data = await response.json()
 
       if (data.success) {
-        setSuccess('Email verified successfully! Redirecting to login...')
+        setSuccess(`Email verified successfully! Let's go through some steps...`)
         // Redirect to login after 2 seconds
         setTimeout(() => {
-          router.push('/auth/login?message=Email verified successfully! You can now log in.')
+          dispatch(toggleIsShowAuthRole())
+          router.push('/auth/login')
+          // router.push('/auth/login?message=Email verified successfully! You can now log in.')
         }, 2000)
       } else {
         setError(data.message || 'Invalid OTP. Please try again.')
@@ -127,29 +132,32 @@ const VerifyOTPPage = () => {
 
   if (!email) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-[#3E3232] text-white p-6">
-        <div className="bg-red-900/30 border border-red-500 rounded-lg p-4 mb-4">
-          <p className="text-red-400">Email not found. Please try registering again.</p>
+      <div className="fixed top-0 left-0 right-0 bottom-0 z-[150] flex justify-center items-center backdrop-blur-2xl">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-[#3E3232] text-white p-6">
+          <div className="bg-red-900/30 border border-red-500 rounded-lg p-4 mb-4">
+            <p className="text-red-400">Email not found. Please try registering again.</p>
+          </div>
+          <Link 
+            href="/auth/register" 
+            className="text-[#c5b2b2] hover:text-white underline"
+          >
+            Go back to Registration
+          </Link>
         </div>
-        <Link 
-          href="/auth/register" 
-          className="text-[#c5b2b2] hover:text-white underline"
-        >
-          Go back to Registration
-        </Link>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#3E3232] text-white p-6">
+    <div className="fixed z-[150] top-0 left-0 right-0 bottom-0 flex justify-center items-center backdrop-blur-2xl">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-950/70 text-white p-6">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">Verify Your Email</h1>
           <p className="text-gray-400 text-sm">
             We've sent a 4-digit OTP to:
           </p>
-          <p className="text-[#c5b2b2] font-medium">{email}</p>
+          <p className="text-gray-500 font-medium">{email}</p>
         </div>
 
         {message && (
@@ -179,7 +187,7 @@ const VerifyOTPPage = () => {
               Enter 4-digit OTP
             </label>
             <input 
-              className='w-full h-12 px-4 text-center text-2xl tracking-widest rounded-lg border border-[#ac8e8e] bg-transparent text-white focus:outline-none focus:ring-2 focus:ring-[#A87C7C]' 
+              className='w-full h-12 px-4 text-center text-2xl tracking-widest rounded-lg border border-gray-700 bg-transparent text-white focus:outline-none focus:ring-2 focus:ring-gray-600' 
               id='otp' 
               name='otp'
               type="text"
@@ -194,7 +202,7 @@ const VerifyOTPPage = () => {
           <button 
             type="submit"
             disabled={loading || success !== ''}
-            className='w-full h-12 cursor-pointer bg-[#503C3C] text-[#c5b2b2] hover:bg-[#473535] hover:text-[#cec8c8] text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 rounded-lg'
+            className='w-full h-12 cursor-pointer bg-slate-800 text-gray-400 hover:bg-slate-900 hover:text-gray-400 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 rounded-lg'
           >
             {loading ? 'Verifying...' : 'Verify OTP'}
           </button>
@@ -230,6 +238,7 @@ const VerifyOTPPage = () => {
           </div>
         </div>
       </div>
+    </div>
     </div>
   )
 }
