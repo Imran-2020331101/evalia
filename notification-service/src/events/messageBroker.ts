@@ -5,15 +5,16 @@ import logger  from "../utils/logger";
 
 export const connectBroker = async () => {
   try {
-    const conn = await amqp.connect(env.BROKER_URL);
+    const conn = await amqp.connect('amqp://localhost:5672');
     const channel = await conn.createChannel();
 
-    await channel.assertQueue("notifications");
+    await channel.assertQueue("notifications",{ durable: true });
     logger.info("Connected to message broker and listening...");
 
     channel.consume("notifications", (msg) => {
       if (msg) {
-        const event = JSON.parse(msg.content.toString());
+        const event = JSON.parse(msg.content)
+        console.log(event);
         handleIncomingEvent(event);
         channel.ack(msg);
       }

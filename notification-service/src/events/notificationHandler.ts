@@ -1,11 +1,13 @@
 import { EventTypes } from "./eventTypes";
 import { createNotification } from "../services/notificationService";
+import { batchFeedbackService } from "../services/batchFeedbackService";
 import { io } from "../config/socket";
+import logger from "../utils/logger";
 
 export const handleIncomingEvent = async (event: any) => {
   try {
     let notification;
-
+    console.log(event.type);
     switch (event.type) {
       // Resume Processing Events
       case EventTypes.RESUME_ANALYSIS_COMPLETED:
@@ -29,6 +31,17 @@ export const handleIncomingEvent = async (event: any) => {
         break;
 
       // Job Matching Events
+
+      case EventTypes.JOB_POSTING_CREATED:
+        notification = await createNotification({
+          userId: event.userId,
+          title: "Job Posted Successfully!",
+          message: `Your job posting "${event.jobTitle}" has been created and is now live. Start receiving applications from qualified candidates.`,
+          type: "success",
+          link: `/jobs/${event.jobId}`
+        });
+        break;
+
       case EventTypes.JOB_MATCH_FOUND:
         notification = await createNotification({
           userId: event.userId,
@@ -77,6 +90,41 @@ export const handleIncomingEvent = async (event: any) => {
           type: "info",
           link: `/dashboard/recommendations`
         });
+        break;
+
+      case EventTypes.BATCH_REJECTION_FEEDBACK:
+        // Handle batch rejection feedback processing
+        logger.info(`Processing batch rejection feedback for job: ${event.jobId}`);
+        
+        try {
+          const result = await batchFeedbackService.processBatchRejectionFeedback({
+            jobId: event.jobId,
+            jobTitle: event.jobTitle,
+            companyName: event.companyName,
+            jobDescription: event.jobDescription,
+            shortlistedCandidates: event.shortlistedCandidates,
+            allApplicants: event.allApplicants,
+            recruiterId: event.recruiterId
+          });
+          
+          logger.info(`Batch feedback completed: ${result.processed} processed, ${result.failed} failed`);
+          
+          // The individual notifications are handled within the batch service
+          // No need to create additional notifications here
+          notification = null; // Don't create a notification for the batch event itself
+          
+        } catch (error) {
+          logger.error("Batch rejection feedback failed:", error);
+          
+          // Notify the recruiter that batch processing failed
+          notification = await createNotification({
+            userId: event.recruiterId,
+            title: "Batch Processing Failed",
+            message: `Failed to send rejection feedback for ${event.jobTitle}. Please try again or contact support.`,
+            type: "error",
+            link: `/recruiter/jobs/${event.jobId}`
+          });
+        }
         break;
 
       // Authentication & Security Events
@@ -241,8 +289,8 @@ export const handleIncomingEvent = async (event: any) => {
     }
 
     if (notification) {
-      // Send real-time notification via WebSocket
-      io.to(`user-${event.userId}`).emit("new-notification", notification);
+      // Send real-time notification via WebSocket (Fixed: use correct room name and event)
+      io.to(event.userId).emit("notification", notification);
       
       // Log successful notification creation
       console.log(`Notification created for user ${event.userId}: ${event.type}`);
@@ -262,7 +310,7 @@ export const handleIncomingEvent = async (event: any) => {
           link: `/dashboard`
         });
         
-        io.to(`user-${event.userId}`).emit("new-notification", errorNotification);
+        io.to(event.userId).emit("notification", errorNotification);
       } catch (fallbackError) {
         console.error("Failed to send error notification:", fallbackError);
       }

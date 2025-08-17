@@ -4,6 +4,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# to ignore non typescript files
+dist/
+*.js
+*.js.map
+
+
 # Runtime data
 pids
 *.pid
