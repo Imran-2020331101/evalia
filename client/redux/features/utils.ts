@@ -5,11 +5,11 @@ interface initialStateType{
     isShowHamburgerMenu:boolean,
     previewedJob:any,
     previewedCandidate:any,
-    translateX:number
+    isShowAuthRole:boolean
 }
 
 const initialState:initialStateType = {
-    translateX:0,
+    isShowAuthRole:false,
     isShowHamburgerMenu:false,
     previewedJob :null,
     previewedCandidate:null,
@@ -28,15 +28,15 @@ const utilsSlice = createSlice({
         setPreviewedCandidate(state, action){
             state.previewedCandidate=action.payload
         },
-        setTranslateX(state,action){
-            state.translateX=action.payload
+        toggleIsShowAuthRole(state){
+            state.isShowAuthRole=!state.isShowAuthRole
         }
     }
 })
 
 export default utilsSlice.reducer;
-export const {toggleIsShowHamburgerMenu, setPreviewedJob, setPreviewedCandidate, setTranslateX} = utilsSlice.actions;
+export const {toggleIsShowHamburgerMenu, setPreviewedJob, setPreviewedCandidate, toggleIsShowAuthRole} = utilsSlice.actions;
 export const isShowHamburgerMenu = (state:RootState) =>state.utils.isShowHamburgerMenu;
 export const previewedJob = (state:RootState)=>state.utils.previewedJob;
 export const previewedCandidate = (state:RootState)=>state.utils.previewedCandidate;
-export const translateX = (state:RootState)=>state.utils.translateX;
+export const isShowAuthRole = (state:RootState)=>state.utils.isShowAuthRole;
