@@ -45,4 +45,8 @@ public class UserService {
         return dto;
     }
 
+    public void saveUpdatedUser(userEntity user) {
+        userRepository.save(user);
+    }
+
 }

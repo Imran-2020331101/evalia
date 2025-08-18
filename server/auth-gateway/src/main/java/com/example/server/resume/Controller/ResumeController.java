@@ -1,5 +1,6 @@
 package com.example.server.resume.Controller;
 
+import com.example.server.User.Service.UserService;
 import com.example.server.resume.DTO.BasicSearchRequest;
 import com.example.server.resume.DTO.BasicSearchResponse;
 import com.example.server.resume.DTO.ResumeDataRequest;
@@ -8,6 +9,7 @@ import com.example.server.resume.Proxy.ResumeJsonProxy;
 import com.example.server.resume.Proxy.ResumeProxy;
 import com.example.server.security.models.userEntity;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.http.*;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
@@ -26,15 +28,17 @@ public class ResumeController {
     private final ResumeProxy resumeProxy;
     private final ResumeJsonProxy resumeJsonProxy;
     private final UserDetailsService userDetailsService;
+    private final UserService userService;
 
-    public ResumeController(ResumeProxy resumeProxy, ResumeJsonProxy resumeJsonProxy, UserDetailsService userDetailsService) {
+    public ResumeController(ResumeProxy resumeProxy, ResumeJsonProxy resumeJsonProxy, UserDetailsService userDetailsService, UserService userService) {
         this.userDetailsService = userDetailsService;
         this.resumeJsonProxy = resumeJsonProxy;
         this.resumeProxy = resumeProxy;
+        this.userService = userService;
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadAndForwardResume(@RequestParam("file") MultipartFile file, Principal principal) {
+    public ResponseEntity<?> uploadAndForwardResume(@RequestParam("file") MultipartFile file, Principal principal) {
 
         logger.info("Received file upload request from user: " + principal.getName());
 
@@ -46,6 +50,19 @@ public class ResumeController {
                     principal.getName(),
                     user.getId().toString()
             );
+
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode jsonNode = mapper.readTree(response);
+
+            if (jsonNode.has("success") && !jsonNode.get("success").asBoolean()) {
+                // Downstream reported failure
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(jsonNode);
+            }
+
+            user.setHasResume(true);
+            userService.saveUpdatedUser(user);
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
