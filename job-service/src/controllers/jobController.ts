@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import { JobDetailsModel, IJobDetailsDocument } from '../models/JobDetails';
 import { logger } from '../config/logger';
-
 import { 
   CreateJobRequestSchema, 
   JobFilterSchema, 
   ApiResponse, 
-  Pagination
+  Pagination,
+  ApplicationStatus
 } from '../types/job.types';
 import { JobService } from '../services/jobService';
 import { z } from 'zod';
@@ -344,6 +344,32 @@ export class JobController {
       const { jobId, email } = req.body;
       const result = await JobService.shortlistCandidate(jobId, email);
       const status = result.success ? 200 : 400;
+      res.status(status).json(result);
+    } catch (error: any) {
+      logger.error("Error in shortListCandidate controller", {
+        error: error.message,
+        jobId: req.body.jobId,
+      });
+      res.status(500).json({
+        success: false,
+        error: "Internal server error while shortlisting candidate",
+      } as ApiResponse);
+    }
+  }
+  async rejectRemainingCandidates(req:Request,res:Response):Promise<void>{
+    try {
+      const { jobId, current_status } = req.body;
+
+      if(!ApplicationStatus.options.includes(current_status)){
+          res.status(500).json({
+          success: false,
+          error: "you must include the current status type of the candidates",
+        } as ApiResponse);
+      }
+
+      const result = await JobService.changeStatusToRejected(jobId, current_status);
+      const status = result.success ? 200 : 400;
+      
       res.status(status).json(result);
     } catch (error: any) {
       logger.error("Error in shortListCandidate controller", {

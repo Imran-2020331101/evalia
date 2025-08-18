@@ -4,6 +4,12 @@ import {
   ApiResponse, 
   Pagination
 } from '../types/job.types';
+// Status enum for job applications
+enum ApplicationStatus {
+  Pending = 'PENDING',
+  Shortlisted = 'SHORTLISTED',
+  Rejected = 'REJECTED',
+}
 import { JobDetailsModel, IJobDetailsDocument } from '../models/JobDetails';
 import { Types } from 'mongoose';
 import { logger } from '../config/logger';
@@ -11,37 +17,31 @@ import { sendNotification } from '../utils/notify';
 
 class jobService{
     async applyToJob(jobId: string, candidateId: string, resumeId?: string): Promise<ApiResponse> {
+      if (!Types.ObjectId.isValid(jobId)) {
+        return { success: false, error: "Invalid job ID" };
+      }
+      if (!candidateId || typeof candidateId !== 'string') {
+        return { success: false, error: "Candidate ID is required. (Must be a String)" };
+      }
       try {
-        if (!Types.ObjectId.isValid(jobId)) {
-          return { success: false, error: "Invalid job ID" } as ApiResponse;
-        }
-        if (!candidateId || typeof candidateId !== 'string') {
-          return { success: false, error: "Candidate ID is required. (Must be a String)" } as ApiResponse;
-        }
-
-        // Build application object matching schema
         const application = {
           candidateId,
           appliedAt: new Date(),
-          status: 'pending',
+          status: ApplicationStatus.Pending,
           ...(resumeId ? { resumeId } : {})
         };
-
         const job = await JobDetailsModel.findByIdAndUpdate(
           jobId,
           { $addToSet: { applications: application } },
           { new: true }
         );
-
         if (!job) {
-          return { success: false, error: "Job not found" } as ApiResponse;
+          return { success: false, error: "Job not found" };
         }
-
         logger.info("Candidate applied to job", {
           jobId: job._id.toString(),
           candidateId,
         });
-
         return {
           success: true,
           message: "Application submitted successfully",
@@ -49,7 +49,7 @@ class jobService{
             jobId: job._id,
             candidateId,
           },
-        } as ApiResponse;
+        };
       } catch (error: any) {
         logger.error("Error applying to job", {
           error: error.message,
@@ -58,22 +58,21 @@ class jobService{
         return {
           success: false,
           error: "Internal server error while applying to job",
-        } as ApiResponse;
+        };
       }
     }
     async createJob(payload: unknown): Promise<ApiResponse> {
+      const validationResult = CreateJobRequestSchema.safeParse(payload);
+      if (!validationResult.success) {
+        const errors = validationResult.error.errors.map(err => `${err.path.join('.')}: ${err.message}`);
+        logger.warn("Validation failed", { errors });
+        return {
+          success: false,
+          error: "Validation failed",
+          details: errors,
+        };
+      }
       try {
-        const validationResult = CreateJobRequestSchema.safeParse(payload);
-        if (!validationResult.success) {
-          const errors = validationResult.error.errors.map(err => `${err.path.join('.')}: ${err.message}`);
-          console.log("Validation failed" , errors);
-          return {
-            success: false,
-            error: "Validation failed",
-            details: errors,
-          } as ApiResponse;
-        }
-
         const {
           companyInfo,
           basic: {
@@ -92,8 +91,7 @@ class jobService{
           skill,
           interviewQA,
         } = validationResult.data;
-        
-        console.log("Deadline received:", deadline);
+        logger.info("Deadline received", { deadline });
         const jobData = {
           title,
           jobDescription,
@@ -111,11 +109,7 @@ class jobService{
           status: "active" as const,
           interviewQA: interviewQA || [],
         };
-
-
-        const newJob = new JobDetailsModel(jobData);
-        const savedJob = await newJob.save();
-
+        const savedJob = await new JobDetailsModel(jobData).save();
         if(savedJob){
           const notification = {
             userId: companyInfo.id,
@@ -125,14 +119,11 @@ class jobService{
           }
           sendNotification(notification,"notifications");
         }
-
-
         logger.info("New job created successfully", {
           jobId: savedJob._id.toString(),
           company: savedJob.company?.id,
           postedBy: savedJob.postedBy,
         });
-
         return {
           success: true,
           message: "Job created successfully",
@@ -142,23 +133,21 @@ class jobService{
             status: savedJob.status,
             createdAt: savedJob.createdAt,
           },
-        } as ApiResponse;
+        };
       } catch (error: any) {
         logger.error("Error creating job", { error: error.message, stack: error.stack });
-
         if (error.name === "ValidationError") {
           const validationErrors = Object.values(error.errors).map((err: any) => err.message);
           return {
             success: false,
             error: "Validation failed",
             details: validationErrors,
-          } as ApiResponse;
+          };
         }
-
         return {
           success: false,
           error: "Internal server error while creating job",
-        } as ApiResponse;
+        };
       }
     }
 
@@ -194,33 +183,27 @@ class jobService{
       }
     }
 
-    
-
     async shortlistCandidate(jobId: string, candidateId: string): Promise<ApiResponse> {
+      if (!Types.ObjectId.isValid(jobId)) {
+        return { success: false, error: "Invalid job ID" };
+      }
+      if (!candidateId || typeof candidateId !== 'string') {
+        return { success: false, error: "Candidate ID is required and must be a string." };
+      }
       try {
-        if (!Types.ObjectId.isValid(jobId)) {
-          return { success: false, error: "Invalid job ID" } as ApiResponse;
-        }
-        if (!candidateId || typeof candidateId !== 'string') {
-          return { success: false, error: "Candidate ID is required and must be a string." } as ApiResponse;
-        }
-
         // Update the status of the candidate's application to 'shortlisted'
         const job = await JobDetailsModel.findOneAndUpdate(
           { _id: jobId, "applications.candidateId": candidateId },
-          { $set: { "applications.$.status": "shortlisted" } },
+          { $set: { "applications.$.status": ApplicationStatus.Shortlisted } },
           { new: true }
         );
-
         if (!job) {
-          return { success: false, error: "Job or application not found" } as ApiResponse;
+          return { success: false, error: "Job or application not found" };
         }
-
         logger.info("Candidate application status updated to shortlisted", {
           jobId: job._id.toString(),
           candidateId,
         });
-
         return {
           success: true,
           message: "Candidate shortlisted successfully",
@@ -228,7 +211,7 @@ class jobService{
             jobId: job._id,
             candidateId,
           },
-        } as ApiResponse;
+        };
       } catch (error: any) {
         logger.error("Error shortlisting candidate", {
           error: error.message,
@@ -237,7 +220,43 @@ class jobService{
         return {
           success: false,
           error: "Internal server error while shortlisting candidate",
-        } as ApiResponse;
+        };
+      }
+    }
+
+    async changeStatusToRejected(jobId: string, current_Status: string): Promise<ApiResponse> {
+      if (!Types.ObjectId.isValid(jobId)) {
+        return { success: false, error: "Invalid job ID" };
+      }
+      try {
+        const job = await JobDetailsModel.findOne({ _id: jobId }, { applications: 1 });
+        const updatedCount = job?.applications.filter(app => app.status === ApplicationStatus.Pending).length;
+        await JobDetailsModel.updateOne(
+          { _id: jobId },
+          { $set: { "applications.$[elem].status": ApplicationStatus.Rejected } },
+          { arrayFilters: [{ "elem.status": ApplicationStatus.Pending }] }
+        );
+        logger.info(`Changed status to REJECTED for all ${current_Status} applications`, {
+          jobId,
+          updatedCount
+        });
+        return {
+          success: true,
+          message: `Started Rejection with Feedback for ${updatedCount} applications`,
+          data: {
+            jobId,
+            updatedCount,
+          },
+        };
+      } catch (error: any) {
+        logger.error("Error Rejecting candidate", {
+          error: error.message,
+          jobId,
+        });
+        return {
+          success: false,
+          error: "Internal server error while rejecting candidates",
+        };
       }
     }
     

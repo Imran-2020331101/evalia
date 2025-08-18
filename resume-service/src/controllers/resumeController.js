@@ -3,7 +3,7 @@ const logger = require("../utils/logger");
 const cloudinary = require("../config/Cloudinary");
 const Resume = require("../models/Resume");
 const ResumeDTO = require("../dto/ResumeDTO");
-const {mapToResumeDTO} = require("../utils/resumeHelper")
+const { mapToResumeDTO } = require("../utils/resumeHelper");
 const {
   addToVectordb,
   naturalLanguageSearch,
@@ -12,6 +12,58 @@ const {
 } = require("../services/vectorDbService");
 
 class ResumeController {
+  async uploadResumeToCloud(req, res) {
+    try {
+      //using multer config. don't touch
+      const pdfFile = req.file;
+      const { userEmail, userId } = req.body;
+
+      if (!pdfFile) {
+        return res.status(400).json({
+          success: false,
+          error: "No PDF file provided",
+        });
+      }
+
+      if (!userEmail) {
+        return res.status(400).json({
+          success: false,
+          error: "User email is required",
+        });
+      }
+
+      const cleanUserId = String(userId).replace(/[^a-zA-Z0-9]/g, "_");
+
+      // Upload PDF to Cloudinary
+      const folderName = "evalia/resume/pdf";
+      const cloudinaryResult = await resumeService.uploadToCloudinary(
+        pdfFile.buffer,
+        folderName,
+        cleanUserId
+      );
+
+      const downloadUrl = cloudinary.url(`${folderName}/${cleanUserId}`, {
+        resource_type: "raw",
+        flags: `attachment:${userId}.pdf`, // sets download filename
+        version: cloudinaryResult.version,
+      });
+      
+      res.status(200).json({
+        success: true,
+        data: {
+          downloadUrl
+        },
+      });
+    } catch (error) {
+      logger.error("Failed to upload resume to cloud : ", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to upload resume to cloud",
+        details: error.message,
+      });
+    }
+  }
+
   async extractResume(req, res) {
     try {
       //using multer config. don't touch

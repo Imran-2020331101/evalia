@@ -1,8 +1,8 @@
 import { Notification, INotification } from "../models/Notification";
 
 export const createNotification = async (data: Partial<INotification>) => {
-  const notif = await Notification.create(data);
-  return notif;
+  const notification = await Notification.create(data);
+  return notification;
 };
 
 export const getUserNotifications = async (userId: string) => {
