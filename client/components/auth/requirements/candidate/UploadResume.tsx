@@ -3,6 +3,8 @@
 import { useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Upload, FileText, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
+import { useAppDispatch } from '@/redux/lib/hooks'
+import { toggleIsShowAuthRole } from '@/redux/features/utils'
 
 interface UploadState {
   file: File | null
@@ -19,6 +21,7 @@ const UploadResume=() =>{
   const [isDragOver, setIsDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
+  const dispatch = useAppDispatch()
 
   const validateFile = (file: File): string | null => {
     // Check file type
@@ -138,8 +141,8 @@ const UploadResume=() =>{
   }
 
   return (
-    <div className="min-h-full w-full  py-8 px-4 text-[12px]">
-      <div className="max-w-4xl mx-auto mt-20">
+    <div className="min-h-full w-full py-6 px-4 text-[12px]">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-xl font-bold text-white mb-2">
@@ -299,6 +302,9 @@ const UploadResume=() =>{
             </li>
           </ul>
         </div>
+        <button onClick={()=>dispatch(toggleIsShowAuthRole())} className='w-full h-[40px] rounded-2xl bg-slate-600 hover:bg-slate-800 text-lg font-semibold hover:text-gray-400 text-gray-200 cursor-pointer mt-8 shrink-0'>
+          Skip For Now !
+        </button>
       </div>
     </div>
   )

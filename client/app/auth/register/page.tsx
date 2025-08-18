@@ -5,7 +5,6 @@ import GoogleAuth from '@/components/auth/GoogleAuth'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAppDispatch } from '@/redux/lib/hooks'
-import { setTranslateX } from '@/redux/features/utils'
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -17,7 +16,6 @@ const RegisterPage = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
-  const dispatch = useAppDispatch()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -158,7 +156,6 @@ const RegisterPage = () => {
         <Link prefetch href={'/auth/login'} className='underline cursor-pointer text-gray-50 min-[1200px]:text-[14px] min-[1600px]:text-[16px]'>{' Sign in :)'}</Link>
       </div>
         {/* test translate */}
-      <button onClick={()=>dispatch(setTranslateX(-100))} className="">Test Translate</button>
     </>
   )
 }
