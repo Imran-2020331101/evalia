@@ -21,7 +21,7 @@ export const JobStatus = z.enum(['draft', 'active', 'paused', 'closed', 'filled'
 export type JobStatus = z.infer<typeof JobStatus>;
 
 // Application status
-export const ApplicationStatus = z.enum(['pending', 'reviewed', 'shortlisted', 'rejected', 'hired']);
+export const ApplicationStatus = z.enum(['PENDING', 'SHORTLISTED', 'REJECTED', 'HIRED']);
 export type ApplicationStatus = z.infer<typeof ApplicationStatus>;
 
 // Domain item schema (for requirements, responsibilities, skills)
@@ -52,7 +52,7 @@ export type Company = z.infer<typeof CompanySchema>;
 export const ApplicationSchema = z.object({
   candidateId: z.string().min(1, 'Candidate ID is required'),
   appliedAt: z.date().optional(),
-  status: ApplicationStatus.default('pending'),
+  status: ApplicationStatus.default('PENDING'),
   resumeId: z.string().optional()
 });
 export type Application = z.infer<typeof ApplicationSchema>;

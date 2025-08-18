@@ -1,13 +1,12 @@
 import dotenv from 'dotenv';
 
-// Load environment variables first
+// Load environment variables
 dotenv.config();
 
 import app from './src/app';
 
-const PORT = process.env.PORT || 7001;
+const PORT = process.env.PORT || 7000;
 
 app.listen(PORT, () => {
   console.log('Upskill Engine server running', { port: PORT })
-
 });

@@ -19,6 +19,16 @@ export const connectBroker = async () => {
         channel.ack(msg);
       }
     });
+
+    channel.consume("send-mail",(msg) => {
+      if(msg){
+        const event = JSON.parse(msg.content);
+        console.log(event);
+
+        channel.ack(msg);
+      }
+    })
+
   } catch (err) {
     logger.error("Message broker connection failed", err);
   }
