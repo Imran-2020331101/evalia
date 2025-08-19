@@ -17,7 +17,9 @@ const CallbackPage = () => {
     if (token) {
       try {
         // Store the JWT token (you can use localStorage, sessionStorage, or cookies)
-        localStorage.setItem('authToken', token)
+        console.log(token)
+        localStorage.removeItem('authToken');
+        localStorage.setItem('authToken', token);
         
         // You can also decode the token to get user info if needed
         // const payload = JSON.parse(atob(token.split('.')[1]))
@@ -27,7 +29,8 @@ const CallbackPage = () => {
         // Redirect to dashboard or main app after successful authentication
         setTimeout(() => {
           dispatch(toggleIsShowAuthRole())
-          router.push('/auth/login')
+          router.push('/workspace')
+          // router.push('/auth/login')
           // router.push('/dashboard') // Change this to your main app route
         }, 2000)
         

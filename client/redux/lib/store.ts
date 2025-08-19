@@ -2,9 +2,11 @@ import { configureStore } from '@reduxjs/toolkit'
 import utils from '../features/utils'
 import notifications from '../features/notification'
 import job from '../features/job'
+import auth from '../features/auth'
 
 export const store = configureStore({
   reducer: {
+    auth,
     utils,
     notifications,
     job

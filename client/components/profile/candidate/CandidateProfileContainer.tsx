@@ -5,6 +5,7 @@ import CandidatesResumePanel from "@/components/utils/CandidatesResumePanel"
 import { Edit, Edit3, File, Save } from "lucide-react"
 import Image from "next/image"
 import { useRef, useState } from "react"
+import CandidatesProfileResumePanel from "./CandidatesProfileResumePanel"
 
 const CandidateProfileContainer = () => {
   const coverPhotoRef = useRef<null|HTMLInputElement>(null)
@@ -108,7 +109,7 @@ const CandidateProfileContainer = () => {
             </section>
             }
             <section className="w-full min-h-[200px] bg-slate-900 rounded pb-[40px]">
-              <CandidatesResumePanel isScroll={false}/>
+              <CandidatesProfileResumePanel  />
             </section>
         </div>
         <div className="w-[30%] h-full   shrink-0 pt-[60px] pb-[10px]  gap-[14px] ">

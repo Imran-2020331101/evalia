@@ -1,10 +1,15 @@
+'use client'
+import { useParams } from "next/navigation";
 import MyJobSingleNavbar from '@/components/workspace/recruiters/jobs/my-jobs/MyJobSingleNavbar'
 import MyJobsSingle from '@/components/workspace/recruiters/jobs/my-jobs/MyJobsSingle'
 import { Didact_Gothic } from 'next/font/google'
+import { useEffect } from "react";
 
 const didact_gothic = Didact_Gothic({ weight: ['400'], subsets: ['latin'] })
 
 const RecruitersSingleJobLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
+  const {jobId} = useParams()
+  useEffect(()=>console.log(jobId, 'jobid'))
   return (
     <div className={`w-full h-full p-[10px] gap-[20px] ${didact_gothic.className} tracking-wider`}>
       <div className="w-full h-full flex items-center bg-slate-900/40 ">

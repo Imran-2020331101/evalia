@@ -1,18 +1,18 @@
-import { Request, Response } from "express";
-import { OverviewService } from "../services/overviewService";
-import upskillBot from "../config/OpenRouter";
-import { overviewPrompt } from "../prompts/overview";
-import { z } from 'zod';
-import { JobService } from "../services/jobService";
-import {logger} from "../config/logger"; // no curly braces for default export
+// import { Request, Response } from "express";
+// import { OverviewService } from "../services/overviewService";
+// import upskillBot from "../config/OpenRouter";
+// import { overviewPrompt } from "../prompts/overview";
+// import { z } from 'zod';
+// import { JobService } from "../services/jobService";
+// import {logger} from "../config/logger"; // no curly braces for default export
 
 
-const overviewRequestSchema = z.object({
-  resumeId: z.string().min(1, "resumeId is required"),
-  jobId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID"),
-});
+// const overviewRequestSchema = z.object({
+//   resumeId: z.string().min(1, "resumeId is required"),
+//   jobId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID"),
+// });
 
-type OverviewRequest = z.infer<typeof overviewRequestSchema>
+// type OverviewRequest = z.infer<typeof overviewRequestSchema>
 
 class OverviewControllerClass {
   // getResumeOverview = async (req: Request, res: Response): Promise<void> => {
@@ -64,5 +64,5 @@ class OverviewControllerClass {
   // }
 }
 
-export const OverviewController = new OverviewControllerClass();
+// export const OverviewController = new OverviewControllerClass();
  
