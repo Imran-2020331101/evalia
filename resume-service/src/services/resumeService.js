@@ -35,6 +35,9 @@ class ResumeService {
     });
   }
 
+  
+
+
   /**
    * Extract text from PDF buffer
    * @param {Buffer} pdfBuffer - PDF file buffer
@@ -66,7 +69,7 @@ class ResumeService {
   }
 
   /**
-   * Analyze resume content using AI parsing
+   * Extract the key parts of the resume in key pair json format using LLM.
    * @param {string} text - Extracted text from resume
    * @returns {Promise<Object>} - Analyzed resume data from AI
    */

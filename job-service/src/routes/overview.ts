@@ -6,6 +6,6 @@ const router = express.Router();
 // POST /api/overview
 console.log("In routes file, OverviewController =", OverviewController);
 
-router.get('/', OverviewController.getResumeOverview.bind(OverviewController));
+// router.get('/', OverviewController.getResumeOverview.bind(OverviewController));
 
 export default router;

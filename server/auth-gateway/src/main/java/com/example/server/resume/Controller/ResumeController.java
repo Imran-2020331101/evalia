@@ -17,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 @CrossOrigin
@@ -45,23 +47,24 @@ public class ResumeController {
         userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
 
         try {
-            String response = resumeProxy.forwardResumeToProcessingEngine(
+            String response = resumeProxy.forwardResumeToResumeService(
                     file,
                     principal.getName(),
                     user.getId().toString()
             );
 
+            // Updates the user's resume status and stores the URL when the response is successful
+            // returns error otherwise.
             ObjectMapper mapper = new ObjectMapper();
             JsonNode jsonNode = mapper.readTree(response);
-
             if (jsonNode.has("success") && !jsonNode.get("success").asBoolean()) {
-                // Downstream reported failure
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(jsonNode);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(jsonNode);
             }
-
             user.setHasResume(true);
+            user.setResumeUrl(jsonNode.get("downloadUrl").asText());
             userService.saveUpdatedUser(user);
+
+            logger.info(jsonNode.get("downloadUrl").asText());
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -70,12 +73,36 @@ public class ResumeController {
         }
     }
 
+    @PostMapping("/extract")
+    public ResponseEntity<?> extractDetailsFromResume(Principal principal) {
+        userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
+
+        if (user == null || !user.isHasResume()) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("error", "Resume not found for user. Please upload a resume first.");
+            response.put("details", "User: " + principal.getName() + " has no resume uploaded.");
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+
+        return ResponseEntity.ok(
+                resumeJsonProxy.extractDetailsFromResume(new ResumeForwardWrapper(
+                        null,
+                        user.getResumeUrl(),
+                        user.getId(),
+                        user.getUsername()
+        )));
+    }
+
     @PostMapping("/save")
     public String saveResume(@RequestBody ResumeDataRequest resumeData) {
         userEntity user = (userEntity) userDetailsService.loadUserByUsername(resumeData.getUploadedBy());
         logger.info("Received request to save resume data for user: " + resumeData.getFilename());
         return resumeJsonProxy.saveResume(new ResumeForwardWrapper(
                 resumeData,
+                null,
                 user.getId(),
                 user.getUsername()
         ));

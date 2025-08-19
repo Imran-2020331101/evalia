@@ -14,7 +14,7 @@ const router = express.Router();
  */
 router.post("/upload", upload.single("file"), resumeController.uploadResumeToCloud);
 
-router.post("/extract", upload.single("file"), resumeController.extractResume);
+router.post("/extract", resumeController.extractDetailsFromResume);
 
 /**
  * @route   POST /api/resume/save
