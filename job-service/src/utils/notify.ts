@@ -8,7 +8,7 @@ export async function sendNotification(message : JsonObject, channelName : strin
   try {
 
     const amqpServer = 'amqp://localhost:5672'
-    connection = await amqplib.connect(amqpServer)
+    const connection = await amqplib.connect(amqpServer)
     channel = await connection.createChannel()
 
     const exchange = "notify"

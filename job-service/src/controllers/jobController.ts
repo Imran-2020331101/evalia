@@ -38,7 +38,7 @@ export class JobController {
     try {
 
       const { jobId } = z.object({ jobId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID") }).parse(req.params);
-
+      console.log(jobId, 'jobId')
       const result = await JobService.findJobById(jobId);
       const status = result.success ? 200 : (result.details || result.error === 'Validation failed') ? 400 : 500;
       res.status(status).json(result);
