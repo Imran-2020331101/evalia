@@ -47,11 +47,11 @@ class ResumeController {
         flags: `attachment:${userId}.pdf`, // sets download filename
         version: cloudinaryResult.version,
       });
-      
+
       res.status(200).json({
         success: true,
         data: {
-          downloadUrl
+          downloadUrl,
         },
       });
     } catch (error) {
@@ -64,47 +64,20 @@ class ResumeController {
     }
   }
 
-  async extractResume(req, res) {
+  async extractDetailsFromResume(req, res) {
+    const {resumeURL} = req.body;
     try {
-      //using multer config. don't touch
-      const pdfFile = req.file;
-      const { userEmail, userId } = req.body;
-
-      if (!pdfFile) {
-        return res.status(400).json({
-          success: false,
-          error: "No PDF file provided",
-        });
-      }
-
-      if (!userEmail) {
-        return res.status(400).json({
-          success: false,
-          error: "User email is required",
-        });
-      }
-
-      //clean to ensure consistency if in case any manipulation occurs
-      const cleanUserId = String(userId).replace(/[^a-zA-Z0-9]/g, "_");
-
-      // Upload PDF to Cloudinary
-      const folderName = "evalia/resume/pdf";
-      const cloudinaryResult = await resumeService.uploadToCloudinary(
-        pdfFile.buffer,
-        folderName,
-        cleanUserId
-      );
-
-      const downloadUrl = cloudinary.url(`${folderName}/${cleanUserId}`, {
-        resource_type: "raw",
-        flags: `attachment:${userId}.pdf`, // sets download filename
-        version: cloudinaryResult.version,
+      const fileResponse = await axios.get(resumeURL, {
+        responseType: "arraybuffer",
       });
 
-      // Extract text from PDF buffer
-      const extractedData = await resumeService.extractText(pdfFile.buffer);
 
-      // Analyze resume content (skills, experience, etc.)
+      fs.writeFileSync("resume.pdf", response.data);
+
+      console.log("PDF downloaded successfully.");
+
+      const pdfFile = Buffer.from(fileResponse.data);
+      const extractedData = await resumeService.extractText(pdfFile.buffer);
       const analysis = await resumeService.analyzeResume(extractedData.text);
 
       // Create ResumeDTO with analyzed data for frontend
@@ -135,7 +108,6 @@ class ResumeController {
         success: true,
         data: {
           ...extractedResume.toObject(),
-          downloadUrl: downloadUrl, // Add proper download URL
           // Include additional data needed for saving later
           metadata: extractedData.metadata,
           analysis: {
@@ -152,7 +124,7 @@ class ResumeController {
       };
 
       logger.info(
-        "ResumeContoller :: line 106 :: Resume processing completed successfully"
+        "ResumeContoller :: line 127 :: Resume processing completed successfully"
       );
 
       res.status(200).json(response);
@@ -160,7 +132,7 @@ class ResumeController {
       logger.error("Resume extraction failed:", error);
       res.status(500).json({
         success: false,
-        error: "Failed to process resume extraction",
+        error: "Failed to extract resume ",
         details: error.message,
       });
     }

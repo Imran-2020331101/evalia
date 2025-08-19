@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = "resumeJsonClient",
         url = "http://localhost:5000/api/resume")
 public interface ResumeJsonProxy {
+    @PostMapping(value = "/extract", consumes = MediaType.APPLICATION_JSON_VALUE)
+    String extractDetailsFromResume(@RequestBody ResumeForwardWrapper resumeForwardWrapper);
+
     @PostMapping(value = "/save", consumes = MediaType.APPLICATION_JSON_VALUE)
     String saveResume(@RequestBody ResumeForwardWrapper resumeForwardWrapper);
 
