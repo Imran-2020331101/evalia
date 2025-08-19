@@ -5,12 +5,20 @@ import type { jobType } from '@/types/create-job';
 
 export const createJob = createAsyncThunk('job/createJob', async (data:jobType, thunkAPI)=>{
     try {
-        const response = await axios.post(
+        const createJobResponse = await axios.post(
             'http://localhost:8080/api/job/create',data,{
-            withCredentials: true,
+                withCredentials: true,
             })
-            console.log('inside thunk', response.data)
-        return response.data;
+            // console.log('inside thunk', createJobResponse.data)
+        const {jobId}=createJobResponse.data.data;
+        if(jobId){
+            console.log(jobId)
+            const  jobResponse = await axios.get(`http://localhost:7000/api/jobs/${jobId}`,{
+                withCredentials:true,
+            })
+            console.log(jobResponse.data, 'job Response')
+            return jobResponse.data
+        }
     } catch (error:any) {
         return thunkAPI.rejectWithValue(
             error.response? { message: error.response.data } : { message: 'Job creation failed' })
@@ -43,8 +51,8 @@ const jobSlice = createSlice({
         })
         .addCase(createJob.fulfilled,(state,action)=>{
             state.createJobStatus='success'
-            state.myJobs.push(action.payload);
-            console.log(action.payload); 
+            state.myJobs.push(action.payload.data);
+            console.log(action.payload, 'inside create fulfilled job...'); 
         })
     }
 })

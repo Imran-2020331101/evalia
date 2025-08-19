@@ -1,8 +1,13 @@
 import Image from 'next/image'
 
 import { Trash2, FilePenLine } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
-const JobCard = () => {
+const JobCard = ({jobId}:{jobId:string}) => {
+  const router = useRouter()
+  const handleNavToSingleJob = ()=>{
+    router.push(`my-jobs/${jobId}`)
+  }
   return (
     <div className="w-full h-[70px] border-b-[1px] border-gray-800 hover:border-blue-400  flex justify-between shrink-0">
       <div className="h-full w-[65%] flex justify-start items-center gap-4">
@@ -11,7 +16,7 @@ const JobCard = () => {
            alt='company logo' width={100} height={100} className='w-full h-full object-cover rounded-sm'/>
         </div>
         <div className="flex flex-col h-[50px] justify-between items-start flex-1">
-          <button className='text-[12px] text-gray-100 font-semibold tracking-wider cursor-pointer hover:underline'>QA Engineer</button>
+          <button onClick={handleNavToSingleJob} className='text-[12px] text-gray-100 font-semibold tracking-wider cursor-pointer hover:underline'>QA Engineer</button>
           <div className="w-full h-full items-center justify-start flex overflow-hidden">
             <p className='text-[12px] text-gray-300'>{`Google`}</p><p className='font-bold text-sm m-1'>.</p>
             <p className='text-[12px] text-gray-400'>{`Remote only`}</p><p className='font-bold text-sm m-1'>.</p>

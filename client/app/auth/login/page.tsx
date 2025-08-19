@@ -33,7 +33,8 @@ const LoginPage = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        router.push('/dashboard')
+        console.log(data, 'user data')
+        router.push('/workspace')
       } else {
         setError(data.message || 'Login failed. Please check your credentials.')
       }

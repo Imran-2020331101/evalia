@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { SplitText } from 'gsap/all'
+import { isSignedIn } from '@/redux/features/auth'
 
 gsap.registerPlugin(SplitText)
 
@@ -24,6 +25,7 @@ const michroma = Michroma({
 
 const HamburgerMenu = () => {
   const currentIsShowHamburgerMenu = useAppSelector(isShowHamburgerMenu)
+  const currentIsSignedIn = useAppSelector(isSignedIn)
 
   const dispatch = useAppDispatch()
   const router  = useRouter()
@@ -36,6 +38,15 @@ const HamburgerMenu = () => {
   const handleNavToProfile = ()=>{
     dispatch(toggleIsShowHamburgerMenu());
     router.push('/profile');
+  }
+
+  const handleNavToRegister = ()=>{
+    dispatch(toggleIsShowHamburgerMenu());
+    router.push('/auth/register');
+  }
+  const handleNavToLogin = ()=>{
+    dispatch(toggleIsShowHamburgerMenu());
+    router.push('/auth/login');
   }
 
 
@@ -115,18 +126,34 @@ const HamburgerMenu = () => {
               </p>
 
             </div>
-            <div className="w-1/2 h-full flex justify-end items-start pt-[14%] pr-[10%]  tracking-widest ">
-                <div className={` ${michroma.className}  w-auto h-auto flex flex-col justify-center items-start  `}>
-                  <div id='profile' className="flex items-center gap-4 group leading-none">
-                    <Dot size={54} className='group-hover:text-blue-500 transition-colors duration-500' />
-                    <button onClick={handleNavToProfile} className="text-2xl cursor-pointer ">Profile</button>
+            {
+              currentIsSignedIn?
+                <div className="w-1/2 h-full flex justify-end items-start pt-[14%] pr-[10%]  tracking-widest ">
+                    <div className={` ${michroma.className}  w-auto h-auto flex flex-col justify-center items-start  `}>
+                      <div id='profile' className="flex items-center gap-4 group leading-none">
+                        <Dot size={54} className='group-hover:text-blue-500 transition-colors duration-500' />
+                        <button onClick={handleNavToProfile} className="text-2xl cursor-pointer ">Profile</button>
+                      </div>
+                      <div id='workspace' className="flex items-center gap-4 group leading-none">
+                        <Dot size={54} className='group-hover:text-blue-500 transition-colors duration-500' />
+                        <button onClick={handleNavToWorkspace} className="text-2xl cursor-pointer">Workspace</button>
+                      </div>
                   </div>
-                  <div id='workspace' className="flex items-center gap-4 group leading-none">
-                    <Dot size={54} className='group-hover:text-blue-500 transition-colors duration-500' />
-                    <button onClick={handleNavToWorkspace} className="text-2xl cursor-pointer">Workspace</button>
+                </div>
+              : 
+                <div className="w-1/2 h-full flex justify-end items-start pt-[14%] pr-[10%]  tracking-widest ">
+                    <div className={` ${michroma.className}  w-auto h-auto flex flex-col justify-center items-start  `}>
+                      <div id='workspace' className="flex items-center gap-4 group leading-none">
+                        <Dot size={54} className='group-hover:text-blue-500 transition-colors duration-500' />
+                        <button onClick={handleNavToLogin} className="text-2xl cursor-pointer">SignIN</button>
+                      </div>
+                      <div id='profile' className="flex items-center gap-4 group leading-none">
+                        <Dot size={54} className='group-hover:text-blue-500 transition-colors duration-500' />
+                        <button onClick={handleNavToRegister} className="text-2xl cursor-pointer ">SignUP</button>
+                      </div>
                   </div>
-              </div>
-            </div>
+                </div>
+            }
 
         </div>
       </div>
