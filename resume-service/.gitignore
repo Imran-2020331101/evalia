@@ -127,7 +127,6 @@ public
 *.pth
 *.onnx
 *.pb
-models/
 checkpoints/
 
 # Data files

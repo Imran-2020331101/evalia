@@ -6,11 +6,13 @@ import org.bson.types.ObjectId;
 @Data
 public class ResumeForwardWrapper {
     private ResumeDataRequest resumeData;
+    private String resumeURL;
     private String userId;
     private String userName;
 
-    public ResumeForwardWrapper(ResumeDataRequest resumeData, ObjectId id, String userName) {
+    public ResumeForwardWrapper(ResumeDataRequest resumeData,String resumeURL, ObjectId id, String userName ) {
         this.resumeData = resumeData;
+        this.resumeURL = resumeURL;
         this.userId = id.toString();
         this.userName = userName;
     }
