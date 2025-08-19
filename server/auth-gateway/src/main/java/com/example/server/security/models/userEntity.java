@@ -32,6 +32,7 @@ public class userEntity implements UserDetails {
     private List<Role> roles = new ArrayList<>();
     private boolean emailVerified = false;
     private boolean hasResume = false;
+    private String resumeUrl = null;
 
     // OAuth2 related fields
     private String provider; // "github", "google", etc.

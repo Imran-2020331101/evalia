@@ -74,7 +74,7 @@ public class AuthService {
                 return new ResponseEntity<>("User with this email does not exist", HttpStatus.NOT_FOUND);
             }
 
-            // Check if user account is verified
+            // Check if a user account is verified
             userEntity user = userRepository.findByEmail(loginDto.getEmail()).orElse(null);
             if (user == null) {
                 logger.warning("User not found during login: " + loginDto.getEmail());
