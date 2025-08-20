@@ -1,14 +1,54 @@
 'use client'
-
 import Image from "next/image"
+import axios from "axios"
+import { useEffect , useState} from "react"
+import { DotLoader } from "react-spinners"
+import { useAppSelector } from "@/redux/lib/hooks"
+import { myJobs } from "@/redux/features/job"
 
-import { useAppDispatch } from "@/redux/lib/hooks"
+const MyJobsSingle = ({jobId}:{jobId:string}) => {
+    const [job, setJob] = useState<any>(null)
+    const [localStatus, setLocalStatus]=useState<'pending'|'success'|'error'>('pending')
 
+    // this will be the final version 
+    // const myCurrentJobs = useAppSelector(myJobs)
+    // const job = myCurrentJobs.find((item)=>item._id===jobId)
 
-const MyJobsSingle = () => {
-    const dispatch = useAppDispatch()
+    useEffect(()=>{
+        const fetchJobById = async (jobId: string) => {
+            try {
+                console.log(jobId, 'job id')
+                const res = await axios.get(`http://localhost:8080/api/job/${jobId}`, {
+                withCredentials:true
+                })
+                console.log(res.data.data)
+                setLocalStatus('success')
+                setJob(res.data.data)
+            } catch (error) {
+                console.error("Error fetching job:", error)
+                setLocalStatus('error')
+                return null
+            }
+        }
+        fetchJobById(jobId)
 
+    },[jobId])
 
+    if (!job && localStatus==='pending') {
+        return (
+        <div className="w-full h-full flex items-center justify-center">
+            <DotLoader size={40} color="white"/>
+        </div>
+        );
+    }
+    if (!job && localStatus==='error') {
+        return (
+        <div className="w-full h-full flex items-center justify-center text-red-500">
+            Failed to load job details. Please try again later.
+        </div>
+        );
+    }
+  const {title,jobDescription,employmentLevel,deadline,interviewQA,jobLocation,jobType,requirements,responsibilities,skills,status,workPlaceType,salaryRange, createdAt}=job
   return (
     <div className={` w-full h-full relative tracking-wider `}>
       <div className="w-full h-full backdrop-blur-2xl z-10 flex justify-center overflow-hidden ">
@@ -27,12 +67,12 @@ const MyJobsSingle = () => {
                     </div>
                 </section>
                 <section className="w-full h-auto flex flex-col justify-start items-start mt-6">
-                    <p className="font-semibold text-[20px]">Software Engineer</p>
+                    <p className="font-semibold text-[20px]">{title}</p>
                     <div className="w-full overflow-hidden flex justify-start items-center gap-2 text-gray-100">
-                        <p className="text-[13px]">{'$70k - $120k'}</p><p>{` | `}</p>
-                        <p className="text-[13px]">{'Remote'}</p><p>{` | `}</p>
-                        <p className="text-[13px]">{'Senior'}</p><p>{` | `}</p>
-                        <p className="text-[13px]">{'Full Time'}</p>
+                        <p className="text-[13px]">{salaryRange}</p><p>{` | `}</p>
+                        <p className="text-[13px]">{workPlaceType}</p><p>{` | `}</p>
+                        <p className="text-[13px]">{employmentLevel}</p><p>{` | `}</p>
+                        <p className="text-[13px]">{jobType}</p>
                     </div>
                     <div className="w-full overflow-hidden flex justify-start items-center gap-2 text-gray-300">
                         <p className="text-[13px]">{`Posted : ${'2 days ago'} `}</p><p>{` . `}</p>
@@ -42,120 +82,56 @@ const MyJobsSingle = () => {
                 <section className="w-full h-auto flex flex-col justify-start items-start mt-6 text-gray-100 gap-2">
                     <p className="font-semibold text-[14px] ">About the opportunity : </p>
                     <p className="text-[12px]">
-                        We are looking for an AWS Network Architect who will play a pivotal role in designing, implementing,
-                        and maintaining the client`s cloud infrastructure. In this role you will possess deep expertise in AWS, Infrastructure as Code (IaC), 
-                        Kubernetes, Observability, and overall cloud infrastructure management.
-                        The ideal candidate has the following key skills: AWS Networking, Direct Connect, site-site VPN, BGP ,
-                         AWS Firewall setup, Transit gateway, Networking Concepts.
+                        {jobDescription}
                     </p>
                 </section>
                 <section className="w-full h-auto flex flex-col justify-start items-start mt-6 text-gray-100 gap-2">
                     <p className="font-semibold text-[14px] ">Requirements : </p>
-                    <div className="w-full flex justify-start items-start">
+                    {
+                        requirements.map((item:any,index:number)=><div className="w-full flex justify-start items-start">
                         <div className="w-[40px] shrink-0 h-full flex justify-center items-start relative">
                             <p className="absolute top-[-20px] left-4 text-4xl font-extrabold">.</p>
                         </div>
                         <p className="text-[12px]">
                             <span className="font-semibold">
-                                {` ${'AWS Expertise'} : `}
+                                {` ${item.category} : `}
                             </span>
-                            {'Expertise in AWS services and architecture. Proficiency with Infrastructure as Code (IaC) tools such as Terraform, CloudFormation, and AWS CDK. Strong knowledge of Kubernetes, Docker, and container management. Experience with monitoring and observability tools like Prometheus, Grafana, ELK Stack, and AWS CloudWatch. Solid understanding of CI/CD processes and tools. o Familiarity with security best practices in cloud environments.'}
+                            {item.description}
                         </p>
-                    </div>
-                    <div className="w-full flex justify-start items-start">
-                        <div className="w-[40px] shrink-0 h-full flex justify-center items-start relative">
-                            <p className="absolute top-[-20px] left-4 text-4xl font-extrabold">.</p>
-                        </div>
-                        <p className="text-[12px]">
-                            <span className="font-semibold">
-                                {` ${'Security Architecture'} : `}
-                            </span>
-                            {'Proven experience in designing and implementing secure cloud architectures. Ability to assess and enhance the security posture of existing AWS infrastructure. Network Security: Expertise in configuring and managing AWS Virtual Private Clouds (VPCs), security groups, and network ACLs. Experience in designing and implementing network security controls for AWS. Identity and Access Management (IAM): Strong understanding of IAM principles and hands-on experience implementing IAM policies and procedures. Proficient in managing user access, roles, and permissions in AWS environments.'}
-                        </p>
-                    </div>
-                    <div className="w-full flex justify-start items-start">
-                        <div className="w-[40px] shrink-0 h-full flex justify-center items-start relative">
-                            <p className="absolute top-[-20px] left-4 text-4xl font-extrabold">.</p>
-                        </div>
-                        <p className="text-[12px]">
-                            <span className="font-semibold">
-                                {` ${'Data Security'} : `}
-                            </span>
-                            {'Knowledge of encryption mechanisms for data in transit and at rest in AWS. Experience in defining and enforcing data classification and handling policies. Scripting and Automation: Proficient in scripting languages such as Python or Shell scripting for automating security tasks. Experience with Infrastructure as Code (IaC) tools for automating security configurations. Compliance and Best Practices: Strong understanding of cloud security best practices, industry standards, and compliance frameworks. Knowledge of regulatory requirements related to cloud security.'}
-                        </p>
-                    </div>
+                    </div>)
+                    }
                 </section>
                 <section className="w-full h-auto flex flex-col justify-start items-start mt-6 text-gray-100 gap-2">
                     <p className="font-semibold text-[14px] ">Responsibilities : </p>
-                    <div className="w-full flex justify-start items-start">
+                    {
+                        responsibilities.map((item:any,index:number)=><div className="w-full flex justify-start items-start">
                         <div className="w-[40px] shrink-0 h-full flex justify-center items-start relative">
                             <p className="absolute top-[-20px] left-4 text-4xl font-extrabold">.</p>
                         </div>
                         <p className="text-[12px]">
                             <span className="font-semibold">
-                                {` ${'Architectural Design and Implementation'} : `}
+                                {` ${item.category} : `}
                             </span>
-                            {'Design and deploy scalable, highly available, and fault-tolerant systems on AWS. Develop and implement cloud infrastructure solutions using AWS services such as EC2, S3, VPC, RDS, Lambda, etc. Utilize Infrastructure as Code (IaC) tools like Terraform, CloudFormation, and AWS CDK to automate the provisioning and management of AWS resources.'}
+                            {item.description}
                         </p>
-                    </div>
-                    <div className="w-full flex justify-start items-start">
-                        <div className="w-[40px] shrink-0 h-full flex justify-center items-start relative">
-                            <p className="absolute top-[-20px] left-4 text-4xl font-extrabold">.</p>
-                        </div>
-                        <p className="text-[12px]">
-                            <span className="font-semibold">
-                                {` ${'Kubernetes and Containerization'} : `}
-                            </span>
-                            {'Deploy, manage, and scale Kubernetes clusters on AWS (EKS). Design container orchestration solutions and manage containerized applications. Implement best practices for Kubernetes resource management, networking, and security.'}
-                        </p>
-                    </div>
-                    <div className="w-full flex justify-start items-start">
-                        <div className="w-[40px] shrink-0 h-full flex justify-center items-start relative">
-                            <p className="absolute top-[-20px] left-4 text-4xl font-extrabold">.</p>
-                        </div>
-                        <p className="text-[12px]">
-                            <span className="font-semibold">
-                                {` ${'DevOps and CI/CD'} : `}
-                            </span>
-                            {'Build and maintain CI/CD pipelines using tools like Jenkins, GitLab CI, AWS CodePipeline, etc. Collaborate with development teams to ensure smooth integration and deployment of applications. Implement automation scripts and tools to streamline operations and improve efficiency.Security and Compliance: Ensure cloud infrastructure security by implementing best practices for IAM, network security, and data protection.Conduct regular security assessments and audits to maintain compliance with industry standards and regulations.'}
-                        </p>
-                    </div>
+                    </div>)
+                    }
                 </section>
                 <section className="w-full h-auto flex flex-col justify-start items-start mt-6 text-gray-100 gap-2">
                     <p className="font-semibold text-[14px] ">Preferred Skills : </p>
-                    <div className="w-full flex justify-start items-start">
+                    {
+                        skills.map((item:any,index:number)=><div className="w-full flex justify-start items-start">
                         <div className="w-[40px] shrink-0 h-full flex justify-center items-start relative">
                             <p className="absolute top-[-20px] left-4 text-4xl font-extrabold">.</p>
                         </div>
                         <p className="text-[12px]">
                             <span className="font-semibold">
-                                {` ${'Architectural Design and Implementation'} : `}
+                                {` ${item.category} : `}
                             </span>
-                            {'Design and deploy scalable, highly available, and fault-tolerant systems on AWS. Develop and implement cloud infrastructure solutions using AWS services such as EC2, S3, VPC, RDS, Lambda, etc. Utilize Infrastructure as Code (IaC) tools like Terraform, CloudFormation, and AWS CDK to automate the provisioning and management of AWS resources.'}
+                            {item.description}
                         </p>
-                    </div>
-                    <div className="w-full flex justify-start items-start">
-                        <div className="w-[40px] shrink-0 h-full flex justify-center items-start relative">
-                            <p className="absolute top-[-20px] left-4 text-4xl font-extrabold">.</p>
-                        </div>
-                        <p className="text-[12px]">
-                            <span className="font-semibold">
-                                {` ${'Kubernetes and Containerization'} : `}
-                            </span>
-                            {'Deploy, manage, and scale Kubernetes clusters on AWS (EKS). Design container orchestration solutions and manage containerized applications. Implement best practices for Kubernetes resource management, networking, and security.'}
-                        </p>
-                    </div>
-                    <div className="w-full flex justify-start items-start">
-                        <div className="w-[40px] shrink-0 h-full flex justify-center items-start relative">
-                            <p className="absolute top-[-20px] left-4 text-4xl font-extrabold">.</p>
-                        </div>
-                        <p className="text-[12px]">
-                            <span className="font-semibold">
-                                {` ${'DevOps and CI/CD'} : `}
-                            </span>
-                            {'Build and maintain CI/CD pipelines using tools like Jenkins, GitLab CI, AWS CodePipeline, etc. Collaborate with development teams to ensure smooth integration and deployment of applications. Implement automation scripts and tools to streamline operations and improve efficiency.Security and Compliance: Ensure cloud infrastructure security by implementing best practices for IAM, network security, and data protection.Conduct regular security assessments and audits to maintain compliance with industry standards and regulations.'}
-                        </p>
-                    </div>
+                    </div>)
+                    }
                 </section>
             </div>
         </section>
