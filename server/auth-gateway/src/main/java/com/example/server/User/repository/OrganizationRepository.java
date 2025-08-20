@@ -1,0 +1,15 @@
+package com.example.server.User.repository;
+
+import com.example.server.User.models.OrganizationEntity;
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface OrganizationRepository extends MongoRepository<OrganizationEntity, ObjectId> {
+
+    Optional<OrganizationEntity> findByOwnerEmail(String email);
+
+}

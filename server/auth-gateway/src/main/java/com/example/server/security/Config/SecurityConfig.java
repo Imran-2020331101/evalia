@@ -84,7 +84,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         registry -> registry
                                 .requestMatchers("/api/auth/**", "/swagger-ui*/**", "/api-docs/**", "/login",
-                                        "/oauth2/**", "/login/oauth2/**", "/test-oauth2")
+                                        "/oauth2/**", "/login/oauth2/**", "/test-oauth2","/api/resume/upload")
                                 .permitAll()
                                 .anyRequest().authenticated());
         return http.build();

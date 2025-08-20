@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.logging.Logger;
 
 @CrossOrigin
@@ -32,6 +33,8 @@ public class AuthController {
         this.authService = authService;
     }
 
+
+
     @Operation(summary = "User login")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful login", content = {
@@ -45,6 +48,10 @@ public class AuthController {
         return authService.login(loginDto);
     }
 
+
+
+
+
     @Operation(summary = "User registration")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful registration", content = @Content),
@@ -54,6 +61,9 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody RegisterDto registerDto) {
         return authService.register(registerDto);
     }
+
+
+
 
     @Operation(summary = "Verify email")
     @ApiResponses(value = {
@@ -77,7 +87,6 @@ public class AuthController {
         } catch (Exception e) {
             logger.warning("Email verification failed for OTP: " + verifyDTO.getOtp() + " - " + e.getMessage());
 
-            // Check if it's a user not found error
             if (e.getMessage().contains("User not found")) {
                 return new ResponseEntity<>("User not found for the given token", HttpStatus.NOT_FOUND);
             }
@@ -86,6 +95,9 @@ public class AuthController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
+
+
 
     @Operation(summary = "Resend verification email")
     @ApiResponses(value = {
@@ -96,5 +108,12 @@ public class AuthController {
     @PostMapping("/resend-verification")
     public ResponseEntity<?> resendVerificationEmail(@RequestBody String email) {
         return authService.resendVerificationEmail(email);
+    }
+
+    @PostMapping("/update/role")
+    public ResponseEntity<?> updateRole(@RequestBody Map<String, String> body) {
+        logger.info("Received request to update role"+ body.get("role"));
+        authService.updateRole(body.get("role"), body.get("email"));
+        return ResponseEntity.ok("Role updated successfully");
     }
 }

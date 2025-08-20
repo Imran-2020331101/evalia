@@ -24,11 +24,11 @@ router.post("/extract", resumeController.extractDetailsFromResume);
 router.post("/save", resumeController.saveResume);
 
 /**
- * @route   POST /api/resume/get-resume
+ * @route   POST /api/resume/retrive
  * @desc    Get resume by email address
  * @access  Public
  */
-router.post("/get-resume", resumeController.getResumeByEmail);
+router.post("/retrive", resumeController.getResumeByEmail);
 
 /**
  * @route   GET /api/resume/status

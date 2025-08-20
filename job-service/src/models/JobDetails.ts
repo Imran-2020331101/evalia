@@ -58,14 +58,13 @@ const JobDetailsMongooseSchema = new Schema<IJobDetailsDocument>(
     applications: {
       type: [
         {
-          candidateId: { type: String },
+          candidateEmail: { type: String },
           appliedAt: { type: Date, default: Date.now },
           status: {
             type: String,
             enum: ['PENDING', 'SHORTLISTED', 'REJECTED', 'HIRED'],
             default: 'PENDING',
           },
-          resumeId: { type: String },
         },
       ],
       default: [],

@@ -16,38 +16,37 @@ import { logger } from '../config/logger';
 import { sendNotification } from '../utils/notify';
 
 class jobService{
-    async applyToJob(jobId: string, candidateId: string, resumeId?: string): Promise<ApiResponse> {
-      if (!Types.ObjectId.isValid(jobId)) {
-        return { success: false, error: "Invalid job ID" };
-      }
-      if (!candidateId || typeof candidateId !== 'string') {
-        return { success: false, error: "Candidate ID is required. (Must be a String)" };
-      }
+
+
+    async applyToJob(jobId: string, candidateEmail: string, resumeId?: string): Promise<ApiResponse> {
       try {
+
         const application = {
-          candidateId,
+          candidateEmail,
           appliedAt: new Date(),
           status: ApplicationStatus.Pending,
-          ...(resumeId ? { resumeId } : {})
         };
+
         const job = await JobDetailsModel.findByIdAndUpdate(
           jobId,
           { $addToSet: { applications: application } },
           { new: true }
         );
+
         if (!job) {
           return { success: false, error: "Job not found" };
         }
+
         logger.info("Candidate applied to job", {
           jobId: job._id.toString(),
-          candidateId,
+          candidateEmail,
         });
         return {
           success: true,
           message: "Application submitted successfully",
           data: {
             jobId: job._id,
-            candidateId,
+            candidateEmail,
           },
         };
       } catch (error: any) {

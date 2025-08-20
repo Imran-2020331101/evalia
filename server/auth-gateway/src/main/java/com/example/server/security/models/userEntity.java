@@ -28,11 +28,15 @@ public class userEntity implements UserDetails {
     @Getter
     private String email;
     private String password;
-
     private List<Role> roles = new ArrayList<>();
+
+    private String profilePictureUrl;
+    private String coverPictureUrl;
     private boolean emailVerified = false;
     private boolean hasResume = false;
     private String resumeUrl = null;
+    private boolean hasOrganization = false;
+    private String organizationId = null; // Reference to OrganizationEntity
 
     // OAuth2 related fields
     private String provider; // "github", "google", etc.
