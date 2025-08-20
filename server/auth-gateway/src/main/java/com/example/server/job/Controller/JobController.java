@@ -41,4 +41,19 @@ public class JobController {
                     .body("Failed to forward: " + e.getMessage());
         }
     }
+
+
+    @GetMapping("/{jobId}")
+    public ResponseEntity<String> getJobById(@PathVariable ("jobId") String jobId, Principal principal) {
+        try {
+            logger.info("getJobById request received for jobId: " + jobId + " from user: " + principal.getName());
+
+            return ResponseEntity.ok(jobProxy.getJobById(jobId));
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to forward: " + e.getMessage());
+        }
+    }
+
+
 }
