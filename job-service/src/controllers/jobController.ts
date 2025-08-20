@@ -10,6 +10,9 @@ import {
 } from '../types/job.types';
 import { JobService } from '../services/jobService';
 import { z } from 'zod';
+import { OverviewService } from '@/services/overviewService';
+import axios from 'axios';
+import { ResumeDTO } from '@/types/resume.types';
 
 export class JobController {
   /**
@@ -323,11 +326,37 @@ export class JobController {
   */
   async applyToJob(req: Request, res: Response): Promise<void> {
     try {
-      const { jobId, email } = req.body;
+      
+      const schema = z.object({
+        jobId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID"),
+        email: z.string().email("Invalid candidate email")
+      });
+      const { jobId, email } = schema.parse(req.body);
+   
       const result = await JobService.applyToJob(jobId, email);
+      if(result.success){
+        (async () => {
+          try {
+            const resumeResponse = await axios.post(`${process.env.RESUME_SERVICE_URL}/api/resume/retrive`,{ email });
+            const resume: ResumeDTO = resumeResponse.data as ResumeDTO;
+            const jobResult = await JobService.findJobById(jobId);
+            const jobDescription = jobResult?.data || "";
+            await OverviewService.evaluateCandidateProfile(jobDescription, resume);
+          } catch (err) {
+            logger.error("Error in async profile evaluation", { error: (err as Error).message, jobId, email });
+          }
+        })();
+      }
       const status = result.success ? 200 : 400;
       res.status(status).json(result);
     } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({
+          success: false,
+          error: error.errors.map(e => e.message).join(", ")
+        } as ApiResponse);
+        return;
+      }
       logger.error("Error in applyToJob controller", {
         error: error.message,
         jobId: req.body.jobId,
@@ -341,11 +370,22 @@ export class JobController {
 
   async shortListCandidate(req:Request,res:Response):Promise<void>{
     try {
-      const { jobId, email } = req.body;
+      const schema = z.object({
+        jobId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID"),
+        email: z.string().email("Invalid candidate email")
+      });
+      const { jobId, email } = schema.parse(req.body);
       const result = await JobService.shortlistCandidate(jobId, email);
       const status = result.success ? 200 : 400;
       res.status(status).json(result);
     } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({
+          success: false,
+          error: error.errors.map(e => e.message).join(", ")
+        } as ApiResponse);
+        return;
+      }
       logger.error("Error in shortListCandidate controller", {
         error: error.message,
         jobId: req.body.jobId,

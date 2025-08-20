@@ -19,6 +19,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -244,5 +245,17 @@ public class AuthService {
             logger.severe("Unexpected error while resending verification email to: " + email + " - " + e.getMessage());
             return new ResponseEntity<>("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+
+    public void updateRole(String email, String roleName) {
+        userEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email:"+ email));
+        Role role = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new IllegalArgumentException("Role not found with name: "+ roleName));
+
+        user.getRoles().clear();
+        user.getRoles().add(role);
+        userRepository.save(user);
     }
 }
