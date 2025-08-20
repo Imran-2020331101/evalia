@@ -131,6 +131,18 @@ class jobService{
             company: savedJob.company?.id,
             status: savedJob.status,
             createdAt: savedJob.createdAt,
+            title:savedJob.title,
+            jobDescription:savedJob.jobDescription,
+            jobLocation:savedJob.jobLocation,
+            salary:savedJob.salary,
+            deadline:savedJob.deadline,
+            jobType:savedJob.jobType,
+            workPlaceType:savedJob.workPlaceType,
+            employmentLevel:savedJob.employmentLevel,
+            requirements:savedJob.requirements,
+            responsibilities:savedJob.responsibilities,
+            skills:savedJob.skills,
+            interviewQA:savedJob.interviewQA,
           },
         };
       } catch (error: any) {

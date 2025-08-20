@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Upload, FileText, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 import { useAppDispatch } from '@/redux/lib/hooks'
 import { toggleIsShowAuthRole } from '@/redux/features/utils'
+import { toast } from 'sonner'
 
 interface UploadState {
   file: File | null
@@ -79,9 +80,13 @@ const UploadResume=() =>{
 
     try {
       const result = await uploadToBackend(file)
-      
+      toast.success('Resume uploaded successfully ')
+      console.log(result)
       // Store the result in sessionStorage for the preview page
-      sessionStorage.setItem('resumeData', JSON.stringify(result))
+      // sessionStorage.setItem('resumeData', JSON.stringify(result))
+
+      router.push('/auth/login')
+      
       
       // Redirect to preview page
     //   router.push('/resume/preview')

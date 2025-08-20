@@ -64,6 +64,8 @@ export class JobController {
     try {
       const { companyId } = req.params;
 
+      
+
       if (!companyId) {
         res.status(400).json({
           success: false,
