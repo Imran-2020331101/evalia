@@ -1,28 +1,31 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import GoogleAuth from '@/components/auth/GoogleAuth'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useAppDispatch } from '@/redux/lib/hooks'
+import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks'
+import { currentFormData, setFormData } from '@/redux/features/auth'
+import { toggleIsShowAuthRole } from '@/redux/features/utils'
+
+interface FormDataType {
+  name: string
+  email: string
+  password: string
+  role: string | null
+}
 
 const RegisterPage = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    role: 'USER'
-  })
+  const dispatch = useAppDispatch()
+  const formData = useAppSelector(currentFormData);
+
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
+    const { name , value } = e.target
+    dispatch(setFormData({ name: name as keyof FormDataType, value }))
     // Clear error when user starts typing
     if (error) setError('')
   }
@@ -31,7 +34,7 @@ const RegisterPage = () => {
     e.preventDefault()
     
     // Basic validation
-    if (!formData.name.trim() || !formData.email.trim() || !formData.password.trim()) {
+    if (!formData.name || !formData.email || !formData.password) {
       setError('All fields are required')
       return
     }
@@ -41,34 +44,36 @@ const RegisterPage = () => {
       return
     }
 
-    setLoading(true)
-    setError('')
+    dispatch(toggleIsShowAuthRole());
 
-    try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
+    // setLoading(true)
+    // setError('')
 
-      const data = await response.json()
+    // try {
+    //   const response = await fetch('/api/auth/register', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify(formData),
+    //   })
 
-      if (data.success) {
-        // Registration successful - redirect to OTP verification
-        router.push(`/auth/verify-otp?email=${encodeURIComponent(formData.email)}&message=Registration successful! Please check your email for the OTP.`)
-      } else {
-        setError(data.message || 'Registration failed. Please try again.')
-      }
-    } catch (error) {
-      console.error('Registration error:', error)
-      setError('Something went wrong. Please try again.')
-    } finally {
-      setLoading(false)
-    }
+    //   const data = await response.json()
+
+    //   if (data.success) {
+    //     // Registration successful - redirect to OTP verification
+    //     router.push(`/auth/verify-otp?email=${encodeURIComponent(formData.email)}&message=Registration successful! Please check your email for the OTP.`)
+    //   } else {
+    //     setError(data.message || 'Registration failed. Please try again.')
+    //   }
+    // } catch (error) {
+    //   console.error('Registration error:', error)
+    //   setError('Something went wrong. Please try again.')
+    // } finally {
+    //   setLoading(false)
+    // }
   }
-
+  useEffect(()=>console.log(formData, 'formdata'))
   return (
     <>
       <form onSubmit={handleSubmit} className="space-y-6 w-[80%]  ">
