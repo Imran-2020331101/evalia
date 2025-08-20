@@ -60,6 +60,7 @@ export type Application = z.infer<typeof ApplicationSchema>;
 
 // Base job schema
 export const JobDetailsSchema = z.object({
+  title:z.string().trim(),
   jobDescription: z.string().min(1, 'Job description is required').max(5000, 'Job description cannot exceed 5000 characters').trim(),
   jobLocation: z.string().min(1, 'Job location is required').max(100, 'Job location cannot exceed 100 characters').trim(),
   salary: SalarySchema,

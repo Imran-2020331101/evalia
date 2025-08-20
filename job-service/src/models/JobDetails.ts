@@ -37,6 +37,7 @@ const DomainItemSchema = new Schema<DomainItem>(
 // Main schema
 const JobDetailsMongooseSchema = new Schema<IJobDetailsDocument>(
   {
+    title:{type:String, trim:true},
     jobDescription: { type: String, trim: true },
     jobLocation: { type: String, trim: true },
     salary: {
