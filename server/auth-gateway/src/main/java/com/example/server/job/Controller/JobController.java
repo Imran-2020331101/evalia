@@ -17,24 +17,34 @@ import java.util.logging.Logger;
 public class JobController {
 
     private static final Logger logger = Logger.getLogger(JobController.class.getName());
-    private final JobProxy jobProxy;
-    private final UserDetailsService userDetailsService;
+    private        final JobProxy jobProxy;
+    private        final UserDetailsService userDetailsService;
 
 
-    public JobController(JobProxy jobProxy, UserDetailsService userDetailsService) {
+    public JobController(JobProxy           jobProxy,
+                         UserDetailsService userDetailsService) {
+
         this.userDetailsService = userDetailsService;
-        this.jobProxy = jobProxy;
+        this.jobProxy           = jobProxy;
     }
 
 
-    @GetMapping("/")
-    public ResponseEntity<String> getJobByOrganization(Principal principal) {
+    @GetMapping("/{OrganizationId}")
+    public ResponseEntity<String> getJobByOrganization(@PathVariable("OrganizationId") String OrganizationId,
+                                                                                       Principal principal ) {
         try {
+
             logger.info("Get all the jobs under a Organization request received from" + principal.getName());
 
             userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
+            if(!user.isHasAnyOrganization()){
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("User does not have any organization");
+            }
 
-            return ResponseEntity.ok(jobProxy.getJobById(jobId));
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(jobProxy.getJobByOrganization(OrganizationId));
+
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to forward: " + e.getMessage());
@@ -42,18 +52,22 @@ public class JobController {
     }
 
 
-
     //    TODO: The UserId passed in the CompanyInfo should be the organization ID, not the user ID.
     //       This is because the job is associated with an organization, not a user.
     @PostMapping("/create")
-    public ResponseEntity<String> createJob(@RequestBody JobCreationRequest jobCreationRequest, Principal principal) {
+    public ResponseEntity<String> createJob(@RequestBody JobCreationRequest jobCreationRequest,
+                                                         Principal principal ) {
         try {
             logger.info("createJob request received from user: " + principal.getName());
+
             userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
             jobCreationRequest.setCompanyInfo(new JobCreationRequest.CompanyInfo(user.getId().toString(), principal.getName()));
             String response = jobProxy.createJob(jobCreationRequest);
+
             logger.info("Job created successfully: " + response);
-            return ResponseEntity.ok(response);
+
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(response);
 
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

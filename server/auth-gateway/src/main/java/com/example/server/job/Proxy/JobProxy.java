@@ -18,4 +18,7 @@ public interface JobProxy {
 
     @GetMapping(value = "/{jobId}")
     String getJobById(@PathVariable ("jobId") String jobId);
+
+    @GetMapping(value = "/organization/{OrganizationId}")
+    String getJobByOrganization(@PathVariable ("OrganizationId") String OrganizationId);
 }
