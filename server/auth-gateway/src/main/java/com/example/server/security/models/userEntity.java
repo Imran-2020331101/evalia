@@ -35,8 +35,8 @@ public class userEntity implements UserDetails {
     private boolean emailVerified = false;
     private boolean hasResume = false;
     private String resumeUrl = null;
-    private boolean hasOrganization = false;
-    private String organizationId = null; // Reference to OrganizationEntity
+    private boolean hasAnyOrganization = false;
+    private List<String> organizationId = new ArrayList<>(); // List of organization IDs the user owns or is part of
 
     // OAuth2 related fields
     private String provider; // "github", "google", etc.

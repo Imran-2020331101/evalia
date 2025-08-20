@@ -6,6 +6,7 @@ import com.example.server.security.Service.CustomOidcUserService;
 import com.example.server.security.Service.CustomUserDetailsService;
 import com.example.server.security.Service.OAuth2AuthenticationSuccessHandler;
 import com.example.server.security.Service.OAuth2UserService;
+import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -40,21 +41,22 @@ public class SecurityConfig {
     private final PasswordEncoder passwordEncoder;
 
     public SecurityConfig(
-            PasswordEncoder passwordEncoder,
-            AuthenticationProvider authenticationProvider,
-            UserDetailsService userDetailsService,
-            JwtAuthEntryPoint authEntryPoint,
-            JwtAuthenticationFilter jwtAuthenticationFilter,
-            OAuth2UserService oAuth2UserService,
-            CustomOidcUserService customOidcUserService,
+            PasswordEncoder                    passwordEncoder,
+            AuthenticationProvider             authenticationProvider,
+            UserDetailsService                 userDetailsService,
+            JwtAuthEntryPoint                  authEntryPoint,
+            JwtAuthenticationFilter            jwtAuthenticationFilter,
+            OAuth2UserService                  oAuth2UserService,
+            CustomOidcUserService              customOidcUserService,
             OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler) {
-        this.passwordEncoder = passwordEncoder;
-        this.authenticationProvider = authenticationProvider;
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.userDetailsService = userDetailsService;
-        this.authEntryPoint = authEntryPoint;
-        this.oAuth2UserService = oAuth2UserService;
-        this.customOidcUserService = customOidcUserService;
+
+        this.passwordEncoder                    = passwordEncoder;
+        this.authenticationProvider             = authenticationProvider;
+        this.jwtAuthenticationFilter            = jwtAuthenticationFilter;
+        this.userDetailsService                 = userDetailsService;
+        this.authEntryPoint                     = authEntryPoint;
+        this.oAuth2UserService                  = oAuth2UserService;
+        this.customOidcUserService              = customOidcUserService;
         this.oAuth2AuthenticationSuccessHandler = oAuth2AuthenticationSuccessHandler;
     }
 
@@ -101,6 +103,7 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000", "http://localhost:3001"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
@@ -113,4 +116,8 @@ public class SecurityConfig {
         return source;
     }
 
+    @Bean
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
+    }
 }
