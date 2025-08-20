@@ -1,38 +1,15 @@
 'use client'
 import Image from "next/image"
-import axios from "axios"
 import { useEffect , useState} from "react"
 import { DotLoader } from "react-spinners"
 import { useAppSelector } from "@/redux/lib/hooks"
 import { myJobs } from "@/redux/features/job"
 
 const MyJobsSingle = ({jobId}:{jobId:string}) => {
-    const [job, setJob] = useState<any>(null)
     const [localStatus, setLocalStatus]=useState<'pending'|'success'|'error'>('pending')
 
-    // this will be the final version 
-    // const myCurrentJobs = useAppSelector(myJobs)
-    // const job = myCurrentJobs.find((item)=>item._id===jobId)
-
-    useEffect(()=>{
-        const fetchJobById = async (jobId: string) => {
-            try {
-                console.log(jobId, 'job id')
-                const res = await axios.get(`http://localhost:8080/api/job/${jobId}`, {
-                withCredentials:true
-                })
-                console.log(res.data.data)
-                setLocalStatus('success')
-                setJob(res.data.data)
-            } catch (error) {
-                console.error("Error fetching job:", error)
-                setLocalStatus('error')
-                return null
-            }
-        }
-        fetchJobById(jobId)
-
-    },[jobId])
+    const myCurrentJobs = useAppSelector(myJobs)
+    const job:any = myCurrentJobs.find((item:any)=>item.jobId===jobId)
 
     if (!job && localStatus==='pending') {
         return (
@@ -41,14 +18,9 @@ const MyJobsSingle = ({jobId}:{jobId:string}) => {
         </div>
         );
     }
-    if (!job && localStatus==='error') {
-        return (
-        <div className="w-full h-full flex items-center justify-center text-red-500">
-            Failed to load job details. Please try again later.
-        </div>
-        );
-    }
-  const {title,jobDescription,employmentLevel,deadline,interviewQA,jobLocation,jobType,requirements,responsibilities,skills,status,workPlaceType,salaryRange, createdAt}=job
+ 
+  const {title,jobDescription,employmentLevel,deadline,interviewQA,jobLocation,jobType,requirements,responsibilities,skills,status,workPlaceType,salary, createdAt}=job
+  useEffect(()=>console.log(myCurrentJobs, jobId, 'testing,.'), [])
   return (
     <div className={` w-full h-full relative tracking-wider `}>
       <div className="w-full h-full backdrop-blur-2xl z-10 flex justify-center overflow-hidden ">
@@ -69,10 +41,11 @@ const MyJobsSingle = ({jobId}:{jobId:string}) => {
                 <section className="w-full h-auto flex flex-col justify-start items-start mt-6">
                     <p className="font-semibold text-[20px]">{title}</p>
                     <div className="w-full overflow-hidden flex justify-start items-center gap-2 text-gray-100">
-                        <p className="text-[13px]">{salaryRange}</p><p>{` | `}</p>
+                        <p className="text-[13px]">{`${salary.from}$ - ${salary.to}$`}</p><p>{` | `}</p>
                         <p className="text-[13px]">{workPlaceType}</p><p>{` | `}</p>
                         <p className="text-[13px]">{employmentLevel}</p><p>{` | `}</p>
-                        <p className="text-[13px]">{jobType}</p>
+                        <p className="text-[13px]">{jobType}</p><p>{` | `}</p>
+                        <p className="text-[13px]">{deadline}</p>
                     </div>
                     <div className="w-full overflow-hidden flex justify-start items-center gap-2 text-gray-300">
                         <p className="text-[13px]">{`Posted : ${'2 days ago'} `}</p><p>{` . `}</p>
@@ -88,7 +61,7 @@ const MyJobsSingle = ({jobId}:{jobId:string}) => {
                 <section className="w-full h-auto flex flex-col justify-start items-start mt-6 text-gray-100 gap-2">
                     <p className="font-semibold text-[14px] ">Requirements : </p>
                     {
-                        requirements.map((item:any,index:number)=><div className="w-full flex justify-start items-start">
+                        requirements.map((item:any,index:number)=><div key={index} className="w-full flex justify-start items-start">
                         <div className="w-[40px] shrink-0 h-full flex justify-center items-start relative">
                             <p className="absolute top-[-20px] left-4 text-4xl font-extrabold">.</p>
                         </div>
@@ -104,7 +77,7 @@ const MyJobsSingle = ({jobId}:{jobId:string}) => {
                 <section className="w-full h-auto flex flex-col justify-start items-start mt-6 text-gray-100 gap-2">
                     <p className="font-semibold text-[14px] ">Responsibilities : </p>
                     {
-                        responsibilities.map((item:any,index:number)=><div className="w-full flex justify-start items-start">
+                        responsibilities.map((item:any,index:number)=><div key={index} className="w-full flex justify-start items-start">
                         <div className="w-[40px] shrink-0 h-full flex justify-center items-start relative">
                             <p className="absolute top-[-20px] left-4 text-4xl font-extrabold">.</p>
                         </div>
@@ -120,7 +93,7 @@ const MyJobsSingle = ({jobId}:{jobId:string}) => {
                 <section className="w-full h-auto flex flex-col justify-start items-start mt-6 text-gray-100 gap-2">
                     <p className="font-semibold text-[14px] ">Preferred Skills : </p>
                     {
-                        skills.map((item:any,index:number)=><div className="w-full flex justify-start items-start">
+                        skills.map((item:any,index:number)=><div key={index} className="w-full flex justify-start items-start">
                         <div className="w-[40px] shrink-0 h-full flex justify-center items-start relative">
                             <p className="absolute top-[-20px] left-4 text-4xl font-extrabold">.</p>
                         </div>
