@@ -80,9 +80,7 @@ const VerifyOTPPage = () => {
         setSuccess(`Email verified successfully! Let's go through some steps...`)
         // Redirect to login after 2 seconds
         setTimeout(() => {
-          dispatch(toggleIsShowAuthRole())
           router.push('/auth/login')
-          // router.push('/auth/login?message=Email verified successfully! You can now log in.')
         }, 2000)
       } else {
         setError(data.message || 'Invalid OTP. Please try again.')
