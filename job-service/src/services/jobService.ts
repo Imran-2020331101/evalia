@@ -2,7 +2,8 @@ import {
   CreateJobRequestSchema, 
   JobFilterSchema, 
   ApiResponse, 
-  Pagination
+  Pagination,
+  CreateJobRequest
 } from '../types/job.types';
 // Status enum for job applications
 enum ApplicationStatus {
@@ -14,9 +15,158 @@ import { JobDetailsModel, IJobDetailsDocument } from '../models/JobDetails';
 import { Types } from 'mongoose';
 import { logger } from '../config/logger';
 import { sendNotification } from '../utils/notify';
+import { mapJobData } from '@/utils/jobMapper';
 
 class jobService{
+  
+    async createJob(payload: CreateJobRequest): Promise<ApiResponse> {    
 
+      try {
+        
+        const jobData  = mapJobData(payload);
+        const savedJob = await new JobDetailsModel(jobData).save();
+
+        if(savedJob){
+          const notification = {
+            userId   : savedJob.company.id,
+            type     : "job.posting.created",
+            jobTitle : savedJob.title,
+            jobId    : savedJob._id || "unknown"
+          }
+          sendNotification(notification,"notifications");
+        }
+        
+        logger.info("New job created successfully", {
+          jobId    : savedJob._id.toString(),
+          company  : savedJob.company?.id,
+          postedBy : savedJob.postedBy,
+        });
+
+        return {
+          success : true,
+          message : "Job created successfully",
+          data    : savedJob
+        };
+      } catch (error: any) {
+        logger.error("Error creating job", { error: error.message, stack: error.stack });
+        
+        if (error.name === "ValidationError") {
+          const validationErrors = Object.values(error.errors).map((err: any) => err.message);
+          return {
+            success : false,
+            error   : "Validation failed",
+            details : validationErrors,
+          };
+        }
+        
+        return {
+          success : false,
+          error   : "Internal server error while creating job",
+        };
+      }
+    }
+
+    async findJobById(jobId: string): Promise<ApiResponse> {
+      try {
+        // Validate ObjectId to avoid CastError
+        if (!Types.ObjectId.isValid(jobId)) {
+          return { success: false, error: "Invalid job ID" } as ApiResponse;
+        }
+
+        const job = await JobDetailsModel.findById(jobId);
+        if (!job) {
+          return { success: false, error: "Job not found" } as ApiResponse;
+        }
+
+        // Best-effort view increment (don't fail the whole request if this fails)
+        JobDetailsModel.findByIdAndUpdate(jobId, { $inc: { views: 1 } })
+          .catch((e) => logger.warn("Failed to increment job views", { jobId, error: e.message }));
+
+        logger.info("Job details retrieved", {
+          jobId: job._id.toString(),
+          views: (job.views ?? 0) + 1,
+        });
+
+        return {
+          success: true,
+          message: "Job details retrieved successfully",
+          data: job,
+        } as ApiResponse<IJobDetailsDocument>;
+      } catch (error: any) {
+        logger.error("Error fetching job details", { jobId, error: error.message, stack: error.stack });
+        return { success: false, error: "Internal server error while fetching job details" } as ApiResponse;
+      }
+    }
+
+    async getJobsByCompany(organizationId: string, page: number = 1, limit: number = 10): Promise<{
+      jobs: IJobDetailsDocument[];
+      pagination: Pagination;
+    }> {
+      const query = { "company.id": organizationId };
+      const skip = (page - 1) * limit;
+
+      const [jobs, totalCount] = await Promise.all([
+        JobDetailsModel.find(query)
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(limit)
+          .lean(),
+        JobDetailsModel.countDocuments(query),
+      ]);
+
+      const totalPages = Math.ceil(totalCount / limit);
+
+      const pagination: Pagination = {
+        currentPage: page,
+        totalPages,
+        totalCount,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+        limit,
+      };
+
+      logger.info("Jobs retrieved by company", {
+        organizationId,
+        jobsCount: jobs.length,
+        totalCount,
+        page,
+        limit,
+      });
+
+      return { jobs, pagination };
+    }
+
+    
+
+
+
+    async bulkJobDelete(OrganizationId: string): Promise<ApiResponse>{
+      try {       
+        const result = await JobDetailsModel.updateMany(
+          { "organization.id": OrganizationId },
+          { $set: { status: "DELETED" } }
+        );
+
+        logger.info("Bulk job status updated to DELETED", {
+          organizationId: OrganizationId,
+          matchedCount: result.matchedCount,
+          modifiedCount: result.modifiedCount,
+        });
+        return {
+          success: true,
+          message: `All jobs for organization ${OrganizationId} marked as DELETED`,
+          data: {
+            matchedCount: result.matchedCount,
+            modifiedCount: result.modifiedCount,
+          },
+        };
+       } catch (error) {
+        return {
+          success: false,
+          message: `failed to delete the jobs of the Organization :  ${OrganizationId}`,
+        }
+      }
+    }
 
     async applyToJob(jobId: string, candidateEmail: string, resumeId?: string): Promise<ApiResponse> {
       try {
@@ -58,139 +208,6 @@ class jobService{
           success: false,
           error: "Internal server error while applying to job",
         };
-      }
-    }
-    async createJob(payload: unknown): Promise<ApiResponse> {
-      const validationResult = CreateJobRequestSchema.safeParse(payload);
-      if (!validationResult.success) {
-        const errors = validationResult.error.errors.map(err => `${err.path.join('.')}: ${err.message}`);
-        logger.warn("Validation failed", { errors });
-        return {
-          success: false,
-          error: "Validation failed",
-          details: errors,
-        };
-      }
-      try {
-        const {
-          companyInfo,
-          basic: {
-            title,
-            jobDescription,
-            jobLocation,
-            salaryFrom,
-            salaryTo,
-            deadline,
-            jobType,
-            workPlaceType,
-            employmentLevelType,
-          },
-          requirement,
-          responsibility,
-          skill,
-          interviewQA,
-        } = validationResult.data;
-        logger.info("Deadline received", { deadline });
-        const jobData = {
-          title,
-          jobDescription,
-          jobLocation,
-          salary: { from: salaryFrom, to: salaryTo },
-          deadline: new Date(deadline),
-          jobType,
-          workPlaceType,
-          employmentLevel: employmentLevelType,
-          requirements: requirement,
-          responsibilities: responsibility,
-          skills: skill,
-          postedBy: companyInfo.id, // Using company ID as postedBy for now
-          company: { id: companyInfo.id },
-          status: "active" as const,
-          interviewQA: interviewQA || [],
-        };
-        const savedJob = await new JobDetailsModel(jobData).save();
-        if(savedJob){
-          const notification = {
-            userId: companyInfo.id,
-            type: "job.posting.created",
-            jobTitle: title,
-            jobId: savedJob._id || "unknown"
-          }
-          sendNotification(notification,"notifications");
-        }
-        logger.info("New job created successfully", {
-          jobId: savedJob._id.toString(),
-          company: savedJob.company?.id,
-          postedBy: savedJob.postedBy,
-        });
-        return {
-          success: true,
-          message: "Job created successfully",
-          data: {
-            jobId: savedJob._id,
-            company: savedJob.company?.id,
-            status: savedJob.status,
-            createdAt: savedJob.createdAt,
-            title:savedJob.title,
-            jobDescription:savedJob.jobDescription,
-            jobLocation:savedJob.jobLocation,
-            salary:savedJob.salary,
-            deadline:savedJob.deadline,
-            jobType:savedJob.jobType,
-            workPlaceType:savedJob.workPlaceType,
-            employmentLevel:savedJob.employmentLevel,
-            requirements:savedJob.requirements,
-            responsibilities:savedJob.responsibilities,
-            skills:savedJob.skills,
-            interviewQA:savedJob.interviewQA,
-          },
-        };
-      } catch (error: any) {
-        logger.error("Error creating job", { error: error.message, stack: error.stack });
-        if (error.name === "ValidationError") {
-          const validationErrors = Object.values(error.errors).map((err: any) => err.message);
-          return {
-            success: false,
-            error: "Validation failed",
-            details: validationErrors,
-          };
-        }
-        return {
-          success: false,
-          error: "Internal server error while creating job",
-        };
-      }
-    }
-
-    async findJobById(jobId: string): Promise<ApiResponse> {
-      try {
-        // Validate ObjectId to avoid CastError
-        if (!Types.ObjectId.isValid(jobId)) {
-          return { success: false, error: "Invalid job ID" } as ApiResponse;
-        }
-
-        const job = await JobDetailsModel.findById(jobId);
-        if (!job) {
-          return { success: false, error: "Job not found" } as ApiResponse;
-        }
-
-        // Best-effort view increment (don't fail the whole request if this fails)
-        JobDetailsModel.findByIdAndUpdate(jobId, { $inc: { views: 1 } })
-          .catch((e) => logger.warn("Failed to increment job views", { jobId, error: e.message }));
-
-        logger.info("Job details retrieved", {
-          jobId: job._id.toString(),
-          views: (job.views ?? 0) + 1,
-        });
-
-        return {
-          success: true,
-          message: "Job details retrieved successfully",
-          data: job,
-        } as ApiResponse<IJobDetailsDocument>;
-      } catch (error: any) {
-        logger.error("Error fetching job details", { jobId, error: error.message, stack: error.stack });
-        return { success: false, error: "Internal server error while fetching job details" } as ApiResponse;
       }
     }
 

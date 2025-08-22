@@ -56,16 +56,20 @@ const JobDetailsMongooseSchema = new Schema<IJobDetailsDocument>(
       id: { type: String },
       owner: {type: String}
     },
-    status: { type: String },
+    status: { 
+      type    : String ,
+      enum    : ['DRAFT','ACTIVE','FILLED','ARCHIVED','DELETED'],
+      default : 'ACTIVE',
+    },
     applications: {
       type: [
         {
           candidateEmail: { type: String },
           appliedAt: { type: Date, default: Date.now },
           status: {
-            type: String,
-            enum: ['PENDING', 'SHORTLISTED', 'REJECTED', 'HIRED'],
-            default: 'PENDING',
+            type    : String,
+            enum    : ['PENDING', 'SHORTLISTED', 'REJECTED', 'HIRED'],
+            default : 'PENDING',
           },
         },
       ],

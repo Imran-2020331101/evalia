@@ -1,4 +1,4 @@
-package com.example.server.security.authDTO;
+package com.example.server.security.DTO;
 
 import java.util.ArrayList;
 import java.util.List;

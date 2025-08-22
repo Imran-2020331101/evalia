@@ -1,7 +1,7 @@
 package com.example.server.security.Service;
 
 import com.example.server.security.JWT.JwtService;
-import com.example.server.security.authDTO.*;
+import com.example.server.security.DTO.*;
 import com.example.server.security.models.ConfirmationToken;
 import com.example.server.security.models.Role;
 import com.example.server.security.models.userEntity;
@@ -16,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -112,11 +113,12 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode((registerDto.getPassword())));
         Role roles = roleRepository.findByName(registerDto.getRole()).get();
         user.setRoles(Collections.singletonList(roles));
+        user.setEnabled(true);
 
         userEntity newUser = userRepository.save(user);
         logger.info("User saved to repository: " + registerDto.getEmail());
 
-        String temporaryToken = temporarilyAuthenticate(registerDto);
+        String temporaryToken = temporarilyAuthenticate(user);
 
         try {
             sendConfirmationToken(registerDto.getEmail());
@@ -250,11 +252,12 @@ public class AuthService {
      * Generates a temporary JWT token for actions like Resume upload or Organization creation.
      * Token invalidates in 10 minutes.
      */
-    public String temporarilyAuthenticate(RegisterDto registerDto) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        registerDto.getEmail(),
-                        registerDto.getPassword()));
+    public String temporarilyAuthenticate(UserDetails userDetails) {
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+        );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return jwtService.generateTemporaryToken(authentication);

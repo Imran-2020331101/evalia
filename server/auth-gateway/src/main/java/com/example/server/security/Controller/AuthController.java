@@ -1,10 +1,10 @@
 package com.example.server.security.Controller;
 
 import com.example.server.security.Service.AuthService;
-import com.example.server.security.authDTO.LoginDto;
-import com.example.server.security.authDTO.LoginResponseDTO;
-import com.example.server.security.authDTO.RegisterDto;
-import com.example.server.security.authDTO.VerifyDTO;
+import com.example.server.security.DTO.LoginDto;
+import com.example.server.security.DTO.LoginResponseDTO;
+import com.example.server.security.DTO.RegisterDto;
+import com.example.server.security.DTO.VerifyDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

@@ -1,4 +1,4 @@
-package com.example.server.security.authDTO;
+package com.example.server.security.DTO;
 
 import lombok.Data;
 
