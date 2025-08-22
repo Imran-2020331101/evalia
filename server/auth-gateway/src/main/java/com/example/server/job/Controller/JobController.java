@@ -4,7 +4,6 @@ import com.example.server.job.DTO.JobCreationRequest;
 import com.example.server.job.Proxy.JobProxy;
 import com.example.server.security.models.userEntity;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +29,7 @@ public class JobController {
 
 
     @GetMapping("/{OrganizationId}")
-    public ResponseEntity<String> getJobByOrganization(@PathVariable("OrganizationId") String OrganizationId,
+    public ResponseEntity<String> getAllJobsOfAnOrganization(@PathVariable("OrganizationId") String OrganizationId,
                                                                                        Principal principal ) {
         try {
 
@@ -43,7 +42,7 @@ public class JobController {
             }
 
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(jobProxy.getJobByOrganization(OrganizationId));
+                    .body(jobProxy.getAllJobsOfAnOrganization(OrganizationId));
 
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -52,19 +51,14 @@ public class JobController {
     }
 
 
-    //    TODO: The UserId passed in the CompanyInfo should be the organization ID, not the user ID.
-    //       This is because the job is associated with an organization, not a user.
     @PostMapping("/create")
     public ResponseEntity<String> createJob(@RequestBody JobCreationRequest jobCreationRequest,
                                                          Principal principal ) {
         try {
-            logger.info("createJob request received from user: " + principal.getName());
+            logger.info(" Job creation request received from user: " + principal.getName() +
+                             " For the Organization: " + jobCreationRequest.getCompanyInfo().getId());
 
-            userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
-            jobCreationRequest.setCompanyInfo(new JobCreationRequest.CompanyInfo(user.getId().toString(), principal.getName()));
             String response = jobProxy.createJob(jobCreationRequest);
-
-            logger.info("Job created successfully: " + response);
 
             return ResponseEntity.status(HttpStatus.OK)
                     .body(response);
@@ -75,16 +69,36 @@ public class JobController {
         }
     }
 
+
     @GetMapping("/{jobId}")
     public ResponseEntity<String> getJobById(@PathVariable ("jobId") String jobId, Principal principal) {
         try {
             logger.info("getJobById request received for jobId: " + jobId + " from user: " + principal.getName());
 
-            return ResponseEntity.ok(jobProxy.getJobById(jobId));
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(jobProxy.getJobById(jobId));
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to forward: " + e.getMessage());
         }
     }
+
+
+
+    @DeleteMapping("/{jobId}")
+    public ResponseEntity<String> deleteJobById(@PathVariable ("jobId") String jobId, Principal principal) {
+        try {
+
+            logger.info("deleteJobById request received for jobId: " + jobId + " from user: " + principal.getName());
+
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(jobProxy.deleteJobById(jobId, principal.getName()));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to forward: " + e.getMessage());
+        }
+    }
+
 
 }

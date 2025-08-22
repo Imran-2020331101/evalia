@@ -135,4 +135,33 @@ public class UserService {
         }
     }
 
+    public boolean deleteOrganization(String organizationId, String email) {
+        OrganizationEntity organization = organizationRepository.findById(new ObjectId(organizationId)).orElse(null);
+
+        if (organization == null || !organization.getOwnerEmail().equals(email)) {
+            logger.warning("Organization not found or user does not own the Organization.");
+            return false;
+        }
+
+
+        //TODO: After deleting the organization, we should also remove the job's created under this organization.
+        // This is a placeholder for the actual job deletion logic.
+        // jobRepository.deleteAllByOrganizationId(organizationId);
+
+
+        try {
+            organizationRepository.delete(organization);
+            userEntity user = userRepository.findByEmail(email).orElse(null);
+            if (user != null) {
+                List<String> orgIds = user.getOrganizationId();
+                orgIds.remove(organizationId);
+                user.setOrganizationId(orgIds);
+                userRepository.save(user);
+            }
+            return true;
+        } catch (Exception e) {
+            logger.severe("Error deleting organization: " + e.getMessage());
+            return false;
+        }
+    }
 }

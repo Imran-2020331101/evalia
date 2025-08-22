@@ -18,7 +18,7 @@ public class JwtService {
     private final JwtConfig jwtConfig;
 
     public JwtService(SecretKey key, JwtConfig jwtConfig) {
-        this.key = key;
+        this.key       = key;
         this.jwtConfig = jwtConfig;
     }
 
@@ -27,9 +27,26 @@ public class JwtService {
      * Using email as the subject for consistent identification
      */
     public String generateToken(Authentication authentication) {
-        String email = authentication.getName();
+
+        String email     = authentication.getName();
         Date currentDate = new Date();
-        Date expireDate = new Date(currentDate.getTime() + jwtConfig.getJwtExpiration());
+        Date expireDate  = new Date(currentDate.getTime() + jwtConfig.getJwtExpiration());
+
+        return Jwts.builder()
+                .setSubject(email) // Using email as the subject for identification
+                .setIssuedAt(new Date())
+                .setExpiration(expireDate)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+    }
+
+    /**
+     * Generates a temporary JWT token for actions like password reset or email verification
+     */
+    public String generateTemporaryToken(Authentication authentication) {
+        String email     = authentication.getName();
+        Date currentDate = new Date();
+        Date expireDate  = new Date(currentDate.getTime() + jwtConfig.getTemporaryJwtExpiration());
 
         return Jwts.builder()
                 .setSubject(email) // Using email as the subject for identification
@@ -76,7 +93,9 @@ public class JwtService {
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token);
+
             return true;
+
         } catch (ExpiredJwtException ex) {
             throw new AuthenticationCredentialsNotFoundException("JWT has expired", ex);
         } catch (SignatureException ex) {

@@ -17,9 +17,9 @@ public class FeignMultipartSupportConfig {
     @Bean
     public OkHttpClient okHttpClient() {
         return new OkHttpClient.Builder()
-                .connectTimeout(10, TimeUnit.MINUTES)
-                .readTimeout(10, TimeUnit.MINUTES)
-                .writeTimeout(10, TimeUnit.MINUTES)
+                .connectTimeout (10, TimeUnit.MINUTES)
+                .readTimeout    (10, TimeUnit.MINUTES)
+                .writeTimeout   (10, TimeUnit.MINUTES)
                 .build();
     }
 

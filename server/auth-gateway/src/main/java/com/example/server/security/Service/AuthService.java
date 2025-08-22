@@ -1,10 +1,7 @@
 package com.example.server.security.Service;
 
 import com.example.server.security.JWT.JwtService;
-import com.example.server.security.authDTO.LoginDto;
-import com.example.server.security.authDTO.LoginResponseDTO;
-import com.example.server.security.authDTO.RegisterDto;
-import com.example.server.security.authDTO.VerifyDTO;
+import com.example.server.security.authDTO.*;
 import com.example.server.security.models.ConfirmationToken;
 import com.example.server.security.models.Role;
 import com.example.server.security.models.userEntity;
@@ -32,41 +29,34 @@ import java.util.logging.Logger;
 @Service
 public class AuthService {
 
-    private static final Logger logger = Logger.getLogger(AuthService.class.getName());
-
-    private final AuthenticationManager authenticationManager;
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
+    private static final Logger               logger = Logger.getLogger(AuthService.class.getName());
+    private final AuthenticationManager       authenticationManager;
+    private final UserRepository              userRepository;
+    private final RoleRepository              roleRepository;
+    private final PasswordEncoder             passwordEncoder;
+    private final JwtService                  jwtService;
     private final ConfirmationTokenRepository confirmationTokenRepository;
-    private final EmailService emailService;
+    private final EmailService                emailService;
 
     @Autowired
-    public AuthService(AuthenticationManager authenticationManager,
-            UserRepository userRepository,
-            RoleRepository roleRepository,
-            PasswordEncoder passwordEncoder,
-            JwtService jwtService,
-            ConfirmationTokenRepository confirmationTokenRepository,
-            EmailService emailService) {
-        this.authenticationManager = authenticationManager;
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
+    public AuthService(AuthenticationManager       authenticationManager,
+                       UserRepository              userRepository,
+                       RoleRepository              roleRepository,
+                       PasswordEncoder             passwordEncoder,
+                       JwtService                  jwtService,
+                       ConfirmationTokenRepository confirmationTokenRepository,
+                       EmailService                emailService) {
+
+        this.authenticationManager       = authenticationManager;
+        this.userRepository              = userRepository;
+        this.roleRepository              = roleRepository;
+        this.passwordEncoder             = passwordEncoder;
+        this.jwtService                  = jwtService;
         this.confirmationTokenRepository = confirmationTokenRepository;
-        this.emailService = emailService;
+        this.emailService                = emailService;
     }
 
     public ResponseEntity<?> login(LoginDto loginDto) {
-        // Input validation
-        if (loginDto.getEmail() == null || loginDto.getEmail().trim().isEmpty()) {
-            return new ResponseEntity<>("Email is required", HttpStatus.BAD_REQUEST);
-        }
-        if (loginDto.getPassword() == null || loginDto.getPassword().trim().isEmpty()) {
-            return new ResponseEntity<>("Password is required", HttpStatus.BAD_REQUEST);
-        }
 
         try {
             // Check if user exists first
@@ -97,11 +87,7 @@ public class AuthService {
             String token = jwtService.generateToken(authentication);
 
             // Create comprehensive login response with user info
-            LoginResponseDTO loginResponse = new LoginResponseDTO();
-            loginResponse.setName(user.getName());
-            loginResponse.setEmail(user.getEmail());
-            loginResponse.setRoles(user.getRoles());
-            loginResponse.setAccessToken(token);
+            LoginResponseDTO loginResponse = new LoginResponseDTO( user.getName(), user.getEmail(), user.getRoles(), token);
 
             logger.info("Successful login for user: " + loginDto.getEmail());
             return new ResponseEntity<>(loginResponse, HttpStatus.OK);
@@ -115,21 +101,22 @@ public class AuthService {
     public ResponseEntity<?> register(RegisterDto registerDto) {
 
         if (Boolean.TRUE.equals(userRepository.existsByEmail(registerDto.getEmail()))) {
-            return new ResponseEntity<>("Email is already in use!", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(
+                    new RegistrationResponseDTO("Email is already in use!",null)
+                                                      , HttpStatus.BAD_REQUEST);
         }
 
         userEntity user = new userEntity();
         user.setName(registerDto.getName());
         user.setEmail(registerDto.getEmail());
         user.setPassword(passwordEncoder.encode((registerDto.getPassword())));
-
-        logger.info("Registration details set for user: " + registerDto.getEmail() + registerDto.getRole());
-
         Role roles = roleRepository.findByName(registerDto.getRole()).get();
         user.setRoles(Collections.singletonList(roles));
-        logger.info("Roles set for registration");
 
-        userRepository.save(user);
+        userEntity newUser = userRepository.save(user);
+        logger.info("User saved to repository: " + registerDto.getEmail());
+
+        String temporaryToken = temporarilyAuthenticate(registerDto);
 
         try {
             sendConfirmationToken(registerDto.getEmail());
@@ -137,7 +124,9 @@ public class AuthService {
             throw new RuntimeException("Unable to send Mail from User Service");
         }
 
-        return new ResponseEntity<>("User registered success!", HttpStatus.OK);
+        return new ResponseEntity<>(
+                new RegistrationResponseDTO("User registered success!",temporaryToken)
+                                                  , HttpStatus.OK);
     }
 
     public String confirmEmail(VerifyDTO verifyDTO) throws Exception {
@@ -159,7 +148,7 @@ public class AuthService {
             logger.info("Token found in database for verification: " + confirmationToken);
             ConfirmationToken confirmToken = token.get();
 
-            // Check if token has expired
+            // Check if the token has expired
             if (confirmToken.getExpiryDate() != null &&
                     confirmToken.getExpiryDate().isBefore(LocalDateTime.now())) {
                 logger.warning("Expired token used: " + confirmationToken);
@@ -202,12 +191,10 @@ public class AuthService {
         ConfirmationToken confirmationToken = new ConfirmationToken(randomNumber);
         confirmationToken.setUserEmail(email);
 
-        // Set expiration time (10 minutes from now)
         confirmationToken.setExpiryDate(LocalDateTime.now().plusMinutes(10));
 
         confirmationTokenRepository.save(confirmationToken);
 
-        // Use the EmailService to send the verification email
         emailService.sendVerificationEmail(email, otpString);
 
         logger.info("Confirmation Token: " + confirmationToken.getToken());
@@ -247,7 +234,6 @@ public class AuthService {
         }
     }
 
-
     public void updateRole(String email, String roleName) {
         userEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email:"+ email));
@@ -257,5 +243,20 @@ public class AuthService {
         user.getRoles().clear();
         user.getRoles().add(role);
         userRepository.save(user);
+    }
+
+    /*
+     * Temporarily authenticates a user to complete the Onboarding process.
+     * Generates a temporary JWT token for actions like Resume upload or Organization creation.
+     * Token invalidates in 10 minutes.
+     */
+    public String temporarilyAuthenticate(RegisterDto registerDto) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        registerDto.getEmail(),
+                        registerDto.getPassword()));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        return jwtService.generateTemporaryToken(authentication);
     }
 }

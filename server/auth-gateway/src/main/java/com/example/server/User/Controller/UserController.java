@@ -108,4 +108,22 @@ public class UserController {
         return ResponseEntity.ok("Organization updated successfully");
     }
 
+    @DeleteMapping("/organization/{OrganizationId}")
+    public ResponseEntity<?> deleteOrganization(@PathVariable String OrganizationId, Principal principal) {
+        try {
+            boolean deleted = userService.deleteOrganization(OrganizationId, principal.getName());
+            if (deleted) {
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body("Organization deleted successfully");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Organization not found or you do not own the Organization.");
+            }
+        } catch (Exception e) {
+            logger.severe("Error deleting organization: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to delete organization: " + e.getMessage());
+        }
+    }
+
 }
