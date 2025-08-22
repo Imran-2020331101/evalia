@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, response, Response } from 'express';
 import { JobDetailsModel, IJobDetailsDocument } from '../models/JobDetails';
 import { logger } from '../config/logger';
 import { 
@@ -15,16 +15,32 @@ import axios from 'axios';
 import { ResumeDTO } from '@/types/resume.types';
 
 export class JobController {
+
   /**
    * Create a new job posting
    * @route POST /api/jobs
    */
   async createJob(req: Request, res: Response): Promise<void> {
-    try {
-      console.log(req.body);
-      const result = await JobService.createJob(req.body);
-      const status = result.success ? 201 : (result.details || result.error === 'Validation failed') ? 400 : 500;
+    
+    const validationResult = CreateJobRequestSchema.safeParse(req.body);
+    
+    if (!validationResult.success) {
+      
+      const errors = validationResult.error.errors.map(err => `${err.path.join('.')}: ${err.message}`);
+      logger.warn("Validation failed", { errors });
+      
+      response.status(400).json( {
+        success : false,
+        error   : "Validation failed",
+        details : errors,
+      })
 
+      return;
+    }
+
+    try {
+      const result = await JobService.createJob(validationResult.data);
+      const status = result.success ? 201 : (result.details || result.error === 'Validation failed') ? 400 : 500;
 
       res.status(status).json(result);
     } catch (error: any) {
@@ -39,9 +55,8 @@ export class JobController {
    */
   async getJobById(req: Request, res: Response): Promise<void> {
     try {
-
       const { jobId } = z.object({ jobId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID") }).parse(req.params);
-      console.log(jobId, 'jobId')
+
       const result = await JobService.findJobById(jobId);
       const status = result.success ? 200 : (result.details || result.error === 'Validation failed') ? 400 : 500;
       res.status(status).json(result);
@@ -57,7 +72,7 @@ export class JobController {
   }
 
   /**
-   * Get all jobs by company name with pagination and filtering
+   * Get all the jobs posted by an Organization with pagination and filtering
    * @route GET /api/jobs/company/:companyName
    */
   async getJobsByCompany(req: Request, res: Response): Promise<void> {
@@ -66,72 +81,57 @@ export class JobController {
 
       if (!OrganizationId) {
         res.status(400).json({
-          success: false,
-          error: "Company Id is required",
+          success : false,
+          error   : "Organization Id is required",
         } as ApiResponse);
         return;
       }
 
-      // Simple pagination from query params with defaults
-      const page = parseInt(req.query.page as string) || 1;
+      const page  = parseInt(req.query.page as string)  || 1;
       const limit = parseInt(req.query.limit as string) || 10;
 
-      // Build query with only company ID
-      const query = {
-        "company.id": OrganizationId,
-      };
-
-      // Calculate pagination
-      const skip = (page - 1) * limit;
-
-      // Execute query with pagination and sort by creation date (newest first)
-      const [jobs, totalCount] = await Promise.all([
-        JobDetailsModel.find(query)
-          .sort({ createdAt: -1 })
-          .skip(skip)
-          .limit(limit)
-          .lean(),
-        JobDetailsModel.countDocuments(query),
-      ]);
-
-      const totalPages = Math.ceil(totalCount / limit);
-      const hasNextPage = page < totalPages;
-      const hasPrevPage = page > 1;
-
-      const pagination: Pagination = {
-        currentPage: page,
-        totalPages,
-        totalCount,
-        hasNextPage,
-        hasPrevPage,
-        limit,
-      };
-
-      logger.info("Jobs retrieved by company", {
-        OrganizationId,
-        jobsCount: jobs.length,
-        totalCount,
-        page,
-        limit,
-      });
+      const { jobs, pagination } = await JobService.getJobsByCompany(OrganizationId, page, limit);
 
       res.json({
-        success: true,
-        message: `Jobs retrieved successfully for company ID: ${OrganizationId}`,
-        data: {
-          jobs,
-          pagination,
-        },
-      } as ApiResponse<{ jobs: IJobDetailsDocument[]; pagination: Pagination }>);
+        success : true,
+        message : `Jobs retrieved successfully for company ID: ${OrganizationId}`,
+        data    : { jobs, pagination },
+      } as ApiResponse);
+
     } catch (error: any) {
-      logger.error("Error fetching jobs by company", {
-        error: error.message,
-        companyId: req.params.OrganizationId,
+      res.status(500).json({
+        success : false,
+        error   : "Internal server error while fetching jobs",
+      } as ApiResponse);
+    }
+  }
+
+  async deleteAllJobsOfAnOrganization(req:Request, res: Response) : Promise<void> {
+    try {
+      const { OrganizationId } = req.params;
+      if (!OrganizationId) {
+        res.status(400).json({
+          success : false,
+          error   : "Organization Id is required",
+        } as ApiResponse);
+        return;
+      }
+
+      // Bulk update jobs to status 'DELETED'
+      const result = await JobService.bulkJobDelete(OrganizationId);
+      const status = result.success ? 201 : (result.details || result.error === 'Validation failed') ? 400 : 500;
+      
+      res.status(status).json(result);
+    } catch (error: any) {
+      
+      logger.error("Error bulk deleting jobs for organization", {
+        error          : error.message,
+        organizationId : req.params.OrganizationId,
       });
 
       res.status(500).json({
-        success: false,
-        error: "Internal server error while fetching jobs",
+        success : false,
+        error   : "Internal server error while bulk deleting jobs",
       } as ApiResponse);
     }
   }
@@ -142,24 +142,21 @@ export class JobController {
    */
   async getAllJobs(req: Request, res: Response): Promise<void> {
     try {
-      // Validate query parameters
       const filterValidation = JobFilterSchema.safeParse(req.query);
+      
       if (!filterValidation.success) {
-        const errors = filterValidation.error.errors.map(err => 
-          `${err.path.join('.')}: ${err.message}`
-        );
+        const errors = filterValidation.error.errors.map( err => `${err.path.join('.')}: ${err.message}`);
         res.status(400).json({
-          success: false,
-          error: "Invalid query parameters",
-          details: errors,
+          success : false,
+          error   : "Invalid query parameters",
+          details : errors,
         } as ApiResponse);
         return;
       }
 
       const { page, limit, sortBy, sortOrder, status } = filterValidation.data;
 
-      // Build query
-      const query: any = {};
+      const query : any = {};
       if (status) {
         query.status = status;
       }
@@ -177,7 +174,7 @@ export class JobController {
         JobDetailsModel.countDocuments(query),
       ]);
 
-      const totalPages = Math.ceil(totalCount / limit);
+      const totalPages  = Math.ceil(totalCount / limit);
       const hasNextPage = page < totalPages;
       const hasPrevPage = page > 1;
 
@@ -190,29 +187,22 @@ export class JobController {
         limit,
       };
 
-      logger.info("All jobs retrieved", {
-        jobsCount: jobs.length,
-        totalCount,
-        page,
-        limit,
-      });
+      logger.info("All jobs retrieved", {jobsCount: jobs.length, totalCount, page, limit, });
 
       res.json({
-        success: true,
-        message: "Jobs retrieved successfully",
-        data: {
-          jobs,
-          pagination,
-        },
+        success : true,
+        message : "Jobs retrieved successfully",
+        data    : { jobs, pagination, },
       } as ApiResponse<{ jobs: IJobDetailsDocument[]; pagination: Pagination }>);
+
     } catch (error: any) {
       logger.error("Error fetching all jobs", {
         error: error.message,
       });
 
       res.status(500).json({
-        success: false,
-        error: "Internal server error while fetching jobs",
+        success : false,
+        error   : "Internal server error while fetching jobs",
       } as ApiResponse);
     }
   }

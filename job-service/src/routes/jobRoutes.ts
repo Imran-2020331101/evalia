@@ -10,6 +10,7 @@ router.get("/:jobId", jobController.getJobById.bind(jobController));
 router.put("/:jobId/status", jobController.updateJobStatus.bind(jobController));
 router.delete("/:jobId", jobController.deleteJob.bind(jobController));
 router.get("/company/:OrganizationId", jobController.getJobsByCompany.bind(jobController));
+router.delete("/company/:OrganizationId", jobController.deleteAllJobsOfAnOrganization.bind(jobController));
 
 
 router.post("/apply",jobController.applyToJob.bind(jobController));

@@ -17,7 +17,7 @@ export const EmploymentLevel = z.enum(['ENTRY', 'MID', 'SENIOR']);
 export type EmploymentLevel = z.infer<typeof EmploymentLevel>;
 
 // Job status
-export const JobStatus = z.enum(['draft', 'active', 'paused', 'closed', 'filled']);
+export const JobStatus = z.enum(['DRAFT','ACTIVE','FILLED','ARCHIVED','DELETED']);
 export type JobStatus = z.infer<typeof JobStatus>;
 
 // Application status
@@ -75,7 +75,7 @@ export const JobDetailsSchema = z.object({
   skills: z.array(DomainItemSchema).min(1, 'At least one skill is required'),
   postedBy: z.string().min(1, 'Job poster information is required'),
   company: CompanySchema,
-  status: JobStatus.default('draft'),
+  status: JobStatus.default('ACTIVE'),
   applications: z.array(ApplicationSchema).default([]),
   views: z.number().min(0).default(0),
   featured: z.boolean().default(false),

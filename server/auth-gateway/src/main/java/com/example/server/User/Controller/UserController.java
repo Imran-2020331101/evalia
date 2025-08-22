@@ -45,8 +45,8 @@ public class UserController {
             userEntity user = (userEntity) userService.loadUserById(userId);
 
             // Fetch resume data from Resume Server
-            String jsonResponse = resumeJsonProxy.getResumeByEmail(new ForwardProfileRequest(user.getEmail()));
-            ObjectMapper mapper = new ObjectMapper();
+            String jsonResponse          = resumeJsonProxy.getResumeByEmail(new ForwardProfileRequest(user.getEmail()));
+            ObjectMapper mapper          = new ObjectMapper();
             ResumeDataRequest resumeData = mapper.readValue(jsonResponse, ResumeDataRequest.class);
 
             return ResponseEntity.ok(new Profile(resumeData, userService.toUserDTO(user)));
