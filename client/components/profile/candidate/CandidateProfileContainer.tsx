@@ -34,8 +34,9 @@ const CandidateProfileContainer = () => {
     setIsAboutEdit((prev)=>!prev)
   }
   return (
-      <div className="w-full h-full bg-gray-950/80 flex justify-end pr-[8%] gap-[20px] ">
-        <div className="w-[50%] h-full flex flex-col pt-[60px] pb-[40px] gap-[14px] overflow-y-scroll scrollbar-hidden shrink-0">
+      <div className="w-full h-full bg-gray-950/80 flex items-start justify-center py-[10px] ">
+      <div className="w-[85%] ml-[5%] h-full border border-gray-800 rounded-lg flex justify-center items-center p-[6px] gap-[13px]">
+        <div className="w-[60%] h-full flex flex-col pb-[40px] gap-[14px] overflow-y-scroll scrollbar-hidden ">
             <section className='w-full min-h-[400px] bg-slate-900 rounded-xl'>
                 <div className="w-full h-[200px] relative rounded-t-xl">
                     <Image src={'https://i.pinimg.com/1200x/e6/16/86/e61686f29fc38ad2d539d776fb8adc76.jpg'} alt="cover-photo" width={700} height={300} className="w-full h-full rounded-t-xl object-cover"/>
@@ -112,7 +113,7 @@ const CandidateProfileContainer = () => {
               <CandidatesProfileResumePanel  />
             </section>
         </div>
-        <div className="w-[30%] h-full   shrink-0 pt-[60px] pb-[10px]  gap-[14px] ">
+        <div className="w-[40%] h-full   gap-[14px] ">
           <section className="w-full h-full bg-slate-900 rounded-xl flex flex-col overflow-y-scroll scrollbar-hidden p-[16px]">
               <section className="w-full h-1/2 shrink-0 flex flex-col gap-3">
                 <p className="text-[14px] text-gray-300 font-semibold pb-2 border-b-[1px] border-gray-700">Suggested Jobs : </p>
@@ -138,6 +139,7 @@ const CandidateProfileContainer = () => {
                 </div>
               </section>
           </section>
+        </div>
         </div>
       </div>
   )
