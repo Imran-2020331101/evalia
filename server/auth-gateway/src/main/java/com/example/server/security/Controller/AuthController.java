@@ -88,11 +88,11 @@ public class AuthController {
             logger.warning("Email verification failed for OTP: " + verifyDTO.getOtp() + " - " + e.getMessage());
 
             if (e.getMessage().contains("User not found")) {
-                return new ResponseEntity<>("User not found for the given token", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>("Invalid Token", HttpStatus.NOT_FOUND);
             }
 
             // For invalid or expired OTP
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Invalid Token", HttpStatus.BAD_REQUEST);
         }
     }
 
