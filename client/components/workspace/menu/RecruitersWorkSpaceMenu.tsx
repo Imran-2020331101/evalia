@@ -50,10 +50,10 @@ const RecruitersWorkSpaceMenu = () => {
         </div>
       </div>
       <div className="w-full h-auto flex justify-start items-end ">
-        <button className="flex items-center gap-2 cursor-pointer">
+        <Link href={'/profile'} className="flex items-center gap-2 cursor-pointer">
           <p className="px-2 py-1 rounded-sm bg-gray-600 text-sm">AJ</p>
           <p className="text-gray-300 lowercase">ajoad</p>
-        </button>
+        </Link>
       </div>
     </div>
   )
