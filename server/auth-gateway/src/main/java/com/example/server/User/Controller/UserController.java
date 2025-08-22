@@ -1,26 +1,23 @@
 package com.example.server.User.Controller;
 
 import com.example.server.User.DTO.ForwardProfileRequest;
+import com.example.server.User.DTO.OrganizationCreateDTO;
+import com.example.server.User.DTO.OrganizationUpdateDTO;
 import com.example.server.User.DTO.Profile;
 import com.example.server.User.Service.UserService;
 import com.example.server.User.models.OrganizationEntity;
 import com.example.server.resume.DTO.ResumeDataRequest;
 import com.example.server.resume.Proxy.ResumeJsonProxy;
-import com.example.server.security.models.Role;
 import com.example.server.security.models.userEntity;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
+import org.modelmapper.ModelMapper;
 
 import java.security.Principal;
-import java.util.Map;
+import java.time.LocalDateTime;
 import java.util.logging.Logger;
-import org.springframework.data.mongodb.core.MongoTemplate;
 
 @RestController
 @RequestMapping("/api/user")
@@ -29,19 +26,16 @@ public class UserController {
     private static final Logger      logger = Logger.getLogger(UserController.class.getName());
     private final UserService        userService;
     private final ResumeJsonProxy    resumeJsonProxy;
-    private final UserDetailsService userDetailsService;
-    private final MongoTemplate      mongoTemplate;
+    private final ModelMapper        modelMapper;
 
 
     public UserController(UserService        userService,
                           ResumeJsonProxy    resumeJsonProxy,
-                          UserDetailsService userDetailsService,
-                          MongoTemplate      mongoTemplate) {
+                          ModelMapper        modelMapper) {
 
         this.userService        = userService;
         this.resumeJsonProxy    = resumeJsonProxy;
-        this.userDetailsService = userDetailsService;
-        this.mongoTemplate      = mongoTemplate;
+        this.modelMapper        = modelMapper;
     }
 
     @GetMapping("/profile/{userId}")
@@ -64,21 +58,19 @@ public class UserController {
     }
 
 
-    @PostMapping
-    public ResponseEntity<?> createOrganizationProfile(@RequestBody OrganizationEntity organizationEntity, Principal principal) {
+    @PostMapping("/organization/new")
+    public ResponseEntity<?> createOrganizationProfile(@RequestBody OrganizationCreateDTO organizationRequestDTO,
+                                                                    Principal principal) {
         try{
             logger.info("Creating Organization Profile request received from" + principal.getName());
-            userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
-            if (user.isHasOrganization()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("User already has an organization profile.");
-            }
 
-            // Create a new organization profile
-            organizationEntity.setOwnerEmail(user.getEmail());
-            organizationEntity.setId(null);
-            userService.createOrganizationProfile(organizationEntity);
-            return ResponseEntity.ok("Organization profile created successfully.");
+            OrganizationEntity entity = modelMapper.map(organizationRequestDTO, OrganizationEntity.class);
+            entity.setCreatedAt(LocalDateTime.now());
+            entity.setUpdatedAt(LocalDateTime.now());
+
+            return ResponseEntity.ok(
+                userService.createOrganizationProfile(entity, principal.getName())
+            );
 
         }catch (Exception e){
             logger.severe("Error creating organization profile: " + e.getMessage());
@@ -87,17 +79,11 @@ public class UserController {
         }
     }
 
-    @GetMapping("/organization/profile")
-    public ResponseEntity<?> getOrganizationProfile(Principal principal) {
+    @GetMapping("/organization/{OrganizationId}")
+    public ResponseEntity<?> getOrganizationById(@PathVariable String OrganizationId) {
         try {
-            userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
-            if (!user.isHasOrganization()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("User does not have an organization profile.");
-            }
-
-            OrganizationEntity organization = userService.getOrganizationByOwnerEmail(user.getEmail());
-            return ResponseEntity.ok(organization);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(userService.getOrganizationById(OrganizationId));
         } catch (Exception e) {
             logger.severe("Error retrieving organization profile: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -106,45 +92,38 @@ public class UserController {
     }
 
 
-    //TODO: the following two methods has the same purpose, need to be merged
+    @PatchMapping("/organization/{OrganizationId}")
+    public ResponseEntity<?> updateOrganization( @PathVariable String OrganizationId,
+                                                 @RequestBody  OrganizationUpdateDTO dto,
+                                                               Principal principal) {
 
-    @PutMapping("/organizations/profile")
-    public ResponseEntity<?> updateOrganizationProfile(@RequestBody OrganizationEntity organizationEntity, Principal principal) {
+        OrganizationEntity org = userService.updateOrganizationProfile( dto, OrganizationId, principal.getName());
+
+        if( org == null) {
+            logger.warning("Organization not found or user not authorized to update it. Check Server log for details.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Organization not found or you are not authorized to update it.");
+        }
+
+        return ResponseEntity.ok("Organization updated successfully");
+    }
+
+    @DeleteMapping("/organization/{OrganizationId}")
+    public ResponseEntity<?> deleteOrganization(@PathVariable String OrganizationId, Principal principal) {
         try {
-            logger.info("Updating Organization Profile request received from " + principal.getName());
-            userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
-            if (!user.isHasOrganization()) {
+            boolean deleted = userService.deleteOrganization(OrganizationId, principal.getName());
+            if (deleted) {
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body("Organization deleted successfully");
+            } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("User does not have an organization profile.");
+                        .body("Organization not found or you do not own the Organization.");
             }
-
-            // Update the organization profile
-            organizationEntity.setOwnerEmail(user.getEmail());
-            userService.createOrganizationProfile(organizationEntity);
-            return ResponseEntity.ok("Organization profile updated successfully.");
         } catch (Exception e) {
-            logger.severe("Error updating organization profile: " + e.getMessage());
+            logger.severe("Error deleting organization: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to update organization profile: " + e.getMessage());
+                    .body("Failed to delete organization: " + e.getMessage());
         }
     }
-
-    @PatchMapping("/organizations/{id}")
-    public ResponseEntity<?> updateOrganization(
-            @PathVariable String id,
-            @RequestBody Map<String, Object> updates) {
-
-        Update update = new Update();
-        updates.forEach(update::set);
-
-        mongoTemplate.updateFirst(
-                Query.query(Criteria.where("_id").is(id)),
-                update,
-                OrganizationEntity.class
-        );
-
-        return ResponseEntity.ok("Organization updated");
-    }
-
 
 }

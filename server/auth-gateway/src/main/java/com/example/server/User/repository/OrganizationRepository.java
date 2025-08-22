@@ -5,11 +5,11 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface OrganizationRepository extends MongoRepository<OrganizationEntity, ObjectId> {
 
-    Optional<OrganizationEntity> findByOwnerEmail(String email);
-
+    // Previously: Optional<OrganizationEntity> findByOwnerEmail(String email);
+    List<OrganizationEntity> findAllByOwnerEmail(String email);
 }

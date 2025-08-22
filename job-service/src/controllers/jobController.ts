@@ -10,7 +10,7 @@ import {
 } from '../types/job.types';
 import { JobService } from '../services/jobService';
 import { z } from 'zod';
-// import { OverviewService } from '@/services/overviewService';
+import { OverviewService } from '../services/overviewService';
 import axios from 'axios';
 // import { ResumeDTO } from '@/types/resume.types';
 
@@ -62,11 +62,9 @@ export class JobController {
    */
   async getJobsByCompany(req: Request, res: Response): Promise<void> {
     try {
-      const { companyId } = req.params;
+      const { OrganizationId } = req.params;
 
-      
-
-      if (!companyId) {
+      if (!OrganizationId) {
         res.status(400).json({
           success: false,
           error: "Company Id is required",
@@ -80,7 +78,7 @@ export class JobController {
 
       // Build query with only company ID
       const query = {
-        "company.id": companyId,
+        "company.id": OrganizationId,
       };
 
       // Calculate pagination
@@ -110,7 +108,7 @@ export class JobController {
       };
 
       logger.info("Jobs retrieved by company", {
-        companyId,
+        OrganizationId,
         jobsCount: jobs.length,
         totalCount,
         page,
@@ -119,7 +117,7 @@ export class JobController {
 
       res.json({
         success: true,
-        message: `Jobs retrieved successfully for company ID: ${companyId}`,
+        message: `Jobs retrieved successfully for company ID: ${OrganizationId}`,
         data: {
           jobs,
           pagination,
@@ -128,7 +126,7 @@ export class JobController {
     } catch (error: any) {
       logger.error("Error fetching jobs by company", {
         error: error.message,
-        companyId: req.params.companyId,
+        companyId: req.params.OrganizationId,
       });
 
       res.status(500).json({

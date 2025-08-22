@@ -7,18 +7,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-@FeignClient(name = "aiClient",
-        url = "http://localhost:5000/api/resume",
-        configuration = FeignMultipartSupportConfig.class)
+@FeignClient(name          = "aiClient",
+             url           = "http://localhost:5000/api/resume",
+             configuration = FeignMultipartSupportConfig.class)
 public interface ResumeProxy {
 
     @PostMapping(
-            value = "/upload",
+            value    = "/upload",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
     String forwardResumeToResumeService(
-            @RequestPart("file") MultipartFile file,
+            @RequestPart("file")      MultipartFile file,
             @RequestPart("userEmail") String userEmail,
-            @RequestPart("userId") String userId
+            @RequestPart("userId")    String userId
     );
 
 }

@@ -1,34 +1,38 @@
 package com.example.server.User.Service;
 
+import com.example.server.User.Controller.UserController;
+import com.example.server.User.DTO.OrganizationUpdateDTO;
 import com.example.server.User.DTO.UserDTO;
 import com.example.server.User.models.OrganizationEntity;
 import com.example.server.User.repository.OrganizationRepository;
 import com.example.server.security.models.Role;
 import com.example.server.security.models.userEntity;
-import com.example.server.security.repository.RoleRepository;
 import com.example.server.security.repository.UserRepository;
-import com.nimbusds.openid.connect.sdk.assurance.evidences.Organization;
 import org.bson.types.ObjectId;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
+import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 
 @Service
 public class UserService {
 
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final OrganizationRepository organizationRepository;
+    private static final Logger logger  = Logger.getLogger(UserService.class.getName());
+    private final UserRepository          userRepository;
+    private final OrganizationRepository  organizationRepository;
 
     public UserService(UserRepository          userRepository,
-                       RoleRepository          roleRepository,
                        OrganizationRepository  organizationRepository) {
 
         this.userRepository         =  userRepository;
-        this.roleRepository         =  roleRepository;
         this.organizationRepository =  organizationRepository;
     }
 
@@ -61,18 +65,103 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void createOrganizationProfile(OrganizationEntity organization) {
-        userEntity user = userRepository.findByEmail(organization.getOwnerEmail())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + organization.getOwnerEmail()));
+    public OrganizationEntity createOrganizationProfile(OrganizationEntity organization, String email) {
+        userEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
         OrganizationEntity newOrganization = organizationRepository.save(organization);
-        user.setHasOrganization(true);
-        user.setOrganizationId(newOrganization.getId());
+
+        user.setHasAnyOrganization(true);
+
+        List<String> orgIds = user.getOrganizationId();
+        orgIds.add(newOrganization.getId());
+        user.setOrganizationId(orgIds);
         userRepository.save(user);
+        return newOrganization;
     }
 
-    public OrganizationEntity getOrganizationByOwnerEmail(String email) {
-        return organizationRepository.findByOwnerEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Organization not found for email: " + email));
+    public OrganizationEntity getOrganizationById(String id) {
+        return organizationRepository.findById(new ObjectId(id))
+                .orElseThrow(() -> new UsernameNotFoundException("Organization not found with ID: " + id));
+    }
+
+    /**
+     * Retrieves all organizations by the owner's email.
+     * @return List of organization entities associated with the given email.
+     */
+    public List<OrganizationEntity> getOrganizationsByOwnerEmail(String email) {
+        List<OrganizationEntity> organizations = organizationRepository.findAllByOwnerEmail(email);
+
+        if (organizations.isEmpty()) {
+            throw new UsernameNotFoundException("No organizations found for email: " + email);
+        }
+
+        return organizations;
+    }
+
+
+    /**
+     * It dynamically loops through the fields of the OrganizationUpdateDTO
+     * and updates the corresponding fields in the OrganizationEntity.
+     * It uses reflection to update only the non-null fields in the DTO.
+     * If the organization is not found or the email does not match the owner's email, it returns null.
+
+     * @return OrganizationEntity if update is successful, null otherwise.
+     */
+    public OrganizationEntity updateOrganizationProfile(OrganizationUpdateDTO organizationUpdateDTO, String id, String email) {
+
+        OrganizationEntity org = organizationRepository.findById(new ObjectId(id)).orElse(null);
+
+        if (org == null || !org.getOwnerEmail().equals(email)) return null ;
+        try {
+
+            // Use reflection to dynamically update non-null fields
+            Field[] fields = OrganizationUpdateDTO.class.getDeclaredFields();
+            for (Field field : fields) {
+                field.setAccessible(true);
+                Object value = field.get(organizationUpdateDTO);
+                if (value != null) {
+                    Field entityField = OrganizationEntity.class.getDeclaredField(field.getName());
+                    entityField.setAccessible(true);
+                    entityField.set(org, value);
+                }
+            }
+            org.setUpdatedAt(LocalDateTime.now());
+
+            return organizationRepository.save(org);
+        } catch (Exception e) {
+            logger.severe("Error updating organization profile: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public boolean deleteOrganization(String organizationId, String email) {
+        OrganizationEntity organization = organizationRepository.findById(new ObjectId(organizationId)).orElse(null);
+
+        if (organization == null || !organization.getOwnerEmail().equals(email)) {
+            logger.warning("Organization not found or user does not own the Organization.");
+            return false;
+        }
+
+
+        //TODO: After deleting the organization, we should also remove the job's created under this organization.
+        // This is a placeholder for the actual job deletion logic.
+        // jobRepository.deleteAllByOrganizationId(organizationId);
+
+
+        try {
+            organizationRepository.delete(organization);
+            userEntity user = userRepository.findByEmail(email).orElse(null);
+            if (user != null) {
+                List<String> orgIds = user.getOrganizationId();
+                orgIds.remove(organizationId);
+                user.setOrganizationId(orgIds);
+                userRepository.save(user);
+            }
+            return true;
+        } catch (Exception e) {
+            logger.severe("Error deleting organization: " + e.getMessage());
+            return false;
+        }
     }
 }

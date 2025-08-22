@@ -26,17 +26,21 @@ import java.util.logging.Logger;
 @RequestMapping("/api/resume")
 public class ResumeController {
 
-    private static final Logger logger = Logger.getLogger(ResumeController.class.getName());
-    private final ResumeProxy resumeProxy;
-    private final ResumeJsonProxy resumeJsonProxy;
+    private static final Logger      logger = Logger.getLogger(ResumeController.class.getName());
+    private final ResumeProxy        resumeProxy;
+    private final ResumeJsonProxy    resumeJsonProxy;
     private final UserDetailsService userDetailsService;
-    private final UserService userService;
+    private final UserService        userService;
 
-    public ResumeController(ResumeProxy resumeProxy, ResumeJsonProxy resumeJsonProxy, UserDetailsService userDetailsService, UserService userService) {
+    public ResumeController(ResumeProxy        resumeProxy,
+                            ResumeJsonProxy    resumeJsonProxy,
+                            UserDetailsService userDetailsService,
+                            UserService        userService) {
+
         this.userDetailsService = userDetailsService;
-        this.resumeJsonProxy = resumeJsonProxy;
-        this.resumeProxy = resumeProxy;
-        this.userService = userService;
+        this.resumeJsonProxy    = resumeJsonProxy;
+        this.resumeProxy        = resumeProxy;
+        this.userService        = userService;
     }
 
     @PostMapping("/upload")
@@ -53,10 +57,13 @@ public class ResumeController {
                     user.getId().toString()
             );
 
-            // Updates the user's resume status and stores the URL when the response is successful
-            // returns error otherwise.
+            /*
+              Updates the user's resume status and stores the URL when the response is successful
+              returns error otherwise.
+             */
             ObjectMapper mapper = new ObjectMapper();
-            JsonNode jsonNode = mapper.readTree(response);
+            JsonNode jsonNode   = mapper.readTree(response);
+
             if (jsonNode.has("success") && !jsonNode.get("success").asBoolean()) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(jsonNode);
             }
@@ -66,7 +73,8 @@ public class ResumeController {
 
             logger.info(jsonNode.get("downloadUrl").asText());
 
-            return ResponseEntity.ok(response);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to forward: " + e.getMessage());
@@ -86,20 +94,22 @@ public class ResumeController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
 
-
-        return ResponseEntity.ok(
-                resumeJsonProxy.extractDetailsFromResume(new ResumeForwardWrapper(
-                        null,
-                        user.getResumeUrl(),
-                        user.getId(),
-                        user.getUsername()
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(
+                    resumeJsonProxy.extractDetailsFromResume(new ResumeForwardWrapper(
+                            null,
+                            user.getResumeUrl(),
+                            user.getId(),
+                            user.getUsername()
         )));
     }
 
     @PostMapping("/save")
     public String saveResume(@RequestBody ResumeDataRequest resumeData) {
-        userEntity user = (userEntity) userDetailsService.loadUserByUsername(resumeData.getUploadedBy());
+
         logger.info("Received request to save resume data for user: " + resumeData.getFilename());
+
+        userEntity user = (userEntity) userDetailsService.loadUserByUsername(resumeData.getUploadedBy());
         return resumeJsonProxy.saveResume(new ResumeForwardWrapper(
                 resumeData,
                 null,
@@ -110,12 +120,16 @@ public class ResumeController {
 
     @PostMapping("/basic-search")
     public ResponseEntity<?> basicSearchResume(@RequestBody BasicSearchRequest basicSearchRequest, Principal principal) {
+
         logger.info("Received basic search request from user: " + principal.getName());
+
         try {
-            String jsonResponse = resumeJsonProxy.basicSearchResume(basicSearchRequest);
-            ObjectMapper mapper = new ObjectMapper();
+            String jsonResponse          = resumeJsonProxy.basicSearchResume(basicSearchRequest);
+            ObjectMapper mapper          = new ObjectMapper();
             BasicSearchResponse response = mapper.readValue(jsonResponse, BasicSearchResponse.class);
-            return ResponseEntity.ok(response);
+
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new BasicSearchResponse(false, Collections.emptyList(), "Failed: " + e.getMessage()));

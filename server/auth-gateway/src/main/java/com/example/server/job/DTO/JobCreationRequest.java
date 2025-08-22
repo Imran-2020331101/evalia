@@ -69,7 +69,7 @@ public class JobCreationRequest {
 
         @NotNull
         @JsonFormat(pattern = "yyyy-MM-dd")
-        private LocalDate deadline; // Updated to LocalDate
+        private LocalDate deadline;
 
         @NotNull
         private JobType jobType;
@@ -86,7 +86,6 @@ public class JobCreationRequest {
         }
     }
 
-    // Updated to match JSON keys
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -114,8 +113,7 @@ public class JobCreationRequest {
         private String referenceAnswer;
     }
 
-    // Replace these with your actual enums
-    public enum JobType { FULL_TIME, PART_TIME, CONTRACT, INTERN }
-    public enum WorkplaceType { ONSITE, REMOTE, HYBRID }
+    public enum JobType         { FULL_TIME, PART_TIME, CONTRACT, INTERN }
+    public enum WorkplaceType   { ONSITE, REMOTE, HYBRID }
     public enum EmploymentLevel { ENTRY, MID, SENIOR }
 }
