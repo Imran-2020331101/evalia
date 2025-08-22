@@ -72,7 +72,8 @@
 			<artifactId>spring-boot-starter-data-mongodb</artifactId>
 		</dependency>
 
-		<!-- Model mapper -->
+		<!-- Model mapper to map DTO to Entity.
+			 Bean definition in SecurityConfig file -->
 		<dependency>
 			<groupId>org.modelmapper</groupId>
 			<artifactId>modelmapper</artifactId>

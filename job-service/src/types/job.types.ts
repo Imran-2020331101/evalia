@@ -92,7 +92,7 @@ export type JobDetails = z.infer<typeof JobDetailsSchema>;
 export const CreateJobRequestSchema = z.object({
   companyInfo: z.object({
     id: z.string().min(1),
-    email: z.string().optional(),
+    ownerEmail: z.string(),  
   }),
   basic: z.object({
     title: z.string().min(1).max(200).trim(),
