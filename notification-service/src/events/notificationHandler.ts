@@ -1,6 +1,5 @@
 import { EventTypes } from "./eventTypes";
 import { createNotification } from "../services/notificationService";
-import { batchFeedbackService } from "../services/batchFeedbackService";
 import { io } from "../config/socket";
 import logger from "../utils/logger";
 
@@ -92,40 +91,7 @@ export const handleIncomingEvent = async (event: any) => {
         });
         break;
 
-      case EventTypes.BATCH_REJECTION_FEEDBACK:
-        // Handle batch rejection feedback processing
-        logger.info(`Processing batch rejection feedback for job: ${event.jobId}`);
-        
-        try {
-          const result = await batchFeedbackService.processBatchRejectionFeedback({
-            jobId: event.jobId,
-            jobTitle: event.jobTitle,
-            companyName: event.companyName,
-            jobDescription: event.jobDescription,
-            shortlistedCandidates: event.shortlistedCandidates,
-            allApplicants: event.allApplicants,
-            recruiterId: event.recruiterId
-          });
-          
-          logger.info(`Batch feedback completed: ${result.processed} processed, ${result.failed} failed`);
-          
-          // The individual notifications are handled within the batch service
-          // No need to create additional notifications here
-          notification = null; // Don't create a notification for the batch event itself
-          
-        } catch (error) {
-          logger.error("Batch rejection feedback failed:", error);
-          
-          // Notify the recruiter that batch processing failed
-          notification = await createNotification({
-            userId: event.recruiterId,
-            title: "Batch Processing Failed",
-            message: `Failed to send rejection feedback for ${event.jobTitle}. Please try again or contact support.`,
-            type: "error",
-            link: `/recruiter/jobs/${event.jobId}`
-          });
-        }
-        break;
+
 
       // Authentication & Security Events
       case EventTypes.USER_EMAIL_VERIFIED:

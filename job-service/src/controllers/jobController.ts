@@ -10,9 +10,9 @@ import {
 } from '../types/job.types';
 import { JobService } from '../services/jobService';
 import { z } from 'zod';
-import { OverviewService } from '../services/overviewService';
+import { ApplicationCompatibilityService } from '../services/ApplicationCompatibilityService';
 import axios from 'axios';
-// import { ResumeDTO } from '@/types/resume.types';
+import { ResumeDTO } from '../types/resume.types';
 
 export class JobController {
 
@@ -29,7 +29,7 @@ export class JobController {
       const errors = validationResult.error.errors.map(err => `${err.path.join('.')}: ${err.message}`);
       logger.warn("Validation failed", { errors });
       
-      response.status(400).json( {
+      res.status(400).json( {
         success : false,
         error   : "Validation failed",
         details : errors,
@@ -58,8 +58,10 @@ export class JobController {
       const { jobId } = z.object({ jobId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID") }).parse(req.params);
 
       const result = await JobService.findJobById(jobId);
-      const status = result.success ? 200 : (result.details || result.error === 'Validation failed') ? 400 : 500;
-      res.status(status).json(result);
+      res.status(200).json({
+        success : false,
+        data    : result
+      });
 
     } catch (error: any) {
       if (error instanceof z.ZodError) {
@@ -312,51 +314,52 @@ export class JobController {
 
   /**
   * Apply for a job (add candidate email to job's applications)
-  * @route POST /api/jobs/:jobId/apply
+  * @route POST /api/jobs/apply
   */
-  // async applyToJob(req: Request, res: Response): Promise<void> {
-  //   try {
+  async applyToJob(req: Request, res: Response): Promise<void> {
+    try {
       
-  //     const schema = z.object({
-  //       jobId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID"),
-  //       email: z.string().email("Invalid candidate email")
-  //     });
-  //     const { jobId, email } = schema.parse(req.body);
+      const schema = z.object({
+        jobId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID"),
+        email: z.string().email("Invalid candidate email")
+      });
+      const { jobId, email } = schema.parse(req.body);
    
-  //     const result = await JobService.applyToJob(jobId, email);
-  //     if(result.success){
-  //       (async () => {
-  //         try {
-  //           const resumeResponse = await axios.post(`${process.env.RESUME_SERVICE_URL}/api/resume/retrive`,{ email });
-  //           const resume: ResumeDTO = resumeResponse.data as ResumeDTO;
-  //           const jobResult = await JobService.findJobById(jobId);
-  //           const jobDescription = jobResult?.data || "";
-  //           await OverviewService.evaluateCandidateProfile(jobDescription, resume);
-  //         } catch (err) {
-  //           logger.error("Error in async profile evaluation", { error: (err as Error).message, jobId, email });
-  //         }
-  //       })();
-  //     }
-  //     const status = result.success ? 200 : 400;
-  //     res.status(status).json(result);
-  //   } catch (error: any) {
-  //     if (error instanceof z.ZodError) {
-  //       res.status(400).json({
-  //         success: false,
-  //         error: error.errors.map(e => e.message).join(", ")
-  //       } as ApiResponse);
-  //       return;
-  //     }
-  //     logger.error("Error in applyToJob controller", {
-  //       error: error.message,
-  //       jobId: req.body.jobId,
-  //     });
-  //     res.status(500).json({
-  //       success: false,
-  //       error: "Internal server error while applying to job",
-  //     } as ApiResponse);
-  //   }
-  // }
+      const result = await JobService.applyToJob(jobId, email);
+      if(result.success){
+        (async () => {
+          try {
+            const resumeResponse = await axios.post(`${process.env.RESUME_SERVICE_URL}/api/resume/retrive`,{ email });
+            const resume: ResumeDTO = resumeResponse.data as ResumeDTO;
+            const jobResult = await JobService.findJobById(jobId);
+            jobResult && await ApplicationCompatibilityService.evaluateCandidateProfile(jobResult, resume, email);
+          } catch (err) {
+            logger.error("Error in async profile evaluation", { error: (err as Error).message, jobId, email });
+          }
+        })();
+      }
+      const status = result.success ? 200 : 400;
+      res.status(status).json(result);
+
+
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({
+          success: false,
+          error: error.errors.map(e => e.message).join(", ")
+        } as ApiResponse);
+        return;
+      }
+      logger.error("Error in applyToJob controller", {
+        error: error.message,
+        jobId: req.body.jobId,
+      });
+      res.status(500).json({
+        success: false,
+        error: "Internal server error while applying to job",
+      } as ApiResponse);
+    }
+  }
 
   async shortListCandidate(req:Request,res:Response):Promise<void>{
     try {
@@ -386,33 +389,36 @@ export class JobController {
       } as ApiResponse);
     }
   }
-  async rejectRemainingCandidates(req:Request,res:Response):Promise<void>{
-    try {
-      const { jobId, current_status } = req.body;
 
-      if(!ApplicationStatus.options.includes(current_status)){
-          res.status(500).json({
-          success: false,
-          error: "you must include the current status type of the candidates",
-        } as ApiResponse);
-      }
+async rejectRemainingCandidates(req: Request, res: Response): Promise<void> {
+  try {
+    const { jobId, currentStatus } = req.body;
 
-      const result = await JobService.changeStatusToRejected(jobId, current_status);
-      const status = result.success ? 200 : 400;
-      
-      res.status(status).json(result);
-    } catch (error: any) {
-      logger.error("Error in shortListCandidate controller", {
-        error: error.message,
-        jobId: req.body.jobId,
-      });
-      res.status(500).json({
-        success: false,
-        error: "Internal server error while shortlisting candidate",
+    if (!ApplicationStatus.options.includes(currentStatus)) {
+      res.status(400).json({
+        success : false,
+        error   : "Invalid status type. You must include a valid current status of the candidates",
       } as ApiResponse);
+      return ;
     }
-  }
 
+    const result = await JobService.bulkRejectApplications(jobId, currentStatus);
+
+    const statusCode = result.success ? 200 : 400;
+    res.status(statusCode).json(result);
+
+  } catch (error: any) {
+    logger.error("Error in rejectRemainingCandidates controller", {
+      error : error.message,
+      jobId : req.body.jobId,
+    });
+
+    res.status(500).json({
+      success : false,
+      error   : "Internal server error while rejecting candidates",
+    } as ApiResponse);
+  }
+}
   
 }
 
