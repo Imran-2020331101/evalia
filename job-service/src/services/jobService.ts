@@ -15,7 +15,8 @@ import { JobDetailsModel, IJobDetailsDocument } from '../models/JobDetails';
 import { Types } from 'mongoose';
 import { logger } from '../config/logger';
 import { sendNotification } from '../utils/notify';
-import { mapJobData } from '@/utils/jobMapper';
+import { mapJobData } from '../utils/jobMapper';
+import { ApplicationCompatibilityService } from './ApplicationCompatibilityService';
 
 class jobService{
   
@@ -66,36 +67,28 @@ class jobService{
       }
     }
 
-    async findJobById(jobId: string): Promise<ApiResponse> {
-      try {
-        // Validate ObjectId to avoid CastError
-        if (!Types.ObjectId.isValid(jobId)) {
-          return { success: false, error: "Invalid job ID" } as ApiResponse;
-        }
-
-        const job = await JobDetailsModel.findById(jobId);
-        if (!job) {
-          return { success: false, error: "Job not found" } as ApiResponse;
-        }
-
-        // Best-effort view increment (don't fail the whole request if this fails)
-        JobDetailsModel.findByIdAndUpdate(jobId, { $inc: { views: 1 } })
-          .catch((e) => logger.warn("Failed to increment job views", { jobId, error: e.message }));
-
-        logger.info("Job details retrieved", {
-          jobId: job._id.toString(),
-          views: (job.views ?? 0) + 1,
-        });
-
-        return {
-          success: true,
-          message: "Job details retrieved successfully",
-          data: job,
-        } as ApiResponse<IJobDetailsDocument>;
-      } catch (error: any) {
-        logger.error("Error fetching job details", { jobId, error: error.message, stack: error.stack });
-        return { success: false, error: "Internal server error while fetching job details" } as ApiResponse;
+    async findJobById(jobId: string): Promise<IJobDetailsDocument | null> {
+      if (!Types.ObjectId.isValid(jobId)) {
+        logger.error("Invalid jobId provided", { jobId });
+        throw new Error("Invalid job Id provided");
       }
+      
+      const job = await JobDetailsModel.findById(jobId).catch((e)=> {
+        logger.error("Job not found", { jobId, error: e.message });
+        throw new Error("Job not found")
+      });
+      
+      // Best-effort view increment (don't fail the whole request if this fails)
+      JobDetailsModel.findByIdAndUpdate(jobId, { $inc: { views: 1 } })
+        .catch((e) => logger.warn("Failed to increment job views", { jobId, error: e.message }));
+      
+        logger.info("Job details retrieved", {
+        jobId: job?._id?.toString(),
+        views: (job?.views ?? 0) + 1,
+      });
+      
+      return job;
+
     }
 
     async getJobsByCompany(organizationId: string, page: number = 1, limit: number = 10): Promise<{
@@ -170,6 +163,18 @@ class jobService{
 
     async applyToJob(jobId: string, candidateEmail: string, resumeId?: string): Promise<ApiResponse> {
       try {
+        // Check if candidate already applied
+        const existingJob = await JobDetailsModel.findById(jobId);
+        if (!existingJob) {
+          return { success: false, error: "Job not found" };
+        }
+        const alreadyApplied = existingJob.applications?.some(app => app.candidateEmail === candidateEmail);
+        if (alreadyApplied) {
+          return {
+            success: false,
+            error: "Candidate has already applied to this job",
+          };
+        }
 
         const application = {
           candidateEmail,
@@ -183,19 +188,12 @@ class jobService{
           { new: true }
         );
 
-        if (!job) {
-          return { success: false, error: "Job not found" };
-        }
-
-        logger.info("Candidate applied to job", {
-          jobId: job._id.toString(),
-          candidateEmail,
-        });
+        logger.info("Candidate applied to job", { jobId: job?._id.toString(), candidateEmail, });
         return {
           success: true,
           message: "Application submitted successfully",
           data: {
-            jobId: job._id,
+            jobId: job?._id,
             candidateEmail,
           },
         };
@@ -252,41 +250,61 @@ class jobService{
       }
     }
 
-    async changeStatusToRejected(jobId: string, current_Status: string): Promise<ApiResponse> {
+    async bulkRejectApplications(jobId: string, currentStatus: string): Promise<ApiResponse> {
       if (!Types.ObjectId.isValid(jobId)) {
         return { success: false, error: "Invalid job ID" };
       }
+
       try {
-        const job = await JobDetailsModel.findOne({ _id: jobId }, { applications: 1 });
-        const updatedCount = job?.applications.filter(app => app.status === ApplicationStatus.Pending).length;
+        const job = await JobDetailsModel.findOne(
+          { _id: jobId },
+          { applications: 1, title: 1 }
+        ).lean();
+        if (!job) {
+          return { success: false, error: "Job not found" };
+        }
+        const rejectedCandidates = job.applications.filter(app => app.status === currentStatus);
+        const updatedCount = rejectedCandidates.length;
+
         await JobDetailsModel.updateOne(
           { _id: jobId },
           { $set: { "applications.$[elem].status": ApplicationStatus.Rejected } },
-          { arrayFilters: [{ "elem.status": ApplicationStatus.Pending }] }
+          { arrayFilters: [{ "elem.status": currentStatus }] }
         );
-        logger.info(`Changed status to REJECTED for all ${current_Status} applications`, {
-          jobId,
-          updatedCount
-        });
+
+        // Post notification for each rejected candidate (async, don't wait)
+        (async () => {
+          try {
+            for (const candidate of rejectedCandidates) {
+              const compatibility_review = await ApplicationCompatibilityService.findCompatibilityReview(jobId , candidate.candidateEmail);
+              const notification = {
+                userEmail: candidate.candidateEmail,
+                type: "candidate.rejected",
+                jobTitle: job.title,
+                jobId: jobId,
+                stage: currentStatus,
+                compatibility_review
+              };
+              sendNotification(notification, "email-notifications");
+            }
+          } catch (err) {
+            logger.error("Error in async notification processing", { error: (err as Error).message, jobId });
+          }
+        })();
+
+        logger.info(`Changed status to REJECTED for ${updatedCount} applications`, { jobId, updatedCount });
+
         return {
           success: true,
-          message: `Started Rejection with Feedback for ${updatedCount} applications`,
-          data: {
-            jobId,
-            updatedCount,
-          },
+          message: `Rejected ${updatedCount} applications with status '${currentStatus}'`,
+          data: { jobId, updatedCount },
         };
       } catch (error: any) {
-        logger.error("Error Rejecting candidate", {
-          error: error.message,
-          jobId,
-        });
-        return {
-          success: false,
-          error: "Internal server error while rejecting candidates",
-        };
+        logger.error("Error rejecting candidates", { error: error.message, jobId });
+        return { success: false, error: "Internal server error while rejecting candidates" };
       }
     }
+
     
 }
 

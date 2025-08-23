@@ -50,7 +50,7 @@ export type Company = z.infer<typeof CompanySchema>;
 
 // Application schema
 export const ApplicationSchema = z.object({
-  candidateId: z.string().min(1, 'Candidate ID is required'),
+  candidateEmail: z.string().min(1, 'Candidate ID is required'),
   appliedAt: z.date().optional(),
   status: ApplicationStatus.default('PENDING'),
   resumeId: z.string().optional()

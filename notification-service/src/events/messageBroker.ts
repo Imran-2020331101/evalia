@@ -20,7 +20,7 @@ export const connectBroker = async () => {
       }
     });
 
-    channel.consume("send-mail",(msg) => {
+    channel.consume("email-notification",(msg) => {
       if(msg){
         const event = JSON.parse(msg.content);
         console.log(event);
