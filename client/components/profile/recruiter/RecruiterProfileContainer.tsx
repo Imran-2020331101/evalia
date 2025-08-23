@@ -5,7 +5,11 @@ import { useRef, useState } from "react"
 import OrganizationCard from "./OrganizationCard"
 import CreateOrganizationForm from "./CreateOrganizationForm"
 
-const RecruiterProfileContainer = () => {
+interface propType {
+  user:any
+}
+
+const RecruiterProfileContainer = ({user}:propType) => {
   const coverPhotoRef = useRef<null|HTMLInputElement>(null)
   const profilePhotoRef = useRef<null|HTMLInputElement>(null)
 
