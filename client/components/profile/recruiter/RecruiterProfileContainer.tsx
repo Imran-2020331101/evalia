@@ -1,7 +1,7 @@
 'use client'
 import { Edit, Edit3, File, Save , Plus} from "lucide-react"
 import Image from "next/image"
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect } from "react"
 import OrganizationCard from "./OrganizationCard"
 import CreateOrganizationForm from "./CreateOrganizationForm"
 
@@ -39,6 +39,19 @@ const RecruiterProfileContainer = ({user}:propType) => {
   const handleCreateNewOrganization =()=>{
 
   }
+
+  useEffect(() => {
+    if (window.location.hash) {
+      const id = window.location.hash.replace("#", "");
+      const el = document.getElementById(id);
+      if (el) {
+        // Small timeout ensures scroll happens after hydration/layout
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: "smooth" });
+        }, 0);
+      }
+    }
+  }, []);
   return (
     <div className="w-full h-full bg-gray-950/80 flex items-start justify-center pt-[10px]">
       <div className="w-[65%] ml-[5%] h-full flex p-[6px] gap-[13px]">
@@ -107,8 +120,11 @@ const RecruiterProfileContainer = ({user}:propType) => {
             <section className="w-full h-auto pl-[7%] bg-slate-900 rounded-xl flex flex-col pt-[8px] mb-[10px] pb-[8px] pr-[13px]">
               <h1 className="text-[15px] text-gray-300 font-semibold">Organization Profiles : </h1>
               <OrganizationCard/>
+              <OrganizationCard/>
+              <OrganizationCard/>
+              <OrganizationCard/>
               {isCreateNewOrg && <CreateOrganizationForm setIsCreateNewOrg={setIsCreateNewOrg}/>}
-              <button type="button" onClick={()=>setIsCreateNewOrg(true)} className="w-full mt-4 py-2 mb-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center gap-2">
+              <button id="create-organization" type="button" onClick={()=>setIsCreateNewOrg(true)} className="w-full mt-4 py-2 mb-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center gap-2">
                 <Plus className="w-5 h-5" /> Create A New Organization
               </button>
             </section>

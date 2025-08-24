@@ -4,50 +4,55 @@ import { Major_Mono_Display } from "next/font/google"
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-
-import coursesLogo from '../../../public/course-icon.svg'
-import bookMarkLogo from '../../../public/book-mark.svg'
-import exploreLogo from '../../../public/search-icon.svg'
-import jobLogo from '../../../public/job-icon.svg'
-import allLogo from '../../../public/all.svg'
-import completedLogo from '../../../public/completed.svg'
-import pendingLogo from '../../../public/pending.svg'
-import interviewLogo from '../../../public/interview.svg'
-import expiredLogo from '../../../public/ban.svg'
-import createLogo from '../../../public/create.svg'
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Grid2X2,ChevronDown, ChevronUp, Dot, Frown } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks";
+import { selectedOrgId, setSelectedOrgId } from "@/redux/features/job";
 
 const majorMono = Major_Mono_Display({ weight: '400', subsets: ['latin'] });
 
 
 const RecruitersWorkSpaceMenu = () => {
-    const [isShowJobCategory, setIsShowJobCategory]=useState(false);
-    const [isShowInterviewCategory, setIsShowInterviewCategory]=useState(false);
+    const [organizationToOpen, setOrganizationToOpen]=useState<string|null>(null)
+    const organizations = [{id:'1',org:'Google'},{id:'2', org:'Facebook'}];
+    // const organizations:any = [];
+
+    const dispatch = useAppDispatch()
+    const currentSelectedOrgId = useAppSelector(selectedOrgId)
   return (
     <div className='w-full h-full flex flex-col justify-between px-[10px] py-[6%]'>
-      <div className="w-full h-auto flex flex-col justify-start">
-        <Link href={'/'} className={`${majorMono.className} text-2xl`}>EVALIA</Link>
-        <div className="w-full h-auto mt-[20px] flex flex-col justify-start items-start pl-[10px] text-gray-400 font-semibold">
-          <button className="flex justify-between pl-2 pr-3 rounded-sm py-1 w-[60%] h-full cursor-pointer group  items-center gap-1 mb-2" onClick={()=>setIsShowJobCategory((prev)=>!prev)}>
-            <div className="w-auto h-full flex justify-start items-center gap-1">
-                <Image src={jobLogo} alt="coursesLogo" className="h-[15px] w-auto"/>
-                <p className="group-hover:text-gray-300">Jobs</p>
-            </div>
+      <Link href={'/'} className={`${majorMono.className} text-2xl fixed top-2 left-3`}>EVALIA</Link>
+      <div className="w-full h-auto flex flex-col justify-start pt-[50px] pl-[20px] gap-2 text-gray-400">
+        {
+          organizations.length?
+          <>
+            <h1 className="text-gray-300 font-semibold tracking-wider">Organizations : </h1>
             {
-              isShowJobCategory?<ChevronUp className="w-[20px group-hover:text-white"/>:<ChevronDown className="w-[20px group-hover:text-white"/>
+              organizations.map((item:any)=><div  key={item.id} className="w-full h-auto flex flex-col gap-2 ml-[5px]">
+                <button onClick={()=>dispatch(setSelectedOrgId(item.id))} className="text-sm flex font-semibold  group"><Dot className="group-hover:text-blue-500 size-6"/> {item.org} </button>
+                {
+                  currentSelectedOrgId===item.id?
+                    <div className="w-full flex flex-col gap-1 ml-[20px]">
+                      <Link prefetch href={`/workspace/jobs/${item.org}/my-jobs`} className="flex justify-start items-center gap-2 group ">
+                        <Grid2X2 className="size-4 group-hover:text-gray-100 ml-1"/>
+                        <p className="text-[14px]  cursor-pointer">My Jobs</p>
+                      </Link>
+                      <Link prefetch href={`/workspace/jobs/${item.org}/create`} className="flex justify-start items-center gap-2 group ">
+                        <Plus className="size-5 group-hover:text-gray-100 "/>
+                        <p className="text-sm  cursor-pointer">Create</p>
+                      </Link>
+                    </div>
+                  :null
+                }
+              </div>)
             }
-          </button>
-          <ul className={`pl-10 ${isShowJobCategory?'flex flex-col':'hidden'}  gap-1`}>
-            <Link prefetch href={'/workspace/jobs/my-jobs'} className="flex justify-start items-center gap-1 hover:text-gray-300">
-              <Image src={allLogo} alt="all" className="h-[13px] w-auto"/>
-              <p className="text-sm  cursor-pointer">My Jobs</p>
+          </>
+          :<div className="w-full flex flex-col gap-4">
+            <p className="text-sm text-gray-500">You currently have <br/> no organization :(</p>
+            <Link href={'/profile#create-organization'} className="py-1 text-sm flex justify-center w-[50%] rounded-sm bg-gray-400 text-gray-950 hover:text-black hover:bg-gray-300 cursor-pointer font-bold tracking-wider">
+                Create 
             </Link>
-            <Link prefetch href={'/workspace/jobs/create'} className="flex justify-start items-center gap-1 hover:text-gray-300">
-              <Image src={createLogo} alt="create" className="h-[13px] w-auto"/>
-              <p className="text-sm  cursor-pointer">Create</p>
-            </Link>
-          </ul>
-        </div>
+          </div>
+        }
       </div>
       <div className="w-full h-auto flex justify-start items-end ">
         <Link href={'/profile'} className="flex items-center gap-2 cursor-pointer">
