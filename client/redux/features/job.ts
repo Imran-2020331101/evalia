@@ -17,19 +17,24 @@ export const createJob = createAsyncThunk('job/createJob', async (data:jobType, 
 })
 
 interface initialStateType {
-    createJobStatus: 'idle' | 'pending' | 'success' | 'error'
-    myJobs:any  // type will be  updated later 
+    createJobStatus: 'idle' | 'pending' | 'success' | 'error',
+    myJobs:any , // type will be  updated later 
+    selectedOrgId:string|null
 }
 
 const initialState :initialStateType = {
     myJobs:[],
-    createJobStatus:'idle'
+    createJobStatus:'idle',
+    selectedOrgId:null
 }
 
 const jobSlice = createSlice({
     name:'job',
     initialState,
     reducers:{
+        setSelectedOrgId(state,action){
+            state.selectedOrgId=action.payload;
+        }
     },
     extraReducers(builder){
         builder
@@ -48,5 +53,7 @@ const jobSlice = createSlice({
 })
 
 export default jobSlice.reducer;
+export const {setSelectedOrgId}=jobSlice.actions;
 export const myJobs = (state:RootState)=>state.job.myJobs;
 export const createJobStatus = (state:RootState)=>state.job.createJobStatus;
+export const selectedOrgId = (state:RootState)=>state.job.selectedOrgId;

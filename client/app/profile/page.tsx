@@ -27,8 +27,8 @@ const ProfilePage = () => {
 
   return (
     <>
-      <CandidateProfileContainer user={currentUser}/>
-      {/* <RecruiterProfileContainer user={currentUser}/> */}
+      {/* <CandidateProfileContainer user={currentUser}/> */}
+      <RecruiterProfileContainer user={currentUser}/>
     </>
   )
 }
