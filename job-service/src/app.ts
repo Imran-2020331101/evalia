@@ -26,6 +26,38 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
+app.get('/test-mail-notification', (req: Request, res: Response) => {
+  // Dummy values for testing
+  
+  const candidate = {
+    candidateName: "John Doe",
+    candidateEmail: "imranbinazad777@gmail.com"
+  };
+  const job = {
+    title: "Frontend Developer"
+  };
+  const jobId = "job-123";
+  const currentStatus = "rejected";
+  const compatibilityReview = {
+    matchPercentage: 45,
+    fit: 'Bad Fit' as const,
+    strengths: ["Good communication skills", "Team player"],
+    weaknesses: ["Lacks required technical skills", "Limited experience with React"]
+  };
+  const notification = {
+    candidateName: candidate.candidateName,
+    candidateEmail: candidate.candidateEmail,
+    type: "job.application.rejected",
+    jobTitle: job.title,
+    jobId: jobId,
+    stage: currentStatus,
+    compatibilityReview
+  };
+              sendNotification(notification, "email-notification");
+  res.send('Test notification sent successfully');
+});
+
 /**
  * Test notification endpoint
  * Only for development/testing purposes

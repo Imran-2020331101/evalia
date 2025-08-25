@@ -64,6 +64,7 @@ const JobDetailsMongooseSchema = new Schema<IJobDetailsDocument>(
     applications: {
       type: [
         {
+          candidateName: {type:String},
           candidateEmail: { type: String },
           appliedAt: { type: Date, default: Date.now },
           status: {

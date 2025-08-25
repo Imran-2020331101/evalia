@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
-import { env } from "../config/env";
 import logger from "../utils/logger";
+import { generateRejectionFeedbackEmail } from "../template/RejectionFeedback";
+import { NotificationPayload } from "../types/emailNotifications.type";
 
 interface EmailOptions {
   to: string;
@@ -9,25 +10,8 @@ interface EmailOptions {
   text?: string;
 }
 
-interface NotificationPayload {
-  userName: string;
-  userEmail: string;
-  type: string;
-  jobTitle: string;
-  jobId: string;
-  stage: string;
-  compatibilityReview?: {
-    matchPercentage: number;
-    fit: 'Best Fit' | 'Good Fit' | 'Average' | 'Bad Fit';
-    strengths: string[];
-    weaknesses: string[];
-  };
-  subject: string;
-  body: string;
-  sentAt: string;
-}
 
-class EmailService {
+class EmailNotificationService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
@@ -49,7 +33,7 @@ class EmailService {
     });
   }
 
-  async sendEmail(options: EmailOptions): Promise<boolean> {
+  async sendMail(options: EmailOptions): Promise<boolean> {
     try {
       const mailOptions = {
         from: process.env.EMAIL_USERNAME,
@@ -71,19 +55,19 @@ class EmailService {
   async sendNotificationEmail(notification: NotificationPayload): Promise<boolean> {
     try {
       const emailOptions: EmailOptions = {
-        to: notification.userEmail,
-        subject: notification.subject,
-        html: notification.body,
+        to: notification.candidateEmail,
+        subject: `Update on your Application for the job `,
+        html: generateRejectionFeedbackEmail(notification)
       };
 
-      const success = await this.sendEmail(emailOptions);
+      const success = await this.sendMail(emailOptions);
       
       if (success) {
         logger.info(`Notification email sent successfully`, {
           type: notification.type,
-          userEmail: notification.userEmail,
+          userEmail: notification.candidateEmail,
           jobTitle: notification.jobTitle,
-          sentAt: notification.sentAt
+          // sentAt: TODO: add current time
         });
       }
 
@@ -92,11 +76,11 @@ class EmailService {
       logger.error(`Failed to send notification email`, {
         error: error,
         type: notification.type,
-        userEmail: notification.userEmail
+        userEmail: notification.candidateEmail
       });
       return false;
     }
   }
 }
 
-export const emailService = new EmailService();
+export const emailNotificationService = new EmailNotificationService();
