@@ -67,6 +67,7 @@ public class UserController {
             OrganizationEntity entity = modelMapper.map(organizationRequestDTO, OrganizationEntity.class);
             entity.setCreatedAt(LocalDateTime.now());
             entity.setUpdatedAt(LocalDateTime.now());
+            entity.setOwnerEmail(principal.getName());
 
             return ResponseEntity.ok(
                 userService.createOrganizationProfile(entity, principal.getName())

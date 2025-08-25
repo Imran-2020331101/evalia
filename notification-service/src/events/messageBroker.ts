@@ -2,6 +2,7 @@ import amqp from "amqplib";
 import { env } from "../config/env";
 import { handleIncomingEvent } from "./notificationHandler";
 import logger  from "../utils/logger";
+import { handleIncomingMailEvent } from "./emailNotificationHandler";
 
 export const connectBroker = async () => {
   try {
@@ -24,7 +25,7 @@ export const connectBroker = async () => {
       if(msg){
         const event = JSON.parse(msg.content);
         console.log(event);
-
+        handleIncomingMailEvent(event);
         channel.ack(msg);
       }
     })

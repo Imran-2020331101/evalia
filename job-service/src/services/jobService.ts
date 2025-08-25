@@ -278,11 +278,12 @@ class jobService{
             for (const candidate of rejectedCandidates) {
               const compatibility_review = await ApplicationCompatibilityService.findCompatibilityReview(jobId , candidate.candidateEmail);
               const notification = {
-                userEmail: candidate.candidateEmail,
-                type: "candidate.rejected",
-                jobTitle: job.title,
-                jobId: jobId,
-                stage: currentStatus,
+                candidateName : candidate.candidateName,
+                candidateEmail: candidate.candidateEmail,
+                type          : "job.application.rejected",
+                jobTitle      : job.title,
+                jobId         : jobId,
+                stage         : currentStatus,
                 compatibility_review
               };
               sendNotification(notification, "email-notifications");
