@@ -1,5 +1,4 @@
-import { emailService } from '../services/emailService';
-import { generateRejectionFeedbackEmail } from '../template/RejectionFeedback';
+import { emailNotificationService } from '../services/emailNotificationService';
 import logger from '../utils/logger';
 
 export const handleIncomingMailEvent = async (event: any) => {
@@ -36,56 +35,8 @@ export const handleIncomingMailEvent = async (event: any) => {
         break;
 
       case 'job.application.rejected':
-      case 'candidate.rejected':
-        if (event.compatibility_review || event.compatibilityReview) {
-          const review = event.compatibility_review || event.compatibilityReview;
-          notification = {
-            userName: event.userName || 'Candidate',
-            userEmail: event.userEmail || event.candidateEmail,
-            type: 'APPLICATION_REJECTED',
-            jobTitle: event.jobTitle,
-            jobId: event.jobId,
-            stage: event.stage || 'Application Review',
-            compatibilityReview: review,
-            subject: `Application Update – ${event.jobTitle} Role`,
-            body: `
-              <html>
-                <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-                  <p>Hi ${event.userName || 'Candidate'},</p>
-                  <p>Thank you for applying to <strong>${event.jobTitle}</strong>. While we were impressed with your profile (${review.matchPercentage}% match), we've decided to move forward with other candidates at the <strong>${event.stage}</strong> stage.</p>
-                  <p><b>Your Strengths:</b> ${review.strengths.join(', ')}<br/>
-                  <b>Areas to Improve:</b> ${review.weaknesses.join(', ')}</p>
-                  <p>We encourage you to keep applying to similar roles and continue developing your skills.</p>
-                  <p>Best regards,<br/>The Hiring Team</p>
-                </body>
-              </html>
-            `,
-            sentAt: currentDate
-          };
-        } else {
-          notification = {
-            userName: event.userName || 'Candidate',
-            userEmail: event.userEmail || event.candidateEmail,
-            type: 'APPLICATION_REJECTED',
-            jobTitle: event.jobTitle,
-            jobId: event.jobId,
-            stage: event.stage || 'Application Review',
-            subject: `Application Update – ${event.jobTitle} Role`,
-            body: `
-              <html>
-                <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-                  <h2 style="color: #d9534f;">Application Update</h2>
-                  <p>Dear ${event.userName || 'Candidate'},</p>
-                  <p>Thank you for your interest in the <strong>${event.jobTitle}</strong> position.</p>
-                  <p>After careful consideration at the <strong>${event.stage}</strong> stage, we have decided to move forward with other candidates.</p>
-                  <p>We appreciate the time you invested in the application process and wish you the best in your career endeavors.</p>
-                  <p>Best regards,<br/>The Hiring Team</p>
-                </body>
-              </html>
-            `,
-            sentAt: currentDate
-          };
-        }
+        console.log(event);
+        emailNotificationService.sendNotificationEmail(event);
         break;
 
       case 'job.application.accepted':
@@ -120,7 +71,7 @@ export const handleIncomingMailEvent = async (event: any) => {
     }
 
     if (notification) {
-      const success = await emailService.sendNotificationEmail(notification);
+      const success = await emailNotificationService.sendNotificationEmail(notification);
       if (success) {
         logger.info('Email sent successfully for event:', event.type);
       } else {
