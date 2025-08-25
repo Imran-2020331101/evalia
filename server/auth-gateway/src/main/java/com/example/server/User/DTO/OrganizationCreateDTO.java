@@ -6,8 +6,6 @@ import lombok.Data;
 
 @Data
 public class OrganizationCreateDTO {
-    @NotBlank
-    private String ownerEmail;
 
     @NotBlank
     private String organizationName;
@@ -18,7 +16,6 @@ public class OrganizationCreateDTO {
     @NotBlank
     private String yearOfEstablishment;
 
-    @NotBlank
     private String numberOfEmployees;
 
     @NotBlank
@@ -33,7 +30,7 @@ public class OrganizationCreateDTO {
     private String businessDescription;
 
     private String businessLicenseNo;
-    private String rlNo;
+
     private String websiteUrl;
 
     private boolean enableDisabilityFacilities;

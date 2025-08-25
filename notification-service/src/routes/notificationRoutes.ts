@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { getUserNotifications, markAsRead } from "../services/notificationService";
-import { batchFeedbackService } from "../services/batchFeedbackService";
 import { handleIncomingEvent } from "../events/notificationHandler";
 import { EventTypes } from "../events/eventTypes";
 import logger from "../utils/logger";
@@ -99,14 +98,14 @@ router.post("/batch-rejection-feedback/direct", async (req, res) => {
 
     logger.info(`Direct batch rejection request for job: ${batchRequest.jobId}`);
 
-    const result = await batchFeedbackService.processBatchRejectionFeedback(batchRequest);
+    // const result = await batchFeedbackService.processBatchRejectionFeedback(batchRequest);
 
     res.json({
-      success: result.success,
-      processed: result.processed,
-      failed: result.failed,
-      details: result.details,
-      message: `Batch processing completed: ${result.processed} successful, ${result.failed} failed`
+      // success: result.success,
+      // processed: result.processed,
+      // failed: result.failed,
+      // details: result.details,
+      // message: `Batch processing completed: ${result.processed} successful, ${result.failed} failed`
     });
 
   } catch (error) {
