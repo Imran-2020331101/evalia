@@ -3,6 +3,15 @@ import type { RootState } from "../lib/store";
 import axios from "axios";
 import { toast } from "sonner";
 
+export const createOrganization = createAsyncThunk('auth/createOrganization',async(data,thunkAPI)=>{
+    try {
+        const response = await axios.post('http://localhost:8080/api/user/organization/new',data, {withCredentials:true})
+        console.log(response.data, 'organization')
+    } catch (error) {
+        
+    }
+})
+
 export const fetchUserData = createAsyncThunk('auth/fetchUserData', async(_,thunkAPI)=>{
     try {
         const response = await axios.get('',{withCredentials:true})
