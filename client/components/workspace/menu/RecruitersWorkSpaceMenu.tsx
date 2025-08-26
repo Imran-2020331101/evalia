@@ -13,8 +13,8 @@ const majorMono = Major_Mono_Display({ weight: '400', subsets: ['latin'] });
 
 const RecruitersWorkSpaceMenu = () => {
     const [organizationToOpen, setOrganizationToOpen]=useState<string|null>(null)
-    const organizations = [{id:'1',org:'Google'},{id:'2', org:'Facebook'}];
-    // const organizations:any = [];
+    // const organizations = [{id:'1',org:'Google'},{id:'2', org:'Facebook'}];
+    const organizations:any = [];
 
     const dispatch = useAppDispatch()
     const currentSelectedOrgId = useAppSelector(selectedOrgId)
