@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.PathVariable;
              url  = "http://localhost:7000/api/jobs")
 public interface JobProxy {
     @PostMapping   (value = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
-    String createJob     (@RequestBody   JobCreationRequest jobCreationRequest);
+    String createJob     ( @RequestBody   JobCreationRequest jobCreationRequest);
 
     @GetMapping    (value = "/{jobId}")
-    String getJobById    (@PathVariable ("jobId") String jobId);
+    String getJobById    ( @PathVariable ("jobId") String jobId);
 
     @DeleteMapping (value = "/{jobId}")
-    String deleteJobById (@PathVariable ("jobId") String jobId,
-                          @RequestParam ("email") String email);
+    String deleteJobById ( @PathVariable ("jobId") String jobId,
+                           @RequestParam ("email") String email);
 
     @GetMapping   (value = "/organization/{OrganizationId}")
     String getAllJobsOfAnOrganization(@PathVariable ("OrganizationId") String OrganizationId);

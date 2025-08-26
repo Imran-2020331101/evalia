@@ -43,6 +43,7 @@ public class OrganizationController {
         }
     }
 
+
     @GetMapping("/all")
     public ResponseEntity<?> getOrganizationsByUserEmail(Principal principal) {
         try {
@@ -61,6 +62,7 @@ public class OrganizationController {
                     .body("Failed to retrieve organizations: " + e.getMessage());
         }
     }
+
 
     @PostMapping("/new")
     public ResponseEntity<?> createOrganizationProfile(@RequestBody OrganizationCreateDTO organizationRequestDTO,
@@ -98,7 +100,10 @@ public class OrganizationController {
                     .body("Organization not found or you are not authorized to update it.");
         }
 
-        return ResponseEntity.ok("Organization updated successfully");
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "data", org
+        ));
     }
 
     @DeleteMapping("/{OrganizationId}")
