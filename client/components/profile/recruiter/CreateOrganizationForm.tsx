@@ -1,7 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SquarePlus, Save, X } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks";
+import { createOrganization, orgCreationStatus, setOrgCreationStatus } from "@/redux/features/auth";
+import { ClipLoader } from "react-spinners";
+import { toast } from "sonner";
 
 interface propType{
     setIsCreateNewOrg:React.Dispatch<React.SetStateAction<boolean>>
@@ -10,17 +14,41 @@ interface propType{
 const CreateOrganizationForm = ({setIsCreateNewOrg}:propType) => {
   const orgLogoRef = useRef<HTMLInputElement|null>(null)
   const [orgLogo, setOrgLogo] = useState<File|null>(null)
+  const [errors, setErrors] = useState<{[key:string]:string}>({})
+
+  const dispatch = useAppDispatch()
+
+  const currentOrgCreationStatus = useAppSelector(orgCreationStatus)
+
   const [formData, setFormData] = useState({
-    name: "",
-    nameBn: "",
-    year: "",
-    type: "",
-    address: "",
-    addressBn: "",
-    website: "",
-    description: "",
-    logo: "",
+    organizationName: "",
+    organizationNameBangla: "",
+    yearOfEstablishment: "",
+    industryType: "",
+    organizationAddress: "",
+    organizationAddressBangla: "",
+    websiteUrl: "",
+    businessDescription: "",
+    organizationProfileImageUrl:"",
+    numberOfEmployees:"",
+    businessLicenseNo:"",
+    acceptPrivacyPolicy:false
   });
+
+
+  const validateForm = () => {
+    let newErrors: {[key:string]:string} = {};
+
+    if(!formData.organizationName.trim()) newErrors.organizationName = "Organization name is required";
+    if(!formData.yearOfEstablishment.trim()) newErrors.yearOfEstablishment = "Year of establishment is required";
+    if(!formData.organizationAddress.trim()) newErrors.organizationAddress = "Organization address is required";
+    if(!formData.industryType.trim()) newErrors.industryType = "Industry type is required";
+    if(!formData.businessDescription.trim()) newErrors.businessDescription = "Business description is required";
+    if(!formData.acceptPrivacyPolicy) newErrors.acceptPrivacyPolicy = "You must accept the privacy policy";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -31,20 +59,25 @@ const CreateOrganizationForm = ({setIsCreateNewOrg}:propType) => {
 
   const handleCreate = () => {
     // 🔥 API call to create new organization
+    if(!validateForm()) return;
     console.log("Creating Organization:", formData);
+    dispatch(createOrganization(formData))
   };
 
   const handleCancel = () => {
     setFormData({
-      name: "",
-      nameBn: "",
-      year: "",
-      type: "",
-      address: "",
-      addressBn: "",
-      website: "",
-      description: "",
-      logo: "",
+      organizationName: "",
+      organizationNameBangla: "",
+      yearOfEstablishment: "",
+      industryType: "",
+      organizationAddress: "",
+      organizationAddressBangla: "",
+      websiteUrl: "",
+      businessDescription: "",
+      organizationProfileImageUrl:"",
+      numberOfEmployees:"",
+      businessLicenseNo:"",
+      acceptPrivacyPolicy:false,
     });
     setIsCreateNewOrg(false)
   };
@@ -52,13 +85,21 @@ const CreateOrganizationForm = ({setIsCreateNewOrg}:propType) => {
   const handleUploadOrgLogo = (e:React.ChangeEvent<HTMLInputElement>)=>{
     const file = e.target.files?.[0] ?? null;
     setOrgLogo(file);
+    // setFormData((prev)=>({...prev,}))
     
     // profile photo upload logic goes here 
   }
 
+  useEffect(()=>{
+    if(currentOrgCreationStatus==='success'){
+        dispatch(setOrgCreationStatus('idle'))
+        setIsCreateNewOrg(false)
+    }
+  },[currentOrgCreationStatus])
+
   return (
-    <div className="fixed top-0 left-0 right-0 bottom-0 z-[200] flex justify-center items-center backdrop-blur-2xl">
-        <section className="w-full max-w-3xl mx-auto bg-slate-900 mt-6 p-6 rounded-xl shadow-md shadow-gray-800">
+    <div className="fixed top-0 left-0 right-0 bottom-0 z-[200] flex justify-center items-center bg-gray-950/90">
+        <section className="w-full max-h-[90%] overflow-y-scroll scrollbar-hidden max-w-3xl mx-auto bg-slate-900 mt-6 p-6 rounded-xl shadow-md shadow-gray-800">
         <h2 className="text-lg font-semibold text-white mb-4 flex items-center">
            <SquarePlus className="size-5 mr-2"/> Create New Organization
         </h2>
@@ -71,20 +112,22 @@ const CreateOrganizationForm = ({setIsCreateNewOrg}:propType) => {
                 Company Name
                 </label>
                 <input
-                name="name"
-                value={formData.name}
+                required
+                name="organizationName"
+                value={formData.organizationName}
                 onChange={handleChange}
                 className="w-full p-2 rounded bg-gray-800 text-white text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g. Github"
                 />
+                {errors.organizationName && <p className="text-red-500 text-xs mt-1">{errors.organizationName}</p>}
             </div>
             <div>
                 <label className="block text-sm text-gray-400 mb-1">
                 Company Name (Bengali)
                 </label>
                 <input
-                name="nameBn"
-                value={formData.nameBn}
+                name="organizationNameBangla"
+                value={formData.organizationNameBangla}
                 onChange={handleChange}
                 className="w-full p-2 rounded bg-gray-800 text-white text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g. গিটহাব"
@@ -99,25 +142,28 @@ const CreateOrganizationForm = ({setIsCreateNewOrg}:propType) => {
                 Established Year
                 </label>
                 <input
-                type="number"
-                name="year"
-                value={formData.year}
+                required
+                name="yearOfEstablishment"
+                value={formData.yearOfEstablishment}
                 onChange={handleChange}
                 className="w-full p-2 rounded bg-gray-800 text-white text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g. 2010"
                 />
+                 {errors.yearOfEstablishment && <p className="text-red-500 text-xs mt-1">{errors.yearOfEstablishment}</p>}
             </div>
             <div>
                 <label className="block text-sm text-gray-400 mb-1">
                 Organization Type
                 </label>
                 <input
-                name="type"
-                value={formData.type}
+                required
+                name="industryType"
+                value={formData.industryType}
                 onChange={handleChange}
                 className="w-full p-2 rounded bg-gray-800 text-white text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g. Information Technology"
                 />
+                 {errors.industryType && <p className="text-red-500 text-xs mt-1">{errors.industryType}</p>}
             </div>
             </div>
 
@@ -128,23 +174,49 @@ const CreateOrganizationForm = ({setIsCreateNewOrg}:propType) => {
                 Company Address
                 </label>
                 <input
-                name="address"
-                value={formData.address}
+                required
+                name="organizationAddress"
+                value={formData.organizationAddress}
                 onChange={handleChange}
                 className="w-full p-2 rounded bg-gray-800 text-white text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g. Sylhet, Bangladesh"
                 />
+                {errors.organizationAddress && <p className="text-red-500 text-xs mt-1">{errors.organizationAddress}</p>}
             </div>
             <div>
                 <label className="block text-sm text-gray-400 mb-1">
                 Company Address (Bengali)
                 </label>
                 <input
-                name="addressBn"
-                value={formData.addressBn}
+                name="organizationAddressBangla"
+                value={formData.organizationAddressBangla}
                 onChange={handleChange}
                 className="w-full p-2 rounded bg-gray-800 text-white text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g. সিলেট, বাংলাদেশ"
+                />
+            </div>
+            <div>
+                <label className="block text-sm text-gray-400 mb-1">
+                No of employees :
+                </label>
+                <input
+                name="numberOfEmployees"
+                value={formData.numberOfEmployees}
+                onChange={handleChange}
+                className="w-full p-2 rounded bg-gray-800 text-white text-sm focus:ring-2 focus:ring-blue-500"
+                placeholder="e.g. 100"
+                />
+            </div>
+            <div>
+                <label className="block text-sm text-gray-400 mb-1">
+                Business license no. 
+                </label>
+                <input
+                name="businessLicenseNo"
+                value={formData.businessLicenseNo}
+                onChange={handleChange}
+                className="w-full p-2 rounded bg-gray-800 text-white text-sm focus:ring-2 focus:ring-blue-500"
+                placeholder="e.g. 157***"
                 />
             </div>
             </div>
@@ -154,8 +226,8 @@ const CreateOrganizationForm = ({setIsCreateNewOrg}:propType) => {
             <label className="block text-sm text-gray-400 mb-1">Website URL</label>
             <input
                 ref={orgLogoRef}
-                name="website"
-                value={formData.website}
+                name="websiteUrl"
+                value={formData.websiteUrl}
                 onChange={handleChange}
                 className="w-full p-2 rounded bg-gray-800 text-white text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="https://example.com"
@@ -189,23 +261,59 @@ const CreateOrganizationForm = ({setIsCreateNewOrg}:propType) => {
                 Business Description
             </label>
             <textarea
-                name="description"
-                value={formData.description}
+                required
+                name="businessDescription"
+                value={formData.businessDescription}
                 onChange={handleChange}
                 className="w-full p-2 rounded bg-gray-800 text-white text-sm focus:ring-2 focus:ring-blue-500"
                 rows={3}
-                placeholder="Write a short business description..."
+                placeholder="Write a short business businessDescription..."
             />
+            {errors.businessDescription && <p className="text-red-500 text-xs mt-1">{errors.businessDescription}</p>}
             </div>
+            <label className="flex items-start space-x-2 text-sm text-gray-700">
+                <input
+                    checked={formData.acceptPrivacyPolicy}
+                    onChange={()=>setFormData((prev) => ({ ...prev, acceptPrivacyPolicy: !prev.acceptPrivacyPolicy }))}
+                    name="acceptPrivacyPolicy"
+                    type="checkbox"
+                    required
+                    className="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span>
+                    I agree to the{" "}
+                    <a
+                    href="/terms"
+                    target="_blank"
+                    className="text-blue-600 hover:underline"
+                    >
+                    Terms of Service
+                    </a>{" "}
+                    and{" "}
+                    <a
+                    href="/privacy"
+                    target="_blank"
+                    className="text-blue-600 hover:underline"
+                    >
+                    Privacy Policy
+                    </a>.
+                </span>
+            </label>
+            {errors.acceptPrivacyPolicy && <p className="text-red-500 text-xs">{errors.acceptPrivacyPolicy}</p>}
+
         </form>
 
         {/* Buttons */}
         <div className="flex gap-3 mt-6">
             <button
+            disabled={currentOrgCreationStatus==='pending'?true:false}
             onClick={handleCreate}
             className="flex-1 py-2 flex justify-center items-center gap-2 rounded-md cursor-pointer bg-green-700 hover:bg-green-600 text-white"
             >
-            <Save className="w-4 h-4" /> Create
+            {
+                currentOrgCreationStatus==='pending'?<ClipLoader color="white" size={24}/>:<><Save className="w-4 h-4" /> Create</>
+            }
+            
             </button>
             <button
             onClick={handleCancel}
