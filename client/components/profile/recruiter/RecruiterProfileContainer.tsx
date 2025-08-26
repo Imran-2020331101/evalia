@@ -61,7 +61,7 @@ const RecruiterProfileContainer = ({user}:propType) => {
   }, []);
   useEffect(()=>{
     if(!currentOrganizations.length)dispatch(getAllOrganizations())
-  },[currentOrganizations])
+  },[])
   return (
     <div className="w-full h-full bg-gray-950/80 flex items-start justify-center pt-[10px]">
       <div className="w-[65%] ml-[5%] h-full flex p-[6px] gap-[13px]">
