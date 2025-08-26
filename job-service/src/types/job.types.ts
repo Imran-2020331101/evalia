@@ -92,8 +92,8 @@ export type JobDetails = z.infer<typeof JobDetailsSchema>;
 // Request schemas for API endpoints
 export const CreateJobRequestSchema = z.object({
   companyInfo: z.object({
-    id: z.string().min(1),
-    ownerEmail: z.string(),  
+    organizationId: z.string().min(1),
+    organizationEmail: z.string(),  
   }),
   basic: z.object({
     title: z.string().min(1).max(200).trim(),
@@ -106,9 +106,9 @@ export const CreateJobRequestSchema = z.object({
     workPlaceType: WorkplaceType,
     employmentLevelType: EmploymentLevel,
   }),
-  requirement: z.array(DomainItemSchema).min(1),
-  responsibility: z.array(DomainItemSchema).min(1),
-  skill: z.array(DomainItemSchema).min(1),
+  requirements: z.array(DomainItemSchema).min(1),
+  responsibilities: z.array(DomainItemSchema).min(1),
+  skills: z.array(DomainItemSchema).min(1),
   interviewQA: z.array(z.object({
     question: z.string().min(1).max(5000),
     referenceAnswer: z.string().optional(),

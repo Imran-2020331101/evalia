@@ -22,15 +22,15 @@ public class JobCreationRequest {
 
     @NotEmpty
     @Valid
-    private List<DomainItemDto> requirement;
+    private List<DomainItemDto> requirements;
 
     @NotEmpty
     @Valid
-    private List<DomainItemDto> responsibility;
+    private List<DomainItemDto> responsibilities;
 
     @NotEmpty
     @Valid
-    private List<DomainItemDto> skill;
+    private List<DomainItemDto> skills;
 
     @Valid
     private List<InterviewQADto> interviewQA;
@@ -40,8 +40,8 @@ public class JobCreationRequest {
     @AllArgsConstructor
     @Builder
     public static class CompanyInfo {
-        private String id;
-        private String email;
+        private String organizationId;
+        private String organizationEmail;
     }
 
     @Data
