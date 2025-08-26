@@ -2,7 +2,7 @@ package com.example.server.User.Controller;
 
 import com.example.server.User.DTO.OrganizationCreateDTO;
 import com.example.server.User.DTO.OrganizationUpdateDTO;
-import com.example.server.User.Service.UserService;
+import com.example.server.User.Service.OrganizationService;
 import com.example.server.User.models.OrganizationEntity;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -22,12 +22,13 @@ import java.util.logging.Logger;
 public class OrganizationController {
 
     private static final Logger      logger = Logger.getLogger(OrganizationController.class.getName());
-    private final        UserService userService;
+    private final        OrganizationService organizationService;
     private final        ModelMapper modelMapper;
 
-    public OrganizationController(UserService userService, ModelMapper modelMapper) {
-        this.userService = userService;
-        this.modelMapper = modelMapper;
+    public OrganizationController(OrganizationService organizationService,
+                                  ModelMapper         modelMapper) {
+        this.organizationService = organizationService;
+        this.modelMapper         = modelMapper;
     }
 
 
@@ -35,7 +36,7 @@ public class OrganizationController {
     public ResponseEntity<?> getOrganizationByOrganizationId(@PathVariable String OrganizationId) {
         try {
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(userService.getOrganizationById(OrganizationId));
+                    .body(organizationService.getOrganizationById(OrganizationId));
         } catch (Exception e) {
             logger.severe("Error retrieving organization profile: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -47,7 +48,7 @@ public class OrganizationController {
     @GetMapping("/all")
     public ResponseEntity<?> getAllOrganizationsOfAnUser(Principal principal) {
         try {
-                    List<OrganizationEntity> organizations = userService.getOrganizationsByOwnerEmail(principal.getName());
+                    List<OrganizationEntity> organizations = organizationService.getOrganizationsByOwnerEmail(principal.getName());
             return ResponseEntity.status(HttpStatus.OK)
                     .body( Map.of(
                             "success", true,
@@ -77,7 +78,7 @@ public class OrganizationController {
             entity.setOwnerEmail(principal.getName());
 
             return ResponseEntity.ok(
-                    userService.createOrganizationProfile(entity, principal.getName())
+                    organizationService.createOrganizationProfile(entity, principal.getName())
             );
 
         }catch (Exception e){
@@ -93,7 +94,7 @@ public class OrganizationController {
                                                  @RequestBody  OrganizationUpdateDTO dto,
                                                  Principal principal) {
 
-        OrganizationEntity org = userService.updateOrganizationProfile( dto, OrganizationId, principal.getName());
+        OrganizationEntity org = organizationService.updateOrganizationProfile( dto, OrganizationId, principal.getName());
 
         if( org == null) {
             logger.warning("Organization not found or user not authorized to update it. Check Server log for details.");
@@ -111,7 +112,7 @@ public class OrganizationController {
     public ResponseEntity<?> deleteOrganization(@PathVariable String OrganizationId,
                                                 Principal principal) {
         try {
-            boolean deleted = userService.deleteOrganization(OrganizationId, principal.getName());
+            boolean deleted = organizationService.deleteOrganization(OrganizationId, principal.getName());
             if (deleted) {
                 return ResponseEntity.status(HttpStatus.OK)
                         .body( Map.of(
@@ -137,7 +138,7 @@ public class OrganizationController {
                                                                               @PathVariable ("organizationId") String organizationId,
                                                                               Principal principal) {
         try {
-            String url = userService.updateOrganizationProfilePicture(file, organizationId ,principal.getName());
+            String url = organizationService.updateOrganizationProfilePicture(file, organizationId ,principal.getName());
 
             return ResponseEntity.ok(Map.of(
                     "success", true,
