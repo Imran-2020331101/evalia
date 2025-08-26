@@ -123,7 +123,7 @@ const RecruiterProfileContainer = ({user}:propType) => {
             </section>
             }
             <section className="w-full h-auto pl-[7%] bg-slate-900 rounded-xl flex flex-col pt-[8px] mb-[10px] pb-[8px] pr-[13px]">
-              <h1 className="text-[15px] text-gray-300 font-semibold">Organization Profiles : </h1>
+              <h1 className="text-[15px] text-gray-300 font-semibold">Organizational Profiles : </h1>
               {
                 currentOrganizations.map((item:any, index:number)=><OrganizationCard key={index} organization={item}/>)
               }
