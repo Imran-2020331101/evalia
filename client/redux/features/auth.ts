@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 export const createOrganization = createAsyncThunk('auth/createOrganization',async(data:any,thunkAPI)=>{
     try {
-        const response = await axios.post('http://localhost:8080/api/user/organization/new',data, {withCredentials:true})
+        const response = await axios.post('http://localhost:8080/api/organization/new',data, {withCredentials:true})
         console.log(response.data, 'organization')
         return response.data;
     } catch (error:any) {
@@ -15,11 +15,28 @@ export const createOrganization = createAsyncThunk('auth/createOrganization',asy
 
 export const getAllOrganizations = createAsyncThunk('auth/getAllOrganization',async(_,thunkAPI)=>{
     try {
-        const response = await axios.get('http://localhost:8080/api/user/organization/new',{withCredentials:true})
-        console.log(response.data, 'organization')
+        const response = await axios.get('http://localhost:8080/api/organization/all',{withCredentials:true})
         return response.data;
     } catch (error:any) {
         return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed fetching organizations' })
+    }
+})
+
+export const deleteOrganization = createAsyncThunk('auth/deleteOrganization', async(organizationId:string,thunkAPI)=>{
+    try {
+        const response = await axios.delete(`http://localhost:8080/api/organization/${organizationId}`,{withCredentials:true})
+        return organizationId;
+    } catch (error:any) {
+        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed deleting organizations' })
+    }
+})
+
+export const updateOrganization = createAsyncThunk('auth/updateOrganization', async({organizationId, data}:{organizationId:string, data:any},thunkAPI)=>{
+    try {
+        const response = await axios.patch(`http://localhost:8080/api/organization/${organizationId}`,data,{withCredentials:true})
+        return response.data;
+    } catch (error:any) {
+        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed Editing organizations' })
     }
 })
 
@@ -40,6 +57,8 @@ interface initialStateType {
     isSignedIn:boolean,
     orgCreationStatus:statusType,
     orgFetchStatus:statusType,
+    orgDeleteStatus:statusType,
+    orgUpdateStatus:statusType,
     organizations : any[], // type will be updated
     registerFormData:{
         name:string,
@@ -54,6 +73,8 @@ const initialState :initialStateType={
     user:null,
     orgCreationStatus:'idle',
     orgFetchStatus:'idle',
+    orgDeleteStatus:'idle',
+    orgUpdateStatus:'idle',
     organizations:[],
     isSignedIn:true,
     registerFormData:{
@@ -81,6 +102,12 @@ const authSlice = createSlice({
         },
         setOrgFetchStatus(state, action){
             state.orgFetchStatus= action.payload
+        },
+        setOrgDeleteStatus(state, action){
+            state.orgDeleteStatus=action.payload
+        },
+        setOrgUpdateStatus(state, action){
+            state.orgUpdateStatus=action.payload
         }
     },
     extraReducers(builder){
@@ -112,18 +139,45 @@ const authSlice = createSlice({
             state.orgFetchStatus='error'
         })
         .addCase(getAllOrganizations.fulfilled,(state,action)=>{
-            state.organizations =action.payload;
+            console.log(action.payload.data, 'all organizations')
+            state.organizations =action.payload.data;
             state.orgFetchStatus='success'
+        })
+        .addCase(deleteOrganization.pending,(state)=>{
+            state.orgDeleteStatus='pending'
+        })
+        .addCase(deleteOrganization.rejected,(state)=>{
+            state.orgDeleteStatus='error'
+        })
+        .addCase(deleteOrganization.fulfilled,(state,action)=>{
+            const newOrganizations = state.organizations.filter((item)=>item.id!==action.payload);
+            state.organizations = newOrganizations;
+            state.orgDeleteStatus='success'
+        })
+        .addCase(updateOrganization.pending,(state)=>{
+            state.orgUpdateStatus='pending'
+        })
+        .addCase(updateOrganization.rejected,(state)=>{
+            state.orgUpdateStatus='error'
+        })
+        .addCase(updateOrganization.fulfilled,(state,action)=>{
+            console.log(action.payload,'updated org')
+            state.organizations.map((item)=>{
+                if(item.id===action.payload.id) item=action.payload
+            })
+            state.orgUpdateStatus='success'
         })
     }
 })
 
 export default authSlice.reducer;
-export const {setFormData, setOrgCreationStatus, setOrgFetchStatus}= authSlice.actions;
+export const {setFormData, setOrgCreationStatus, setOrgFetchStatus,setOrgUpdateStatus}= authSlice.actions;
 export const currentFormData = (state:RootState)=>state.auth.registerFormData
 export const user = (state:RootState) => state.auth.user;
 export const userStatus = (state:RootState) => state.auth.userStatus;
 export const organizations = (state:RootState) => state.auth.organizations;
 export const orgCreationStatus = (state:RootState) => state.auth.orgCreationStatus;
 export const orgFetchStatus = (state:RootState) => state.auth.orgFetchStatus;
+export const orgUpdateStatus = (state:RootState) => state.auth.orgUpdateStatus;
+export const orgDeleteStatus = (state:RootState) => state.auth.orgDeleteStatus;
 export const isSignedIn = (state:RootState) =>state.auth.isSignedIn;

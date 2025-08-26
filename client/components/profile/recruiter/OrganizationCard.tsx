@@ -1,8 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState , useRef} from "react";
 import { Edit, Trash2, Save, X } from "lucide-react";
 import Image from "next/image";
+import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks";
+import { deleteOrganization, orgDeleteStatus, orgUpdateStatus, setOrgUpdateStatus, updateOrganization } from "@/redux/features/auth";
+import axios from "axios";
+import { ClipLoader } from "react-spinners";
 
 interface propType{
   organization:{
@@ -28,9 +32,12 @@ interface propType{
 }
 }
 const OrganizationCard =({organization}:propType) =>{
+  const orgLogoRef = useRef<HTMLInputElement|null>(null)
+  const [isUploadingImg, setIsUploadingImg] =useState(false);
   const [isEditing, setIsEditing] = useState(false);
   
   const [formData, setFormData] = useState({
+    id:"",
     organizationName: "",
     organizationNameBangla: "",
     yearOfEstablishment: "",
@@ -43,24 +50,78 @@ const OrganizationCard =({organization}:propType) =>{
     organizationProfileImageUrl: "",
   });
 
+  const currentUpdateStatus = useAppSelector(orgUpdateStatus)
+  const currentDeleteStatus = useAppSelector(orgDeleteStatus)
+
+  const dispatch = useAppDispatch()
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleUploadLogo = async(e:React.ChangeEvent<HTMLInputElement>)=>{
+    const file = await e.target.files?.[0] ?? null;
+    if (!file) return;
+    const newFormData = new FormData();
+    newFormData.append("file", file);
+    try {
+      setIsUploadingImg(true);
+      const response = await axios.post(`http://localhost:8080/api/organization/${formData.id}/profile-photo`,newFormData,{
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials:true,
+        
+      })
+      formData.organizationProfileImageUrl= await response.data.coverPhotoUrl;
+      console.log(response.data)
+      await dispatch(updateOrganization({organizationId:formData.id,data:formData}))
+      setIsUploadingImg(false)
+    } catch (error) {
+      setIsUploadingImg(false)
+      console.error("Upload error:", error);
+    }
+  }
+
   const handleSave = () => {
-    setIsEditing(false);
+    // setIsEditing(false);
     // 🔥 Here you would call API to save changes
-    console.log("Updated data:", formData);
+    const {
+      organizationName,
+    organizationNameBangla,
+    yearOfEstablishment,
+    industryType,
+    organizationAddress,
+    organizationAddressBangla,
+    websiteUrl,
+    businessDescription,
+    organizationProfileImageUrl,}=formData
+    const data = {
+      organizationName,
+    organizationNameBangla,
+    yearOfEstablishment,
+    industryType,
+    organizationAddress,
+    organizationAddressBangla,
+    websiteUrl,
+    businessDescription,
+    organizationProfileImageUrl,
+    }
+    dispatch(updateOrganization({organizationId:formData.id,data}))
+
+    // console.log("Updated data:", formData);
   };
 
   const handleDelete = () => {
     // 🔥 Call delete API here
     console.log("Company deleted");
+    dispatch(deleteOrganization(formData.id))
   };
   useEffect(()=>{
-    const {yearOfEstablishment,organizationName, organizationAddress, organizationNameBangla, organizationAddressBangla, organizationProfileImageUrl,industryType, businessDescription,websiteUrl}=organization
+    const {id,yearOfEstablishment,organizationName, organizationAddress, organizationNameBangla, organizationAddressBangla, organizationProfileImageUrl,industryType, businessDescription,websiteUrl}=organization
     setFormData({
+      id,
       organizationName,
       organizationAddress,
       organizationAddressBangla,
@@ -72,10 +133,25 @@ const OrganizationCard =({organization}:propType) =>{
       yearOfEstablishment,
     })
   },[])
+  useEffect(()=>{
+    if(currentUpdateStatus==='success'){setIsEditing(false);dispatch(setOrgUpdateStatus('idle'))}
+  },[currentUpdateStatus])
   return (
     <section className="w-full h-auto bg-slate-900 mt-3 flex gap-4 p-2 rounded-xl shadow-md shadow-gray-800 relative ">
       {/* Company Logo */}
-      <div className="w-[150px] h-[150px] flex-shrink-0 rounded-lg overflow-hidden border border-gray-700">
+      <button type="button" onClick={()=>orgLogoRef.current?.click()} className="w-[150px] h-[150px] relative flex-shrink-0 rounded-lg overflow-hidden border border-gray-700">
+        {
+          isUploadingImg?<div className="flex w-full h-full bg-slate-950/30 absolute top-0 left-0 justify-center items-center"><ClipLoader color="white" size={30}/></div>:null
+        }
+        <input
+            ref={orgLogoRef}
+            name="logo"
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={handleUploadLogo}
+            className="w-full p-2 rounded bg-gray-800 text-white text-sm focus:ring-2 focus:ring-blue-500"
+        />
         <Image
           src={formData.organizationProfileImageUrl?formData.organizationProfileImageUrl:'https://i.pinimg.com/1200x/21/de/f4/21def4a3643f9b41cd0218e18b71ae0e.jpg'}
           alt="Company Logo"
@@ -83,7 +159,7 @@ const OrganizationCard =({organization}:propType) =>{
           height={150}
           className="w-full h-full object-cover"
         />
-      </div>
+      </button>
 
       {/* Content */}
       <div className="flex-1 text-gray-300 text-sm">
@@ -201,16 +277,22 @@ const OrganizationCard =({organization}:propType) =>{
             </form>
             <div className=" flex flex-col gap-2 mt-4">
               <button
+                disabled={currentUpdateStatus==='pending'?true:false}
                 onClick={handleSave}
                 className="w-full py-2 gap-2 flex justify-center items-center rounded-md cursor-pointer bg-green-700 hover:bg-green-600 text-white"
               >
-                <Save className="size-4" /> Save
+                {
+                  currentUpdateStatus==='pending'?<ClipLoader color="white" size={24}/>:<><Save className="size-4" /> Save</>
+                }
               </button>
               <button
+                disabled={currentDeleteStatus==='pending'?true:false}
                 onClick={handleDelete}
                 className="w-full py-2 gap-2 flex justify-center items-center rounded-md cursor-pointer bg-red-800 hover:bg-red-700 text-gray-200"
               >
-                <Trash2 className="size-4" /> Delete
+                {
+                  currentDeleteStatus==='pending'?<ClipLoader color="white" size={24}/> : <><Trash2 className="size-4" /> Delete</>
+                }
               </button>
               <button
                 onClick={() => setIsEditing(false)}
