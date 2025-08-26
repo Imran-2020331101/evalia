@@ -30,8 +30,8 @@ public class userEntity implements UserDetails {
     private String password;
     private List<Role> roles = new ArrayList<>();
 
-    private String profilePictureUrl;
-    private String coverPictureUrl;
+    private String profilePictureUrl = null;
+    private String coverPictureUrl = null;
     private boolean emailVerified = false;
     private boolean hasResume = false;
     private String resumeUrl = null;
