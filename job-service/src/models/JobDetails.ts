@@ -53,8 +53,8 @@ const JobDetailsMongooseSchema = new Schema<IJobDetailsDocument>(
     skills: { type: [DomainItemSchema], default: [] },
     postedBy: { type: String },
     company: {
-      id: { type: String },
-      owner: {type: String}
+      OrganizationId    : { type: String },
+      OrganizationEmail : {type: String}
     },
     status: { 
       type    : String ,
