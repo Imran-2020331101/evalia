@@ -13,19 +13,20 @@ export const NotificationPayloadSchema = z.object({
     strengths: z.array(z.string()),
     weaknesses: z.array(z.string()),
   }),
-});
+}).loose();
 
 export const InterviewInvitationPayloadSchema = z.object({
   candidateName: z.string(),
+  candidateEmail: z.email(),
   jobTitle: z.string(),
-  companyName: z.string(),
+  OrganizationName: z.string(),
   deadline: z.string(),
-  interviewLink: z.string().url(),
-  guideLink: z.string().url(),
-  recruiterName: z.string(),
-  recruiterEmail: z.string().email(),
+  interviewLink: z.url(),
+  guideLink: z.url(),
+  recruiterName: z.string().optional(),
+  recruiterEmail: z.email(),
   additionalNotes: z.string(),
-});
+}).loose();
 
 export type NotificationPayload = z.infer<typeof NotificationPayloadSchema>;
 export type InterviewInvitationPayload = z.infer<typeof InterviewInvitationPayloadSchema>;
