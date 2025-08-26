@@ -11,5 +11,6 @@ import java.util.List;
 public interface OrganizationRepository extends MongoRepository<OrganizationEntity, ObjectId> {
 
     // Previously: Optional<OrganizationEntity> findByOwnerEmail(String email);
+    // return a list to handle multiple organizations per user
     List<OrganizationEntity> findAllByOwnerEmail(String email);
 }
