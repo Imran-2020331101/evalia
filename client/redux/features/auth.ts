@@ -162,16 +162,16 @@ const authSlice = createSlice({
         })
         .addCase(updateOrganization.fulfilled,(state,action)=>{
             console.log(action.payload,'updated org')
-            // const newOrganizations = state.organizations.filter((item)=>item.id!==action.payload);
-            // state.organizations = newOrganizations;
-            // console.log(state.organizations.length)
+            state.organizations.map((item)=>{
+                if(item.id===action.payload.id) item=action.payload
+            })
             state.orgUpdateStatus='success'
         })
     }
 })
 
 export default authSlice.reducer;
-export const {setFormData, setOrgCreationStatus, setOrgFetchStatus}= authSlice.actions;
+export const {setFormData, setOrgCreationStatus, setOrgFetchStatus,setOrgUpdateStatus}= authSlice.actions;
 export const currentFormData = (state:RootState)=>state.auth.registerFormData
 export const user = (state:RootState) => state.auth.user;
 export const userStatus = (state:RootState) => state.auth.userStatus;
@@ -179,4 +179,5 @@ export const organizations = (state:RootState) => state.auth.organizations;
 export const orgCreationStatus = (state:RootState) => state.auth.orgCreationStatus;
 export const orgFetchStatus = (state:RootState) => state.auth.orgFetchStatus;
 export const orgUpdateStatus = (state:RootState) => state.auth.orgUpdateStatus;
+export const orgDeleteStatus = (state:RootState) => state.auth.orgDeleteStatus;
 export const isSignedIn = (state:RootState) =>state.auth.isSignedIn;
