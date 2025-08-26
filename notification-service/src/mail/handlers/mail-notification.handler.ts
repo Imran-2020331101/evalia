@@ -1,5 +1,5 @@
-import { emailNotificationService } from '../services/emailNotificationService';
-import logger from '../utils/logger';
+import { emailNotificationService } from '../service/mail-notification.service';
+import logger from '../../utils/logger';
 
 export const handleIncomingMailEvent = async (event: any) => {
   try {
@@ -36,7 +36,7 @@ export const handleIncomingMailEvent = async (event: any) => {
 
       case 'job.application.rejected':
         console.log(event);
-        emailNotificationService.sendNotificationEmail(event);
+        emailNotificationService.sendRejectionMail(event);
         break;
 
       case 'job.application.accepted':
@@ -71,7 +71,7 @@ export const handleIncomingMailEvent = async (event: any) => {
     }
 
     if (notification) {
-      const success = await emailNotificationService.sendNotificationEmail(notification);
+      const success = await emailNotificationService.sendRejectionMail(notification);
       if (success) {
         logger.info('Email sent successfully for event:', event.type);
       } else {

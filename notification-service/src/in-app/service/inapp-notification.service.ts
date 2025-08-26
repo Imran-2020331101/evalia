@@ -1,4 +1,4 @@
-import { Notification, INotification } from "../models/Notification";
+import { Notification, INotification } from "../model/inapp-notification.entity";
 
 export const createNotification = async (data: Partial<INotification>) => {
   const notification = await Notification.create(data);

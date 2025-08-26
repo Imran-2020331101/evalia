@@ -3,11 +3,8 @@ package com.example.server.User.Controller;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.example.server.User.DTO.ForwardProfileRequest;
-import com.example.server.User.DTO.OrganizationCreateDTO;
-import com.example.server.User.DTO.OrganizationUpdateDTO;
 import com.example.server.User.DTO.Profile;
 import com.example.server.User.Service.UserService;
-import com.example.server.User.models.OrganizationEntity;
 import com.example.server.resume.DTO.ResumeDataRequest;
 import com.example.server.resume.Proxy.ResumeJsonProxy;
 import com.example.server.security.models.userEntity;
@@ -20,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,7 +45,7 @@ public class UserController {
         this.cloudinary         = cloudinary;
     }
 
-    @GetMapping("/profile/{userId}")
+    @GetMapping("/{userId}")
     public ResponseEntity<?> getUserProfile(@PathVariable String userId) {
         try {
             // Fetch user information
@@ -65,6 +61,24 @@ public class UserController {
             logger.severe("Error retrieving resume: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to retrieve resume: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<?> getAuthenticatedUserProfile(Principal principal) {
+        try {
+            Profile profile = userService.obtainUserProfileFromResume(principal.getName());
+            return ResponseEntity.status(HttpStatus.OK).body(Map.of(
+                    "success", true,
+                    "data", profile
+            ));
+        } catch (Exception e) {
+            logger.severe("Error retrieving resume: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "success", false,
+                            "data", "Failed to retrieve resume: " + e.getMessage()
+                    ));
         }
     }
 
@@ -94,7 +108,8 @@ public class UserController {
     }
 
     @PostMapping("/update/profile-photo")
-    public ResponseEntity<Map<String, Object>> uploadUserProfilePhoto(@RequestParam("file") MultipartFile file, Principal principal) {
+    public ResponseEntity<Map<String, Object>> uploadUserProfilePhoto(@RequestParam("file") MultipartFile file,
+                                                                      Principal principal) {
 
         try {
             String url = userService.updateUserProfilePicture(file, principal.getName());
@@ -109,7 +124,8 @@ public class UserController {
     }
 
     @PostMapping("/update/cover-photo")
-    public ResponseEntity<Map<String, Object>> uploadUserCoverPhoto(@RequestParam("file") MultipartFile file, Principal principal) {
+    public ResponseEntity<Map<String, Object>> uploadUserCoverPhoto(@RequestParam("file") MultipartFile file,
+                                                                    Principal principal) {
 
         try {
             String url = userService.updateUserCoverPicture(file, principal.getName());

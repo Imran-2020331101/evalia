@@ -29,7 +29,7 @@ export function mapJobData(data: CreateJobRequest) {
     requirements: requirements,
     responsibilities: responsibilities,
     skills: skills,
-    postedBy: companyInfo.organizationId,
+    postedBy: companyInfo.organizationEmail,
     company: {
       OrganizationId    : companyInfo.organizationId,
       OrganizationEmail : companyInfo.organizationEmail || "",
