@@ -42,7 +42,7 @@ export const updateOrganization = createAsyncThunk('auth/updateOrganization', as
 
 export const fetchUserData = createAsyncThunk('auth/fetchUserData', async(_,thunkAPI)=>{
     try {
-        const response = await axios.get(``,{withCredentials:true})
+        const response = await axios.get(`http://localhost:8080/api/user/profile`,{withCredentials:true})
         return response.data;
     } catch (error:any) {
         // toast.error(error.response?error.response.data:'Failed fetching user data')
