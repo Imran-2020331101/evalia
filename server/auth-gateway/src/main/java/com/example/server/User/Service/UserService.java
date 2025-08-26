@@ -1,6 +1,7 @@
 package com.example.server.User.Service;
 
-import com.example.server.User.Controller.UserController;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.example.server.User.DTO.OrganizationUpdateDTO;
 import com.example.server.User.DTO.UserDTO;
 import com.example.server.User.models.OrganizationEntity;
@@ -9,15 +10,15 @@ import com.example.server.security.models.Role;
 import com.example.server.security.models.userEntity;
 import com.example.server.security.repository.UserRepository;
 import org.bson.types.ObjectId;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
-import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -28,37 +29,21 @@ public class UserService {
     private static final Logger logger  = Logger.getLogger(UserService.class.getName());
     private final UserRepository          userRepository;
     private final OrganizationRepository  organizationRepository;
+    private final Cloudinary              cloudinary;
 
     public UserService(UserRepository          userRepository,
-                       OrganizationRepository  organizationRepository) {
+                       OrganizationRepository  organizationRepository,
+                       Cloudinary              cloudinary) {
 
         this.userRepository         =  userRepository;
         this.organizationRepository =  organizationRepository;
+        this.cloudinary             =  cloudinary;
     }
 
     public userEntity loadUserById(String id) {
         return userRepository.findById(new ObjectId(id))
                 .orElseThrow(() -> new UsernameNotFoundException("Email not found"));
     }
-
-    public UserDTO toUserDTO(userEntity user) {
-        UserDTO dto = new UserDTO();
-        dto.setId(user.getId());
-        dto.setName(user.getName());
-        dto.setEmail(user.getEmail());
-        dto.setEmailVerified(user.isEmailVerified());
-        dto.setHasResume(user.isHasResume());
-        dto.setProvider(user.getProvider());
-
-        List<String> roleNames = user.getRoles()
-                .stream()
-                .map(Role::getName)
-                .collect(Collectors.toList());
-        dto.setRoles(roleNames);
-
-        return dto;
-    }
-
 
 
     public void saveUpdatedUser(userEntity user) {
@@ -90,13 +75,8 @@ public class UserService {
      * @return List of organization entities associated with the given email.
      */
     public List<OrganizationEntity> getOrganizationsByOwnerEmail(String email) {
-        List<OrganizationEntity> organizations = organizationRepository.findAllByOwnerEmail(email);
 
-        if (organizations.isEmpty()) {
-            throw new UsernameNotFoundException("No organizations found for email: " + email);
-        }
-
-        return organizations;
+        return organizationRepository.findAllByOwnerEmail(email);
     }
 
 
@@ -163,5 +143,75 @@ public class UserService {
             logger.severe("Error deleting organization: " + e.getMessage());
             return false;
         }
+    }
+
+    public String updateUserProfilePicture(MultipartFile file, String email) throws IOException {
+        userEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+        String imageUrl = uploadImageToCloudinary(file, "profile_images");
+        user.setProfilePictureUrl(imageUrl);
+        userRepository.save(user);
+        return imageUrl;
+    }
+
+    public String updateUserCoverPicture(MultipartFile file, String email) throws IOException {
+        userEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+        String imageUrl = uploadImageToCloudinary(file, "cover_photos");
+        user.setCoverPictureUrl(imageUrl);
+        userRepository.save(user);
+        return imageUrl;
+    }
+
+    public String updateOrganizationProfilePicture(MultipartFile file, String organizationId, String email) throws IOException {
+
+        OrganizationEntity org = organizationRepository.findById(new ObjectId(organizationId))
+                .orElseThrow(() -> new UsernameNotFoundException("Organization not found with ID: " + organizationId));
+
+        if (!org.getOwnerEmail().equals(email)) {
+            throw new SecurityException("You do not have permission to update this organization's profile picture.");
+        }
+
+        String imageUrl = uploadImageToCloudinary(file, "organization_profile_images");
+        org.setOrganizationProfileImageUrl(imageUrl);
+
+        organizationRepository.save(org);
+        return imageUrl;
+    }
+
+    public String uploadImageToCloudinary(MultipartFile file, String folder) throws IOException {
+        Map uploadResult = cloudinary.uploader().upload(
+                file.getBytes(),
+                ObjectUtils.asMap(
+                        "resource_type", "auto",
+                        "folder", folder   // keep files organized in cloudinary
+                )
+        );
+        return uploadResult.get("secure_url").toString();
+    }
+
+    public UserDTO toUserDTO(userEntity user) {
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setName(user.getName());
+        dto.setEmail(user.getEmail());
+        dto.setEmailVerified(user.isEmailVerified());
+        dto.setHasResume(user.isHasResume());
+        dto.setProvider(user.getProvider());
+
+        List<String> roleNames = user.getRoles()
+                .stream()
+                .map(Role::getName)
+                .collect(Collectors.toList());
+        dto.setRoles(roleNames);
+
+        return dto;
+    }
+
+    public Object getOrganizationsByUserId(String userId) {
+        userEntity user = userRepository.findById(new ObjectId(userId))
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + userId));
+
+        return organizationRepository.findAllByOwnerEmail(user.getEmail());
     }
 }
