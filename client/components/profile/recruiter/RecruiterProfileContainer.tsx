@@ -4,8 +4,8 @@ import Image from "next/image"
 import { useRef, useState, useEffect } from "react"
 import OrganizationCard from "./OrganizationCard"
 import CreateOrganizationForm from "./CreateOrganizationForm"
-import { useAppSelector } from "@/redux/lib/hooks"
-import { organizations } from "@/redux/features/auth"
+import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
+import { getAllOrganizations, organizations } from "@/redux/features/auth"
 
 interface propType {
   user:any
@@ -20,6 +20,8 @@ const RecruiterProfileContainer = ({user}:propType) => {
 
   const [coverPhoto, setCoverPhoto] = useState<File | null>(null)
   const [profilePhoto, setProfilePhoto] = useState<File | null>(null)
+
+  const dispatch = useAppDispatch()
 
   const currentOrganizations = useAppSelector(organizations);
 
@@ -57,6 +59,9 @@ const RecruiterProfileContainer = ({user}:propType) => {
       }
     }
   }, []);
+  useEffect(()=>{
+    if(!currentOrganizations.length)dispatch(getAllOrganizations())
+  },[currentOrganizations])
   return (
     <div className="w-full h-full bg-gray-950/80 flex items-start justify-center pt-[10px]">
       <div className="w-[65%] ml-[5%] h-full flex p-[6px] gap-[13px]">
@@ -125,7 +130,7 @@ const RecruiterProfileContainer = ({user}:propType) => {
             <section className="w-full h-auto pl-[7%] bg-slate-900 rounded-xl flex flex-col pt-[8px] mb-[10px] pb-[8px] pr-[13px]">
               <h1 className="text-[15px] text-gray-300 font-semibold">Organizational Profiles : </h1>
               {
-                currentOrganizations.map((item:any, index:number)=><OrganizationCard key={index} organization={item}/>)
+                currentOrganizations.map((item:any)=><OrganizationCard key={item.id} organization={item}/>)
               }
               {isCreateNewOrg && <CreateOrganizationForm setIsCreateNewOrg={setIsCreateNewOrg}/>}
               <button id="create-organization" type="button" onClick={()=>setIsCreateNewOrg(true)} className="w-full mt-4 py-2 mb-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center gap-2">

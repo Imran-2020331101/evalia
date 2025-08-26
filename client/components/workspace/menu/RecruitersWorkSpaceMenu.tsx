@@ -7,14 +7,14 @@ import Link from "next/link";
 import { Plus, Grid2X2,ChevronDown, ChevronUp, Dot, Frown } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks";
 import { selectedOrgId, setSelectedOrgId } from "@/redux/features/job";
+import { organizations } from "@/redux/features/auth";
 
 const majorMono = Major_Mono_Display({ weight: '400', subsets: ['latin'] });
 
 
 const RecruitersWorkSpaceMenu = () => {
     const [organizationToOpen, setOrganizationToOpen]=useState<string|null>(null)
-    // const organizations = [{id:'1',org:'Google'},{id:'2', org:'Facebook'}];
-    const organizations:any = [];
+    const currentOrganizations = useAppSelector(organizations)
 
     const dispatch = useAppDispatch()
     const currentSelectedOrgId = useAppSelector(selectedOrgId)
@@ -23,20 +23,20 @@ const RecruitersWorkSpaceMenu = () => {
       <Link href={'/'} className={`${majorMono.className} text-2xl fixed top-2 left-3`}>EVALIA</Link>
       <div className="w-full h-auto flex flex-col justify-start pt-[50px] pl-[20px] gap-2 text-gray-400">
         {
-          organizations.length?
+          currentOrganizations.length?
           <>
             <h1 className="text-gray-300 font-semibold tracking-wider">Organizations : </h1>
             {
-              organizations.map((item:any)=><div  key={item.id} className="w-full h-auto flex flex-col gap-2 ml-[5px]">
-                <button onClick={()=>dispatch(setSelectedOrgId(item.id))} className="text-sm flex font-semibold  group"><Dot className="group-hover:text-blue-500 size-6"/> {item.org} </button>
+              currentOrganizations.map((item:any)=><div  key={item.id} className="w-full h-auto flex flex-col gap-2 ml-[5px]">
+                <button onClick={()=>dispatch(setSelectedOrgId(item.id))} className="text-sm flex font-semibold  group"><Dot className="group-hover:text-blue-500 size-6"/> {item.organizationName} </button>
                 {
                   currentSelectedOrgId===item.id?
                     <div className="w-full flex flex-col gap-1 ml-[20px]">
-                      <Link prefetch href={`/workspace/jobs/${item.org}/my-jobs`} className="flex justify-start items-center gap-2 group ">
+                      <Link prefetch href={`/workspace/jobs/${item.organizationName}/my-jobs`} className="flex justify-start items-center gap-2 group ">
                         <Grid2X2 className="size-4 group-hover:text-gray-100 ml-1"/>
                         <p className="text-[14px]  cursor-pointer">My Jobs</p>
                       </Link>
-                      <Link prefetch href={`/workspace/jobs/${item.org}/create`} className="flex justify-start items-center gap-2 group ">
+                      <Link prefetch href={`/workspace/jobs/${item.organizationName}/create`} className="flex justify-start items-center gap-2 group ">
                         <Plus className="size-5 group-hover:text-gray-100 "/>
                         <p className="text-sm  cursor-pointer">Create</p>
                       </Link>
