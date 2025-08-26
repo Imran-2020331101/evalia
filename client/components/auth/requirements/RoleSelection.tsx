@@ -81,6 +81,7 @@ const RoleSelection = ({ userType, setUserType, setIsNext }: propType) => {
       })
 
       const data = await response.json()
+      console.log(data,'registered user')
 
       if (data.success) {
         setIsNext(true)

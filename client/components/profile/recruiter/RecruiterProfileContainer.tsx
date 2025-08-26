@@ -60,6 +60,7 @@ const RecruiterProfileContainer = ({user}:propType) => {
     }
   }, []);
   useEffect(()=>{
+    console.log(user,'currentUser')
     if(!currentOrganizations.length)dispatch(getAllOrganizations())
   },[])
   return (

@@ -113,6 +113,7 @@ const VerifyOTPPage = () => {
       })
 
       const data = await response.json()
+      
 
       if (data.success) {
         setSuccess('OTP has been resent to your email!')

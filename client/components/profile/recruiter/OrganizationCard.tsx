@@ -275,11 +275,11 @@ const OrganizationCard =({organization}:propType) =>{
                 placeholder="Business Description"
               />
             </form>
-            <div className=" flex flex-col gap-2 mt-4">
+            <div className=" flex  gap-2 mt-4">
               <button
                 disabled={currentUpdateStatus==='pending'?true:false}
                 onClick={handleSave}
-                className="w-full py-2 gap-2 flex justify-center items-center rounded-md cursor-pointer bg-green-700 hover:bg-green-600 text-white"
+                className="flex-1 py-2 gap-2 flex justify-center items-center rounded-md cursor-pointer bg-green-700 hover:bg-green-600 text-white"
               >
                 {
                   currentUpdateStatus==='pending'?<ClipLoader color="white" size={24}/>:<><Save className="size-4" /> Save</>
@@ -288,7 +288,7 @@ const OrganizationCard =({organization}:propType) =>{
               <button
                 disabled={currentDeleteStatus==='pending'?true:false}
                 onClick={handleDelete}
-                className="w-full py-2 gap-2 flex justify-center items-center rounded-md cursor-pointer bg-red-800 hover:bg-red-700 text-gray-200"
+                className="flex-1 py-2 gap-2 flex justify-center items-center rounded-md cursor-pointer bg-red-800 hover:bg-red-700 text-gray-200"
               >
                 {
                   currentDeleteStatus==='pending'?<ClipLoader color="white" size={24}/> : <><Trash2 className="size-4" /> Delete</>
@@ -296,7 +296,7 @@ const OrganizationCard =({organization}:propType) =>{
               </button>
               <button
                 onClick={() => setIsEditing(false)}
-                className="w-full py-2 gap-2 flex justify-center items-center rounded-md cursor-pointer bg-gray-700 hover:bg-gray-600 text-white"
+                className="flex-1 py-2 gap-2 flex justify-center items-center rounded-md cursor-pointer bg-gray-700 hover:bg-gray-600 text-white"
               >
                 <X className="w-4 h-4" /> Cancel
               </button>
