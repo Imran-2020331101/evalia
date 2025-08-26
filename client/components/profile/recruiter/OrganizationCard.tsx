@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { Edit, Trash2, Save, X } from "lucide-react";
 import Image from "next/image";
+import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks";
+import { deleteOrganization, orgUpdateStatus, updateOrganization } from "@/redux/features/auth";
 
 interface propType{
   organization:{
@@ -31,6 +33,7 @@ const OrganizationCard =({organization}:propType) =>{
   const [isEditing, setIsEditing] = useState(false);
   
   const [formData, setFormData] = useState({
+    id:"",
     organizationName: "",
     organizationNameBangla: "",
     yearOfEstablishment: "",
@@ -43,24 +46,32 @@ const OrganizationCard =({organization}:propType) =>{
     organizationProfileImageUrl: "",
   });
 
+  const currentUpdateStatus = useAppSelector(orgUpdateStatus)
+
+  const dispatch = useAppDispatch()
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSave = () => {
-    setIsEditing(false);
+    // setIsEditing(false);
     // 🔥 Here you would call API to save changes
+    dispatch(updateOrganization({organizationId:formData.id,data:formData}))
+
     console.log("Updated data:", formData);
   };
 
   const handleDelete = () => {
     // 🔥 Call delete API here
     console.log("Company deleted");
+    dispatch(deleteOrganization(formData.id))
   };
   useEffect(()=>{
-    const {yearOfEstablishment,organizationName, organizationAddress, organizationNameBangla, organizationAddressBangla, organizationProfileImageUrl,industryType, businessDescription,websiteUrl}=organization
+    const {id,yearOfEstablishment,organizationName, organizationAddress, organizationNameBangla, organizationAddressBangla, organizationProfileImageUrl,industryType, businessDescription,websiteUrl}=organization
     setFormData({
+      id,
       organizationName,
       organizationAddress,
       organizationAddressBangla,
@@ -72,6 +83,9 @@ const OrganizationCard =({organization}:propType) =>{
       yearOfEstablishment,
     })
   },[])
+  useEffect(()=>{
+    if(currentUpdateStatus==='success')setIsEditing(false)
+  },[currentUpdateStatus])
   return (
     <section className="w-full h-auto bg-slate-900 mt-3 flex gap-4 p-2 rounded-xl shadow-md shadow-gray-800 relative ">
       {/* Company Logo */}
