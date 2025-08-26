@@ -46,7 +46,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getUserProfile(@PathVariable String userId) {
+    public ResponseEntity<?> getUserProfileByUserId(@PathVariable String userId) {
         try {
             // Fetch user information
             userEntity user = (userEntity) userService.loadUserById(userId);
@@ -138,7 +138,4 @@ public class UserController {
             return ResponseEntity.status(500).body(Map.of("success", false, "error", e.getMessage()));
         }
     }
-
-
-
 }
