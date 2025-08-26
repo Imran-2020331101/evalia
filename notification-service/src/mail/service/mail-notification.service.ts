@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import logger from "../utils/logger";
-import { generateRejectionFeedbackEmail } from "../template/RejectionFeedback";
-import { NotificationPayload } from "../types/emailNotifications.type";
+import { generateInterviewInvitationMail, generateRejectionFeedbackEmail } from "../template/FeedbackMails";
+import { InterviewInvitationPayload, NotificationPayload } from "../types/emailNotifications.type";
 
 interface EmailOptions {
   to: string;
@@ -52,35 +52,26 @@ class EmailNotificationService {
     }
   }
 
-  async sendNotificationEmail(notification: NotificationPayload): Promise<boolean> {
-    try {
-      const emailOptions: EmailOptions = {
+  async sendRejectionMail(notification: NotificationPayload): Promise<boolean> {
+    return await this.sendMail({
         to: notification.candidateEmail,
         subject: `Update on your Application for the job `,
         html: generateRejectionFeedbackEmail(notification)
-      };
-
-      const success = await this.sendMail(emailOptions);
-      
-      if (success) {
-        logger.info(`Notification email sent successfully`, {
-          type: notification.type,
-          userEmail: notification.candidateEmail,
-          jobTitle: notification.jobTitle,
-          // sentAt: TODO: add current time
-        });
-      }
-
-      return success;
-    } catch (error) {
-      logger.error(`Failed to send notification email`, {
-        error: error,
-        type: notification.type,
-        userEmail: notification.candidateEmail
-      });
-      return false;
-    }
+      });    
   }
+
+  async sendInterviewInvitation(notification: InterviewInvitationPayload): Promise<boolean> {
+    return await this.sendMail({
+        to: notification.candidateEmail,
+        subject: `Interview for ${notification.jobTitle} at ${notification.OrganizationName}`,
+        html: generateInterviewInvitationMail(notification)
+      })
+  }
+
+  async finalInterviewInvitation(): Promise<boolean>{
+    return true;
+  }
+
 }
 
 export const emailNotificationService = new EmailNotificationService();
