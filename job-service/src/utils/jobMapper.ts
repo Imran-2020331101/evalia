@@ -15,7 +15,7 @@ export function mapJobData(data: CreateJobRequest) {
       workPlaceType,
       employmentLevelType,
     },
-    requirement, responsibility, skill, interviewQA } = data;
+    requirements, responsibilities, skills, interviewQA } = data;
 
   return {
     title,
@@ -26,11 +26,14 @@ export function mapJobData(data: CreateJobRequest) {
     jobType,
     workPlaceType,
     employmentLevel: employmentLevelType,
-    requirements: requirement,
-    responsibilities: responsibility,
-    skills: skill,
-    postedBy: companyInfo.id,
-    company: { id: companyInfo.id },
+    requirements: requirements,
+    responsibilities: responsibilities,
+    skills: skills,
+    postedBy: companyInfo.organizationId,
+    company: {
+      OrganizationId    : companyInfo.organizationId,
+      OrganizationEmail : companyInfo.organizationEmail || "",
+    },
     status: "active" as const,
     interviewQA: interviewQA || [],
   };
