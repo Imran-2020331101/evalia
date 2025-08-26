@@ -2,13 +2,18 @@ package com.example.server.User.Service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.example.server.User.DTO.ForwardProfileRequest;
 import com.example.server.User.DTO.OrganizationUpdateDTO;
+import com.example.server.User.DTO.Profile;
 import com.example.server.User.DTO.UserDTO;
 import com.example.server.User.models.OrganizationEntity;
 import com.example.server.User.repository.OrganizationRepository;
+import com.example.server.resume.DTO.ResumeDataRequest;
+import com.example.server.resume.Proxy.ResumeJsonProxy;
 import com.example.server.security.models.Role;
 import com.example.server.security.models.userEntity;
 import com.example.server.security.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.types.ObjectId;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -30,14 +35,17 @@ public class UserService {
     private final UserRepository          userRepository;
     private final OrganizationRepository  organizationRepository;
     private final Cloudinary              cloudinary;
+    private final ResumeJsonProxy resumeJsonProxy;
 
     public UserService(UserRepository          userRepository,
                        OrganizationRepository  organizationRepository,
-                       Cloudinary              cloudinary) {
+                       Cloudinary              cloudinary,
+                       ResumeJsonProxy         resumeJsonProxy) {
 
         this.userRepository         =  userRepository;
         this.organizationRepository =  organizationRepository;
         this.cloudinary             =  cloudinary;
+        this.resumeJsonProxy        =  resumeJsonProxy;
     }
 
     public userEntity loadUserById(String id) {
@@ -190,6 +198,11 @@ public class UserService {
         return uploadResult.get("secure_url").toString();
     }
 
+    /**
+     * Hides the userEntity's sensitive information and returns a UserDTO.
+     * This method is useful for sending user data in API responses without exposing sensitive fields.
+     * It maps the fields from the userEntity to the UserDTO, including roles.
+     */
     public UserDTO toUserDTO(userEntity user) {
         UserDTO dto = new UserDTO();
         dto.setId(user.getId());
@@ -213,5 +226,16 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + userId));
 
         return organizationRepository.findAllByOwnerEmail(user.getEmail());
+    }
+
+    public Profile obtainUserProfileFromResume(String name) throws IOException {
+        userEntity user              = userRepository.findByEmail(name)
+                                            .orElseThrow(() -> new UsernameNotFoundException("Email not found"));
+        String jsonResponse          = resumeJsonProxy.getResumeByEmail(new ForwardProfileRequest(user.getEmail()));
+        ObjectMapper mapper          = new ObjectMapper();
+        ResumeDataRequest resumeData = mapper.readValue(jsonResponse, ResumeDataRequest.class);
+
+        return new Profile(resumeData, toUserDTO(user));
+
     }
 }

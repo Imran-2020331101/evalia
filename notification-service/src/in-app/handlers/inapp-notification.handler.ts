@@ -1,7 +1,7 @@
-import { EventTypes } from "./eventTypes";
-import { createNotification } from "../services/notificationService";
-import { io } from "../config/socket";
-import logger from "../utils/logger";
+import { EventTypes } from "../../events/eventTypes";
+import { createNotification } from "../service/inapp-notification.service";
+import { io } from "../../config/socket";
+import logger from "../../utils/logger";
 
 export const handleIncomingEvent = async (event: any) => {
   try {

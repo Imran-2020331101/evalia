@@ -45,21 +45,22 @@ public class OrganizationController {
 
 
     @GetMapping("/all")
-    public ResponseEntity<?> getOrganizationsByUserEmail(Principal principal) {
+    public ResponseEntity<?> getAllOrganizationsOfAnUser(Principal principal) {
         try {
                     List<OrganizationEntity> organizations = userService.getOrganizationsByOwnerEmail(principal.getName());
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(
-                            Map.of(
-                                    "success", true,
-                                    "data", organizations,
-                                    "count", organizations.size()
-                            )
-                    );
+                    .body( Map.of(
+                            "success", true,
+                            "data", organizations,
+                            "count", organizations.size()
+                            ));
         } catch (Exception e) {
             logger.severe("Error retrieving organizations: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to retrieve organizations: " + e.getMessage());
+                    .body( Map.of(
+                            "success", false,
+                            "data", "Failed to retrieve organizations: " + e.getMessage()
+                    ));
         }
     }
 
@@ -113,10 +114,16 @@ public class OrganizationController {
             boolean deleted = userService.deleteOrganization(OrganizationId, principal.getName());
             if (deleted) {
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body("Organization deleted successfully");
+                        .body( Map.of(
+                                "success", true,
+                                "data", "Organization deleted successfully"
+                                ));
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Organization not found or you do not own the Organization.");
+                        .body( Map.of(
+                                "success", false,
+                                "data", "Organization not found or you are not authorized to delete it."
+                        ));
             }
         } catch (Exception e) {
             logger.severe("Error deleting organization: " + e.getMessage());
