@@ -1,23 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Edit, Trash2, Save, X } from "lucide-react";
 import Image from "next/image";
 
-const OrganizationCard =() =>{
+interface propType{
+  organization:{
+    id:string,
+    ownerEmail: string,
+    organizationName: string,
+    organizationNameBangla:string,
+    organizationProfileImageUrl: string,
+    yearOfEstablishment: string,
+    numberOfEmployees: string,
+    organizationAddress: string,
+    organizationAddressBangla: string,
+    industryType: string,
+    businessDescription: string,
+    businessLicenseNo: string,
+    rlNo: string|null,
+    websiteUrl: string,
+    enableDisabilityFacilities: boolean,
+    acceptPrivacyPolicy: boolean,
+    verified: boolean,
+    createdAt: string,
+    updatedAt: string,
+}
+}
+const OrganizationCard =({organization}:propType) =>{
   const [isEditing, setIsEditing] = useState(false);
-
+  
   const [formData, setFormData] = useState({
-    name: "Github",
-    nameBn: "গিটহাব",
-    year: 2010,
-    type: "Information Technology",
-    address: "Sylhet, Bangladesh",
-    addressBn: "সিলেট, বাংলাদেশ",
-    website: "https://github.com/",
-    description:
-      "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Dolore, vitae vel nostrum numquam est accusantium alias?",
-    logo: "https://i.pinimg.com/1200x/6b/9e/50/6b9e507694695e7f16eb14c4bdfe8dba.jpg",
+    organizationName: "",
+    organizationNameBangla: "",
+    yearOfEstablishment: "",
+    industryType: "",
+    organizationAddress: "",
+    organizationAddressBangla: "",
+    websiteUrl: "",
+    businessDescription:
+      "",
+    organizationProfileImageUrl: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -35,13 +58,26 @@ const OrganizationCard =() =>{
     // 🔥 Call delete API here
     console.log("Company deleted");
   };
-
+  useEffect(()=>{
+    const {yearOfEstablishment,organizationName, organizationAddress, organizationNameBangla, organizationAddressBangla, organizationProfileImageUrl,industryType, businessDescription,websiteUrl}=organization
+    setFormData({
+      organizationName,
+      organizationAddress,
+      organizationAddressBangla,
+      organizationNameBangla,
+      organizationProfileImageUrl,
+      industryType,
+      businessDescription,
+      websiteUrl,
+      yearOfEstablishment,
+    })
+  },[])
   return (
     <section className="w-full h-auto bg-slate-900 mt-3 flex gap-4 p-2 rounded-xl shadow-md shadow-gray-800 relative ">
       {/* Company Logo */}
       <div className="w-[150px] h-[150px] flex-shrink-0 rounded-lg overflow-hidden border border-gray-700">
         <Image
-          src={formData.logo}
+          src={formData.organizationProfileImageUrl?formData.organizationProfileImageUrl:'https://i.pinimg.com/1200x/21/de/f4/21def4a3643f9b41cd0218e18b71ae0e.jpg'}
           alt="Company Logo"
           width={150}
           height={150}
@@ -65,30 +101,30 @@ const OrganizationCard =() =>{
 
             {/* Display Mode */}
             <h2 className="text-[15px] font-semibold text-gray-200 flex items-center gap-2">
-              {formData.name}
-              <span className="text-xs text-gray-400">({formData.nameBn})</span>
-              <span className="text-xs text-gray-400">, {formData.year}</span>
+              {formData.organizationName}
+              <span className="text-xs text-gray-400">({formData.organizationNameBangla})</span>
+              <span className="text-xs text-gray-400">, {formData.yearOfEstablishment}</span>
             </h2>
 
-            <div className="mt-1 text-sm text-gray-400">{formData.type}</div>
+            <div className="mt-1 text-sm text-gray-400">{formData.industryType}</div>
 
             <div className="mt-1 text-sm flex items-center gap-2">
-              <span>{formData.address}</span>
-              <span className="text-xs text-gray-500">({formData.addressBn})</span>
+              <span>{formData.organizationAddress}</span>
+              <span className="text-xs text-gray-500">({formData.organizationAddressBangla})</span>
             </div>
 
             <div className="mt-1 text-sm">
               <a
-                href={formData.website}
+                href={formData.websiteUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-400 hover:underline"
               >
-                {formData.website.replace(/^https?:\/\//, "")}
+                {formData.websiteUrl.replace(/^https?:\/\//, "")}
               </a>
             </div>
 
-            <p className="mt-2 text-xs text-gray-400 leading-relaxed">{formData.description}</p>
+            <p className="mt-2 text-xs text-gray-400 leading-relaxed">{formData.businessDescription}</p>
           </>
         ) : (
           <>
@@ -96,15 +132,15 @@ const OrganizationCard =() =>{
             <form className="flex flex-col gap-2 mt-1">
               <div className="flex gap-2">
                 <input
-                  name="name"
-                  value={formData.name}
+                  name="organizationName"
+                  value={formData.organizationName}
                   onChange={handleChange}
                   className="flex-1 p-1 rounded bg-gray-800 text-white text-sm"
                   placeholder="Company Name"
                 />
                 <input
-                  name="nameBn"
-                  value={formData.nameBn}
+                  name="organizationNameBangla"
+                  value={formData.organizationNameBangla}
                   onChange={handleChange}
                   className="flex-1 p-1 rounded bg-gray-800 text-white text-sm"
                   placeholder="Company Name (Bengali)"
@@ -114,15 +150,15 @@ const OrganizationCard =() =>{
               <div className="flex gap-2">
                 <input
                   type="number"
-                  name="year"
-                  value={formData.year}
+                  name="yearOfEstablishment"
+                  value={formData.yearOfEstablishment}
                   onChange={handleChange}
                   className="flex-1 p-1 rounded bg-gray-800 text-white text-sm"
                   placeholder="Established Year"
                 />
                 <input
-                  name="type"
-                  value={formData.type}
+                  name="industryType"
+                  value={formData.industryType}
                   onChange={handleChange}
                   className="flex-1 p-1 rounded bg-gray-800 text-white text-sm"
                   placeholder="Organization Type"
@@ -131,15 +167,15 @@ const OrganizationCard =() =>{
 
               <div className="flex gap-2">
                 <input
-                  name="address"
-                  value={formData.address}
+                  name="organizationAddress"
+                  value={formData.organizationAddress}
                   onChange={handleChange}
                   className="flex-1 p-1 rounded bg-gray-800 text-white text-sm"
                   placeholder="Company Address"
                 />
                 <input
-                  name="addressBn"
-                  value={formData.addressBn}
+                  name="organizationAddressBangla"
+                  value={formData.organizationAddressBangla}
                   onChange={handleChange}
                   className="flex-1 p-1 rounded bg-gray-800 text-white text-sm"
                   placeholder="Company Address (Bengali)"
@@ -147,16 +183,16 @@ const OrganizationCard =() =>{
               </div>
 
               <input
-                name="website"
-                value={formData.website}
+                name="websiteUrl"
+                value={formData.websiteUrl}
                 onChange={handleChange}
                 className="w-full p-1 rounded bg-gray-800 text-white text-sm"
                 placeholder="Website URL"
               />
 
               <textarea
-                name="description"
-                value={formData.description}
+                name="businessDescription"
+                value={formData.businessDescription}
                 onChange={handleChange}
                 className="w-full p-1 rounded bg-gray-800 text-white text-sm"
                 rows={3}
