@@ -9,7 +9,7 @@ import { useEffect } from "react"
 import { ScaleLoader } from "react-spinners"
 
 const ProfilePage = () => {
-  const currentUser = useAppSelector(user)
+  const currentUser:any = useAppSelector(user)
   const currentUserStatus = useAppSelector(userStatus)
 
   const dispatch = useAppDispatch();
@@ -17,18 +17,23 @@ const ProfilePage = () => {
   useEffect(()=>{
     if(!currentUser) dispatch(fetchUserData())
   },[])
-  useEffect(()=>console.log(currentUserStatus, 'currentUserStatus'))
+
   if(currentUserStatus==='pending' || !currentUserStatus) return <div className="flex w-full h-full justify-center items-center">
     <ScaleLoader barCount={4} color="white"/>
   </div>
   if(currentUserStatus==='error') return <div className="flex w-full h-full justify-center items-center">
     <Error/>
   </div>
-
+  if(!currentUser) return null
   return (
     <>
-      {/* <CandidateProfileContainer user={currentUser}/> */}
-      <RecruiterProfileContainer user={currentUser}/>
+    {
+      currentUser?.data?.user?.roles[0]==='RECRUITER'?
+        <RecruiterProfileContainer user={currentUser}/>
+      :
+       <CandidateProfileContainer user={currentUser}/> 
+    }
+      
     </>
   )
 }
