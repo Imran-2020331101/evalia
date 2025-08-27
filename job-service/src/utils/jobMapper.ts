@@ -1,4 +1,4 @@
-import { CreateJobRequest } from "@/types/job.types";
+import { CreateJobRequest } from "../types/job.types";
 
 
 export function mapJobData(data: CreateJobRequest) {
