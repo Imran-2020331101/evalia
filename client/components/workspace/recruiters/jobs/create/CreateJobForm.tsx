@@ -5,7 +5,7 @@ import { ChevronDown } from "lucide-react";
 import { JOB_TYPE, WORKPLACE_TYPE, IMPORTANCE_OPTIONS,EMPLOYMENT_LEVEL } from "@/Data/create-job";
 import { toast } from "sonner";
 import { domainType, interviewQAStateType, basicStateType } from "@/types/create-job";
-import { createJob, createJobStatus } from "@/redux/features/job";
+import { createJob, createJobStatus, selectedOrgId } from "@/redux/features/job";
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks";
 interface propType{
   requirement:domainType[],
@@ -24,6 +24,7 @@ const CreateJobForm = ({requirement, responsibilities, skills, basicState, setRe
 
   const dispatch = useAppDispatch()
   const currentCreateJobStatus = useAppSelector(createJobStatus)
+  const currentSelectedOrgId:string = useAppSelector(selectedOrgId) as string
 
   const [tabIndex, setTabIndex] = useState(1)
   const [isChecked, setIsChecked] = useState(false)
@@ -174,7 +175,7 @@ const CreateJobForm = ({requirement, responsibilities, skills, basicState, setRe
 
   const handleCreateJob = async()=>{
     const companyInfo={
-      id:''
+      id:currentSelectedOrgId
     } // will be fetched later from the recruiter profile ; no need to worry for now !
     const {title,jobDescription,jobLocation,salaryFrom,salaryTo, deadline,jobType,workPlaceType,employmentLevelType}=basicState;
     if(!validateJobBasic()) return;
@@ -182,12 +183,13 @@ const CreateJobForm = ({requirement, responsibilities, skills, basicState, setRe
     const data = {
       companyInfo,
       basic,
-      requirement,
-      responsibility:[...responsibilities],
-      skill:[...skills],
+      requirements:requirement,
+      responsibilities:[...responsibilities],
+      skills,
       interviewQA
     }
-    await dispatch(createJob(data))
+    console.log(data, 'job data before creation')
+    await dispatch(createJob({organizationId:currentSelectedOrgId,data}))
     if(currentCreateJobStatus==='error') toast.error('something went wrong! please try again later..')
     else if (currentCreateJobStatus==='success') toast.success('Job successfully created !')
   }
