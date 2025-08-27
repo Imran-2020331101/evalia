@@ -1,6 +1,6 @@
 package com.example.server.resume.Controller;
 
-import com.example.server.User.Service.UserService;
+import com.example.server.UserProfile.Service.UserService;
 import com.example.server.resume.DTO.BasicSearchRequest;
 import com.example.server.resume.DTO.BasicSearchResponse;
 import com.example.server.resume.DTO.ResumeDataRequest;

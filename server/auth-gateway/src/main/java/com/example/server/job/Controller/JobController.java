@@ -56,7 +56,7 @@ public class JobController {
                                                          Principal principal ) {
         try {
             logger.info(" Job creation request received from user: " + principal.getName() +
-                             " For the Organization: " + jobCreationRequest.getCompanyInfo().getId());
+                             " For the Organization: " + jobCreationRequest.getCompanyInfo().getOrganizationId());
 
             String response = jobProxy.createJob(jobCreationRequest);
 

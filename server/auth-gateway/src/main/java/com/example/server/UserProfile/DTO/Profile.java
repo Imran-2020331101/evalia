@@ -1,4 +1,4 @@
-package com.example.server.User.DTO;
+package com.example.server.UserProfile.DTO;
 
 import com.example.server.resume.DTO.ResumeDataRequest;
 import lombok.AllArgsConstructor;

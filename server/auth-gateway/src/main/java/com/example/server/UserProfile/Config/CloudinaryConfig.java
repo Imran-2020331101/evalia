@@ -1,4 +1,4 @@
-package com.example.server.User.Config;
+package com.example.server.UserProfile.Config;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;

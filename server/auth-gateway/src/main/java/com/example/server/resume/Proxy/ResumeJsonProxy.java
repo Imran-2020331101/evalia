@@ -1,6 +1,6 @@
 package com.example.server.resume.Proxy;
 
-import com.example.server.User.DTO.ForwardProfileRequest;
+import com.example.server.UserProfile.DTO.ForwardProfileRequest;
 import com.example.server.resume.DTO.BasicSearchRequest;
 import com.example.server.resume.DTO.ResumeForwardWrapper;
 import org.springframework.cloud.openfeign.FeignClient;

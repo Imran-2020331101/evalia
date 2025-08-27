@@ -1,9 +1,9 @@
-package com.example.server.User.Controller;
+package com.example.server.UserProfile.Controller;
 
-import com.example.server.User.DTO.OrganizationCreateRequest;
-import com.example.server.User.DTO.OrganizationUpdateDTO;
-import com.example.server.User.Service.OrganizationService;
-import com.example.server.User.models.OrganizationEntity;
+import com.example.server.UserProfile.DTO.OrganizationCreateRequest;
+import com.example.server.UserProfile.DTO.OrganizationUpdateDTO;
+import com.example.server.UserProfile.Service.OrganizationService;
+import com.example.server.UserProfile.models.OrganizationEntity;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

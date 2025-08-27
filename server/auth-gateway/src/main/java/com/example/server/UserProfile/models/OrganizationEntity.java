@@ -1,4 +1,4 @@
-package com.example.server.User.models;
+package com.example.server.UserProfile.models;
 
 import lombok.*;
 import jakarta.validation.constraints.*;
