@@ -34,7 +34,7 @@ export function mapJobData(data: CreateJobRequest) {
       OrganizationId    : companyInfo.organizationId,
       OrganizationEmail : companyInfo.organizationEmail || "",
     },
-    status: "active" as const,
+    status: "ACTIVE" as const,
     interviewQA: interviewQA || [],
   };
 }
