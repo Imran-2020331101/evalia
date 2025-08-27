@@ -1,6 +1,6 @@
 package com.example.server.User.Controller;
 
-import com.example.server.User.DTO.OrganizationCreateDTO;
+import com.example.server.User.DTO.OrganizationCreateRequest;
 import com.example.server.User.DTO.OrganizationUpdateDTO;
 import com.example.server.User.Service.OrganizationService;
 import com.example.server.User.models.OrganizationEntity;
@@ -48,7 +48,7 @@ public class OrganizationController {
     @GetMapping("/all")
     public ResponseEntity<?> getAllOrganizationsOfAnUser(Principal principal) {
         try {
-                    List<OrganizationEntity> organizations = organizationService.getOrganizationsByOwnerEmail(principal.getName());
+            List<OrganizationEntity> organizations = organizationService.getOrganizationsByOwnerEmail(principal.getName());
             return ResponseEntity.status(HttpStatus.OK)
                     .body( Map.of(
                             "success", true,
@@ -67,7 +67,7 @@ public class OrganizationController {
 
 
     @PostMapping("/new")
-    public ResponseEntity<?> createOrganizationProfile(@RequestBody OrganizationCreateDTO organizationRequestDTO,
+    public ResponseEntity<?> createOrganizationProfile(@RequestBody OrganizationCreateRequest organizationRequestDTO,
                                                        Principal principal) {
         try{
             logger.info("Creating Organization Profile request received from" + principal.getName());
