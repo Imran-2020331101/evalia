@@ -15,8 +15,8 @@ import java.util.logging.Logger;
 @RequestMapping("/api/job")
 public class JobController {
 
-    private static final Logger logger = Logger.getLogger(JobController.class.getName());
-    private        final JobProxy jobProxy;
+    private static final Logger             logger = Logger.getLogger(JobController.class.getName());
+    private        final JobProxy           jobProxy;
     private        final UserDetailsService userDetailsService;
 
 
@@ -31,23 +31,13 @@ public class JobController {
     @GetMapping("/{OrganizationId}")
     public ResponseEntity<String> getAllJobsOfAnOrganization(@PathVariable("OrganizationId") String OrganizationId,
                                                                                        Principal principal ) {
-        try {
-
-            logger.info("Get all the jobs under a Organization request received from" + principal.getName());
-
-            userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
-            if(!user.isHasAnyOrganization()){
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body("User does not have any organization");
-            }
-
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(jobProxy.getAllJobsOfAnOrganization(OrganizationId));
-
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to forward: " + e.getMessage());
+        userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
+        if(!user.isHasAnyOrganization()){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                      .body("User does not have any organization");
         }
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(jobProxy.getAllJobsOfAnOrganization(OrganizationId));
     }
 
 
@@ -72,32 +62,17 @@ public class JobController {
 
     @GetMapping("/{jobId}")
     public ResponseEntity<String> getJobById(@PathVariable ("jobId") String jobId, Principal principal) {
-        try {
-            logger.info("getJobById request received for jobId: " + jobId + " from user: " + principal.getName());
 
             return ResponseEntity.status(HttpStatus.OK)
                     .body(jobProxy.getJobById(jobId));
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to forward: " + e.getMessage());
-        }
     }
 
 
 
     @DeleteMapping("/{jobId}")
     public ResponseEntity<String> deleteJobById(@PathVariable ("jobId") String jobId, Principal principal) {
-        try {
-
-            logger.info("deleteJobById request received for jobId: " + jobId + " from user: " + principal.getName());
-
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(jobProxy.deleteJobById(jobId, principal.getName()));
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to forward: " + e.getMessage());
-        }
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(jobProxy.deleteJobById(jobId, principal.getName()));
     }
 
 
