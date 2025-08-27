@@ -48,7 +48,7 @@ const openApiSpec = {
           { in: "query", name: "limit", schema: { type: "integer", default: 10 } },
           { in: "query", name: "sortBy", schema: { type: "string", default: "createdAt" } },
           { in: "query", name: "sortOrder", schema: { type: "string", enum: ["asc", "desc"], default: "desc" } },
-          { in: "query", name: "status", schema: { type: "string", enum: ["draft", "active", "paused", "closed", "filled"] } },
+          { in: "query", name: "status", schema: { type: "string", enum: ["DRAFT", "ACTIVE", "FILLED", "ARCHIVED", "DELETED"] } },
         ],
         responses: {
           200: { description: "Jobs retrieved", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiResponseJobsWithPagination" } } } },
@@ -85,7 +85,7 @@ const openApiSpec = {
         requestBody: {
           required: true,
           content: {
-            "application/json": { schema: { type: "object", properties: { status: { type: "string", enum: ["draft", "active", "paused", "closed", "filled"] } }, required: ["status"] } },
+            "application/json": { schema: { type: "object", properties: { status: { type: "string", enum: ["DRAFT", "ACTIVE", "FILLED", "ARCHIVED", "DELETED"] } }, required: ["status"] } },
           },
         },
         responses: {
@@ -105,7 +105,7 @@ const openApiSpec = {
           { in: "query", name: "limit", schema: { type: "integer", default: 10 } },
           { in: "query", name: "sortBy", schema: { type: "string", default: "createdAt" } },
           { in: "query", name: "sortOrder", schema: { type: "string", enum: ["asc", "desc"], default: "desc" } },
-          { in: "query", name: "status", schema: { type: "string", enum: ["draft", "active", "paused", "closed", "filled"] } },
+          { in: "query", name: "status", schema: { type: "string", enum: ["DRAFT", "ACTIVE", "FILLED", "ARCHIVED", "DELETED"] } },
         ],
         responses: {
           200: { description: "Jobs retrieved", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiResponseJobsWithPagination" } } } },
