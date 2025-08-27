@@ -2,10 +2,7 @@ package com.example.server.UserProfile.Controller;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.example.server.UserProfile.DTO.ForwardProfileRequest;
-import com.example.server.UserProfile.DTO.ImageUploadResponse;
-import com.example.server.UserProfile.DTO.Profile;
-import com.example.server.UserProfile.DTO.UserDTO;
+import com.example.server.UserProfile.DTO.*;
 import com.example.server.UserProfile.Service.UserService;
 import com.example.server.resume.DTO.ResumeDataRequest;
 import com.example.server.resume.Proxy.ResumeJsonProxy;
@@ -84,45 +81,6 @@ public class UserController {
         }
     }
 
-    /*
-    * TODO: Assess the necessity of this endpoint.
-     */
-    @GetMapping("/Recruiters/profile")
-    public ResponseEntity<?> getRecruitersProfile(Principal principal) {
-
-        UserDTO user = userService.getUserByEmail(principal.getName());
-
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-                "success", true,
-                "data",       user
-        ));
-    }
-
-    @PostMapping("/image/upload")
-    public ResponseEntity<Map<String, Object>> uploadImages(@RequestParam("files") MultipartFile[] files) {
-        List<String> uploadedUrls = new ArrayList<>();
-
-        try {
-            for (MultipartFile file : files) {
-                Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
-                        ObjectUtils.asMap("resource_type", "auto"));
-                uploadedUrls.add(uploadResult.get("secure_url").toString());
-            }
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("uploadedUrls", uploadedUrls);
-
-            return ResponseEntity.ok(response);
-
-        } catch (IOException e) {
-            return ResponseEntity.status(500).body(Map.of(
-                    "success", false,
-                    "error", e.getMessage()
-            ));
-        }
-    }
-
     @PostMapping("/update/profile-photo")
     public ResponseEntity<?> uploadUserProfilePhoto(@RequestParam("file") MultipartFile file,
                                                                       Principal principal) {
@@ -150,4 +108,40 @@ public class UserController {
             return ResponseEntity.status(500).body(Map.of("success", false, "error", e.getMessage()));
         }
     }
+
+    @PatchMapping("/update/details")
+    public ResponseEntity<?> updateUserProfile( @RequestBody UpdateUserProfileRequest dto,
+                                                 Principal principal) {
+        userEntity user =  userService.updateUserProfile(dto, principal.getName());
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "data", user));
+    }
+
+
+    @PostMapping("/image/upload")
+    public ResponseEntity<Map<String, Object>> uploadImages(@RequestParam("files") MultipartFile[] files) {
+        List<String> uploadedUrls = new ArrayList<>();
+
+        try {
+            for (MultipartFile file : files) {
+                Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
+                        ObjectUtils.asMap("resource_type", "auto"));
+                uploadedUrls.add(uploadResult.get("secure_url").toString());
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("uploadedUrls", uploadedUrls);
+
+            return ResponseEntity.ok(response);
+
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body(Map.of(
+                    "success", false,
+                    "error", e.getMessage()
+            ));
+        }
+    }
+
 }

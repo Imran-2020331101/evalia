@@ -12,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -30,6 +31,9 @@ public class userEntity implements UserDetails {
     private String password;
     private List<Role> roles = new ArrayList<>();
 
+    private String bio = null;
+    private String location = null;
+    private String aboutMe = null;
     private String profilePictureUrl = null;
     private String coverPictureUrl = null;
     private boolean emailVerified = false;
@@ -37,16 +41,18 @@ public class userEntity implements UserDetails {
     private String resumeUrl = null;
     private boolean hasAnyOrganization = false;
     private List<String> organizationId = new ArrayList<>(); // List of organization IDs the user owns or is part of
+    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
     // OAuth2 related fields
     private String provider; // "github", "google", etc.
     private String providerId; // User ID from the OAuth2 provider
-    private boolean enabled = false; // Account enabled status
+    private boolean enabled = false;
     private String username; // Username for authentication
 
     @Override
     public String toString() {
-        return id + " " + email;
+        return id + " " + name + " "  + email;
     }
 
     @Override
