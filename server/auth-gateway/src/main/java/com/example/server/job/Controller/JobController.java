@@ -28,7 +28,7 @@ public class JobController {
     }
 
 
-    @GetMapping("/{OrganizationId}")
+    @GetMapping("/organization/{OrganizationId}")
     public ResponseEntity<String> getAllJobsOfAnOrganization(@PathVariable("OrganizationId") String OrganizationId,
                                                                                        Principal principal ) {
         userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
@@ -41,13 +41,19 @@ public class JobController {
     }
 
 
-    @PostMapping("/create")
-    public ResponseEntity<String> createJob(@RequestBody JobCreationRequest jobCreationRequest,
+    @PostMapping("/organization/{OrganizationId}")
+    public ResponseEntity<String> createJob(@PathVariable ("OrganizationId") String OrganizationId,
+                                            @RequestBody JobCreationRequest jobCreationRequest,
                                                          Principal principal ) {
         try {
             logger.info(" Job creation request received from user: " + principal.getName() +
                              " For the Organization: " + jobCreationRequest.getCompanyInfo().getOrganizationId());
 
+            if(jobCreationRequest.getCompanyInfo() == null){
+                jobCreationRequest.setCompanyInfo(
+                        new JobCreationRequest.CompanyInfo(OrganizationId, principal.getName()));
+            }
+            
             String response = jobProxy.createJob(jobCreationRequest);
 
             return ResponseEntity.status(HttpStatus.OK)

@@ -3,7 +3,7 @@ import { ResumeDTO } from "@/types/resume.types";
 import { overviewPrompt } from "../prompts/EvaluationPrompt";
 import upskillBot from "../config/OpenRouter";
 import { CompatibilityReviewModel } from "../models/CompatibilityReview";
-import { IJobDetailsDocument } from "@/models/JobDetails";
+import { IJobDetailsDocument } from "../models/JobDetails";
 
 class applicationCompatibilityService {
 

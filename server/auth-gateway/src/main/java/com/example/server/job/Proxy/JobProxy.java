@@ -23,4 +23,7 @@ public interface JobProxy {
     @GetMapping   (value = "/organization/{OrganizationId}")
     String getAllJobsOfAnOrganization(@PathVariable ("OrganizationId") String OrganizationId);
 
+    @DeleteMapping(value = "/organization/{OrganizationId}")
+    String deleteAllJobsOfAnOrganization(@PathVariable ("OrganizationId") String OrganizationId);
+
 }
