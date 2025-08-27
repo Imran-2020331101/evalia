@@ -28,7 +28,7 @@ const ProfilePage = () => {
   return (
     <>
     {
-      currentUser?.data?.user?.roles[0]==='RECRUITER'?
+      currentUser?.user?.roles[0]==='RECRUITER'?
         <RecruiterProfileContainer user={currentUser}/>
       :
        <CandidateProfileContainer user={currentUser}/> 

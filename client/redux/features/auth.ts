@@ -51,6 +51,14 @@ export const fetchUserData = createAsyncThunk('auth/fetchUserData', async(_,thun
 })
 export const updateUserCoverPhoto = createAsyncThunk('auth/updateUserCoverPhoto',async(formData:any,thunkAPI)=>{
     try {
+        const response = await axios.post('http://localhost:8080/api/user/update/cover-photo',formData,{withCredentials:true})
+        return response.data;
+    } catch (error:any) {
+        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed updating user cover photo' })
+    }
+})
+export const updateUserProfilePhoto = createAsyncThunk('auth/updateUserProfilePhoto',async(formData:any,thunkAPI)=>{
+    try {
         const response = await axios.post('http://localhost:8080/api/user/update/profile-photo',formData,{withCredentials:true})
         return response.data;
     } catch (error:any) {
@@ -61,13 +69,14 @@ export const updateUserCoverPhoto = createAsyncThunk('auth/updateUserCoverPhoto'
 type statusType = 'idle'|'pending'|'error'|'success';
 interface initialStateType {
     userStatus:statusType
-    user: null | object,
+    user: null | any,
     isSignedIn:boolean,
     orgCreationStatus:statusType,
     orgFetchStatus:statusType,
     orgDeleteStatus:statusType,
     orgUpdateStatus:statusType,
     userCoverPhotoUpdateStatus:statusType,
+    userProfilePhotoUpdateStatus:statusType,
     organizations : any[], // type will be updated
     registerFormData:{
         name:string,
@@ -85,6 +94,7 @@ const initialState :initialStateType={
     orgDeleteStatus:'idle',
     orgUpdateStatus:'idle',
     userCoverPhotoUpdateStatus:'idle',
+    userProfilePhotoUpdateStatus:'idle',
     organizations:[],
     isSignedIn:true,
     registerFormData:{
@@ -120,7 +130,10 @@ const authSlice = createSlice({
             state.orgUpdateStatus=action.payload
         },
         setUserCoverPhotoStatus(state, action){
-            state.orgUpdateStatus=action.payload
+            state.userCoverPhotoUpdateStatus=action.payload
+        },
+        setUserProfilePhotoStatus(state, action){
+            state.userProfilePhotoUpdateStatus=action.payload
         }
     },
     extraReducers(builder){
@@ -132,7 +145,7 @@ const authSlice = createSlice({
             state.userStatus='error'
         })
         .addCase(fetchUserData.fulfilled,(state,action)=>{
-            state.user=action.payload;
+            state.user=action.payload.data;
             state.userStatus='success'
         })
         .addCase(createOrganization.pending,(state)=>{
@@ -188,7 +201,19 @@ const authSlice = createSlice({
         })
         .addCase(updateUserCoverPhoto.fulfilled,(state,action)=>{
             console.log(action.payload,'updated cover photo')
-            
+            state.user.user.coverPictureUrl=action.payload.url;
+            state.userCoverPhotoUpdateStatus='success'
+        })
+        .addCase(updateUserProfilePhoto.pending,(state)=>{
+            state.userProfilePhotoUpdateStatus='pending'
+        })
+        .addCase(updateUserProfilePhoto.rejected,(state)=>{
+            state.userProfilePhotoUpdateStatus='error'
+        })
+        .addCase(updateUserProfilePhoto.fulfilled,(state,action)=>{
+            console.log(action.payload,'updated profile photo')
+            state.user.user.profilePictureUrl=action.payload.url;
+            state.userProfilePhotoUpdateStatus='success'
         })
     }
 })
