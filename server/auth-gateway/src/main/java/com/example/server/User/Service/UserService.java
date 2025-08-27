@@ -3,7 +3,6 @@ package com.example.server.User.Service;
 import com.example.server.User.DTO.ForwardProfileRequest;
 import com.example.server.User.DTO.Profile;
 import com.example.server.User.DTO.UserDTO;
-import com.example.server.User.repository.OrganizationRepository;
 import com.example.server.resume.DTO.ResumeDataRequest;
 import com.example.server.resume.Proxy.ResumeJsonProxy;
 import com.example.server.security.models.Role;

@@ -111,11 +111,12 @@ public class AuthService {
         user.setName(registerDto.getName());
         user.setEmail(registerDto.getEmail());
         user.setPassword(passwordEncoder.encode((registerDto.getPassword())));
-        Role roles = roleRepository.findByName(registerDto.getRole()).get();
+        Role roles = roleRepository.findByName(registerDto.getRole())
+                .orElseThrow(() -> new IllegalArgumentException("Role not found with name: " + registerDto.getRole()));
         user.setRoles(Collections.singletonList(roles));
         user.setEnabled(true);
 
-        userEntity newUser = userRepository.save(user);
+        userRepository.save(user);
         logger.info("User saved to repository: " + registerDto.getEmail());
 
         String temporaryToken = temporarilyAuthenticate(user);
