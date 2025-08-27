@@ -5,7 +5,8 @@ import { useRef, useState, useEffect } from "react"
 import OrganizationCard from "./OrganizationCard"
 import CreateOrganizationForm from "./CreateOrganizationForm"
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
-import { getAllOrganizations, organizations } from "@/redux/features/auth"
+import { getAllOrganizations, organizations, updateUserCoverPhoto, updateUserProfilePhoto } from "@/redux/features/auth"
+import axios from "axios"
 
 interface propType {
   user:any
@@ -25,13 +26,21 @@ const RecruiterProfileContainer = ({user}:propType) => {
 
   const currentOrganizations = useAppSelector(organizations);
 
-  const handleUploadCoverPhoto = (e:React.ChangeEvent<HTMLInputElement>)=>{
-    setCoverPhoto(e.target.files?.[0]??null)
+  const handleUploadCoverPhoto = async(e:React.ChangeEvent<HTMLInputElement>)=>{
+    const file = e.target.files?.[0]??null;
+    if(!file) return;
+    const newFormData = new FormData();
+    newFormData.append("file", file);
+    dispatch(updateUserCoverPhoto(newFormData))
     
     // cover photo upload logic goes here 
   }
   const handleUploadProfilePhoto = (e:React.ChangeEvent<HTMLInputElement>)=>{
-    setProfilePhoto(e.target.files?.[0]??null)
+    const file = e.target.files?.[0]??null;
+    if(!file) return;
+    const newFormData = new FormData();
+    newFormData.append("file", file);
+    dispatch(updateUserProfilePhoto(newFormData))
     
     // profile photo upload logic goes here 
   }
@@ -70,11 +79,11 @@ const RecruiterProfileContainer = ({user}:propType) => {
         <div className="w-full h-full flex flex-col gap-[10px] overflow-y-scroll scrollbar-hidden">
             <section className='w-full min-h-[400px] bg-slate-900 rounded-xl'>
                 <div className="w-full h-[200px] relative rounded-t-xl">
-                    <Image src={'https://i.pinimg.com/1200x/e6/16/86/e61686f29fc38ad2d539d776fb8adc76.jpg'} alt="cover-photo" width={700} height={300} className="w-full h-full rounded-t-xl object-cover"/>
-                    <div className="absolute bottom-[-25%] left-[5%] w-[150px] h-[150px] rounded-full">
+                    <Image src={user?.user?.coverPictureUrl} alt="cover-photo" width={700} height={300} className="w-full h-full rounded-t-xl object-cover"/>
+                    <div className="absolute bottom-[-25%] left-[5%] w-[150px] h-[150px] rounded-full bg-amber-500">
                         <input ref={profilePhotoRef} type="file" accept="image" hidden onChange={handleUploadProfilePhoto} />
                         <button className="cursor-pointer" onClick={()=>profilePhotoRef.current?.click()}>
-                            <Image src={'https://i.pinimg.com/736x/e4/49/9e/e4499e440ed5c74c105eda233305fcdf.jpg'} alt="profile-photo" width={200} height={200} className="w-full h-full rounded-full object-cover"/>
+                            <Image src={user?.user?.profilePictureUrl} alt="profile-photo" width={100} height={100} className="w-[150px] h-[150px] rounded-full object-cover"/>
                         </button>
                     </div>
                     <div className="absolute top-3 right-4 ">
@@ -119,12 +128,7 @@ const RecruiterProfileContainer = ({user}:propType) => {
                     <Edit3 className="size-4"/>
                   </button>
                 </div>
-                <p className="text-[13px] text-gray-300">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Vitae eos, nesciunt, sunt at ullam reiciendis numquam eius dolor quasi tenetur, 
-                  perspiciatis aperiam deserunt perferendis iure voluptas recusandae exercitationem voluptate doloribus.
-                  Lorem ipsum dolor sit, amet consectetur adipisicing elit. Vitae eos, nesciunt, sunt at ullam reiciendis numquam eius dolor quasi tenetur, 
-                  perspiciatis aperiam deserunt perferendis iure voluptas recusandae exercitationem voluptate doloribus.
-                  Lorem ipsum dolor sit, amet consectetur adipisicing elit. Vitae eos, nesciunt, sunt at ullam reiciendis numquam eius dolor quasi tenetur, 
-                  perspiciatis aperiam deserunt perferendis iure voluptas recusandae exercitationem voluptate doloribus.
+                <p className="text-[13px] text-gray-300">You haven’t added an About section yet. Use this space to introduce yourself, share your background, interests, or anything you’d like others to know about you.
                   </p>
             </section>
             }
