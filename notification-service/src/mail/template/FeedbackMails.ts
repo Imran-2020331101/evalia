@@ -1,7 +1,8 @@
-import { NotificationPayload, InterviewInvitationPayload } from "../types/emailNotifications.type";
+import { InterviewInvitationPayload } from "../types/interview-invitation.payload";
+import { RejectionMailPayload} from "../types/rejection-mail.type"
 
 export const generateRejectionFeedbackEmail = (
-  notification:NotificationPayload
+  notification:RejectionMailPayload
 ): string => {
   const { candidateName, jobTitle, stage, compatibilityReview } = notification;
   const { matchPercentage, fit, strengths, weaknesses } = compatibilityReview;

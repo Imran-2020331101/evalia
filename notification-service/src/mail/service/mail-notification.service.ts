@@ -1,7 +1,8 @@
 import nodemailer from "nodemailer";
-import logger from "../utils/logger";
+import logger from "../../utils/logger";
 import { generateInterviewInvitationMail, generateRejectionFeedbackEmail } from "../template/FeedbackMails";
-import { InterviewInvitationPayload, NotificationPayload } from "../types/emailNotifications.type";
+import { InterviewInvitationPayload} from "../types/interview-invitation.payload";
+import { RejectionMailPayload } from "../types/rejection-mail.type";
 
 interface EmailOptions {
   to: string;
@@ -52,7 +53,7 @@ class EmailNotificationService {
     }
   }
 
-  async sendRejectionMail(notification: NotificationPayload): Promise<boolean> {
+  async sendRejectionMail(notification: RejectionMailPayload): Promise<boolean> {
     return await this.sendMail({
         to: notification.candidateEmail,
         subject: `Update on your Application for the job `,
