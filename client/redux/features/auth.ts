@@ -229,4 +229,5 @@ export const orgFetchStatus = (state:RootState) => state.auth.orgFetchStatus;
 export const orgUpdateStatus = (state:RootState) => state.auth.orgUpdateStatus;
 export const orgDeleteStatus = (state:RootState) => state.auth.orgDeleteStatus;
 export const userCoverPhotoUpdateStatus = (state:RootState) => state.auth.userCoverPhotoUpdateStatus;
+export const userProfilePhotoUpdateStatus = (state:RootState) => state.auth.userProfilePhotoUpdateStatus;
 export const isSignedIn = (state:RootState) =>state.auth.isSignedIn;
