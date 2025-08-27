@@ -5,9 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class OrganizationCreateDTO {
+public class OrganizationCreateRequest {
 
-    @NotBlank
+    @NotBlank(message = "Organization name is required")
     private String organizationName;
 
     private String organizationNameBangla;
@@ -18,15 +18,15 @@ public class OrganizationCreateDTO {
 
     private String numberOfEmployees;
 
-    @NotBlank
+    @NotBlank(message = "Organization address is required")
     private String organizationAddress;
 
     private String organizationAddressBangla;
 
-    @NotBlank
+    @NotBlank(message = "Type of the Organization is required")
     private String industryType;
 
-    @NotBlank
+    @NotBlank(message = "Description of the Organization is required")
     private String businessDescription;
 
     private String businessLicenseNo;

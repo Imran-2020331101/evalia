@@ -20,6 +20,6 @@ public interface ResumeJsonProxy {
     @PostMapping(value = "/basic-search", consumes = MediaType.APPLICATION_JSON_VALUE)
     String basicSearchResume(@RequestBody BasicSearchRequest basicSearchRequest);
 
-    @PostMapping(value = "/get-resume", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/retrieve", consumes = MediaType.APPLICATION_JSON_VALUE)
     String getResumeByEmail(@RequestBody ForwardProfileRequest email);
 }
