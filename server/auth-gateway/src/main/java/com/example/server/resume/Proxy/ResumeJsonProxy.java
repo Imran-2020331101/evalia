@@ -5,6 +5,7 @@ import com.example.server.resume.DTO.BasicSearchRequest;
 import com.example.server.resume.DTO.ResumeForwardWrapper;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -20,6 +21,6 @@ public interface ResumeJsonProxy {
     @PostMapping(value = "/basic-search", consumes = MediaType.APPLICATION_JSON_VALUE)
     String basicSearchResume(@RequestBody BasicSearchRequest basicSearchRequest);
 
-    @PostMapping(value = "/retrieve", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/retrieve", consumes = MediaType.APPLICATION_JSON_VALUE)
     String getResumeByEmail(@RequestBody ForwardProfileRequest email);
 }
