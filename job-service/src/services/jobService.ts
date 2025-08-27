@@ -95,7 +95,7 @@ class jobService{
       jobs: IJobDetailsDocument[];
       pagination: Pagination;
     }> {
-      const query = { "company.id": organizationId };
+      const query = { "company.OrganizationId": organizationId };
       const skip = (page - 1) * limit;
 
       const [jobs, totalCount] = await Promise.all([

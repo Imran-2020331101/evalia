@@ -21,6 +21,7 @@ export class JobController {
    * @route POST /api/jobs
    */
   async createJob(req: Request, res: Response): Promise<void> {
+
     
     console.log(req.body)
 
@@ -221,7 +222,7 @@ export class JobController {
       const { status } = req.body;
 
       // Validate status
-      const validStatuses = ['draft', 'active', 'paused', 'closed', 'filled'];
+      const validStatuses = ['DRAFT', 'ACTIVE', 'FILLED', 'ARCHIVED', 'DELETED'];
       if (!validStatuses.includes(status)) {
         res.status(400).json({
           success: false,
