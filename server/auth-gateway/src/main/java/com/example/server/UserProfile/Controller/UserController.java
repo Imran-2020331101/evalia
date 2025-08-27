@@ -1,10 +1,11 @@
-package com.example.server.User.Controller;
+package com.example.server.UserProfile.Controller;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.example.server.User.DTO.ForwardProfileRequest;
-import com.example.server.User.DTO.Profile;
-import com.example.server.User.Service.UserService;
+import com.example.server.UserProfile.DTO.ForwardProfileRequest;
+import com.example.server.UserProfile.DTO.Profile;
+import com.example.server.UserProfile.DTO.UserDTO;
+import com.example.server.UserProfile.Service.UserService;
 import com.example.server.resume.DTO.ResumeDataRequest;
 import com.example.server.resume.Proxy.ResumeJsonProxy;
 import com.example.server.security.models.userEntity;
@@ -65,9 +66,9 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<?> getAuthenticatedUserProfile(Principal principal) {
+    public ResponseEntity<?> getCandidateProfile(Principal principal) {
         try {
-            Profile profile = userService.obtainUserProfileFromResume(principal.getName());
+            Profile profile = userService.obtainCandidateProfileFromResume(principal.getName());
             return ResponseEntity.status(HttpStatus.OK).body(Map.of(
                     "success", true,
                     "data", profile
@@ -80,6 +81,20 @@ public class UserController {
                             "data", "Failed to retrieve resume: " + e.getMessage()
                     ));
         }
+    }
+
+    /*
+    * TODO: Assess the necessity of this endpoint.
+     */
+    @GetMapping("/Recruiters/profile")
+    public ResponseEntity<?> getRecruitersProfile(Principal principal) {
+
+        UserDTO user = userService.getUserByEmail(principal.getName());
+
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of(
+                "success", true,
+                "data",       user
+        ));
     }
 
     @PostMapping("/image/upload")
