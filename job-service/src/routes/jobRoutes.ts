@@ -9,8 +9,8 @@ router.post("/", jobController.createJob.bind(jobController));
 router.get("/:jobId", jobController.getJobById.bind(jobController));
 router.put("/:jobId/status", jobController.updateJobStatus.bind(jobController));
 router.delete("/:jobId", jobController.deleteJob.bind(jobController));
-router.get("/company/:OrganizationId", jobController.getJobsByCompany.bind(jobController));
-router.delete("/company/:OrganizationId", jobController.deleteAllJobsOfAnOrganization.bind(jobController));
+router.get("/organization/:OrganizationId", jobController.getAllJobsOfAnOrganization.bind(jobController));
+router.delete("/organization/:OrganizationId", jobController.deleteAllJobsOfAnOrganization.bind(jobController));
 
 
 router.post("/apply",jobController.applyToJob.bind(jobController));
