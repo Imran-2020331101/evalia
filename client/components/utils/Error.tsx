@@ -40,7 +40,7 @@ const Error=()=> {
       <button
         ref={buttonRef}
         onClick={() => router.push('/')}
-        className="px-6 py-3 rounded-2xl bg-red-600 hover:bg-red-700 transition-colors font-semibold text-lg shadow-lg"
+        className="px-6 py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 transition-colors font-semibold text-lg shadow-lg"
       >
         Go Back Home
       </button>
