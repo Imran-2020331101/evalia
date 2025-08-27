@@ -1,8 +1,8 @@
-package com.example.server.User.Service;
+package com.example.server.UserProfile.Service;
 
-import com.example.server.User.DTO.OrganizationUpdateDTO;
-import com.example.server.User.models.OrganizationEntity;
-import com.example.server.User.repository.OrganizationRepository;
+import com.example.server.UserProfile.DTO.OrganizationUpdateDTO;
+import com.example.server.UserProfile.models.OrganizationEntity;
+import com.example.server.UserProfile.repository.OrganizationRepository;
 import com.example.server.security.models.userEntity;
 import com.example.server.security.repository.UserRepository;
 import org.bson.types.ObjectId;
