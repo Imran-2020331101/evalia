@@ -5,8 +5,9 @@ import { useRef, useState, useEffect } from "react"
 import OrganizationCard from "./OrganizationCard"
 import CreateOrganizationForm from "./CreateOrganizationForm"
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
-import { getAllOrganizations, organizations, updateUserCoverPhoto, updateUserProfilePhoto } from "@/redux/features/auth"
+import { getAllOrganizations, organizations, updateUserCoverPhoto, updateUserProfilePhoto, userCoverPhotoUpdateStatus, userProfilePhotoUpdateStatus } from "@/redux/features/auth"
 import axios from "axios"
+import { ClipLoader } from "react-spinners"
 
 interface propType {
   user:any
@@ -25,6 +26,8 @@ const RecruiterProfileContainer = ({user}:propType) => {
   const dispatch = useAppDispatch()
 
   const currentOrganizations = useAppSelector(organizations);
+  const currentCoverPhotoStatus = useAppSelector(userCoverPhotoUpdateStatus)
+  const currentProfilePhotoStatus = useAppSelector(userProfilePhotoUpdateStatus)
 
   const handleUploadCoverPhoto = async(e:React.ChangeEvent<HTMLInputElement>)=>{
     const file = e.target.files?.[0]??null;
@@ -79,11 +82,21 @@ const RecruiterProfileContainer = ({user}:propType) => {
         <div className="w-full h-full flex flex-col gap-[10px] overflow-y-scroll scrollbar-hidden">
             <section className='w-full min-h-[400px] bg-slate-900 rounded-xl'>
                 <div className="w-full h-[200px] relative rounded-t-xl">
+                  {
+                    currentCoverPhotoStatus==='pending'?<div className="absolute top-0 left-0 w-full h-full bg-gray-900/70 flex justify-center items-center">
+                      <ClipLoader size={30} color="white"/>
+                    </div>:null
+                  }
                     <Image src={user?.user?.coverPictureUrl} alt="cover-photo" width={700} height={300} className="w-full h-full rounded-t-xl object-cover"/>
-                    <div className="absolute bottom-[-25%] left-[5%] w-[150px] h-[150px] rounded-full bg-amber-500">
+                    <div className="absolute bottom-[-25%] left-[5%] w-[150px] h-[150px] rounded-full">
                         <input ref={profilePhotoRef} type="file" accept="image" hidden onChange={handleUploadProfilePhoto} />
-                        <button className="cursor-pointer" onClick={()=>profilePhotoRef.current?.click()}>
-                            <Image src={user?.user?.profilePictureUrl} alt="profile-photo" width={100} height={100} className="w-[150px] h-[150px] rounded-full object-cover"/>
+                        <button className="cursor-pointer rounded-full relative w-full h-full" onClick={()=>profilePhotoRef.current?.click()} >
+                          {
+                            currentProfilePhotoStatus==='pending'?<div className="absolute top-0 left-0 w-full h-full rounded-full bg-gray-900/70 flex justify-center items-center">
+                              <ClipLoader size={30} color="white"/>
+                            </div>:null
+                          }
+                            <Image src={user?.user?.profilePictureUrl} alt="profile-photo" width={100} height={100} className=" w-full h-full rounded-full object-cover"/>
                         </button>
                     </div>
                     <div className="absolute top-3 right-4 ">
@@ -95,11 +108,11 @@ const RecruiterProfileContainer = ({user}:propType) => {
                     </div>
                 </div>
                 <div className="flex-1 w-full pt-[7%] pl-[7%] flex flex-col">
-                    <p className="text-xl font-semibold text-gray-200">Matt Murdock</p>
+                    <p className="text-xl font-semibold text-gray-200">{user?.user?.name}</p>
                     <div className="w-full min-h-[80px] flex justify-between items-start">
                     <div className="w-[60%] h-auto">
                         <p className="w-full max-h-[40px] text-[13px] flex justify-start items-start overflow-hidden text-gray-400">Final-Year CS Undergrad | Full-Stack Web Developer</p>
-                        <p className="w-full max-h-[40px] text-[13px] flex justify-start  overflow-hidden text-gray-400 items-center"><span> {`📍 Sylhet, Bangladesh`}</span> <span className="text-2xl font-bold m-1 mt-[-8px]">.</span> <span>{`✉️ matt1223@gmail.com`}</span></p>
+                        <p className="w-full max-h-[40px] text-[13px] flex justify-start  overflow-hidden text-gray-400 items-center"><span> {`📍 Sylhet, Bangladesh`}</span> <span className="text-2xl font-bold m-1 mt-[-8px]">.</span> <span>{user?.user?.email}</span></p>
                     </div>
                     </div>
                 </div>
