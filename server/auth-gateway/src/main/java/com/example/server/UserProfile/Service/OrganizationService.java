@@ -1,6 +1,7 @@
 package com.example.server.UserProfile.Service;
 
 import com.example.server.UserProfile.DTO.OrganizationUpdateDTO;
+import com.example.server.UserProfile.exception.OrganizationNotFoundException;
 import com.example.server.UserProfile.models.OrganizationEntity;
 import com.example.server.UserProfile.repository.OrganizationRepository;
 import com.example.server.security.models.userEntity;
@@ -50,7 +51,7 @@ public class OrganizationService {
 
     public OrganizationEntity getOrganizationById(String id) {
         return organizationRepository.findById(new ObjectId(id))
-                .orElseThrow(() -> new UsernameNotFoundException("Organization not found with ID: " + id));
+                .orElseThrow(() -> new OrganizationNotFoundException("Organization not found with ID: " + id));
     }
 
     /**

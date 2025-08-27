@@ -17,19 +17,19 @@ public class JobCreationRequest {
     private CompanyInfo companyInfo;
 
     @Valid
-    @NotNull
+    @NotNull(message = "Basic info must be provided")
     private BasicInfo basic;
 
-    @NotEmpty
     @Valid
+    @NotEmpty(message = "At least one requirement must be provided")
     private List<DomainItemDto> requirements;
 
-    @NotEmpty
     @Valid
+    @NotEmpty(message = "At least one responsibility must be provided")
     private List<DomainItemDto> responsibilities;
 
-    @NotEmpty
     @Valid
+    @NotEmpty(message = "At least one skill must be provided")
     private List<DomainItemDto> skills;
 
     @Valid
@@ -49,16 +49,16 @@ public class JobCreationRequest {
     @AllArgsConstructor
     @Builder
     public static class BasicInfo {
-        @NotBlank
         @Size(max = 200)
+        @NotBlank(message = "Job title must not be blank")
         private String title;
 
-        @NotBlank
         @Size(max = 5000)
+        @NotBlank(message = "Job description must not be blank")
         private String jobDescription;
 
-        @NotBlank
         @Size(max = 100)
+        @NotBlank(message = "Job location must not be blank")
         private String jobLocation;
 
         @Min(0)
@@ -67,14 +67,14 @@ public class JobCreationRequest {
         @Min(0)
         private Integer salaryTo;
 
-        @NotNull
         @JsonFormat(pattern = "yyyy-MM-dd")
+        @NotNull(message = "Application deadline must be provided")
         private LocalDate deadline;
 
-        @NotNull
+        @NotNull(message = "Job type must be provided")
         private JobType jobType;
 
-        @NotNull
+        @NotNull(message = "Workplace type must be provided")
         private WorkplaceType workPlaceType;
 
         @NotNull
@@ -91,13 +91,13 @@ public class JobCreationRequest {
     @AllArgsConstructor
     @Builder
     public static class DomainItemDto {
-        @NotBlank
+        @NotBlank(message = "Type must not be blank")
         private String type;
 
-        @NotBlank
+        @NotBlank(message = "Category must not be blank")
         private String category;
 
-        @NotBlank
+        @NotBlank(message = "Description must not be blank")
         private String description;
     }
 

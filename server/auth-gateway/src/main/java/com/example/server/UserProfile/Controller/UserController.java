@@ -3,6 +3,7 @@ package com.example.server.UserProfile.Controller;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.example.server.UserProfile.DTO.ForwardProfileRequest;
+import com.example.server.UserProfile.DTO.ImageUploadResponse;
 import com.example.server.UserProfile.DTO.Profile;
 import com.example.server.UserProfile.DTO.UserDTO;
 import com.example.server.UserProfile.Service.UserService;
@@ -123,32 +124,28 @@ public class UserController {
     }
 
     @PostMapping("/update/profile-photo")
-    public ResponseEntity<Map<String, Object>> uploadUserProfilePhoto(@RequestParam("file") MultipartFile file,
+    public ResponseEntity<?> uploadUserProfilePhoto(@RequestParam("file") MultipartFile file,
                                                                       Principal principal) {
 
         try {
             String url = userService.updateUserProfilePicture(file, principal.getName());
 
-            return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "profilePhotoUrl", url
-            ));
+            return ResponseEntity.ok(
+                    new ImageUploadResponse(true,url));
         } catch (IOException e) {
             return ResponseEntity.status(500).body(Map.of("success", false, "error", e.getMessage()));
         }
     }
 
     @PostMapping("/update/cover-photo")
-    public ResponseEntity<Map<String, Object>> uploadUserCoverPhoto(@RequestParam("file") MultipartFile file,
+    public ResponseEntity<?> uploadUserCoverPhoto(@RequestParam("file") MultipartFile file,
                                                                     Principal principal) {
 
         try {
             String url = userService.updateUserCoverPicture(file, principal.getName());
 
-            return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "coverPhotoUrl", url
-            ));
+            return ResponseEntity.ok(
+                    new ImageUploadResponse(true, url));
         } catch (IOException e) {
             return ResponseEntity.status(500).body(Map.of("success", false, "error", e.getMessage()));
         }

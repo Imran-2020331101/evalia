@@ -1,5 +1,6 @@
 package com.example.server.security.Service;
 
+import com.example.server.exception.CustomExceptions.UserNotFoundException;
 import com.example.server.security.models.userEntity;
 import com.example.server.security.repository.UserRepository;
 import org.bson.types.ObjectId;
@@ -22,7 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UserNotFoundException {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Email not found"));
     }

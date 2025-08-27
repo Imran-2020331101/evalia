@@ -34,14 +34,8 @@ public class OrganizationController {
 
     @GetMapping("/{OrganizationId}")
     public ResponseEntity<?> getOrganizationByOrganizationId(@PathVariable String OrganizationId) {
-        try {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(organizationService.getOrganizationById(OrganizationId));
-        } catch (Exception e) {
-            logger.severe("Error retrieving organization profile: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to retrieve organization profile: " + e.getMessage());
-        }
     }
 
 
