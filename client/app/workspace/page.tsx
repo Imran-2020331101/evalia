@@ -4,10 +4,19 @@ import workspace from '../../public/workspace.png'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { SplitText } from 'gsap/all'
+import { useEffect } from 'react'
+import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks'
+import { fetchUserData, getAllOrganizations, organizations, user } from '@/redux/features/auth'
 
 gsap.registerPlugin(SplitText)
 
 const workSpacePage = () => {
+
+  const dispatch = useAppDispatch()
+
+  const currentUser = useAppSelector(user)
+  const currentOrganizations = useAppSelector(organizations)
+
   useGSAP(()=>{
     const logo = document.getElementById('logo');
     const description = document.getElementById('description')
@@ -16,6 +25,12 @@ const workSpacePage = () => {
     gsap.fromTo('#logo',{opacity:0, yPercent:50},{yPercent:0, opacity:1, duration:1.8, ease:'expo.out'})
     gsap.fromTo(descriptionSplit.lines,{opacity:0, xPercent:-20}, {xPercent:0, opacity:1, duration:1.8, ease:'expo.out',stagger:0.3, delay:0.4})
   },[])
+
+  useEffect(()=>{
+    if(!currentUser) dispatch(fetchUserData())
+    if(!currentOrganizations.length) dispatch(getAllOrganizations())
+  },[])
+
   return (
     <div className='w-full h-full flex flex-col justify-center items-center gap-3'>
         <Image id='logo' src={workspace} alt="workspace" className='w-[130px] h-auto' />
