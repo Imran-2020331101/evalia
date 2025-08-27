@@ -64,22 +64,44 @@ export async function POST(request: NextRequest) {
     }
 
     // Handle successful response - could be JSON or plain text
-    let result
+    let data
     const contentType = backendResponse.headers.get('content-type')
     
     if (contentType && contentType.includes('application/json')) {
-      result = await backendResponse.json()
+      data = await backendResponse.json()
     } else {
       // Handle plain text response like "User registered success!"
       const textResponse = await backendResponse.text()
-      result = { message: textResponse }
+      data = JSON.parse(textResponse)
+      // result = { message: textResponse }
     }
 
-    return NextResponse.json({
-      success: true,
-      message: result.message || 'Registration successful',
-      data: result.data || null
-    })
+    const nextResponse = NextResponse.json({
+        success: true,
+      })
+        if (data.accessToken) {
+        nextResponse.cookies.set('token', data.accessToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 24 * 60 * 60, // 24 hours
+          path: '/',
+        })
+        
+        nextResponse.cookies.set('tokenType', data.tokenType || 'Bearer', {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 24 * 60 * 60,
+          path: '/',
+        })
+      }
+    return nextResponse;
+    // return NextResponse.json({
+    //   success: true,
+    //   // message: result.message || 'Registration successful',
+    //   // data: result.data || null
+    // })
 
   } catch (error) {
     console.error('Registration error:', error)

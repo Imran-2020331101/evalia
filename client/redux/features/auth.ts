@@ -49,6 +49,14 @@ export const fetchUserData = createAsyncThunk('auth/fetchUserData', async(_,thun
         return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed fetching user data' })
     }
 })
+export const updateUserCoverPhoto = createAsyncThunk('auth/updateUserCoverPhoto',async(formData:any,thunkAPI)=>{
+    try {
+        const response = await axios.post('http://localhost:8080/api/user/update/profile-photo',formData,{withCredentials:true})
+        return response.data;
+    } catch (error:any) {
+        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed updating user cover photo' })
+    }
+})
 
 type statusType = 'idle'|'pending'|'error'|'success';
 interface initialStateType {
@@ -59,6 +67,7 @@ interface initialStateType {
     orgFetchStatus:statusType,
     orgDeleteStatus:statusType,
     orgUpdateStatus:statusType,
+    userCoverPhotoUpdateStatus:statusType,
     organizations : any[], // type will be updated
     registerFormData:{
         name:string,
@@ -75,6 +84,7 @@ const initialState :initialStateType={
     orgFetchStatus:'idle',
     orgDeleteStatus:'idle',
     orgUpdateStatus:'idle',
+    userCoverPhotoUpdateStatus:'idle',
     organizations:[],
     isSignedIn:true,
     registerFormData:{
@@ -107,6 +117,9 @@ const authSlice = createSlice({
             state.orgDeleteStatus=action.payload
         },
         setOrgUpdateStatus(state, action){
+            state.orgUpdateStatus=action.payload
+        },
+        setUserCoverPhotoStatus(state, action){
             state.orgUpdateStatus=action.payload
         }
     },
@@ -167,6 +180,16 @@ const authSlice = createSlice({
             })
             state.orgUpdateStatus='success'
         })
+        .addCase(updateUserCoverPhoto.pending,(state)=>{
+            state.userCoverPhotoUpdateStatus='pending'
+        })
+        .addCase(updateUserCoverPhoto.rejected,(state)=>{
+            state.userCoverPhotoUpdateStatus='error'
+        })
+        .addCase(updateUserCoverPhoto.fulfilled,(state,action)=>{
+            console.log(action.payload,'updated cover photo')
+            
+        })
     }
 })
 
@@ -180,4 +203,5 @@ export const orgCreationStatus = (state:RootState) => state.auth.orgCreationStat
 export const orgFetchStatus = (state:RootState) => state.auth.orgFetchStatus;
 export const orgUpdateStatus = (state:RootState) => state.auth.orgUpdateStatus;
 export const orgDeleteStatus = (state:RootState) => state.auth.orgDeleteStatus;
+export const userCoverPhotoUpdateStatus = (state:RootState) => state.auth.userCoverPhotoUpdateStatus;
 export const isSignedIn = (state:RootState) =>state.auth.isSignedIn;

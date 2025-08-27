@@ -5,7 +5,8 @@ import { useRef, useState, useEffect } from "react"
 import OrganizationCard from "./OrganizationCard"
 import CreateOrganizationForm from "./CreateOrganizationForm"
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
-import { getAllOrganizations, organizations } from "@/redux/features/auth"
+import { getAllOrganizations, organizations, updateUserCoverPhoto } from "@/redux/features/auth"
+import axios from "axios"
 
 interface propType {
   user:any
@@ -25,8 +26,12 @@ const RecruiterProfileContainer = ({user}:propType) => {
 
   const currentOrganizations = useAppSelector(organizations);
 
-  const handleUploadCoverPhoto = (e:React.ChangeEvent<HTMLInputElement>)=>{
-    setCoverPhoto(e.target.files?.[0]??null)
+  const handleUploadCoverPhoto = async(e:React.ChangeEvent<HTMLInputElement>)=>{
+    const file = e.target.files?.[0]??null;
+    if(!file) return;
+    const newFormData = new FormData();
+    newFormData.append("file", file);
+    dispatch(updateUserCoverPhoto(newFormData))
     
     // cover photo upload logic goes here 
   }
@@ -119,12 +124,7 @@ const RecruiterProfileContainer = ({user}:propType) => {
                     <Edit3 className="size-4"/>
                   </button>
                 </div>
-                <p className="text-[13px] text-gray-300">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Vitae eos, nesciunt, sunt at ullam reiciendis numquam eius dolor quasi tenetur, 
-                  perspiciatis aperiam deserunt perferendis iure voluptas recusandae exercitationem voluptate doloribus.
-                  Lorem ipsum dolor sit, amet consectetur adipisicing elit. Vitae eos, nesciunt, sunt at ullam reiciendis numquam eius dolor quasi tenetur, 
-                  perspiciatis aperiam deserunt perferendis iure voluptas recusandae exercitationem voluptate doloribus.
-                  Lorem ipsum dolor sit, amet consectetur adipisicing elit. Vitae eos, nesciunt, sunt at ullam reiciendis numquam eius dolor quasi tenetur, 
-                  perspiciatis aperiam deserunt perferendis iure voluptas recusandae exercitationem voluptate doloribus.
+                <p className="text-[13px] text-gray-300">You haven’t added an About section yet. Use this space to introduce yourself, share your background, interests, or anything you’d like others to know about you.
                   </p>
             </section>
             }
