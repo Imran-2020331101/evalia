@@ -92,7 +92,7 @@ export type JobDetails = z.infer<typeof JobDetailsSchema>;
 // Request schemas for API endpoints
 export const CreateJobRequestSchema = z.object({
   companyInfo: z.object({
-    organizationId: z.string().min(1),
+    organizationId: z.string(),
     organizationEmail: z.string(),  
   }),
   basic: z.object({

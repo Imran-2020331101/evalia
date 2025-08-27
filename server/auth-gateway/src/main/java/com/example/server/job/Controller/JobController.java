@@ -46,14 +46,15 @@ public class JobController {
                                             @RequestBody JobCreationRequest jobCreationRequest,
                                                          Principal principal ) {
         try {
-            logger.info(" Job creation request received from user: " + principal.getName() +
-                             " For the Organization: " + jobCreationRequest.getCompanyInfo().getOrganizationId());
 
-            if(jobCreationRequest.getCompanyInfo() == null){
+            logger.info("Requirement list :" + jobCreationRequest.getRequirements());
                 jobCreationRequest.setCompanyInfo(
                         new JobCreationRequest.CompanyInfo(OrganizationId, principal.getName()));
-            }
-            
+
+
+            logger.info(" Job creation request received from user: " + principal.getName() +
+                             " For the Organization: " + jobCreationRequest.getCompanyInfo());
+
             String response = jobProxy.createJob(jobCreationRequest);
 
             return ResponseEntity.status(HttpStatus.OK)
