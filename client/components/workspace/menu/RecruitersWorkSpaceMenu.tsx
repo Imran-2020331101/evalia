@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Plus, Grid2X2,ChevronDown, ChevronUp, Dot, Frown } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks";
 import { selectedOrgId, setSelectedOrgId } from "@/redux/features/job";
-import { organizations } from "@/redux/features/auth";
+import { organizations, user } from "@/redux/features/auth";
 
 const majorMono = Major_Mono_Display({ weight: '400', subsets: ['latin'] });
 
@@ -15,6 +15,7 @@ const majorMono = Major_Mono_Display({ weight: '400', subsets: ['latin'] });
 const RecruitersWorkSpaceMenu = () => {
     const [organizationToOpen, setOrganizationToOpen]=useState<string|null>(null)
     const currentOrganizations = useAppSelector(organizations)
+    const currentUser = useAppSelector(user)
 
     const dispatch = useAppDispatch()
     const currentSelectedOrgId = useAppSelector(selectedOrgId)
@@ -57,7 +58,7 @@ const RecruitersWorkSpaceMenu = () => {
       <div className="w-full h-auto flex justify-start items-end ">
         <Link href={'/profile'} className="flex items-center gap-2 cursor-pointer">
           <p className="px-2 py-1 rounded-sm bg-gray-600 text-sm">AJ</p>
-          <p className="text-gray-300 lowercase">ajoad</p>
+          <p className="text-gray-300 lowercase">{currentUser?.user?.name}</p>
         </Link>
       </div>
     </div>

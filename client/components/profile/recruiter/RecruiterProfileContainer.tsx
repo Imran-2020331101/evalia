@@ -80,7 +80,7 @@ const RecruiterProfileContainer = ({user}:propType) => {
             <section className='w-full min-h-[400px] bg-slate-900 rounded-xl'>
                 <div className="w-full h-[200px] relative rounded-t-xl">
                     <Image src={user?.user?.coverPictureUrl} alt="cover-photo" width={700} height={300} className="w-full h-full rounded-t-xl object-cover"/>
-                    <div className="absolute bottom-[-25%] left-[5%] w-[150px] h-[150px] rounded-full bg-amber-500">
+                    <div className="absolute bottom-[-25%] left-[5%] w-[150px] h-[150px] rounded-full">
                         <input ref={profilePhotoRef} type="file" accept="image" hidden onChange={handleUploadProfilePhoto} />
                         <button className="cursor-pointer" onClick={()=>profilePhotoRef.current?.click()}>
                             <Image src={user?.user?.profilePictureUrl} alt="profile-photo" width={100} height={100} className="w-[150px] h-[150px] rounded-full object-cover"/>

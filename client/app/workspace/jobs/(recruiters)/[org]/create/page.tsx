@@ -1,9 +1,11 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import CreateJobForm from '@/components/workspace/recruiters/jobs/create/CreateJobForm'
 import PreviewCreatedJob from '@/components/workspace/recruiters/jobs/create/PreviewCreatedJob'
 import { domainType, interviewQAStateType, basicStateType, JobType, WorkPlaceType, EmploymentLevelType } from '@/types/create-job'
 import Switch from '@mui/material/Switch'
+import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks'
+import { getJobsByOrganization, selectedOrgId } from '@/redux/features/job'
 
 const CreateJobPage = () => {
   const [basicState, setBasicState] = useState<basicStateType>({
@@ -26,6 +28,16 @@ const CreateJobPage = () => {
   const [skills, setSkills]=useState<domainType[]>([]);
   const [interviewQA, setInterviewQA] = useState<interviewQAStateType[]>([]);
 
+  const dispatch = useAppDispatch()
+
+  const currentSelectedOrgId = useAppSelector(selectedOrgId)
+
+  useEffect(()=>{
+    if(!currentSelectedOrgId) return;
+    dispatch(getJobsByOrganization(currentSelectedOrgId))
+  },[currentSelectedOrgId])
+
+  if(!currentSelectedOrgId) return null;
   return (
     <div className='w-full h-full flex justify-center relative'>
       <button onClick={()=>setIsShowPreview((prev)=>!prev)} className="absolute right-3 top-2 z-30 cursor-pointer group">
