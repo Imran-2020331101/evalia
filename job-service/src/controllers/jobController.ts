@@ -77,7 +77,7 @@ export class JobController {
    * Get all the jobs posted by an Organization with pagination and filtering
    * @route GET /api/jobs/company/:companyName
    */
-  async getJobsByCompany(req: Request, res: Response): Promise<void> {
+  async getAllJobsOfAnOrganization(req: Request, res: Response): Promise<void> {
     try {
       const { OrganizationId } = req.params;
 
