@@ -22,6 +22,8 @@ export class JobController {
    */
   async createJob(req: Request, res: Response): Promise<void> {
     
+    console.log(req.body)
+
     const validationResult = CreateJobRequestSchema.safeParse(req.body);
     
     if (!validationResult.success) {

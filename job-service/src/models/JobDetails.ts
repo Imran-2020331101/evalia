@@ -120,7 +120,7 @@ JobDetailsMongooseSchema.virtual('salaryRange').get(function () {
 
 // Instance methods
 JobDetailsMongooseSchema.methods.isActive = function () {
-  return this.status === 'active' && new Date() < this.deadline;
+  return this.status === 'ACTIVE' && new Date() < this.deadline;
 };
 
 JobDetailsMongooseSchema.methods.getRequirementsByImportance = function (importance: ImportanceLevel) {
@@ -133,7 +133,7 @@ JobDetailsMongooseSchema.methods.getSkillsByImportance = function (importance: I
 
 // Static methods
 JobDetailsMongooseSchema.statics.findByFilters = function (filters) {
-  const query: any = { status: 'active' };
+  const query: any = { status: 'ACTIVE' };
   if (filters.jobType) query.jobType = filters.jobType;
   if (filters.workPlaceType) query.workPlaceType = filters.workPlaceType;
   if (filters.employmentLevel) query.employmentLevel = filters.employmentLevel;
