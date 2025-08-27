@@ -57,7 +57,7 @@ const RecruitersWorkSpaceMenu = () => {
       </div>
       <div className="w-full h-auto flex justify-start items-end ">
         <Link href={'/profile'} className="flex items-center gap-2 cursor-pointer">
-          <p className="px-2 py-1 rounded-sm bg-gray-600 text-sm">AJ</p>
+          <p className="px-2 py-1 rounded-sm bg-gray-600 text-sm uppercase">{currentUser?.user?.name.slice(0,2)}</p>
           <p className="text-gray-300 lowercase">{currentUser?.user?.name}</p>
         </Link>
       </div>
