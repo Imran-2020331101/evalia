@@ -1,8 +1,9 @@
-package com.example.server.User.Service;
+package com.example.server.UserProfile.Service;
 
-import com.example.server.User.DTO.ForwardProfileRequest;
-import com.example.server.User.DTO.Profile;
-import com.example.server.User.DTO.UserDTO;
+import com.example.server.UserProfile.DTO.ForwardProfileRequest;
+import com.example.server.UserProfile.DTO.Profile;
+import com.example.server.UserProfile.DTO.UserDTO;
+import com.example.server.exception.CustomExceptions.UserNotFoundException;
 import com.example.server.resume.DTO.ResumeDataRequest;
 import com.example.server.resume.Proxy.ResumeJsonProxy;
 import com.example.server.security.models.Role;
@@ -77,7 +78,12 @@ public class UserService {
         dto.setEmail(user.getEmail());
         dto.setEmailVerified(user.isEmailVerified());
         dto.setHasResume(user.isHasResume());
+        dto.setResumeUrl(user.getResumeUrl());
         dto.setProvider(user.getProvider());
+        dto.setProfilePictureUrl(user.getProfilePictureUrl());
+        dto.setCoverPictureUrl(user.getCoverPictureUrl());
+        dto.setHasAnyOrganization(user.isHasAnyOrganization());
+        dto.setOrganizations(user.getOrganizationId());
 
         List<String> roleNames = user.getRoles()
                 .stream()
@@ -88,14 +94,23 @@ public class UserService {
         return dto;
     }
 
-    public Profile obtainUserProfileFromResume(String name) throws IOException {
+    public Profile obtainCandidateProfileFromResume(String name) throws IOException {
         userEntity user              = userRepository.findByEmail(name)
-                                            .orElseThrow(() -> new UsernameNotFoundException("Email not found"));
+                                            .orElseThrow(() -> new UserNotFoundException("User not found with email: " + name));
+        if(!user.isHasResume()){
+            return new Profile(null, toUserDTO(user));
+        }
         String jsonResponse          = resumeJsonProxy.getResumeByEmail(new ForwardProfileRequest(user.getEmail()));
         ObjectMapper mapper          = new ObjectMapper();
         ResumeDataRequest resumeData = mapper.readValue(jsonResponse, ResumeDataRequest.class);
 
         return new Profile(resumeData, toUserDTO(user));
+    }
 
+    public UserDTO getUserByEmail(String email) {
+
+        userEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
+        return toUserDTO(user);
     }
 }

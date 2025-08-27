@@ -1,4 +1,4 @@
-package com.example.server.User.DTO;
+package com.example.server.UserProfile.DTO;
 
 import lombok.Data;
 import org.bson.types.ObjectId;
@@ -12,7 +12,12 @@ public class UserDTO {
     private String email;
     private List<String> roles;
     private boolean emailVerified;
+    private String profilePictureUrl;
+    private String coverPictureUrl;
     private boolean hasResume;
+    private String resumeUrl;
+    private boolean hasAnyOrganization;
+    private List<String> organizations;
     private String provider;
 }
 

@@ -1,6 +1,6 @@
-package com.example.server.User.repository;
+package com.example.server.UserProfile.repository;
 
-import com.example.server.User.models.OrganizationEntity;
+import com.example.server.UserProfile.models.OrganizationEntity;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
