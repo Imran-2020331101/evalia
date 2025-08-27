@@ -2,7 +2,9 @@ package com.example.server.UserProfile.Service;
 
 import com.example.server.UserProfile.DTO.ForwardProfileRequest;
 import com.example.server.UserProfile.DTO.Profile;
+import com.example.server.UserProfile.DTO.UpdateUserProfileRequest;
 import com.example.server.UserProfile.DTO.UserDTO;
+import com.example.server.exception.CustomExceptions.ResourceNotFoundException;
 import com.example.server.exception.CustomExceptions.UserNotFoundException;
 import com.example.server.resume.DTO.ResumeDataRequest;
 import com.example.server.resume.Proxy.ResumeJsonProxy;
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -59,7 +63,7 @@ public class UserService {
 
     public String updateUserCoverPicture(MultipartFile file, String email) throws IOException {
         userEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
         String imageUrl = cloudinaryService.uploadImageToCloudinary(file, "cover_photos");
         user.setCoverPictureUrl(imageUrl);
         userRepository.save(user);
@@ -105,6 +109,35 @@ public class UserService {
         ResumeDataRequest resumeData = mapper.readValue(jsonResponse, ResumeDataRequest.class);
 
         return new Profile(resumeData, toUserDTO(user));
+    }
+
+    public userEntity updateUserProfile(UpdateUserProfileRequest updateDTO, String email) {
+        userEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+
+        try {
+            Field[] fields = UpdateUserProfileRequest.class.getDeclaredFields();
+            for (Field field : fields) {
+                field.setAccessible(true);
+                Object value = field.get(updateDTO);
+                if (value != null) {
+                    try {
+                        Field entityField = userEntity.class.getDeclaredField(field.getName());
+                        entityField.setAccessible(true);
+                        entityField.set(user, value);
+                    } catch (NoSuchFieldException ignore) {
+                        logger.warning("Skipping unknown field: " + field.getName());
+                    }
+                }
+            }
+
+            user.setUpdatedAt(LocalDateTime.now());
+
+            return userRepository.save(user);
+        } catch (Exception e) {
+            logger.severe("Error updating user profile: " + e.getMessage());
+            throw new RuntimeException("Failed to update user profile", e);
+        }
     }
 
     public UserDTO getUserByEmail(String email) {
