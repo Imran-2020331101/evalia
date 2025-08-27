@@ -5,7 +5,7 @@ import { useRef, useState, useEffect } from "react"
 import OrganizationCard from "./OrganizationCard"
 import CreateOrganizationForm from "./CreateOrganizationForm"
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
-import { getAllOrganizations, organizations, updateUserCoverPhoto } from "@/redux/features/auth"
+import { getAllOrganizations, organizations, updateUserCoverPhoto, updateUserProfilePhoto } from "@/redux/features/auth"
 import axios from "axios"
 
 interface propType {
@@ -36,7 +36,11 @@ const RecruiterProfileContainer = ({user}:propType) => {
     // cover photo upload logic goes here 
   }
   const handleUploadProfilePhoto = (e:React.ChangeEvent<HTMLInputElement>)=>{
-    setProfilePhoto(e.target.files?.[0]??null)
+    const file = e.target.files?.[0]??null;
+    if(!file) return;
+    const newFormData = new FormData();
+    newFormData.append("file", file);
+    dispatch(updateUserProfilePhoto(newFormData))
     
     // profile photo upload logic goes here 
   }
@@ -75,11 +79,11 @@ const RecruiterProfileContainer = ({user}:propType) => {
         <div className="w-full h-full flex flex-col gap-[10px] overflow-y-scroll scrollbar-hidden">
             <section className='w-full min-h-[400px] bg-slate-900 rounded-xl'>
                 <div className="w-full h-[200px] relative rounded-t-xl">
-                    <Image src={'https://i.pinimg.com/1200x/e6/16/86/e61686f29fc38ad2d539d776fb8adc76.jpg'} alt="cover-photo" width={700} height={300} className="w-full h-full rounded-t-xl object-cover"/>
-                    <div className="absolute bottom-[-25%] left-[5%] w-[150px] h-[150px] rounded-full">
+                    <Image src={user?.user?.coverPictureUrl} alt="cover-photo" width={700} height={300} className="w-full h-full rounded-t-xl object-cover"/>
+                    <div className="absolute bottom-[-25%] left-[5%] w-[150px] h-[150px] rounded-full bg-amber-500">
                         <input ref={profilePhotoRef} type="file" accept="image" hidden onChange={handleUploadProfilePhoto} />
                         <button className="cursor-pointer" onClick={()=>profilePhotoRef.current?.click()}>
-                            <Image src={'https://i.pinimg.com/736x/e4/49/9e/e4499e440ed5c74c105eda233305fcdf.jpg'} alt="profile-photo" width={200} height={200} className="w-full h-full rounded-full object-cover"/>
+                            <Image src={user?.user?.profilePictureUrl} alt="profile-photo" width={100} height={100} className="w-[150px] h-[150px] rounded-full object-cover"/>
                         </button>
                     </div>
                     <div className="absolute top-3 right-4 ">

@@ -1,5 +1,6 @@
 import DynamicBreadcrumbs from "@/components/ui/dynamicBreadCrumb";
 import CandidatesWorkSpaceMenu from "@/components/workspace/menu/CandidatesWorkSpaceMenu";
+import MenuContainer from "@/components/workspace/menu/MenuContainer";
 import RecruitersWorkSpaceMenu from "@/components/workspace/menu/RecruitersWorkSpaceMenu";
 import CandidateProfilePreview from "@/components/workspace/modals/CandidateProfilePreview";
 import JobPreview from "@/components/workspace/modals/JobPreview";
@@ -11,11 +12,7 @@ const WorkSpaceLayout = ({ children }: Readonly<{ children: React.ReactNode }>) 
       <CandidateProfilePreview/>
       <div className="flex w-full h-full bg-gray-950/90 min-h-0">
         {/* Sidebar */}
-        <section className="h-full w-[240px]">
-          {/* <CandidatesWorkSpaceMenu /> */}
-          <RecruitersWorkSpaceMenu/>
-        </section>
-
+        <MenuContainer/>
         {/* Main content */}
         <section className="flex-1 h-full mr-[20px] py-[15px]  bg-gray-950/90  min-h-0">
           <div className="h-full w-full flex flex-col border border-gray-800">
