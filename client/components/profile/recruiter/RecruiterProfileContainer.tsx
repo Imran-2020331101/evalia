@@ -95,11 +95,11 @@ const RecruiterProfileContainer = ({user}:propType) => {
                     </div>
                 </div>
                 <div className="flex-1 w-full pt-[7%] pl-[7%] flex flex-col">
-                    <p className="text-xl font-semibold text-gray-200">Matt Murdock</p>
+                    <p className="text-xl font-semibold text-gray-200">{user?.user?.name}</p>
                     <div className="w-full min-h-[80px] flex justify-between items-start">
                     <div className="w-[60%] h-auto">
                         <p className="w-full max-h-[40px] text-[13px] flex justify-start items-start overflow-hidden text-gray-400">Final-Year CS Undergrad | Full-Stack Web Developer</p>
-                        <p className="w-full max-h-[40px] text-[13px] flex justify-start  overflow-hidden text-gray-400 items-center"><span> {`📍 Sylhet, Bangladesh`}</span> <span className="text-2xl font-bold m-1 mt-[-8px]">.</span> <span>{`✉️ matt1223@gmail.com`}</span></p>
+                        <p className="w-full max-h-[40px] text-[13px] flex justify-start  overflow-hidden text-gray-400 items-center"><span> {`📍 Sylhet, Bangladesh`}</span> <span className="text-2xl font-bold m-1 mt-[-8px]">.</span> <span>{user?.user?.email}</span></p>
                     </div>
                     </div>
                 </div>
