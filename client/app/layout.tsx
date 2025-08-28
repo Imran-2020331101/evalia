@@ -5,6 +5,7 @@ import NavBar from "@/components/nav/NavBar";
 import HamburgerMenu from "@/components/modal/HamburgerMenu";
 import {Toaster} from 'sonner'
 import NotificationListener from "@/components/notification/NotificationListener";
+import ProgressBar from "@/components/utils/ProgressBar";
 
 export const metadata: Metadata = {
   title: "EVALIA",
@@ -22,6 +23,7 @@ export default function RootLayout({
         <ReduxProvider>
           <main className="w-screen h-screen bg-neutral-950 text-neutral-100 ">
               <NavBar/>
+              <ProgressBar/>
               <HamburgerMenu/>
               <Toaster richColors expand={false} visibleToasts={3} position='bottom-center'/>
               <NotificationListener />

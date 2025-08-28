@@ -6,6 +6,7 @@ import { domainType, interviewQAStateType, basicStateType, JobType, WorkPlaceTyp
 import Switch from '@mui/material/Switch'
 import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks'
 import { getJobsByOrganization, selectedOrgId } from '@/redux/features/job'
+import { useRouter } from 'next/navigation'
 
 const CreateJobPage = () => {
   const [basicState, setBasicState] = useState<basicStateType>({
@@ -29,6 +30,7 @@ const CreateJobPage = () => {
   const [interviewQA, setInterviewQA] = useState<interviewQAStateType[]>([]);
 
   const dispatch = useAppDispatch()
+  const router = useRouter()
 
   const currentSelectedOrgId = useAppSelector(selectedOrgId)
 

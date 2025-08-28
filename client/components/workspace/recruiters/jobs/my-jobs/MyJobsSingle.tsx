@@ -1,26 +1,19 @@
 'use client'
 import Image from "next/image"
 import { useEffect , useState} from "react"
-import { DotLoader } from "react-spinners"
+import { ScaleLoader } from "react-spinners"
 import { useAppSelector } from "@/redux/lib/hooks"
 import { myJobs } from "@/redux/features/job"
+import axios from "axios"
+import { organizations } from "@/redux/features/auth"
 
-const MyJobsSingle = ({jobId}:{jobId:string}) => {
-    const [localStatus, setLocalStatus]=useState<'pending'|'success'|'error'>('pending')
-
-    const myCurrentJobs = useAppSelector(myJobs)
-    const job:any = myCurrentJobs.find((item:any)=>item.jobId===jobId)
-
-    if (!job && localStatus==='pending') {
-        return (
-        <div className="w-full h-full flex items-center justify-center">
-            <DotLoader size={40} color="white"/>
-        </div>
-        );
-    }
- 
-  const {title,jobDescription,employmentLevel,deadline,interviewQA,jobLocation,jobType,requirements,responsibilities,skills,status,workPlaceType,salary, createdAt}=job
-  useEffect(()=>console.log(myCurrentJobs, jobId, 'testing,.'), [])
+const MyJobsSingle = ({job}:{job:any}) => {
+    useEffect(()=>{console.log(job, 'in job preview')})
+     
+  const {title,jobDescription,employmentLevel,deadline,interviewQA,jobLocation,jobType,requirements,responsibilities,skills,status,workPlaceType,salary, createdAt, company}=job
+  const currentOrganizations = useAppSelector(organizations)
+  const organization = currentOrganizations.find(item=>item.id===company.OrganizationId)
+//   useEffect(()=>console.log(myCurrentJobs, jobId, 'testing,.'), [])
   return (
     <div className={` w-full h-full relative tracking-wider `}>
       <div className="w-full h-full backdrop-blur-2xl z-10 flex justify-center overflow-hidden ">
@@ -28,13 +21,12 @@ const MyJobsSingle = ({jobId}:{jobId:string}) => {
             <div className="w-full h-auto flex flex-col justify-start items-start ">
                 <section className="w-[60%] h-auto flex justify-start items-start gap-4">
                     <div className="w-[80px] h-[70px] rounded-xl ">
-                        <Image className="w-full h-full rounded-xl object-cover" width={150} height={120} src={'https://i.pinimg.com/1200x/59/7f/11/597f11b631d7d94492f1adb95110cc44.jpg'} alt="company logo" />
+                        <Image className="w-full h-full rounded-xl object-cover" width={150} height={120} src={organization.organizationProfileImageUrl||''} alt="company logo" />
                     </div>
                     <div className="flex-1 h-auto flex flex-col items-start ">
-                        <p className="font-semibold tracking-widest">Google</p>
+                        <p className="font-semibold tracking-widest">{organization.organizationName}</p>
                         <p className="w-full h-[40px] overflow-hidden text-[13px] text-gray-300">
-                            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ex iusto quos temporibus quia consequatur,
-                             laudantium inventore? Aliquam, voluptatibus in nisi ex doloremque id blanditiis iusto placeat ut sapiente, inventore minus.
+                            {organization.businessDescription}
                         </p>
                     </div>
                 </section>
@@ -44,12 +36,11 @@ const MyJobsSingle = ({jobId}:{jobId:string}) => {
                         <p className="text-[13px]">{`${salary.from}$ - ${salary.to}$`}</p><p>{` | `}</p>
                         <p className="text-[13px]">{workPlaceType}</p><p>{` | `}</p>
                         <p className="text-[13px]">{employmentLevel}</p><p>{` | `}</p>
-                        <p className="text-[13px]">{jobType}</p><p>{` | `}</p>
-                        <p className="text-[13px]">{deadline}</p>
+                        <p className="text-[13px]">{jobType}</p>
                     </div>
                     <div className="w-full overflow-hidden flex justify-start items-center gap-2 text-gray-300">
                         <p className="text-[13px]">{`Posted : ${'2 days ago'} `}</p><p>{` . `}</p>
-                        <p className="text-[13px]">{`Application Deadline : `}<span className="text-red-500">{'10-08-2025'}</span></p>
+                        <p className="text-[13px]">{`Application Deadline : `}<span className="text-red-500">{deadline}</span></p>
                     </div>
                 </section>
                 <section className="w-full h-auto flex flex-col justify-start items-start mt-6 text-gray-100 gap-2">

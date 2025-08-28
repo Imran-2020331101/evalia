@@ -5,6 +5,7 @@ import { useParams , usePathname} from "next/navigation"
 
 const MyJobSingleNavbar = () => {
   const {id} = useParams()
+  const path = usePathname()
   const pathList = usePathname().split('/').filter(Boolean)
   const currentRoute = pathList[pathList.length-1];
   return (
