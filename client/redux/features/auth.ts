@@ -187,10 +187,9 @@ const authSlice = createSlice({
             state.orgUpdateStatus='error'
         })
         .addCase(updateOrganization.fulfilled,(state,action)=>{
-            console.log(action.payload,'updated org')
-            state.organizations.map((item)=>{
-                if(item.id===action.payload.id) item=action.payload
-            })
+            const newOrganizations = state.organizations.filter((item)=>item.id!==action.payload.data.id)
+            newOrganizations.push(action.payload.data)
+            state.organizations=newOrganizations;
             state.orgUpdateStatus='success'
         })
         .addCase(updateUserCoverPhoto.pending,(state)=>{
