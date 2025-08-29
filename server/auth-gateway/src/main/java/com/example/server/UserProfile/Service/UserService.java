@@ -82,11 +82,7 @@ public class UserService {
         dto.setEmail(user.getEmail());
         dto.setEmailVerified(user.isEmailVerified());
 
-        List<String> roleNames = user.getRoles()
-                .stream()
-                .map(Role::getName)
-                .collect(Collectors.toList());
-        dto.setRoles(roleNames);
+
 
         dto.setBio(user.getBio());
         dto.setLocation(user.getLocation());
@@ -98,7 +94,11 @@ public class UserService {
         dto.setHasAnyOrganization(user.isHasAnyOrganization());
         dto.setOrganizations(user.getOrganizationId());
         dto.setProvider(user.getProvider());
-
+        List<String> roleNames = user.getRoles()
+                .stream()
+                .map(Role::getName)
+                .collect(Collectors.toList());
+        dto.setRoles(roleNames);
 
         return dto;
     }
