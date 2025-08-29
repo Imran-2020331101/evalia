@@ -2,10 +2,12 @@
 
 import Image from "next/image"
 
-import { useAppDispatch } from "@/redux/lib/hooks"
+import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
 import TitleParagraphSkeleton from "@/components/ui/TitleParagraphSkeleton"
 import { useEffect, useState } from "react"
 import { domainType, basicStateType, interviewQAStateType } from "@/types/create-job"
+import { organizations } from "@/redux/features/auth"
+import { selectedOrgId } from "@/redux/features/job"
 
 interface propType{
   requirement:domainType[],
@@ -18,8 +20,12 @@ interface propType{
 const PreviewCreatedJob = ({requirement, responsibilities, skills, basicState, interviewQA}:propType) => {
     const {title, jobDescription, jobLocation, salaryFrom, salaryTo, deadline, jobType, employmentLevelType, workPlaceType}= basicState
     const [isShowJobPreview, setIsShowJobPreview]=useState(true)
-    useEffect(()=>console.log(interviewQA, 'interviewQA'))
-  return (
+
+    const currentOrganizations = useAppSelector(organizations)
+    const currentSelectedOrgId = useAppSelector(selectedOrgId)
+
+    const organization = currentOrganizations.find((item)=>item.id===currentSelectedOrgId);
+    return (
     <div className={` w-full h-full relative tracking-wider border-l-[1px] border-gray-700`}>
       <div className="absolute left-0 top-0 w-full h-[50px] backdrop-blur-md z-20 flex justify-center items-end pb-[8px] gap-2 text-[13px] font-bold">
         <button onClick={()=>setIsShowJobPreview(true)} className={`cursor-pointer hover:text-blue-500 ${isShowJobPreview?'text-blue-500':''}`}>Job Preview</button>
@@ -31,13 +37,12 @@ const PreviewCreatedJob = ({requirement, responsibilities, skills, basicState, i
             <div className="w-full h-auto flex flex-col justify-start items-start ">
                 <section className="w-[60%] h-auto flex justify-start items-start gap-4">
                     <div className="w-[80px] h-[70px] rounded-xl ">
-                        <Image className="w-full h-full rounded-xl object-cover" width={150} height={120} src={'https://i.pinimg.com/1200x/59/7f/11/597f11b631d7d94492f1adb95110cc44.jpg'} alt="company logo" />
+                        <Image className="w-full h-full rounded-xl object-cover" width={150} height={120} src={organization?organization.organizationProfileImageUrl:''} alt="company logo" />
                     </div>
                     <div className="flex-1 h-auto flex flex-col items-start ">
-                        <p className="font-semibold tracking-widest">Google</p>
+                        <p className="font-semibold tracking-widest">{organization?organization.organizationName:''}</p>
                         <p className="w-full h-[40px] overflow-hidden text-[13px] text-gray-300">
-                            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ex iusto quos temporibus quia consequatur,
-                             laudantium inventore? Aliquam, voluptatibus in nisi ex doloremque id blanditiis iusto placeat ut sapiente, inventore minus.
+                            {organization?organization.businessDescription:''}
                         </p>
                     </div>
                 </section>
