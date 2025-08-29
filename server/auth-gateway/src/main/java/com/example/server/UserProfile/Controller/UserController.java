@@ -112,7 +112,7 @@ public class UserController {
     @PatchMapping("/update/details")
     public ResponseEntity<?> updateUserProfile( @RequestBody UpdateUserProfileRequest dto,
                                                  Principal principal) {
-        userEntity user =  userService.updateUserProfile(dto, principal.getName());
+        UserDTO user =  userService.updateUserProfile(dto, principal.getName());
         return ResponseEntity.ok(Map.of(
                 "success", true,
                 "data", user));

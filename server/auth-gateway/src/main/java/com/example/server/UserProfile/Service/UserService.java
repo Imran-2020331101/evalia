@@ -24,29 +24,27 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-
 @Service
 public class UserService {
 
-    private static final Logger logger  = Logger.getLogger(UserService.class.getName());
-    private final UserRepository          userRepository;
-    private final ResumeJsonProxy         resumeJsonProxy;
-    private final CloudinaryService       cloudinaryService;
+    private static final Logger logger = Logger.getLogger(UserService.class.getName());
+    private final UserRepository userRepository;
+    private final ResumeJsonProxy resumeJsonProxy;
+    private final CloudinaryService cloudinaryService;
 
-    public UserService(UserRepository          userRepository,
-                       ResumeJsonProxy         resumeJsonProxy,
-                       CloudinaryService       cloudinaryService) {
+    public UserService(UserRepository userRepository,
+            ResumeJsonProxy resumeJsonProxy,
+            CloudinaryService cloudinaryService) {
 
-        this.userRepository         =  userRepository;
-        this.resumeJsonProxy        =  resumeJsonProxy;
-        this.cloudinaryService     =  cloudinaryService;
+        this.userRepository = userRepository;
+        this.resumeJsonProxy = resumeJsonProxy;
+        this.cloudinaryService = cloudinaryService;
     }
 
     public userEntity loadUserById(String id) {
         return userRepository.findById(new ObjectId(id))
                 .orElseThrow(() -> new UsernameNotFoundException("Email not found"));
     }
-
 
     public void saveUpdatedUser(userEntity user) {
         userRepository.save(user);
@@ -72,7 +70,8 @@ public class UserService {
 
     /**
      * Hides the userEntity's sensitive information and returns a UserDTO.
-     * This method is useful for sending user data in API responses without exposing sensitive fields.
+     * This method is useful for sending user data in API responses without exposing
+     * sensitive fields.
      * It maps the fields from the userEntity to the UserDTO, including roles.
      */
     public UserDTO toUserDTO(userEntity user) {
@@ -81,8 +80,6 @@ public class UserService {
         dto.setName(user.getName());
         dto.setEmail(user.getEmail());
         dto.setEmailVerified(user.isEmailVerified());
-
-
 
         dto.setBio(user.getBio());
         dto.setLocation(user.getLocation());
@@ -94,6 +91,7 @@ public class UserService {
         dto.setHasAnyOrganization(user.isHasAnyOrganization());
         dto.setOrganizations(user.getOrganizationId());
         dto.setProvider(user.getProvider());
+
         List<String> roleNames = user.getRoles()
                 .stream()
                 .map(Role::getName)
@@ -104,19 +102,19 @@ public class UserService {
     }
 
     public Profile obtainCandidateProfileFromResume(String name) throws IOException {
-        userEntity user              = userRepository.findByEmail(name)
-                                            .orElseThrow(() -> new UserNotFoundException("User not found with email: " + name));
-        if(!user.isHasResume()){
+        userEntity user = userRepository.findByEmail(name)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + name));
+        if (!user.isHasResume()) {
             return new Profile(null, toUserDTO(user));
         }
-        String jsonResponse          = resumeJsonProxy.getResumeByEmail(new ForwardProfileRequest(user.getEmail()));
-        ObjectMapper mapper          = new ObjectMapper();
+        String jsonResponse = resumeJsonProxy.getResumeByEmail(new ForwardProfileRequest(user.getEmail()));
+        ObjectMapper mapper = new ObjectMapper();
         ResumeDataRequest resumeData = mapper.readValue(jsonResponse, ResumeDataRequest.class);
 
         return new Profile(resumeData, toUserDTO(user));
     }
 
-    public userEntity updateUserProfile(UpdateUserProfileRequest updateDTO, String email) {
+    public UserDTO updateUserProfile(UpdateUserProfileRequest updateDTO, String email) {
         userEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
 
@@ -138,7 +136,8 @@ public class UserService {
 
             user.setUpdatedAt(LocalDateTime.now());
 
-            return userRepository.save(user);
+            userEntity updatedUser = userRepository.save(user);
+            return toUserDTO(updatedUser);
         } catch (Exception e) {
             logger.severe("Error updating user profile: " + e.getMessage());
             throw new RuntimeException("Failed to update user profile", e);
