@@ -145,6 +145,9 @@ const authSlice = createSlice({
         },
         setUserProfilePhotoStatus(state, action){
             state.userProfilePhotoUpdateStatus=action.payload
+        },
+        setUserBasicInfoUpdateStatus(state, action){
+            state.userBasicInfoUpdateStatus=action.payload
         }
     },
     extraReducers(builder){
@@ -156,6 +159,7 @@ const authSlice = createSlice({
             state.userStatus='error'
         })
         .addCase(fetchUserData.fulfilled,(state,action)=>{
+            console.log(action.payload,'user data fetched');
             state.user=action.payload.data;
             state.userStatus='success'
         })
@@ -240,7 +244,7 @@ const authSlice = createSlice({
 })
 
 export default authSlice.reducer;
-export const {setFormData, setOrgCreationStatus, setOrgFetchStatus,setOrgUpdateStatus}= authSlice.actions;
+export const {setFormData, setOrgCreationStatus, setOrgFetchStatus,setOrgUpdateStatus, setUserBasicInfoUpdateStatus}= authSlice.actions;
 export const currentFormData = (state:RootState)=>state.auth.registerFormData
 export const user = (state:RootState) => state.auth.user;
 export const userStatus = (state:RootState) => state.auth.userStatus;

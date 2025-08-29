@@ -5,7 +5,7 @@ import { useRef, useState, useEffect } from "react"
 import OrganizationCard from "./OrganizationCard"
 import CreateOrganizationForm from "./CreateOrganizationForm"
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
-import { getAllOrganizations, organizations, updateUserCoverPhoto, updateUserData, updateUserProfilePhoto, userCoverPhotoUpdateStatus, userProfilePhotoUpdateStatus } from "@/redux/features/auth"
+import { getAllOrganizations, organizations, setUserBasicInfoUpdateStatus, updateUserCoverPhoto, updateUserData, updateUserProfilePhoto, userBasicInfoUpdateStatus, userCoverPhotoUpdateStatus, userProfilePhotoUpdateStatus } from "@/redux/features/auth"
 import axios from "axios"
 import { ClipLoader } from "react-spinners"
 
@@ -33,6 +33,7 @@ const RecruiterProfileContainer = ({user}:propType) => {
   const currentOrganizations = useAppSelector(organizations);
   const currentCoverPhotoStatus = useAppSelector(userCoverPhotoUpdateStatus)
   const currentProfilePhotoStatus = useAppSelector(userProfilePhotoUpdateStatus)
+  const currentUserBasicInfoUpdateStatus = useAppSelector(userBasicInfoUpdateStatus)
 
   const handleBasicInfoChange = (e: React.ChangeEvent<HTMLInputElement>|React.ChangeEvent<HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -89,6 +90,11 @@ const RecruiterProfileContainer = ({user}:propType) => {
     console.log(user,'currentUser')
     if(!currentOrganizations.length)dispatch(getAllOrganizations())
   },[])
+  useEffect(()=>{
+    if(currentUserBasicInfoUpdateStatus==='success') {
+      setIsEditBasicInfo(false); setIsAboutEdit(false); dispatch(setUserBasicInfoUpdateStatus('idle'));
+    }
+  },[currentUserBasicInfoUpdateStatus])
   return (
     <div className="w-full h-full bg-gray-950/80 flex items-start justify-center pt-[10px]">
       <div className="w-[65%] ml-[5%] h-full flex p-[6px] gap-[13px]">
@@ -183,10 +189,11 @@ const RecruiterProfileContainer = ({user}:propType) => {
                       {/* Buttons */}
                       <div className="flex gap-3 mt-4">
                         <button
+                          disabled={currentUserBasicInfoUpdateStatus==='pending'?true:false}
                           type="submit"
                           className="flex-1 py-2 flex justify-center items-center gap-2 rounded-md cursor-pointer bg-green-700 hover:bg-green-600 text-white font-medium"
                         >
-                          Save Changes
+                          {currentUserBasicInfoUpdateStatus==='pending'?<ClipLoader size={17} color="white"/> :'Save Changes'}
                         </button>
                         <button
                           onClick={() => setIsEditBasicInfo(false)}
@@ -211,7 +218,7 @@ const RecruiterProfileContainer = ({user}:propType) => {
                       <label htmlFor="about" className="absolute left-1 top-[-14px] px-4 py-1 rounded-lg bg-slate-900 text-gray-300 text-[15px] font-semibold ">
                           <div className="flex gap-2">
                             <p>Edit About</p>
-                            <button onClick={handleSaveEditedAbout}>
+                            <button onClick={handleBasicInfoSubmit}>
                               <Save className="size-4 cursor-pointer"/>
                             </button>
                           </div>

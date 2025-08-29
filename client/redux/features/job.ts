@@ -27,7 +27,7 @@ export const getJobsByOrganization  = createAsyncThunk('job/getJobsByOrganizatio
 
 export const deleteJob = createAsyncThunk('job/deleteJob', async(jobId:string, thunkAPI)=>{
     try {
-        const response = await axios.get(`http://localhost:8080/api/job/${jobId}`,{withCredentials:true})
+        const response = await axios.delete(`http://localhost:8080/api/job/${jobId}`,{withCredentials:true})
         console.log(response, 'delete job')
         return jobId;
     } catch (error:any) {
