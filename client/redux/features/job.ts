@@ -25,6 +25,16 @@ export const getJobsByOrganization  = createAsyncThunk('job/getJobsByOrganizatio
     }
 })
 
+export const deleteJob = createAsyncThunk('job/deleteJob', async(jobId:string, thunkAPI)=>{
+    try {
+        const response = await axios.get(`http://localhost:8080/api/job/${jobId}`,{withCredentials:true})
+        console.log(response, 'delete job')
+        return jobId;
+    } catch (error:any) {
+        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed deleting job' })
+    }
+})
+
 type statusType = 'idle' | 'pending' | 'success' | 'error';
 interface initialStateType {
     createJobStatus: statusType,
@@ -71,6 +81,10 @@ const jobSlice = createSlice({
             state.myJobs=action.payload.data.jobs;
             console.log(action.payload.data, 'inside fetch  job...'); 
             state.fetchJobStatus='success'
+        })
+        .addCase(deleteJob.fulfilled,(state,action)=>{
+            const newJobs = state.myJobs.filter((item:any)=>item._id!==action.payload)
+            state.myJobs=newJobs;
         })
     }
 })

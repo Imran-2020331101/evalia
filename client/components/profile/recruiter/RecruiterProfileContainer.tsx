@@ -17,11 +17,16 @@ const RecruiterProfileContainer = ({user}:propType) => {
   const coverPhotoRef = useRef<null|HTMLInputElement>(null)
   const profilePhotoRef = useRef<null|HTMLInputElement>(null)
 
+  const[isEditBasicInfo, setIsEditBasicInfo]=useState<boolean>(false);
   const[isEditAbout, setIsAboutEdit]=useState<boolean>(false);
   const [isCreateNewOrg, setIsCreateNewOrg] = useState<boolean>(false);
 
-  const [coverPhoto, setCoverPhoto] = useState<File | null>(null)
-  const [profilePhoto, setProfilePhoto] = useState<File | null>(null)
+  const [form, setForm] = useState({
+    name: user?.user?.name||'',
+    title: user?.user?.bio || '',
+    location:user?.user?.location||'',
+    about:user?.user?.aboutMe||''
+  });
 
   const dispatch = useAppDispatch()
 
@@ -29,6 +34,14 @@ const RecruiterProfileContainer = ({user}:propType) => {
   const currentCoverPhotoStatus = useAppSelector(userCoverPhotoUpdateStatus)
   const currentProfilePhotoStatus = useAppSelector(userProfilePhotoUpdateStatus)
 
+  const handleBasicInfoChange = (e: React.ChangeEvent<HTMLInputElement>|React.ChangeEvent<HTMLTextAreaElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleBasicInfoSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Updated Profile:", form);
+  };
   const handleUploadCoverPhoto = async(e:React.ChangeEvent<HTMLInputElement>)=>{
     const file = e.target.files?.[0]??null;
     if(!file) return;
@@ -80,7 +93,7 @@ const RecruiterProfileContainer = ({user}:propType) => {
       <div className="w-[65%] ml-[5%] h-full flex p-[6px] gap-[13px]">
         {/* <div className="w-[30%] h-full bg-red-600"></div> */}
         <div className="w-full h-full flex flex-col gap-[10px] overflow-y-scroll scrollbar-hidden">
-            <section className='w-full min-h-[400px] bg-slate-900 rounded-xl'>
+            <section className='w-full h-auto bg-slate-900 rounded-xl'>
                 <div className="w-full h-[200px] relative rounded-t-xl">
                   {
                     currentCoverPhotoStatus==='pending'?<div className="absolute top-0 left-0 w-full h-full bg-gray-900/70 flex justify-center items-center">
@@ -108,20 +121,91 @@ const RecruiterProfileContainer = ({user}:propType) => {
                     </div>
                 </div>
                 <div className="flex-1 w-full pt-[7%] pl-[7%] flex flex-col">
-                    <p className="text-xl font-semibold text-gray-200">{user?.user?.name}</p>
+                  {!isEditBasicInfo?<>
+                    <p className="text-xl font-semibold text-gray-200 flex items-center gap-2">{user?.user?.name} <button onClick={()=>setIsEditBasicInfo(true)} className="cursor-pointer"><Edit3 size={15} color="white"/></button></p>
                     <div className="w-full min-h-[80px] flex justify-between items-start">
                     <div className="w-[60%] h-auto">
-                        <p className="w-full max-h-[40px] text-[13px] flex justify-start items-start overflow-hidden text-gray-400">Final-Year CS Undergrad | Full-Stack Web Developer</p>
-                        <p className="w-full max-h-[40px] text-[13px] flex justify-start  overflow-hidden text-gray-400 items-center"><span> {`📍 Sylhet, Bangladesh`}</span> <span className="text-2xl font-bold m-1 mt-[-8px]">.</span> <span>{user?.user?.email}</span></p>
+                        <p className="w-full max-h-[40px] text-[13px] flex justify-start items-start overflow-hidden text-gray-400">{user?.user?.bio?user.user.bio:'No bio found, make a short bio'}</p>
+                        <p className="w-full max-h-[40px] text-[13px] flex justify-start  overflow-hidden text-gray-400 items-center"><span> {user?.user?.location?`📍${user.user.location}`:'No location found, set you location'}</span> <span className="text-2xl font-bold m-1 mt-[-8px]">.</span> <span>{user?.user?.email}</span></p>
                     </div>
                     </div>
+                  </>
+                  :<form
+                      onSubmit={handleBasicInfoSubmit}
+                      className="flex flex-col gap-4 w-full pr-[7%] pb-[7%] bg-slate-900 rounded-xl "
+                    >
+                      {/* Full Name */}
+                      <div>
+                        <label htmlFor="name" className="block text-sm text-gray-400 mb-1">
+                          Full Name
+                        </label>
+                        <input
+                          id="name"
+                          name="name"
+                          value={form.name}
+                          onChange={handleBasicInfoChange}
+                          className="w-full p-2 rounded bg-gray-800 text-white text-sm focus:ring-2 focus:ring-blue-500"
+                          placeholder="e.g. John Doe"
+                        />
+                      </div>
+
+                      {/* Title */}
+                      <div>
+                        <label htmlFor="title" className="block text-sm text-gray-400 mb-1">
+                          Title / Position
+                        </label>
+                        <input
+                          id="title"
+                          name="title"
+                          value={form.title}
+                          onChange={handleBasicInfoChange}
+                          className="w-full p-2 rounded bg-gray-800 text-white text-sm focus:ring-2 focus:ring-blue-500"
+                          placeholder="e.g. Software Engineer"
+                        />
+                      </div>
+
+                      {/* Location */}
+                      <div>
+                        <label htmlFor="location" className="block text-sm text-gray-400 mb-1">
+                          Location
+                        </label>
+                        <input
+                          id="location"
+                          name="location"
+                          value={form.location}
+                          onChange={handleBasicInfoChange}
+                          className="w-full p-2 rounded bg-gray-800 text-white text-sm focus:ring-2 focus:ring-blue-500"
+                          placeholder="e.g. Dhaka, Bangladesh"
+                        />
+                      </div>
+
+                      {/* Buttons */}
+                      <div className="flex gap-3 mt-4">
+                        <button
+                          type="submit"
+                          className="flex-1 py-2 flex justify-center items-center gap-2 rounded-md cursor-pointer bg-green-700 hover:bg-green-600 text-white font-medium"
+                        >
+                          Save Changes
+                        </button>
+                        <button
+                          onClick={() => setIsEditBasicInfo(false)}
+                          type="button"
+                          className="flex-1 py-2 flex justify-center items-center gap-2 rounded-md cursor-pointer bg-gray-700 hover:bg-gray-600 text-white font-medium"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+
+                  }
+                    
                 </div>
             </section>
             {
               isEditAbout?
               <section className="w-full min-h-[200px] bg-slate-900 rounded-xl p-[14px] pl-[7%] pt-[25px]">
                   <div className="w-full h-full relative">
-                      <textarea name="" id="about" className="focus:border-2 focus:border-gray-600 w-full h-full rounded-xl border border-gray-800 outline-none focus:right-1 focus:ring-gray-400 scroll-container p-[14px] text-[13px] text-gray-300">
+                      <textarea value={form.about} onChange={handleBasicInfoChange} name="about" id="about" className="focus:border-2 focus:border-gray-600 w-full h-full rounded-xl border border-gray-800 outline-none focus:right-1 focus:ring-gray-400 scroll-container p-[14px] text-[13px] text-gray-300">
                       </textarea>
                       <label htmlFor="about" className="absolute left-1 top-[-14px] px-4 py-1 rounded-lg bg-slate-900 text-gray-300 text-[15px] font-semibold ">
                           <div className="flex gap-2">
@@ -141,7 +225,7 @@ const RecruiterProfileContainer = ({user}:propType) => {
                     <Edit3 className="size-4"/>
                   </button>
                 </div>
-                <p className="text-[13px] text-gray-300">You haven’t added an About section yet. Use this space to introduce yourself, share your background, interests, or anything you’d like others to know about you.
+                <p className="text-[13px] text-gray-300">{user?.user?.aboutMe?user.user.aboutMe:'You haven’t added an About section yet. Use this space to introduce yourself, share your background, interests, or anything you’d like others to know about you.'}
                   </p>
             </section>
             }
