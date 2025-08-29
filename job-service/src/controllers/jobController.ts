@@ -291,7 +291,7 @@ export class JobController {
 
       logger.info("Job deleted", {
         jobId: deletedJob._id.toString(),
-        company: deletedJob.company.id,
+        company: deletedJob.company.OrganizationId,
       });
 
       res.json({

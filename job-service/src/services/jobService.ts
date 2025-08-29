@@ -29,7 +29,7 @@ class jobService{
 
         if(savedJob){
           const notification = {
-            userId   : savedJob.company.id,
+            userId   : savedJob.company.OrganizationId,
             type     : "job.posting.created",
             jobTitle : savedJob.title,
             jobId    : savedJob._id || "unknown"
@@ -39,7 +39,7 @@ class jobService{
         
         logger.info("New job created successfully", {
           jobId    : savedJob._id.toString(),
-          company  : savedJob.company?.id,
+          company  : savedJob.company?.OrganizationId,
           postedBy : savedJob.postedBy,
         });
 

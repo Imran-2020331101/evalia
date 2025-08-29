@@ -10,8 +10,11 @@ public class UserDTO {
     private ObjectId id;
     private String name;
     private String email;
-    private List<String> roles;
     private boolean emailVerified;
+    private List<String> roles;
+    private String bio;
+    private String location;
+    private String aboutMe;
     private String profilePictureUrl;
     private String coverPictureUrl;
     private boolean hasResume;

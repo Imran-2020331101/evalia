@@ -81,19 +81,24 @@ public class UserService {
         dto.setName(user.getName());
         dto.setEmail(user.getEmail());
         dto.setEmailVerified(user.isEmailVerified());
-        dto.setHasResume(user.isHasResume());
-        dto.setResumeUrl(user.getResumeUrl());
-        dto.setProvider(user.getProvider());
-        dto.setProfilePictureUrl(user.getProfilePictureUrl());
-        dto.setCoverPictureUrl(user.getCoverPictureUrl());
-        dto.setHasAnyOrganization(user.isHasAnyOrganization());
-        dto.setOrganizations(user.getOrganizationId());
 
         List<String> roleNames = user.getRoles()
                 .stream()
                 .map(Role::getName)
                 .collect(Collectors.toList());
         dto.setRoles(roleNames);
+
+        dto.setBio(user.getBio());
+        dto.setLocation(user.getLocation());
+        dto.setAboutMe(user.getAboutMe());
+        dto.setProfilePictureUrl(user.getProfilePictureUrl());
+        dto.setCoverPictureUrl(user.getCoverPictureUrl());
+        dto.setHasResume(user.isHasResume());
+        dto.setResumeUrl(user.getResumeUrl());
+        dto.setHasAnyOrganization(user.isHasAnyOrganization());
+        dto.setOrganizations(user.getOrganizationId());
+        dto.setProvider(user.getProvider());
+
 
         return dto;
     }
