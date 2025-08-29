@@ -43,8 +43,8 @@ export type Salary = z.infer<typeof SalarySchema>;
 
 // Company schema
 export const CompanySchema = z.object({
-  id: z.string(),
-  email: z.string().optional(),
+  OrganizationId: z.string(),
+  OrganizationEmail: z.string().optional(),
 });
 export type Company = z.infer<typeof CompanySchema>;
 
@@ -92,8 +92,8 @@ export type JobDetails = z.infer<typeof JobDetailsSchema>;
 // Request schemas for API endpoints
 export const CreateJobRequestSchema = z.object({
   companyInfo: z.object({
-    organizationId: z.string(),
-    organizationEmail: z.string(),  
+    organizationId: z.string().nullable().transform((val) => val || "unknown"),
+    organizationEmail: z.string().nullable().transform((val) => val || "unknown@company.com"),  
   }),
   basic: z.object({
     title: z.string().min(1).max(200).trim(),

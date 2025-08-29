@@ -47,9 +47,9 @@ public class JobController {
                                                          Principal principal ) {
         try {
 
-            logger.info("Requirement list :" + jobCreationRequest.getRequirements());
-                jobCreationRequest.setCompanyInfo(
-                        new JobCreationRequest.CompanyInfo(OrganizationId, principal.getName()));
+
+            jobCreationRequest.setCompanyInfo(
+                    new JobCreationRequest.CompanyInfo(OrganizationId, principal.getName()));
 
 
             logger.info(" Job creation request received from user: " + principal.getName() +
