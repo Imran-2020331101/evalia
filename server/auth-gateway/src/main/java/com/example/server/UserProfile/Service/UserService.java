@@ -82,11 +82,6 @@ public class UserService {
         dto.setEmail(user.getEmail());
         dto.setEmailVerified(user.isEmailVerified());
 
-        List<String> roleNames = user.getRoles()
-                .stream()
-                .map(Role::getName)
-                .collect(Collectors.toList());
-        dto.setRoles(roleNames);
 
         dto.setBio(user.getBio());
         dto.setLocation(user.getLocation());
@@ -99,6 +94,11 @@ public class UserService {
         dto.setOrganizations(user.getOrganizationId());
         dto.setProvider(user.getProvider());
 
+        List<String> roleNames = user.getRoles()
+                .stream()
+                .map(Role::getName)
+                .collect(Collectors.toList());
+        dto.setRoles(roleNames);
 
         return dto;
     }
@@ -116,7 +116,7 @@ public class UserService {
         return new Profile(resumeData, toUserDTO(user));
     }
 
-    public userEntity updateUserProfile(UpdateUserProfileRequest updateDTO, String email) {
+    public UserDTO updateUserProfile(UpdateUserProfileRequest updateDTO, String email) {
         userEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
 
@@ -138,7 +138,8 @@ public class UserService {
 
             user.setUpdatedAt(LocalDateTime.now());
 
-            return userRepository.save(user);
+            userEntity updatedUser = userRepository.save(user);
+            return toUserDTO(updatedUser);
         } catch (Exception e) {
             logger.severe("Error updating user profile: " + e.getMessage());
             throw new RuntimeException("Failed to update user profile", e);
