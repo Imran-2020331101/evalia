@@ -5,7 +5,7 @@ import { useRef, useState, useEffect } from "react"
 import OrganizationCard from "./OrganizationCard"
 import CreateOrganizationForm from "./CreateOrganizationForm"
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
-import { getAllOrganizations, organizations, updateUserCoverPhoto, updateUserProfilePhoto, userCoverPhotoUpdateStatus, userProfilePhotoUpdateStatus } from "@/redux/features/auth"
+import { getAllOrganizations, organizations, updateUserCoverPhoto, updateUserData, updateUserProfilePhoto, userCoverPhotoUpdateStatus, userProfilePhotoUpdateStatus } from "@/redux/features/auth"
 import axios from "axios"
 import { ClipLoader } from "react-spinners"
 
@@ -23,9 +23,9 @@ const RecruiterProfileContainer = ({user}:propType) => {
 
   const [form, setForm] = useState({
     name: user?.user?.name||'',
-    title: user?.user?.bio || '',
+    bio: user?.user?.bio || '',
     location:user?.user?.location||'',
-    about:user?.user?.aboutMe||''
+    aboutMe:user?.user?.aboutMe||''
   });
 
   const dispatch = useAppDispatch()
@@ -40,6 +40,7 @@ const RecruiterProfileContainer = ({user}:propType) => {
 
   const handleBasicInfoSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    dispatch(updateUserData(form))
     console.log("Updated Profile:", form);
   };
   const handleUploadCoverPhoto = async(e:React.ChangeEvent<HTMLInputElement>)=>{
@@ -109,7 +110,7 @@ const RecruiterProfileContainer = ({user}:propType) => {
                               <ClipLoader size={30} color="white"/>
                             </div>:null
                           }
-                            <Image src={user?.user?.profilePictureUrl} alt="profile-photo" width={100} height={100} className=" w-full h-full rounded-full object-cover"/>
+                            <Image src={user?.user?.profilePictureUrl || 'https://i.pinimg.com/736x/ce/f7/42/cef74289dbaa3b4199ccf640714cc17e.jpg'} alt="profile-photo" width={100} height={100} className=" w-full h-full rounded-full object-cover"/>
                         </button>
                     </div>
                     <div className="absolute top-3 right-4 ">
@@ -151,13 +152,13 @@ const RecruiterProfileContainer = ({user}:propType) => {
 
                       {/* Title */}
                       <div>
-                        <label htmlFor="title" className="block text-sm text-gray-400 mb-1">
+                        <label htmlFor="bio" className="block text-sm text-gray-400 mb-1">
                           Title / Position
                         </label>
                         <input
-                          id="title"
-                          name="title"
-                          value={form.title}
+                          id="bio"
+                          name="bio"
+                          value={form.bio}
                           onChange={handleBasicInfoChange}
                           className="w-full p-2 rounded bg-gray-800 text-white text-sm focus:ring-2 focus:ring-blue-500"
                           placeholder="e.g. Software Engineer"
@@ -205,7 +206,7 @@ const RecruiterProfileContainer = ({user}:propType) => {
               isEditAbout?
               <section className="w-full min-h-[200px] bg-slate-900 rounded-xl p-[14px] pl-[7%] pt-[25px]">
                   <div className="w-full h-full relative">
-                      <textarea value={form.about} onChange={handleBasicInfoChange} name="about" id="about" className="focus:border-2 focus:border-gray-600 w-full h-full rounded-xl border border-gray-800 outline-none focus:right-1 focus:ring-gray-400 scroll-container p-[14px] text-[13px] text-gray-300">
+                      <textarea value={form.aboutMe} onChange={handleBasicInfoChange} name="aboutMe" id="about" className="focus:border-2 focus:border-gray-600 w-full h-full rounded-xl border border-gray-800 outline-none focus:right-1 focus:ring-gray-400 scroll-container p-[14px] text-[13px] text-gray-300">
                       </textarea>
                       <label htmlFor="about" className="absolute left-1 top-[-14px] px-4 py-1 rounded-lg bg-slate-900 text-gray-300 text-[15px] font-semibold ">
                           <div className="flex gap-2">
