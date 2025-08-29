@@ -29,10 +29,10 @@ export function mapJobData(data: CreateJobRequest) {
     requirements: requirements,
     responsibilities: responsibilities,
     skills: skills,
-    postedBy: companyInfo.organizationEmail,
+    postedBy: companyInfo.organizationEmail || "unknown@company.com",
     company: {
-      OrganizationId    : companyInfo.organizationId,
-      OrganizationEmail : companyInfo.organizationEmail || "",
+      OrganizationId    : companyInfo.organizationId || "unknown",
+      OrganizationEmail : companyInfo.organizationEmail || "unknown@company.com",
     },
     status: "ACTIVE" as const,
     interviewQA: interviewQA || [],
