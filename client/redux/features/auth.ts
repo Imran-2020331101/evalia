@@ -167,7 +167,7 @@ const authSlice = createSlice({
         })
         .addCase(updateUserData.fulfilled,(state,action)=>{
             console.log(action.payload, 'updated user basic info')
-            // state.user=action.payload.data;
+            state.user.user=action.payload.data;
             state.userBasicInfoUpdateStatus='success'
         })
         .addCase(createOrganization.pending,(state)=>{
