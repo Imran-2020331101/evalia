@@ -20,10 +20,13 @@ import {
   AlertCircle
 } from 'lucide-react'
 import { ResumeData } from '@/app/types/ResumeData'
+import { useAppSelector } from '@/redux/lib/hooks'
+import { analyzedUserResume } from '@/redux/features/auth'
+import { ResumeResponse } from '@/Data/resume_response'
 
 
 export default function PreviewPage() {
-  const [resumeData, setResumeData] = useState<ResumeData | null>(null)
+  const [resumeData, setResumeData] = useState<any | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle')
@@ -31,11 +34,11 @@ export default function PreviewPage() {
 
   useEffect(() => {
     // Get resume data from sessionStorage
-    const storedData = sessionStorage.getItem('resumeData')
+    const storedData = ResumeResponse;
     if (storedData) {
       try {
-        const data = JSON.parse(storedData)
-        setResumeData(data)
+        // const data = JSON.parse(storedData)
+        setResumeData(storedData)
       } catch (error) {
         console.error('Failed to parse resume data:', error)
         router.push('/resume/upload')
@@ -246,7 +249,7 @@ export default function PreviewPage() {
                   <div>
                     <h3 className="font-medium text-gray-300 mb-2">Technical Skills</h3>
                     <div className="flex flex-wrap gap-2">
-                      {data.skills.technical.map((skill, index) => (
+                      {data.skills.technical.map((skill:any, index:any) => (
                         <span
                           key={index}
                           className="px-3 py-1 bg-blue-900 text-blue-200 rounded-full text-sm"
@@ -261,7 +264,7 @@ export default function PreviewPage() {
                   <div>
                     <h3 className="font-medium text-gray-300 mb-2">Soft Skills</h3>
                     <div className="flex flex-wrap gap-2">
-                      {data.skills.soft.map((skill, index) => (
+                      {data.skills.soft.map((skill:any, index:any) => (
                         <span
                           key={index}
                           className="px-3 py-1 bg-green-900 text-green-200 rounded-full text-sm"
@@ -276,7 +279,7 @@ export default function PreviewPage() {
                   <div>
                     <h3 className="font-medium text-gray-300 mb-2">Languages</h3>
                     <div className="flex flex-wrap gap-2">
-                      {data.skills.languages.map((lang, index) => (
+                      {data.skills.languages.map((lang:any, index:any) => (
                         <span
                           key={index}
                           className="px-3 py-1 bg-purple-900 text-purple-200 rounded-full text-sm"
@@ -291,7 +294,7 @@ export default function PreviewPage() {
                   <div>
                     <h3 className="font-medium text-gray-300 mb-2">Tools & Frameworks</h3>
                     <div className="flex flex-wrap gap-2">
-                      {data.skills.tools.map((tool, index) => (
+                      {data.skills.tools.map((tool:any, index:any) => (
                         <span
                           key={index}
                           className="px-3 py-1 bg-orange-900 text-orange-200 rounded-full text-sm"
@@ -306,7 +309,7 @@ export default function PreviewPage() {
                   <div>
                     <h3 className="font-medium text-gray-300 mb-2">Other Skills</h3>
                     <div className="flex flex-wrap gap-2">
-                      {data.skills.other.map((skill, index) => (
+                      {data.skills.other.map((skill:any, index:any) => (
                         <span
                           key={index}
                           className="px-3 py-1 bg-gray-700 text-gray-200 rounded-full text-sm"
@@ -329,7 +332,7 @@ export default function PreviewPage() {
                 Work Experience
               </h2>
               <div className="space-y-6">
-                {data.experience.map((exp, index) => (
+                {data.experience.map((exp:any, index:any) => (
                   <div key={index} className="border-l-2 border-blue-400 pl-4">
                     <h3 className="font-semibold text-white">{exp.job_title}</h3>
                     <p className="text-blue-400 font-medium">{exp.company}</p>
@@ -338,7 +341,7 @@ export default function PreviewPage() {
                     </p>
                     {exp.description && Array.isArray(exp.description) && exp.description.length > 0 && (
                       <div className="mb-2">
-                        {exp.description.map((desc, descIndex) => (
+                        {exp.description.map((desc:any, descIndex:any) => (
                           <p key={descIndex} className="text-gray-300 mb-1">
                             {typeof desc === 'string' ? desc : JSON.stringify(desc)}
                           </p>
@@ -347,7 +350,7 @@ export default function PreviewPage() {
                     )}
                     {exp.achievements && Array.isArray(exp.achievements) && exp.achievements.length > 0 && (
                       <ul className="list-disc list-inside text-gray-300 space-y-1">
-                        {exp.achievements.map((achievement, achIndex) => (
+                        {exp.achievements.map((achievement:any, achIndex:any) => (
                           <li key={achIndex}>
                             {typeof achievement === 'string' ? achievement : JSON.stringify(achievement)}
                           </li>
@@ -368,7 +371,7 @@ export default function PreviewPage() {
                 Education
               </h2>
               <div className="space-y-4">
-                {data.education.map((edu, index) => (
+                {data.education.map((edu:any, index:any) => (
                   <div key={index} className="border-l-2 border-green-400 pl-4">
                     <h3 className="font-semibold text-white">{edu.degree}</h3>
                     <p className="text-green-400 font-medium">{edu.institution}</p>
@@ -389,7 +392,7 @@ export default function PreviewPage() {
                 Projects
               </h2>
               <div className="space-y-4">
-                {data.projects.map((project, index) => (
+                {data.projects.map((project:any, index:any) => (
                   <div key={index} className="border border-gray-600 rounded-lg p-4">
                     <h3 className="font-semibold text-white">{project.title}</h3>
                     {project.description && (
@@ -397,7 +400,7 @@ export default function PreviewPage() {
                     )}
                     {project.technologies && Array.isArray(project.technologies) && project.technologies.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-2">
-                        {project.technologies.map((tech, techIndex) => (
+                        {project.technologies.map((tech:any, techIndex:any) => (
                           <span
                             key={techIndex}
                             className="px-2 py-1 bg-gray-700 text-gray-200 rounded text-xs"
@@ -435,7 +438,7 @@ export default function PreviewPage() {
                   Certifications
                 </h2>
                 <div className="space-y-3">
-                  {data.certifications.map((cert, index) => {
+                  {data.certifications.map((cert:any, index:any) => {
                     // Handle both object and string formats
                     if (typeof cert === 'object') {
                       return (
@@ -468,7 +471,7 @@ export default function PreviewPage() {
                   Awards & Honors
                 </h2>
                 <div className="space-y-3">
-                  {data.awards.map((award, index) => (
+                  {data.awards.map((award:any, index:any) => (
                     <div key={index} className="text-gray-300">
                       <p className="font-medium">{award.title}</p>
                       <p className="text-sm text-gray-400">{award.organization} • {award.year}</p>
@@ -488,7 +491,7 @@ export default function PreviewPage() {
                   Interests
                 </h2>
                 <div className="flex flex-wrap gap-2">
-                  {data.interests.map((interest, index) => (
+                  {data.interests.map((interest:any, index:any) => (
                     <span
                       key={index}
                       className="px-2 py-1 bg-gray-700 text-gray-200 rounded-full text-sm"
@@ -508,7 +511,7 @@ export default function PreviewPage() {
                 Volunteer Experience
               </h2>
               <ul className="space-y-2">
-                {data.volunteer.map((vol, index) => (
+                {data.volunteer.map((vol:any, index:any) => (
                   <li key={index} className="text-gray-300">
                     • {typeof vol === 'string' ? vol : JSON.stringify(vol)}
                   </li>

@@ -36,12 +36,12 @@ const EducationSection = ({editEducation, setEducation}:{editEducation:Education
     }
   return (
     <>
-      {!isEditEducation && editEducation?.length ? (
+      {!isEditEducation? (
             <section>
             <h2 className="text-lg font-semibold border-b border-gray-700 pb-1 mb-3 flex items-center gap-2">
                 <GraduationCap size={18} /> Education <button onClick={handleEditEducation} className="cursor-pointer"><Edit3 className="size-5"/></button>
             </h2>
-            {editEducation.map((edu, idx) => (
+            {editEducation?.map((edu, idx) => (
                 <div key={idx} className="mb-3">
                 <p className="font-medium text-white">{edu.degree}</p>
                 <p className="text-sm text-green-400">{edu.institution}</p>
@@ -57,7 +57,7 @@ const EducationSection = ({editEducation, setEducation}:{editEducation:Education
                     <GraduationCap size={18} /> Education
                 </h2>
 
-                {editEducation.map((edu, idx) => (
+                {editEducation?.map((edu, idx) => (
                     <div key={idx} className="border border-gray-700 p-4 rounded-xl mb-4 relative">
                     <div className="grid grid-cols-2 gap-4 mb-2">
                         <input

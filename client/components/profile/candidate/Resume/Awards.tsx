@@ -41,12 +41,12 @@ const AwardsSection = ({editedAwards, setAwards}:{editedAwards:Award[], setAward
       }
   return (
     <>
-      {!isEditAwards && editedAwards?.length ? (
+      {!isEditAwards? (
         <section>
           <h2 className="text-lg font-semibold border-b border-gray-700 pb-1 mb-3 flex items-center gap-2">
             <Award size={18} /> Awards & Honors <button onClick={handleEditedAwards} className="cursor-pointer"><Edit3 className="size-5"/></button>
           </h2>
-          {editedAwards.map((awd, idx) => (
+          {editedAwards?.map((awd, idx) => (
             <div key={idx} className="mb-3">
               <p className="font-medium text-white">{awd.title}</p>
               <p className="text-sm text-gray-300">{awd.organization} • {awd.year}</p>
@@ -63,7 +63,7 @@ const AwardsSection = ({editedAwards, setAwards}:{editedAwards:Award[], setAward
             <Award size={18} /> Edit Awards & Honors
           </h2>
 
-          {editedAwards.map((awd, idx) => (
+          {editedAwards?.map((awd, idx) => (
             <div key={idx} className="border border-gray-700 p-4 rounded-lg mb-4">
               <div className="flex justify-between items-center mb-2">
                 <p className="text-gray-300 font-medium">Award {idx + 1}</p>

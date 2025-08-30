@@ -67,12 +67,12 @@ const ProjectsSection = ({editedProjects,setProjects}:{editedProjects:Project[],
     }
   return (
     <>
-      {!isEditProjects && editedProjects?.length ? (
+      {!isEditProjects ? (
         <section>
           <h2 className="text-lg font-semibold border-b border-gray-700 pb-1 mb-3 flex items-center gap-2">
             <Code size={18} /> Projects <button onClick={handleEditProjects} className="cursor-pointer"><Edit3 className="size-5"/></button>
           </h2>
-          {editedProjects.map((proj, idx) => (
+          {editedProjects?.map((proj, idx) => (
             <div key={idx} className="mb-3">
               <p className="font-medium text-white">{proj.title}</p>
               <p className="text-sm text-gray-300">{proj.description}</p>
@@ -98,7 +98,7 @@ const ProjectsSection = ({editedProjects,setProjects}:{editedProjects:Project[],
                 <Code size={18} /> Edit Projects
             </h2>
 
-            {editedProjects.map((proj, idx) => (
+            {editedProjects?.map((proj, idx) => (
                 <div key={idx} className="border border-gray-700 p-4 rounded-lg mb-4">
                 <div className="flex justify-between items-center mb-2">
                     <p className="text-gray-300 font-medium">Project {idx + 1}</p>

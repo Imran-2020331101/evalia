@@ -1,5 +1,5 @@
 'use client'
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Briefcase, GraduationCap, Award, Code, Link as LinkIcon ,  X,  Edit3,  Plus, Trash2, Tag } from "lucide-react";
 import Skills from "./Skills";
 import Experience from "./Experience";
@@ -7,6 +7,10 @@ import Education  from "./Education";
 import Projects from "./Projects";
 import Certifications from "./Certifications";
 import Awards from "./Awards";
+import { useAppSelector } from "@/redux/lib/hooks";
+import { analyzedUserResume } from "@/redux/features/auth";
+
+import { ResumeResponse } from "@/Data/resume_response";
 
 export const dummyCandidateData = {
   skills: {
@@ -186,15 +190,28 @@ type CandidateProfileProps = {
 
 const CandidatesProfileResumePanel = ({isPreview}:{isPreview:boolean}) => {
     const {skills,experience,education,projects,certifications,awards}=dummyCandidateData
-    const [editExperience, setExperience] = useState<Experience[]>(experience || [])
-    const [editEducation, setEducation] = useState<Education[]>(education||[])
-    const [editedProjects, setProjects] = useState<Project[]>(projects || [])
-    const [certs, setCerts] = useState<Certification[]>(certifications || [])
-    const [editedAwards, setAwards] = useState<Award[]>(awards || [])
-    const [editSkills, setSkills] = useState<Skills>(skills || {})
+    const [editExperience, setExperience] = useState<Experience[]>([])
+    const [editEducation, setEducation] = useState<Education[]>([])
+    const [editedProjects, setProjects] = useState<Project[]>([])
+    const [certs, setCerts] = useState<Certification[]>([])
+    const [editedAwards, setAwards] = useState<Award[]>([])
+    const [editSkills, setSkills] = useState<Skills>({})
 
+    const currentAnalyzedUserResume = useAppSelector(analyzedUserResume);
+  useEffect(()=>{
+    if(currentAnalyzedUserResume && isPreview){
+      console.log(currentAnalyzedUserResume, 'cuurent analyzed resume inside useEffect')
+      setExperience(currentAnalyzedUserResume?.experience)
+      setEducation(currentAnalyzedUserResume?.education)
+      setSkills(currentAnalyzedUserResume?.skills)
+      setProjects(currentAnalyzedUserResume?.projects)
+      setAwards(currentAnalyzedUserResume?.awards)
+      setCerts(currentAnalyzedUserResume?.certifications);
+      return;
+    }
+  },[currentAnalyzedUserResume])
   return (
-    <div className={`w-full min-h-full overflow-y-scroll scroll-container pl-[7%] bg-slate-900 text-gray-100 p-6 space-y-8`}>
+    <div className={`w-full h-auto overflow-y-scroll scroll-container pl-[7%] bg-slate-900 text-gray-100 p-6 space-y-8`}>
       {/* Experience */}
       <Experience editExperience={editExperience} setExperience={setExperience}  />
       {/* Education */}
@@ -207,6 +224,10 @@ const CandidatesProfileResumePanel = ({isPreview}:{isPreview:boolean}) => {
       <Awards editedAwards={editedAwards} setAwards={setAwards}/>
       {/* Skills */}
       <Skills editSkills={editSkills} setSkills={setSkills}/>
+      {currentAnalyzedUserResume && <div className="w-full flex gap-1">
+          <button className="flex-1 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-md text-white flex justify-center">Add to my profile</button>
+          <button className="flex-1 py-1 rounded-lg bg-gray-700 hover:bg-gray-800 text-md text-white flex justify-center">reset</button>
+        </div>}
     </div>
   );
 }

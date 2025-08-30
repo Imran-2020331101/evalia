@@ -85,6 +85,7 @@ const UploadResume=({setIsUploadResume}:propType) =>{
     try {
       const result = await uploadToBackend(file)
       toast.success('Resume uploaded successfully ')
+      console.log(result, 'result')
       dispatch(setResume(result.data.downloadUrl));
       setIsUploadResume(false);
     } catch (error) {

@@ -1,3 +1,4 @@
+const fs = require('fs');
 const axios = require('axios');
 const resumeService = require('../services/resumeService');
 const logger = require('../utils/logger');
@@ -63,24 +64,27 @@ class ResumeController {
 
   async extractDetailsFromResume(req, res) {
     const { resumeURL } = req.body;
+
+    console.log(resumeURL);
+
     try {
       const fileResponse = await axios.get(resumeURL, {
         responseType: 'arraybuffer',
       });
 
-      fs.writeFileSync('resume.pdf', response.data);
+      // await fs.writeFileSync('resume.pdf', response.data);
 
       console.log('PDF downloaded successfully.');
 
-      const pdfFile = Buffer.from(fileResponse.data);
+      const pdfFile = await Buffer.from(fileResponse.data, 'binary');
       const extractedData = await resumeService.extractText(pdfFile.buffer);
       const analysis = await resumeService.analyzeResume(extractedData.text);
 
       // Create ResumeDTO with analyzed data for frontend
       const extractedResume = new ResumeDTO({
-        filename: cloudinaryResult.public_id,
+        filename: 'Parsed Resume',
         originalName: pdfFile.originalname,
-        fileLink: downloadUrl,
+        fileLink: resumeURL,
         industry: analysis.industry,
         skills: analysis.skills,
         experience: analysis.experience,
@@ -114,7 +118,7 @@ class ResumeController {
             sections: analysis.sections,
             keywords: analysis.keywords,
           },
-          uploadedBy: userEmail,
+          uploadedBy: 'imranbinazad777@gmail.com',
           processedAt: new Date(),
         },
       };
