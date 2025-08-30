@@ -278,28 +278,14 @@ export class JobController {
   async deleteJob(req: Request, res: Response): Promise<void> {
     try {
       const { jobId } = req.params;
-
-      const deletedJob = await JobDetailsModel.findByIdAndDelete(jobId);
-
-      if (!deletedJob) {
-        res.status(404).json({
-          success: false,
-          error: "Job not found",
-        } as ApiResponse);
-        return;
-      }
-
-      logger.info("Job deleted", {
-        jobId: deletedJob._id.toString(),
-        company: deletedJob.company.OrganizationId,
-      });
+      const result = await JobService.deleteJobByJobId(jobId);
 
       res.json({
-        success: true,
+        success: result.success,
         message: "Job deleted successfully",
         data: {
-          jobId: deletedJob._id,
-          title: deletedJob.id,
+          jobId: result.jobId,
+          title: result.title,
         },
       } as ApiResponse);
     } catch (error: any) {

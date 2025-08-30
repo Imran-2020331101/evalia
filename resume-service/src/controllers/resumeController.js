@@ -42,11 +42,9 @@ class ResumeController {
         cleanUserId
       );
 
-      const downloadUrl = cloudinary.url(`${folderName}/${cleanUserId}`, {
-        resource_type: "raw",
-        flags: `attachment:${userId}.pdf`, // sets download filename
-        version: cloudinaryResult.version,
-      });
+
+
+      const downloadUrl = cloudinaryResult.url;
 
       res.status(200).json({
         success: true,
