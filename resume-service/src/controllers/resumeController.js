@@ -14,27 +14,15 @@ const {
 class ResumeController {
   async uploadResumeToCloud(req, res) {
     try {
-      //using multer config. don't touch
       const pdfFile = req.file;
-      const { userEmail, userId } = req.body;
-
-      if (!pdfFile) {
-        return res.status(400).json({
-          success: false,
-          error: "No PDF file provided",
-        });
-      }
-
-      if (!userEmail) {
-        return res.status(400).json({
-          success: false,
-          error: "User email is required",
-        });
-      }
+      const { userEmail, userId } = z.object(
+        { 
+          userEmail: z.string(),
+          userId: z.string(),
+        }).parse(req.body);
 
       const cleanUserId = String(userId).replace(/[^a-zA-Z0-9]/g, "_");
 
-      // Upload PDF to Cloudinary
       const folderName = "evalia/resume/pdf";
       const cloudinaryResult = await resumeService.uploadToCloudinary(
         pdfFile.buffer,
@@ -42,10 +30,7 @@ class ResumeController {
         cleanUserId
       );
 
-
-
       const downloadUrl = cloudinaryResult.url;
-
       res.status(200).json({
         success: true,
         data: {
@@ -63,18 +48,17 @@ class ResumeController {
   }
 
   async extractDetailsFromResume(req, res) {
-    const {resumeURL} = req.body;
+    const { resumeURL } = req.body;
     try {
       const fileResponse = await axios.get(resumeURL, {
         responseType: "arraybuffer",
       });
 
-
-      fs.writeFileSync("resume.pdf", response.data);
+      // fs.writeFileSync("resume.pdf", response.data);
 
       console.log("PDF downloaded successfully.");
 
-      const pdfFile = Buffer.from(fileResponse.data);
+      const pdfFile = Buffer.from(fileResponse.data, "binary");
       const extractedData = await resumeService.extractText(pdfFile.buffer);
       const analysis = await resumeService.analyzeResume(extractedData.text);
 
@@ -395,7 +379,7 @@ class ResumeController {
       );
 
       console.log("job_description parsed ", requirement.industry);
-
+      ``;
       const Candidates = await naturalLanguageSearch(requirement);
 
       console.log("Candidates from search:", Candidates);
