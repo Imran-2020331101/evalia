@@ -75,11 +75,21 @@ export const updateUserProfilePhoto = createAsyncThunk('auth/updateUserProfilePh
     }
 })
 
+export const analyzeResume = createAsyncThunk('auth/analyzeResume', async(_, thunkAPI)=>{
+    try {
+        const response = await axios.get('http://localhost:8080/api/resume/extract', {withCredentials:true})
+        return response.data;
+    } catch (error:any) {
+        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed analyzing user resume' })
+    }
+})
+
 type statusType = 'idle'|'pending'|'error'|'success';
 interface initialStateType {
     userStatus:statusType
     user: null | any,
     isSignedIn:boolean,
+    analyzedUserResume:any,
     orgCreationStatus:statusType,
     orgFetchStatus:statusType,
     orgDeleteStatus:statusType,
@@ -87,6 +97,7 @@ interface initialStateType {
     userBasicInfoUpdateStatus:statusType,
     userCoverPhotoUpdateStatus:statusType,
     userProfilePhotoUpdateStatus:statusType,
+    analyzeUserResumeStatus:statusType,
     organizations : any[], // type will be updated
     registerFormData:{
         name:string,
@@ -99,6 +110,7 @@ interface initialStateType {
 const initialState :initialStateType={
     userStatus:'idle',
     user:null,
+    analyzedUserResume:null,
     orgCreationStatus:'idle',
     orgFetchStatus:'idle',
     orgDeleteStatus:'idle',
@@ -106,6 +118,7 @@ const initialState :initialStateType={
     userCoverPhotoUpdateStatus:'idle',
     userProfilePhotoUpdateStatus:'idle',
     userBasicInfoUpdateStatus:'idle',
+    analyzeUserResumeStatus:'idle',
     organizations:[],
     isSignedIn:true,
     registerFormData:{
@@ -148,6 +161,12 @@ const authSlice = createSlice({
         },
         setUserBasicInfoUpdateStatus(state, action){
             state.userBasicInfoUpdateStatus=action.payload
+        },
+        setAnalyzeUserResumeStatus(state, action){
+            state.analyzeUserResumeStatus=action.payload
+        },
+        setResume(state, action){
+            state.user.user.resumeUrl=action.payload;
         }
     },
     extraReducers(builder){
@@ -240,11 +259,22 @@ const authSlice = createSlice({
             state.user.user.profilePictureUrl=action.payload.url;
             state.userProfilePhotoUpdateStatus='success'
         })
+        .addCase(analyzeResume.pending,(state)=>{
+            state.analyzeUserResumeStatus='pending'
+        })
+        .addCase(analyzeResume.rejected,(state)=>{
+            state.analyzeUserResumeStatus='error'
+        })
+        .addCase(analyzeResume.fulfilled,(state,action)=>{
+            console.log(action.payload,'resume analysis')
+            state.analyzedUserResume=action.payload.data;
+            state.analyzeUserResumeStatus='success'
+        })
     }
 })
 
 export default authSlice.reducer;
-export const {setFormData, setOrgCreationStatus, setOrgFetchStatus,setOrgUpdateStatus, setUserBasicInfoUpdateStatus}= authSlice.actions;
+export const {setFormData, setOrgCreationStatus, setOrgFetchStatus,setOrgUpdateStatus, setUserBasicInfoUpdateStatus, setResume, setAnalyzeUserResumeStatus}= authSlice.actions;
 export const currentFormData = (state:RootState)=>state.auth.registerFormData
 export const user = (state:RootState) => state.auth.user;
 export const userStatus = (state:RootState) => state.auth.userStatus;
@@ -256,4 +286,6 @@ export const orgDeleteStatus = (state:RootState) => state.auth.orgDeleteStatus;
 export const userCoverPhotoUpdateStatus = (state:RootState) => state.auth.userCoverPhotoUpdateStatus;
 export const userProfilePhotoUpdateStatus = (state:RootState) => state.auth.userProfilePhotoUpdateStatus;
 export const userBasicInfoUpdateStatus = (state:RootState) => state.auth.userBasicInfoUpdateStatus;
+export const analyzeUserResumeStatus = (state:RootState) => state.auth.analyzeUserResumeStatus;
+export const analyzedUserResume = (state:RootState)=>state.auth.analyzedUserResume;
 export const isSignedIn = (state:RootState) =>state.auth.isSignedIn;

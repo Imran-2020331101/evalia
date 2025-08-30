@@ -1,9 +1,6 @@
 package com.example.server.UserProfile.Service;
 
-import com.example.server.UserProfile.DTO.ForwardProfileRequest;
-import com.example.server.UserProfile.DTO.Profile;
-import com.example.server.UserProfile.DTO.UpdateUserProfileRequest;
-import com.example.server.UserProfile.DTO.UserDTO;
+import com.example.server.UserProfile.DTO.*;
 import com.example.server.exception.CustomExceptions.ResourceNotFoundException;
 import com.example.server.exception.CustomExceptions.UserNotFoundException;
 import com.example.server.resume.DTO.ResumeDataRequest;
@@ -107,11 +104,28 @@ public class UserService {
         if (!user.isHasResume()) {
             return new Profile(null, toUserDTO(user));
         }
-        String jsonResponse = resumeJsonProxy.getResumeByEmail(new ForwardProfileRequest(user.getEmail()));
-        ObjectMapper mapper = new ObjectMapper();
-        ResumeDataRequest resumeData = mapper.readValue(jsonResponse, ResumeDataRequest.class);
+        try {
+            String jsonResponse = resumeJsonProxy.getResumeByEmail(
+                    new ForwardProfileRequest(user.getEmail())
+            );
 
-        return new Profile(resumeData, toUserDTO(user));
+            logger.info("returned response from resume server " + jsonResponse);
+
+            ObjectMapper mapper = new ObjectMapper();
+            ResumeFetchResponse resumeResponse = mapper.readValue(jsonResponse, ResumeFetchResponse.class);
+
+            if (!resumeResponse.isSuccess()) {
+                return new Profile(null, toUserDTO(user));
+            }
+
+            return new Profile(resumeResponse.getData(), toUserDTO(user));
+
+        } catch (Exception e) {
+            logger.warning("Failed to parse resume");
+            // return profile with no resume so frontend always gets a response
+            return new Profile(null, toUserDTO(user));
+        }
+
     }
 
     public UserDTO updateUserProfile(UpdateUserProfileRequest updateDTO, String email) {
