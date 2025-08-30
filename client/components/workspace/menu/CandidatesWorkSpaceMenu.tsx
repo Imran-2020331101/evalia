@@ -14,6 +14,8 @@ import completedLogo from '../../../public/completed.svg'
 import pendingLogo from '../../../public/pending.svg'
 import interviewLogo from '../../../public/interview.svg'
 import expiredLogo from '../../../public/ban.svg'
+import { useAppSelector } from "@/redux/lib/hooks";
+import { user } from "@/redux/features/auth";
 
 const majorMono = Major_Mono_Display({ weight: '400', subsets: ['latin'] });
 
@@ -21,6 +23,9 @@ const CandidatesWorkSpaceMenu = () => {
   const [isShowCourseCategory, setIsShowCourseCategory]=useState(false);
   const [isShowJobCategory, setIsShowJobCategory]=useState(false);
   const [isShowInterviewCategory, setIsShowInterviewCategory]=useState(false);
+
+  const currentUser = useAppSelector(user);
+
   return (
     <div className='w-full h-full flex flex-col justify-between px-[10px] py-[6%]'>
       <div className="w-full h-auto flex flex-col justify-start">
@@ -84,8 +89,8 @@ const CandidatesWorkSpaceMenu = () => {
       </div>
       <div className="w-full h-auto flex justify-start items-end ">
         <Link href={'/profile'} className="flex items-center gap-2 cursor-pointer">
-          <p className="px-2 py-1 rounded-sm bg-gray-600 text-sm">AJ</p>
-          <p className="text-gray-300 lowercase">ajoad</p>
+          <p className="px-2 py-1 rounded-sm bg-gray-600 text-sm uppercase">{currentUser?.user?.name.slice(0,2)}</p>
+          <p className="text-gray-300 lowercase">{currentUser?.user?.name.split(' ')[0]}</p>
         </Link>
       </div>
     </div>
