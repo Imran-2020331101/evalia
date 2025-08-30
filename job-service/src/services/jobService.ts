@@ -129,9 +129,6 @@ class jobService{
       return { jobs, pagination };
     }
 
-    
-
-
 
     async bulkJobDelete(OrganizationId: string): Promise<ApiResponse>{
       try {       
@@ -159,6 +156,29 @@ class jobService{
           message: `failed to delete the jobs of the Organization :  ${OrganizationId}`,
         }
       }
+    }
+
+    async deleteJobByJobId(jobId: string) : Promise<{
+      success: boolean,
+      jobId: string,
+      title: string
+    }>{
+      const deletedJob = await JobDetailsModel.findByIdAndDelete(jobId);
+
+      if (!deletedJob) {
+        throw new Error(`Job with ID ${jobId} not found`);
+      }
+      
+      logger.info("Job deleted", {
+        jobId: deletedJob._id.toString(),
+        company: deletedJob.company.OrganizationId,
+      });
+
+      return {
+        success: true,
+        jobId: deletedJob._id.toString(),
+        title: deletedJob.title
+      };
     }
 
     async applyToJob(jobId: string, candidateEmail: string, resumeId?: string): Promise<ApiResponse> {

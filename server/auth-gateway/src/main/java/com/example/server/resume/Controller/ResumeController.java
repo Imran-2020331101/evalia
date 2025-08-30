@@ -81,7 +81,7 @@ public class ResumeController {
         }
     }
 
-    @PostMapping("/extract")
+    @GetMapping("/extract")
     public ResponseEntity<?> extractDetailsFromResume(Principal principal) {
         userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
 
