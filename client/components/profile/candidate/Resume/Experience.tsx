@@ -71,7 +71,7 @@ const ExperienceSection = ({editExperience, setExperience}:{editExperience:Exper
           <h2 className="text-lg font-semibold border-b border-gray-700 pb-1 mb-3 flex items-center gap-2">
             <Briefcase size={18} /> Experience  <button onClick={handleEditExperience} className="cursor-pointer"><Edit3 className="size-5"/></button>
           </h2>
-          {editExperience.map((exp, idx) => (
+          {editExperience?.map((exp, idx) => (
             <div key={idx} className="mb-4">
               <p className="font-medium text-white">{exp.job_title}</p>
               <p className="text-sm text-blue-400">{exp.company}</p>
@@ -97,7 +97,7 @@ const ExperienceSection = ({editExperience, setExperience}:{editExperience:Exper
                 <Briefcase size={18} /> Edit Experience 
             </div>
 
-            {editExperience.map((exp, idx) => (
+            {editExperience?.map((exp, idx) => (
                 <div key={idx} className="border border-gray-700 p-4 rounded-lg mb-4">
                 <div className="flex justify-between items-center mb-2">
                     <p className="text-gray-300 font-medium">Experience {idx + 1}</p>

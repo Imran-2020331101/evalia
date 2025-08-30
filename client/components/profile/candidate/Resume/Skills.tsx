@@ -130,7 +130,7 @@ const SkillsSection = ({editSkills,setSkills}:{editSkills:Skills, setSkills:Reac
 
             {/* Existing skills */}
             <div className="space-y-4 mb-6">
-                {categories.map(({ key, label, color }) =>
+                {categories?.map(({ key, label, color }) =>
                 editSkills[key]?.length ? (
                     <div key={key}>
                     <p className="font-medium text-gray-300 mb-1">{label}</p>

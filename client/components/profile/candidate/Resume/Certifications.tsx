@@ -41,12 +41,12 @@ const CertificationsSection = ({certs, setCerts}:{certs:Certification[], setCert
     }
   return (
     <>
-      {!isEditCertifications && certs?.length ? (
+      {!isEditCertifications ? (
         <section>
           <h2 className="text-lg font-semibold border-b border-gray-700 pb-1 mb-3 flex items-center gap-2">
             <Award size={18} /> Certifications <button onClick={handleEditCertifications} className="cursor-pointer"><Edit3 className="size-5"/></button>
           </h2>
-          {certs.map((cert, idx) => (
+          {certs?.map((cert, idx) => (
             <div key={idx} className="mb-3">
               <p className="font-medium text-white">{cert.title}</p>
               <p className="text-sm text-gray-300">{cert.provider} • {cert.date}</p>
@@ -66,7 +66,7 @@ const CertificationsSection = ({certs, setCerts}:{certs:Certification[], setCert
             <Award size={18} /> Edit Certifications
           </h2>
 
-          {certs.map((cert, idx) => (
+          {certs?.map((cert, idx) => (
             <div key={idx} className="border border-gray-700 p-4 rounded-lg mb-4">
               <div className="flex justify-between items-center mb-2">
                 <p className="text-gray-300 font-medium">Certification {idx + 1}</p>

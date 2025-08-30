@@ -166,7 +166,7 @@ const authSlice = createSlice({
             state.analyzeUserResumeStatus=action.payload
         },
         setResume(state, action){
-            state.user.resumeUrl=action.payload;
+            state.user.user.resumeUrl=action.payload;
         }
     },
     extraReducers(builder){
@@ -267,7 +267,7 @@ const authSlice = createSlice({
         })
         .addCase(analyzeResume.fulfilled,(state,action)=>{
             console.log(action.payload,'resume analysis')
-            // state.user.user.profilePictureUrl=action.payload.url;
+            state.analyzedUserResume=action.payload.data;
             state.analyzeUserResumeStatus='success'
         })
     }
