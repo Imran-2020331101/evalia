@@ -56,7 +56,7 @@ public class ResumeController {
                     principal.getName(),
                     user.getId().toString()
             );
-
+            logger.info("returned response from the resume service " + response);
             /*
               Updates the user's resume status and stores the URL when the response is successful
               returns error otherwise.
@@ -67,11 +67,11 @@ public class ResumeController {
             if (jsonNode.has("success") && !jsonNode.get("success").asBoolean()) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(jsonNode);
             }
+            String downloadUrl = jsonNode.path("data").path("downloadUrl").asText();
             user.setHasResume(true);
-            user.setResumeUrl(jsonNode.get("downloadUrl").asText());
+            user.setResumeUrl(downloadUrl);
             userService.saveUpdatedUser(user);
 
-            logger.info(jsonNode.get("downloadUrl").asText());
 
             return ResponseEntity.status(HttpStatus.OK)
                     .body(response);
@@ -81,7 +81,7 @@ public class ResumeController {
         }
     }
 
-    @PostMapping("/extract")
+    @GetMapping("/extract")
     public ResponseEntity<?> extractDetailsFromResume(Principal principal) {
         userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
 

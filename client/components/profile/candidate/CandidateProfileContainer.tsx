@@ -6,10 +6,11 @@ import { Edit, Edit3, File, Save, X } from "lucide-react"
 import { ClipLoader } from "react-spinners"
 import Image from "next/image"
 import { useRef, useState , useEffect} from "react"
-import CandidatesProfileResumePanel from "./CandidatesProfileResumePanel"
+import CandidatesProfileResumePanel from "./Resume/CandidatesProfileResumePanel"
 import UploadResume from "./UploadResume"
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
-import { userCoverPhotoUpdateStatus, userProfilePhotoUpdateStatus, userBasicInfoUpdateStatus , updateUserCoverPhoto, updateUserProfilePhoto, updateUserData, setUserBasicInfoUpdateStatus} from "@/redux/features/auth"
+import { userCoverPhotoUpdateStatus, userProfilePhotoUpdateStatus, userBasicInfoUpdateStatus , updateUserCoverPhoto, updateUserProfilePhoto, updateUserData, setUserBasicInfoUpdateStatus, analyzedUserResume} from "@/redux/features/auth"
+import AnalyzeResumeSection from "./Resume/AnalyzeResumeSection"
 
 interface propType {
   user:any
@@ -38,6 +39,7 @@ const CandidateProfileContainer = ({user}:propType) => {
     const currentCoverPhotoStatus = useAppSelector(userCoverPhotoUpdateStatus)
     const currentProfilePhotoStatus = useAppSelector(userProfilePhotoUpdateStatus)
     const currentUserBasicInfoUpdateStatus = useAppSelector(userBasicInfoUpdateStatus)
+    const currentAnalyzedUserResume = useAppSelector(analyzedUserResume)
 
   const handleBasicInfoChange = (e: React.ChangeEvent<HTMLInputElement>|React.ChangeEvent<HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -139,17 +141,19 @@ const CandidateProfileContainer = ({user}:propType) => {
                         {
                           isShowResume && <div className="fixed top-0 left-0 right-0 bottom-0 backdrop-blur-sm  flex justify-center items-center">
                               <div ref={resumePreviewContainerRef} className="w-[60%] h-[95%] bg-gray-200 rounded-lg overflow-y-scroll scroll-container">
-                                <iframe src={'https://res.cloudinary.com/dz4jwmv4k/image/upload/v1755892984/Resume_ghoeng.pdf'} width="100%" height="auto" className="w-full h-full object-contain"></iframe>
+                                <iframe src={user?.user?.resumeUrl || ''} width="100%" height="auto" className="w-full h-full object-contain"></iframe>
                               </div>
                         </div>
                         }
-                        <div className="flex gap-1 items-center">
+                        {
+                          user?.user?.resumeUrl && <div className="flex gap-1 items-center">
                           <File className="text-green-700 size-6"/>
                           <button onClick={()=>setIsShowResume(true)} className="flex flex-col text-[11px] text-gray-400">
                             <p className="">Resume.pdf</p>
-                            <p className="">200.20kb</p>
+                            {/* <p className="">200.20kb</p> */}
                           </button>
                         </div>
+                        }
                         {
                           isUploadResume && <div  className="fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center backdrop-blur-sm">
                             <div className="absolute top-3 right-3">
@@ -157,7 +161,7 @@ const CandidateProfileContainer = ({user}:propType) => {
                             </div>
                           <div ref={resumeContainerRef} className="w-[40%] max-h-[95%] overflow-y-scroll scrollbar-hidden ">
                             <div className="w-full h-auto ">
-                              <UploadResume/>
+                              <UploadResume setIsUploadResume={setIsUploadResume}/>
                             </div>
                           </div>
                         </div>
@@ -267,8 +271,10 @@ const CandidateProfileContainer = ({user}:propType) => {
                   </p>
             </section>
             }
-            <section className="w-full min-h-[200px] bg-slate-900 rounded pb-[40px]">
-              <CandidatesProfileResumePanel  />
+            <section className="w-full h-auto bg-slate-900 rounded-xl pb-[40px] ">
+              {
+                user?.user?.resumeData?<CandidatesProfileResumePanel isPreview={false}/>:currentAnalyzedUserResume?<CandidatesProfileResumePanel isPreview={true}/>: <AnalyzeResumeSection user={user} setIsUploadResume={setIsUploadResume}/>
+              }
             </section>
         </div>
         <div className="w-[40%] h-full   gap-[14px] ">

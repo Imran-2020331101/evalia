@@ -6,14 +6,18 @@ import { Upload, FileText, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-r
 import { useAppDispatch } from '@/redux/lib/hooks'
 import { toggleIsShowAuthRole } from '@/redux/features/utils'
 import { toast } from 'sonner'
+import { setResume } from '@/redux/features/auth'
 
 interface UploadState {
   file: File | null
   isUploading: boolean
   error: string | null
 }
+interface propType{
+  setIsUploadResume:React.Dispatch<React.SetStateAction<boolean>>
+}
 
-const UploadResume=() =>{
+const UploadResume=({setIsUploadResume}:propType) =>{
   const [uploadState, setUploadState] = useState<UploadState>({
     file: null,
     isUploading: false,
@@ -81,15 +85,8 @@ const UploadResume=() =>{
     try {
       const result = await uploadToBackend(file)
       toast.success('Resume uploaded successfully ')
-      console.log(result)
-      // Store the result in sessionStorage for the preview page
-      // sessionStorage.setItem('resumeData', JSON.stringify(result))
-
-      // router.push('/auth/login')
-      
-      
-      // Redirect to preview page
-    //   router.push('/resume/preview')
+      dispatch(setResume(result.data.downloadUrl));
+      setIsUploadResume(false);
     } catch (error) {
       setUploadState({
         file,
