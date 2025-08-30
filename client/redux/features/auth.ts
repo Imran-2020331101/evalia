@@ -49,6 +49,15 @@ export const fetchUserData = createAsyncThunk('auth/fetchUserData', async(_,thun
         return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed fetching user data' })
     }
 })
+export const updateUserData = createAsyncThunk('auth/updateUserData', async(data:any, thunkAPI)=>{
+    try {
+        const response = await axios.patch(`http://localhost:8080/api/user/update/details`,data,{withCredentials:true})
+        return response.data;
+    } catch (error:any) {
+        // toast.error(error.response?error.response.data:'Failed fetching user data')
+        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed updating user data' })
+    }
+})
 export const updateUserCoverPhoto = createAsyncThunk('auth/updateUserCoverPhoto',async(formData:any,thunkAPI)=>{
     try {
         const response = await axios.post('http://localhost:8080/api/user/update/cover-photo',formData,{withCredentials:true})
@@ -75,6 +84,7 @@ interface initialStateType {
     orgFetchStatus:statusType,
     orgDeleteStatus:statusType,
     orgUpdateStatus:statusType,
+    userBasicInfoUpdateStatus:statusType,
     userCoverPhotoUpdateStatus:statusType,
     userProfilePhotoUpdateStatus:statusType,
     organizations : any[], // type will be updated
@@ -95,6 +105,7 @@ const initialState :initialStateType={
     orgUpdateStatus:'idle',
     userCoverPhotoUpdateStatus:'idle',
     userProfilePhotoUpdateStatus:'idle',
+    userBasicInfoUpdateStatus:'idle',
     organizations:[],
     isSignedIn:true,
     registerFormData:{
@@ -134,6 +145,9 @@ const authSlice = createSlice({
         },
         setUserProfilePhotoStatus(state, action){
             state.userProfilePhotoUpdateStatus=action.payload
+        },
+        setUserBasicInfoUpdateStatus(state, action){
+            state.userBasicInfoUpdateStatus=action.payload
         }
     },
     extraReducers(builder){
@@ -145,8 +159,20 @@ const authSlice = createSlice({
             state.userStatus='error'
         })
         .addCase(fetchUserData.fulfilled,(state,action)=>{
+            console.log(action.payload,'user data fetched');
             state.user=action.payload.data;
             state.userStatus='success'
+        })
+        .addCase(updateUserData.pending,(state)=>{
+            state.userBasicInfoUpdateStatus='pending'
+        })
+        .addCase(updateUserData.rejected,(state)=>{
+            state.userBasicInfoUpdateStatus='error'
+        })
+        .addCase(updateUserData.fulfilled,(state,action)=>{
+            console.log(action.payload, 'updated user basic info')
+            state.user.user=action.payload.data;
+            state.userBasicInfoUpdateStatus='success'
         })
         .addCase(createOrganization.pending,(state)=>{
             state.orgCreationStatus='pending'
@@ -218,7 +244,7 @@ const authSlice = createSlice({
 })
 
 export default authSlice.reducer;
-export const {setFormData, setOrgCreationStatus, setOrgFetchStatus,setOrgUpdateStatus}= authSlice.actions;
+export const {setFormData, setOrgCreationStatus, setOrgFetchStatus,setOrgUpdateStatus, setUserBasicInfoUpdateStatus}= authSlice.actions;
 export const currentFormData = (state:RootState)=>state.auth.registerFormData
 export const user = (state:RootState) => state.auth.user;
 export const userStatus = (state:RootState) => state.auth.userStatus;
@@ -229,4 +255,5 @@ export const orgUpdateStatus = (state:RootState) => state.auth.orgUpdateStatus;
 export const orgDeleteStatus = (state:RootState) => state.auth.orgDeleteStatus;
 export const userCoverPhotoUpdateStatus = (state:RootState) => state.auth.userCoverPhotoUpdateStatus;
 export const userProfilePhotoUpdateStatus = (state:RootState) => state.auth.userProfilePhotoUpdateStatus;
+export const userBasicInfoUpdateStatus = (state:RootState) => state.auth.userBasicInfoUpdateStatus;
 export const isSignedIn = (state:RootState) =>state.auth.isSignedIn;

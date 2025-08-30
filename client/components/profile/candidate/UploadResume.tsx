@@ -48,11 +48,11 @@ const UploadResume=() =>{
       body: formData,
       credentials: 'include',
     })
+    console.log(response);
 
     if (!response.ok) {
       throw new Error(`Upload failed: ${response.statusText}`)
     }
-
     return response.json()
   }
 
@@ -85,7 +85,7 @@ const UploadResume=() =>{
       // Store the result in sessionStorage for the preview page
       // sessionStorage.setItem('resumeData', JSON.stringify(result))
 
-      router.push('/auth/login')
+      // router.push('/auth/login')
       
       
       // Redirect to preview page

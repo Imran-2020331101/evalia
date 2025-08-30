@@ -3,11 +3,13 @@ import CourseCard from "@/components/profile/candidate/suggested/CourseCard"
 import JobCard from "@/components/profile/candidate/suggested/JobCard"
 import CandidatesResumePanel from "@/components/utils/CandidatesResumePanel"
 import { Edit, Edit3, File, Save, X } from "lucide-react"
+import { ClipLoader } from "react-spinners"
 import Image from "next/image"
 import { useRef, useState , useEffect} from "react"
 import CandidatesProfileResumePanel from "./CandidatesProfileResumePanel"
 import UploadResume from "./UploadResume"
-
+import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
+import { userCoverPhotoUpdateStatus, userProfilePhotoUpdateStatus, userBasicInfoUpdateStatus , updateUserCoverPhoto, updateUserProfilePhoto, updateUserData, setUserBasicInfoUpdateStatus} from "@/redux/features/auth"
 
 interface propType {
   user:any
@@ -23,36 +25,48 @@ const CandidateProfileContainer = ({user}:propType) => {
   const [isUploadResume, setIsUploadResume] = useState<boolean>(false);
   const [isShowResume, setIsShowResume] = useState<boolean>(false);
   const [isEditBasicInfo, setIsEditBasicInfo]= useState<boolean>(false);
-
-  const [coverPhoto, setCoverPhoto] = useState<File | null>(null)
-  const [profilePhoto, setProfilePhoto] = useState<File | null>(null)
-
-   const [form, setForm] = useState({
-    name: "Matt Murdock",
-    title: "Final-Year CS Undergrad | Full-Stack Web Developer",
-    location: "Sylhet, Bangladesh",
-    email: "matt1223@gmail.com",
+  
+  const [form, setForm] = useState({
+    name: user?.user?.name||'',
+    bio: user?.user?.bio || '',
+    location:user?.user?.location||'',
+    aboutMe:user?.user?.aboutMe||''
   });
+  
+    const dispatch = useAppDispatch()
+  
+    const currentCoverPhotoStatus = useAppSelector(userCoverPhotoUpdateStatus)
+    const currentProfilePhotoStatus = useAppSelector(userProfilePhotoUpdateStatus)
+    const currentUserBasicInfoUpdateStatus = useAppSelector(userBasicInfoUpdateStatus)
 
-  const handleBasicInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBasicInfoChange = (e: React.ChangeEvent<HTMLInputElement>|React.ChangeEvent<HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleBasicInfoSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    dispatch(updateUserData(form))
     console.log("Updated Profile:", form);
   };
 
-  const handleUploadCoverPhoto = (e:React.ChangeEvent<HTMLInputElement>)=>{
-    setCoverPhoto(e.target.files?.[0]??null)
-    
-    // cover photo upload logic goes here 
-  }
-  const handleUploadProfilePhoto = (e:React.ChangeEvent<HTMLInputElement>)=>{
-    setProfilePhoto(e.target.files?.[0]??null)
-    
-    // profile photo upload logic goes here 
-  }
+  const handleUploadCoverPhoto = async(e:React.ChangeEvent<HTMLInputElement>)=>{
+      const file = e.target.files?.[0]??null;
+      if(!file) return;
+      const newFormData = new FormData();
+      newFormData.append("file", file);
+      dispatch(updateUserCoverPhoto(newFormData))
+      
+      // cover photo upload logic goes here 
+    }
+    const handleUploadProfilePhoto = (e:React.ChangeEvent<HTMLInputElement>)=>{
+      const file = e.target.files?.[0]??null;
+      if(!file) return;
+      const newFormData = new FormData();
+      newFormData.append("file", file);
+      dispatch(updateUserProfilePhoto(newFormData))
+      
+      // profile photo upload logic goes here 
+    }
   const handleEditAbout = ()=>{
     // logic goes here 
     setIsAboutEdit((prev)=>!prev)
@@ -61,6 +75,11 @@ const CandidateProfileContainer = ({user}:propType) => {
     // logic goes here 
     setIsAboutEdit((prev)=>!prev)
   }
+  useEffect(()=>{
+      if(currentUserBasicInfoUpdateStatus==='success') {
+        setIsEditBasicInfo(false); setIsAboutEdit(false); dispatch(setUserBasicInfoUpdateStatus('idle'));
+      }
+    },[currentUserBasicInfoUpdateStatus])
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (resumeContainerRef.current && !resumeContainerRef.current.contains(event.target as Node)) {
@@ -82,29 +101,39 @@ const CandidateProfileContainer = ({user}:propType) => {
         <div className="w-[60%] h-full flex flex-col pb-[40px] gap-[14px] overflow-y-scroll scrollbar-hidden ">
             <section className='w-full h-auto bg-slate-900 rounded-xl'>
                 <div className="w-full h-[200px] relative rounded-t-xl">
-                    <Image src={'https://i.pinimg.com/1200x/e6/16/86/e61686f29fc38ad2d539d776fb8adc76.jpg'} alt="cover-photo" width={700} height={300} className="w-full h-full rounded-t-xl object-cover"/>
+                  {
+                    currentCoverPhotoStatus==='pending'?<div className="absolute top-0 left-0 w-full h-full bg-gray-900/70 flex justify-center items-center">
+                      <ClipLoader size={30} color="white"/>
+                    </div>:null
+                  }
+                    <Image src={user?.user?.coverPictureUrl} alt="cover-photo" width={700} height={300} className="w-full h-full rounded-t-xl object-cover"/>
                     <div className="absolute bottom-[-25%] left-[5%] w-[150px] h-[150px] rounded-full">
-                      <input ref={profilePhotoRef} type="file" accept="image" hidden onChange={handleUploadProfilePhoto} />
-                      <button className="cursor-pointer" onClick={()=>profilePhotoRef.current?.click()}>
-                         <Image src={'https://i.pinimg.com/736x/e4/49/9e/e4499e440ed5c74c105eda233305fcdf.jpg'} alt="profile-photo" width={200} height={200} className="w-full h-full rounded-full object-cover"/>
-                      </button>
+                        <input ref={profilePhotoRef} type="file" accept="image" hidden onChange={handleUploadProfilePhoto} />
+                        <button className="cursor-pointer rounded-full relative w-full h-full" onClick={()=>profilePhotoRef.current?.click()} >
+                          {
+                            currentProfilePhotoStatus==='pending'?<div className="absolute top-0 left-0 w-full h-full rounded-full bg-gray-900/70 flex justify-center items-center">
+                              <ClipLoader size={30} color="white"/>
+                            </div>:null
+                          }
+                            <Image src={user?.user?.profilePictureUrl || 'https://i.pinimg.com/736x/ce/f7/42/cef74289dbaa3b4199ccf640714cc17e.jpg'} alt="profile-photo" width={100} height={100} className=" w-full h-full rounded-full object-cover"/>
+                        </button>
                     </div>
                     <div className="absolute top-3 right-4 ">
-                      <input ref={coverPhotoRef} type="file" accept="image" hidden onChange={handleUploadCoverPhoto} />
-                      <button onClick={()=>coverPhotoRef.current?.click()} className="cursor-pointer relative group">
+                        <input ref={coverPhotoRef} type="file" accept="image" hidden onChange={handleUploadCoverPhoto} />
+                        <button onClick={()=>coverPhotoRef.current?.click()} className="cursor-pointer relative group">
                         <p className="absolute top-[100%] right-[50%] group-hover:flex w-[200px] hidden px-4 py-1 rounded-lg bg-gray-800 text-[12px] text-gray-200 justify-center">Change / Add Cover Photo</p>
                         <Edit/>
-                      </button>
+                        </button>
                     </div>
                 </div>
                 {
                   !isEditBasicInfo?
                   <div className="flex-1 w-full pt-[7%] pl-[7%] flex flex-col">
-                    <p className="text-xl font-semibold text-gray-200 flex items-center">Matt Murdock <button onClick={()=>setIsEditBasicInfo(true)}><Edit3 className="size-4 ml-2"/></button></p>
+                    <p className="text-xl font-semibold text-gray-200 flex items-center">{user?.user?.name} <button onClick={()=>setIsEditBasicInfo(true)}><Edit3 className="size-4 ml-2"/></button></p>
                     <div className="w-full min-h-[80px] flex justify-between items-start">
                       <div className="w-[60%] h-auto">
-                          <p className="w-full max-h-[40px] text-[13px] flex justify-start items-start overflow-hidden text-gray-400">Final-Year CS Undergrad | Full-Stack Web Developer</p>
-                          <p className="w-full max-h-[40px] text-[13px] flex justify-start  overflow-hidden text-gray-400 items-center"><span> {`📍 Sylhet, Bangladesh`}</span> <span className="text-2xl font-bold m-1 mt-[-8px]">.</span> <span>{`✉️ matt1223@gmail.com`}</span></p>
+                          <p className="w-full max-h-[40px] text-[13px] flex justify-start items-start overflow-hidden text-gray-400">{user?.user?.bio?user.user.bio:'No bio found, make a short bio'}</p>
+                          <p className="w-full max-h-[40px] text-[13px] flex justify-start  overflow-hidden text-gray-400 items-center"><span> {user?.user?.location?`📍${user.user.location}`:'No location found, set you location'}</span> <span className="text-2xl font-bold m-1 mt-[-8px]">.</span> <span>{user?.user?.email}</span></p>
                       </div>
                       <div className="w-auto  h-full flex flex-col justify-start items-end gap-2 pr-[20px]">
                         {
@@ -142,10 +171,11 @@ const CandidateProfileContainer = ({user}:propType) => {
                   :
                    <form
                       onSubmit={handleBasicInfoSubmit}
-                      className="w-full h-auto  p-6 rounded-2xl shadow-lg pl-[7%] space-y-4 mt-[60px]"
+                      className="flex flex-col gap-4 w-full px-[7%] pt-[8%] pb-[3%] bg-slate-900 rounded-xl "
                     >
+                      {/* Full Name */}
                       <div>
-                        <label htmlFor="name" className="block text-gray-300 text-sm mb-1">
+                        <label htmlFor="name" className="block text-sm text-gray-400 mb-1">
                           Full Name
                         </label>
                         <input
@@ -153,25 +183,29 @@ const CandidateProfileContainer = ({user}:propType) => {
                           name="name"
                           value={form.name}
                           onChange={handleBasicInfoChange}
-                          className="w-full px-3 py-2 rounded-lg bg-gray-800 text-gray-200 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                          className="w-full p-2 rounded bg-gray-800 text-white text-sm focus:ring-2 focus:ring-blue-500"
+                          placeholder="e.g. John Doe"
                         />
                       </div>
 
+                      {/* Title */}
                       <div>
-                        <label htmlFor="title" className="block text-gray-300 text-sm mb-1">
+                        <label htmlFor="bio" className="block text-sm text-gray-400 mb-1">
                           Title / Position
                         </label>
                         <input
-                          id="title"
-                          name="title"
-                          value={form.title}
+                          id="bio"
+                          name="bio"
+                          value={form.bio}
                           onChange={handleBasicInfoChange}
-                          className="w-full px-3 py-2 rounded-lg bg-gray-800 text-gray-200 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                          className="w-full p-2 rounded bg-gray-800 text-white text-sm focus:ring-2 focus:ring-blue-500"
+                          placeholder="e.g. Software Engineer"
                         />
                       </div>
 
+                      {/* Location */}
                       <div>
-                        <label htmlFor="location" className="block text-gray-300 text-sm mb-1">
+                        <label htmlFor="location" className="block text-sm text-gray-400 mb-1">
                           Location
                         </label>
                         <input
@@ -179,50 +213,42 @@ const CandidateProfileContainer = ({user}:propType) => {
                           name="location"
                           value={form.location}
                           onChange={handleBasicInfoChange}
-                          className="w-full px-3 py-2 rounded-lg bg-gray-800 text-gray-200 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                          className="w-full p-2 rounded bg-gray-800 text-white text-sm focus:ring-2 focus:ring-blue-500"
+                          placeholder="e.g. Dhaka, Bangladesh"
                         />
                       </div>
 
-                      <div>
-                        <label htmlFor="email" className="block text-gray-300 text-sm mb-1">
-                          Email
-                        </label>
-                        <input
-                          id="email"
-                          name="email"
-                          type="email"
-                          value={form.email}
-                          onChange={handleBasicInfoChange}
-                          className="w-full px-3 py-2 rounded-lg bg-gray-800 text-gray-200 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                        />
+                      {/* Buttons */}
+                      <div className="flex gap-3 mt-4">
+                        <button
+                          disabled={currentUserBasicInfoUpdateStatus==='pending'?true:false}
+                          type="submit"
+                          className="flex-1 py-2 flex justify-center items-center gap-2 rounded-md cursor-pointer bg-green-700 hover:bg-green-600 text-white font-medium"
+                        >
+                          {currentUserBasicInfoUpdateStatus==='pending'?<ClipLoader size={17} color="white"/> :'Save Changes'}
+                        </button>
+                        <button
+                          onClick={() => setIsEditBasicInfo(false)}
+                          type="button"
+                          className="flex-1 py-2 flex justify-center items-center gap-2 rounded-md cursor-pointer bg-gray-700 hover:bg-gray-600 text-white font-medium"
+                        >
+                          Cancel
+                        </button>
                       </div>
-
-                      <button
-                        type="submit"
-                        className="w-full py-2 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md transition"
-                      >
-                        Save Changes
-                      </button>
-                      <button
-                        onClick={()=>setIsEditBasicInfo(false)}
-                        type="button"
-                        className="w-full py-2 px-4 rounded-lg bg-gray-600 hover:bg-gray-700 text-white font-semibold shadow-md transition"
-                      >
-                        Cancel
-                      </button>
                     </form>
+
                 }
             </section>
             {
               isEditAbout?
               <section className="w-full min-h-[200px] bg-slate-900 rounded-xl p-[14px] pl-[7%] pt-[25px]">
                   <div className="w-full h-full relative">
-                      <textarea name="" id="about" className="focus:border-2 focus:border-gray-600 w-full h-full rounded-xl border border-gray-800 outline-none focus:right-1 focus:ring-gray-400 scroll-container p-[14px] text-[13px] text-gray-300">
+                      <textarea value={form.aboutMe} onChange={handleBasicInfoChange} name="aboutMe" id="about" className="focus:border-2 focus:border-gray-600 w-full h-full rounded-xl border border-gray-800 outline-none focus:right-1 focus:ring-gray-400 scroll-container p-[14px] text-[13px] text-gray-300">
                       </textarea>
                       <label htmlFor="about" className="absolute left-1 top-[-14px] px-4 py-1 rounded-lg bg-slate-900 text-gray-300 text-[15px] font-semibold ">
                           <div className="flex gap-2">
                             <p>Edit About</p>
-                            <button onClick={handleSaveEditedAbout}>
+                            <button onClick={handleBasicInfoSubmit}>
                               <Save className="size-4 cursor-pointer"/>
                             </button>
                           </div>
@@ -237,12 +263,7 @@ const CandidateProfileContainer = ({user}:propType) => {
                     <Edit3 className="size-4"/>
                   </button>
                 </div>
-                <p className="text-[13px] text-gray-300">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Vitae eos, nesciunt, sunt at ullam reiciendis numquam eius dolor quasi tenetur, 
-                  perspiciatis aperiam deserunt perferendis iure voluptas recusandae exercitationem voluptate doloribus.
-                  Lorem ipsum dolor sit, amet consectetur adipisicing elit. Vitae eos, nesciunt, sunt at ullam reiciendis numquam eius dolor quasi tenetur, 
-                  perspiciatis aperiam deserunt perferendis iure voluptas recusandae exercitationem voluptate doloribus.
-                  Lorem ipsum dolor sit, amet consectetur adipisicing elit. Vitae eos, nesciunt, sunt at ullam reiciendis numquam eius dolor quasi tenetur, 
-                  perspiciatis aperiam deserunt perferendis iure voluptas recusandae exercitationem voluptate doloribus.
+                <p className="text-[13px] text-gray-300">{user?.user?.aboutMe?user.user.aboutMe:'You haven’t added an About section yet. Use this space to introduce yourself, share your background, interests, or anything you’d like others to know about you.'}
                   </p>
             </section>
             }
