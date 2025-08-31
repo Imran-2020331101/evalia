@@ -17,5 +17,7 @@ router.post("/apply",jobController.applyToJob.bind(jobController));
 router.post("/shortlist",jobController.shortListCandidate.bind(jobController));
 router.post("/reject", jobController.rejectRemainingCandidates.bind(jobController));
 
+router.post("/user/applied",jobController.getAllJobsAppliedByAUser.bind(jobController));
+
 
 export default router;

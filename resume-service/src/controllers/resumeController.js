@@ -5,6 +5,7 @@ const cloudinary = require("../config/Cloudinary");
 const Resume = require("../models/Resume");
 const ResumeDTO = require("../dto/ResumeDTO");
 const { mapToResumeDTO } = require("../utils/resumeHelper");
+const { z } = require("zod");
 const {
   addToVectordb,
   naturalLanguageSearch,

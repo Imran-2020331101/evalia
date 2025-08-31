@@ -1,5 +1,6 @@
 package com.example.server.job.Controller;
 
+import com.example.server.UserProfile.Service.UserService;
 import com.example.server.job.DTO.JobApplicationRequest;
 import com.example.server.job.DTO.JobCreationRequest;
 import com.example.server.job.Proxy.JobProxy;
@@ -19,13 +20,15 @@ public class JobController {
     private static final Logger             logger = Logger.getLogger(JobController.class.getName());
     private        final JobProxy           jobProxy;
     private        final UserDetailsService userDetailsService;
+    private final UserService userService;
 
 
     public JobController(JobProxy           jobProxy,
-                         UserDetailsService userDetailsService) {
+                         UserDetailsService userDetailsService, UserService userService) {
 
         this.userDetailsService = userDetailsService;
         this.jobProxy           = jobProxy;
+        this.userService = userService;
     }
 
     @GetMapping("/active-jobs")
@@ -47,13 +50,17 @@ public class JobController {
                 .body(jobProxy.getAllJobsOfAnOrganization(OrganizationId));
     }
 
+    @GetMapping("/user/applied")
+    public ResponseEntity<String> getAllJobsAppliedByUser(Principal principal) {
+        userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
+        return jobProxy.getAllJobsAppliedByUser(user.getAppliedJobs());
+    }
+
 
     @PostMapping("/organization/{OrganizationId}")
     public ResponseEntity<String> createJob(@PathVariable ("OrganizationId") String OrganizationId,
                                             @RequestBody   JobCreationRequest jobCreationRequest,
                                                            Principal principal ) {
-        try {
-
 
             jobCreationRequest.setCompanyInfo(
                     new JobCreationRequest.CompanyInfo(OrganizationId, principal.getName()));
@@ -67,10 +74,6 @@ public class JobController {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(response);
 
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to forward: " + e.getMessage());
-        }
     }
 
 
@@ -89,10 +92,20 @@ public class JobController {
 
     @PostMapping("/{jobId}/apply")
     public ResponseEntity<String> applyJob(@PathVariable("jobId") String jobId, Principal principal) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(jobProxy.applyToAJob(
-                        new JobApplicationRequest(jobId, principal.getName())
-                ));
+
+        ResponseEntity<String> response = jobProxy.applyToAJob(
+                new JobApplicationRequest(jobId, principal.getName()));
+
+        if(response.getStatusCode().equals(HttpStatus.OK)){
+            logger.info("User: " + principal.getName() + " applied to job: " + jobId);
+            userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
+            user.setNumberOfAppliedJobs(user.getNumberOfAppliedJobs() + 1);
+            user.getAppliedJobs().add(jobId);
+            userService.saveUpdatedUser(user);
+        }
+
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
     }
 
     @PostMapping("/{jobId}/shortlist")

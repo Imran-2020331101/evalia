@@ -54,7 +54,7 @@ const JobDetailsMongooseSchema = new Schema<IJobDetailsDocument>(
     postedBy: { type: String },
     company: {
       OrganizationId    : { type: String },
-      OrganizationEmail : {type: String}
+      OrganizationEmail : { type: String },
     },
     status: { 
       type    : String ,
