@@ -1,5 +1,6 @@
 package com.example.server.job.Controller;
 
+import com.example.server.job.DTO.JobApplicationRequest;
 import com.example.server.job.DTO.JobCreationRequest;
 import com.example.server.job.Proxy.JobProxy;
 import com.example.server.security.models.userEntity;
@@ -30,7 +31,7 @@ public class JobController {
 
     @GetMapping("/organization/{OrganizationId}")
     public ResponseEntity<String> getAllJobsOfAnOrganization(@PathVariable("OrganizationId") String OrganizationId,
-                                                                                       Principal principal ) {
+                                                                                        Principal principal ) {
         userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
         if(!user.isHasAnyOrganization()){
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -43,8 +44,8 @@ public class JobController {
 
     @PostMapping("/organization/{OrganizationId}")
     public ResponseEntity<String> createJob(@PathVariable ("OrganizationId") String OrganizationId,
-                                            @RequestBody JobCreationRequest jobCreationRequest,
-                                                         Principal principal ) {
+                                            @RequestBody   JobCreationRequest jobCreationRequest,
+                                                           Principal principal ) {
         try {
 
 
@@ -68,7 +69,7 @@ public class JobController {
 
 
     @GetMapping("/{jobId}")
-    public ResponseEntity<String> getJobById(@PathVariable ("jobId") String jobId, Principal principal) {
+    public ResponseEntity<String> getJobById(@PathVariable ("jobId") String jobId) {
 
             return ResponseEntity.status(HttpStatus.OK)
                     .body(jobProxy.getJobById(jobId));
@@ -82,5 +83,20 @@ public class JobController {
                 .body(jobProxy.deleteJobById(jobId, principal.getName()));
     }
 
+    @PostMapping("/{jobId}/apply")
+    public ResponseEntity<String> applyJob(@PathVariable("jobId") String jobId, Principal principal) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(jobProxy.applyToAJob(
+                        new JobApplicationRequest(jobId, principal.getName())
+                ));
+    }
+
+    @PostMapping("/{jobId}/shortlist")
+    public ResponseEntity<String> shortlistCandidatesOfAJob(@PathVariable("jobId") String jobId, Principal principal) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(jobProxy.shortlistCandidatesOfAJob(
+                        new JobApplicationRequest(jobId, principal.getName())
+                ));
+    }
 
 }
