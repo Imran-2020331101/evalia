@@ -20,8 +20,10 @@ public class ConfirmationToken {
     private String userEmail;
     private LocalDateTime expiryDate;
 
-    public ConfirmationToken(int number) {
+    public ConfirmationToken(int number, String userEmail, LocalDateTime expiryDate) {
         this.token = String.valueOf(number);
+        this.userEmail = userEmail;
+        this.expiryDate = expiryDate;
     }
 
     public boolean isExpired() {

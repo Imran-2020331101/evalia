@@ -85,6 +85,7 @@ public class ResumeController {
     public ResponseEntity<?> extractDetailsFromResume(Principal principal) {
         userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
 
+//        TODO: Use ResumeNotFound Exception Instead of manual handling
         if (user == null || !user.isHasResume()) {
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
