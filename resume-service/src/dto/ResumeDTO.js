@@ -8,7 +8,7 @@ class ResumeDTO {
       technical: [],
       soft: [],
       languages: [],
-      tools:[],
+      tools: [],
       other: [],
     };
     this.experience = data.experience || [];
@@ -33,7 +33,7 @@ class ResumeDTO {
     const errors = [];
 
     if (!this.filename) errors.push("filename is required");
-    if (!this.originalName) errors.push("originalName is required");
+    // originalName is now optional - removed the required validation
 
     return {
       isValid: errors.length === 0,
