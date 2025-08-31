@@ -14,6 +14,10 @@ const JobCard = ({job}:{job:any}) => {
   const [organization,setOrganization]=useState<any>(null);
   const dispatch = useAppDispatch()
   const currentPreviewedJob = useAppSelector(previewedJob)
+  const handleSetPreviewedJOb = ()=>{
+    dispatch(setPreviewedJob({...job, company:organization}))
+    setPreviewedJob(true)
+  }
   useEffect(()=>{
     const fetchOrg = async ()=>{
       try {
@@ -27,20 +31,24 @@ const JobCard = ({job}:{job:any}) => {
     fetchOrg()
   },[])
   return (
-    <div className="w-full h-[70px] border-b-[1px] border-gray-800 hover:border-blue-400  flex justify-between shrink-0">
+    <div className="w-full h-auto border-b-[1px] border-gray-800 hover:border-blue-400  flex justify-between shrink-0">
       <div className="h-full w-[65%] flex justify-start items-center gap-4">
-        <div className="w-[50px] h-[45px]  rounded-sm">
+        <div className="w-[55px] h-[50px] self-start rounded-sm">
           <Image src={organization?.organizationProfileImageUrl||'https://i.pinimg.com/736x/cf/41/82/cf4182b20a5c74ceac60149066a52841.jpg'}
            alt='company logo' width={100} height={100} className='w-full h-full object-cover rounded-sm'/>
         </div>
-        <div className="flex flex-col h-[50px] justify-between items-start flex-1">
-          <button onClick={()=>dispatch(setPreviewedJob(true))} className='text-[12px] text-gray-100 font-semibold tracking-wider cursor-pointer hover:underline'>{title}</button>
-          <button onClick={()=>dispatch(setPreviewedJob(true))} className="w-full h-full items-center justify-start flex overflow-hidden">
-            <p className='text-[12px] text-gray-300'>{organization?.organizationName||''}</p><p className='font-bold text-sm m-1'>.</p>
-            <p className='text-[12px] text-gray-400'>{workPlaceType}</p><p className='font-bold text-sm m-1'>.</p>
-            <p className='text-[12px] text-gray-300'>{jobLocation}</p><p className='font-bold text-sm m-1'>.</p>
-            <p className='text-[12px] text-gray-300'>{`$${salary.from}k - $${salary.to}k`}</p><p className='font-bold text-sm m-1'>.</p>
-            <p className='text-[12px] text-gray-300'>{`2 days ago`}</p>
+        <div className="flex flex-col h-auto justify-between items-start flex-1">
+          <button onClick={()=>dispatch(handleSetPreviewedJOb)} className='text-[12px] text-gray-100 font-semibold tracking-wider cursor-pointer hover:underline'>{title}</button>
+          <button onClick={()=>dispatch(handleSetPreviewedJOb)} className="w-full h-auto items-center justify-start flex flex-col overflow-hidden">
+            <div className="w-full h-auto flex mt-[2px]">
+              <p className='text-[12px] text-gray-300'>{organization?.organizationName||''}</p><p className='font-bold text-sm mx-1'>.</p>
+              <p className='text-[12px] text-gray-400'>{workPlaceType}</p>
+            </div>
+            <div className="w-full h-auto flex mt-[-4px]">
+              <p className='text-[12px] text-gray-300'>{jobLocation}</p><p className='font-bold text-sm mx-1'>.</p>
+              <p className='text-[12px] text-gray-300'>{`$${salary.from}k - $${salary.to}k`}</p><p className='font-bold text-sm mx-1'>.</p>
+              <p className='text-[12px] text-gray-300'>{`2 days ago`}</p>
+            </div>
           </button>
         </div>
       </div>
