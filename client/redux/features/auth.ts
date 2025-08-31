@@ -84,6 +84,15 @@ export const analyzeResume = createAsyncThunk('auth/analyzeResume', async(_, thu
     }
 })
 
+export const saveAnalyzedResume = createAsyncThunk('auth/saveAnalyzedResume',async(resumeData:any,thunkAPI)=>{
+    try {
+        const response = await axios.post('http://localhost:8080/api/resume/save', resumeData,{withCredentials:true})
+        return response.data;
+    } catch (error:any) {
+        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed analyzing user resume' })
+    }
+})
+
 type statusType = 'idle'|'pending'|'error'|'success';
 interface initialStateType {
     userStatus:statusType
@@ -98,6 +107,7 @@ interface initialStateType {
     userCoverPhotoUpdateStatus:statusType,
     userProfilePhotoUpdateStatus:statusType,
     analyzeUserResumeStatus:statusType,
+    saveUserResumeStatus:statusType,
     organizations : any[], // type will be updated
     registerFormData:{
         name:string,
@@ -119,6 +129,7 @@ const initialState :initialStateType={
     userProfilePhotoUpdateStatus:'idle',
     userBasicInfoUpdateStatus:'idle',
     analyzeUserResumeStatus:'idle',
+    saveUserResumeStatus:'idle',
     organizations:[],
     isSignedIn:true,
     registerFormData:{
@@ -270,6 +281,17 @@ const authSlice = createSlice({
             state.analyzedUserResume=action.payload.data;
             state.analyzeUserResumeStatus='success'
         })
+        .addCase(saveAnalyzedResume.pending,(state)=>{
+            state.saveUserResumeStatus='pending'
+        })
+        .addCase(saveAnalyzedResume.rejected,(state)=>{
+            state.saveUserResumeStatus='error'
+        })
+        .addCase(saveAnalyzedResume.fulfilled,(state,action)=>{
+            console.log(action.payload,'upload resume data ')
+            // state.user.resumeData=action.payload.data;
+            state.saveUserResumeStatus='success'
+        })
     }
 })
 
@@ -287,5 +309,6 @@ export const userCoverPhotoUpdateStatus = (state:RootState) => state.auth.userCo
 export const userProfilePhotoUpdateStatus = (state:RootState) => state.auth.userProfilePhotoUpdateStatus;
 export const userBasicInfoUpdateStatus = (state:RootState) => state.auth.userBasicInfoUpdateStatus;
 export const analyzeUserResumeStatus = (state:RootState) => state.auth.analyzeUserResumeStatus;
+export const saveUserResumeStatus = (state:RootState) => state.auth.saveUserResumeStatus;
 export const analyzedUserResume = (state:RootState)=>state.auth.analyzedUserResume;
 export const isSignedIn = (state:RootState) =>state.auth.isSignedIn;

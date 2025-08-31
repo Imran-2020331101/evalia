@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const resumeSchema = new mongoose.Schema(
   {
@@ -8,7 +8,7 @@ const resumeSchema = new mongoose.Schema(
     },
     originalName: {
       type: String,
-      required: true,
+      // required: true,
     },
     fileLink: {
       type: String,
@@ -23,12 +23,12 @@ const resumeSchema = new mongoose.Schema(
     industry: {
       type: String,
       enum: [
-        "STEM & Technical",
-        "Business, Finance & Administration",
-        "Creative, Media & Communication",
-        "Education, Social & Legal Services",
-        "Skilled Trades, Labor & Services",
-        "Others"
+        'STEM & Technical',
+        'Business, Finance & Administration',
+        'Creative, Media & Communication',
+        'Education, Social & Legal Services',
+        'Skilled Trades, Labor & Services',
+        'Others',
       ],
     },
 
@@ -116,8 +116,8 @@ const resumeSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["processing", "completed", "failed"],
-      default: "processing",
+      enum: ['processing', 'completed', 'failed'],
+      default: 'processing',
     },
   },
   {
@@ -131,10 +131,10 @@ resumeSchema.index({ uploadedBy: 1 });
 resumeSchema.index({ status: 1 });
 
 // Indexes for structured data queries
-resumeSchema.index({ "skills.technical": 1 });
-resumeSchema.index({ "experience.totalYearsEstimate": 1 });
-resumeSchema.index({ "experience.companies": 1 });
-resumeSchema.index({ "education.degrees": 1 });
-resumeSchema.index({ "contact.emails": 1 });
+resumeSchema.index({ 'skills.technical': 1 });
+resumeSchema.index({ 'experience.totalYearsEstimate': 1 });
+resumeSchema.index({ 'experience.companies': 1 });
+resumeSchema.index({ 'education.degrees': 1 });
+resumeSchema.index({ 'contact.emails': 1 });
 
-module.exports = mongoose.model("Resume", resumeSchema);
+module.exports = mongoose.model('Resume', resumeSchema);

@@ -1,12 +1,12 @@
 'use client'
 
-import { useAppDispatch } from "@/redux/lib/hooks"
-import UploadResume from "../UploadResume"
+import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
 import { PlusSquare, Upload , SquareMousePointer, Hammer} from "lucide-react"
-import { analyzeResume } from "@/redux/features/auth"
+import { analyzeResume , analyzeUserResumeStatus} from "@/redux/features/auth"
 
 const AnalyzeResumeSection = ({user, setIsUploadResume}:{user:any, setIsUploadResume:React. Dispatch<React.SetStateAction<boolean>>}) => {
   const dispatch = useAppDispatch()
+  const currentAnalyzeUserResumeStatus = useAppSelector(analyzeUserResumeStatus)
   return (
     <div className="w-full h-auto flex">
       {
@@ -50,10 +50,19 @@ const AnalyzeResumeSection = ({user, setIsUploadResume}:{user:any, setIsUploadRe
             <button
             type="button"
             onClick={()=>dispatch(analyzeResume())}
-            className="inline-flex items-center gap-2 rounded-lg border border-blue-500 bg-blue-600 px-5 py-2 text-sm font-medium shadow-sm hover:bg-blue-700"
+            disabled={currentAnalyzeUserResumeStatus==='pending'?true:false}
+            className={`inline-flex items-center gap-2 rounded-lg border  px-5 py-2 text-sm font-medium shadow-sm  ${currentAnalyzeUserResumeStatus==='pending'?'bg-gray-700 border-gray-800':'border-blue-500 bg-blue-600 hover:bg-blue-700'}`}
             >
-            <Hammer className="h-4 w-4" />
+            {
+              currentAnalyzeUserResumeStatus==='pending'?<div className=" flex gap-2 items-center">
+                <p className="animate-spin">💎</p><p className="animate-bounce">⛏️</p> <p className="text-[12px] text-blue-300 ml-2">Hold tight! something cool is coming...</p>
+              </div>
+              :<>
+                <Hammer className="h-4 w-4" />
                 Build Your Profile
+              </>
+            }
+            
             </button>
         </div>
       }
