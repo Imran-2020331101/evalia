@@ -8,7 +8,7 @@ import Projects from "./Projects";
 import Certifications from "./Certifications";
 import Awards from "./Awards";
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks";
-import { analyzedUserResume, saveAnalyzedResume, saveUserResumeStatus } from "@/redux/features/auth";
+import { analyzedUserResume, saveAnalyzedResume, saveUserResumeStatus, user } from "@/redux/features/auth";
 
 import { ResumeResponse } from "@/Data/resume_response";
 import { ClipLoader } from "react-spinners";
@@ -202,6 +202,7 @@ const CandidatesProfileResumePanel = ({isPreview}:{isPreview:boolean}) => {
 
     const currentAnalyzedUserResume = useAppSelector(analyzedUserResume);
     const currentSaveUserResumeStatus = useAppSelector(saveUserResumeStatus);
+    const currentUser = useAppSelector(user)
 
     const handleSaveResumeToProfile =()=>{
       const resumeData = {...currentAnalyzedUserResume, experience:editExperience, education:editEducation, skills:editSkills, projects:editedProjects,awards:editedAwards,certifications:certs};
@@ -218,6 +219,14 @@ const CandidatesProfileResumePanel = ({isPreview}:{isPreview:boolean}) => {
       setAwards(currentAnalyzedUserResume?.awards)
       setCerts(currentAnalyzedUserResume?.certifications);
       return;
+    }
+    else{
+      setExperience(currentUser?.resumeData?.experience)
+      setEducation(currentUser?.resumeData?.education)
+      setSkills(currentUser?.resumeData?.skills)
+      setProjects(currentUser?.resumeData?.projects)
+      setAwards(currentUser?.resumeData?.awards)
+      setCerts(currentUser?.resumeData?.certifications)
     }
   },[currentAnalyzedUserResume])
   return (
