@@ -44,9 +44,9 @@ export const exploreAllJobs = createAsyncThunk('job/exploreAllJobs', async(_,thu
     }
 })
 
-export const applyJob = createAsyncThunk('job/applyJob', async(jobId,thunkAPI)=>{
+export const applyJob = createAsyncThunk('job/applyJob', async(jobId:any,thunkAPI)=>{
     try {
-        const response = await axios.post(`http://localhost:8080/api/job/${jobId}/apply`,{withCredentials:true})
+        const response = await axios.post(`http://localhost:8080/api/job/${jobId}/apply`,null,{withCredentials:true})
         return response.data;
     } catch (error:any) {
         return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed deleting job' })
@@ -59,14 +59,16 @@ interface initialStateType {
     fetchJobStatus: statusType,
     getAllJobsStatus: statusType,
     applyJobStatus: statusType,
+    appliedJobs:any,
     exploreJobs:any,
     myJobs:any , // type will be  updated later 
     selectedOrgId:string|null
 }
 
 const initialState :initialStateType = {
-    exploreJobs:[],
-    myJobs:[],
+    appliedJobs:[], //candidate
+    exploreJobs:[],//candidate
+    myJobs:[], // recruiter
     createJobStatus:'idle',
     fetchJobStatus:'idle',
     getAllJobsStatus:'idle',

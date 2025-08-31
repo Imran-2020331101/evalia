@@ -6,6 +6,7 @@ import saveLogo from '../../../../public/book-mark.svg'
 import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks'
 import { previewedJob, setPreviewedJob } from '@/redux/features/utils'
 import { useEffect } from 'react'
+import { applyJob } from '@/redux/features/job'
 
 const JobCard = ({job}:{job:any}) => {
   const {_id, company, title, jobLocation, jobType, status, workPlaceType, salary, createdAt}=job;
@@ -35,7 +36,7 @@ const JobCard = ({job}:{job:any}) => {
           <Image src={saveLogo} alt='save job' className='w-[13px]'/>
           <p className='text-[10px] font-semibold '>Save</p>
         </button>
-        <button className='w-[60px] h-[30px] border-[1px] border-gray-300 flex justify-center items-center rounded-sm gap-1 text-gray-300 hover:text-blue-500 hover:border-blue-500 cursor-pointer'>
+        <button onClick={()=>dispatch(applyJob(_id))} className='w-[60px] h-[30px] border-[1px] border-gray-300 flex justify-center items-center rounded-sm gap-1 text-gray-300 hover:text-blue-500 hover:border-blue-500 cursor-pointer'>
           <Image src={applyLogo} alt='apply job' className='w-[13px]'/>
           <p className='text-[10px] font-semibold '>Apply</p>
         </button>
