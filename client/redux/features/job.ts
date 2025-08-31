@@ -37,16 +37,16 @@ export const deleteJob = createAsyncThunk('job/deleteJob', async(jobId:string, t
 
 export const exploreAllJobs = createAsyncThunk('job/exploreAllJobs', async(_,thunkAPI)=>{
     try {
-        const response = await axios.get(`http://localhost:8080/api/job`,{withCredentials:true});
+        const response = await axios.get(`http://localhost:8080/api/job/active-jobs`,{withCredentials:true});
         return response.data;
     } catch (error:any) {
         return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed fetching jobs' })
     }
 })
 
-export const applyJob = createAsyncThunk('job/applyJob', async(jobId,thunkAPI)=>{
+export const applyJob = createAsyncThunk('job/applyJob', async(jobId:any,thunkAPI)=>{
     try {
-        const response = await axios.post(`http://localhost:8080/api/job/${jobId}/apply`,{withCredentials:true})
+        const response = await axios.post(`http://localhost:8080/api/job/${jobId}/apply`,null,{withCredentials:true})
         return response.data;
     } catch (error:any) {
         return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed deleting job' })
@@ -59,14 +59,16 @@ interface initialStateType {
     fetchJobStatus: statusType,
     getAllJobsStatus: statusType,
     applyJobStatus: statusType,
+    appliedJobs:any,
     exploreJobs:any,
     myJobs:any , // type will be  updated later 
     selectedOrgId:string|null
 }
 
 const initialState :initialStateType = {
-    exploreJobs:[],
-    myJobs:[],
+    appliedJobs:[], //candidate
+    exploreJobs:[],//candidate
+    myJobs:[], // recruiter
     createJobStatus:'idle',
     fetchJobStatus:'idle',
     getAllJobsStatus:'idle',
@@ -123,7 +125,7 @@ const jobSlice = createSlice({
             state.getAllJobsStatus='error'
         })
         .addCase(exploreAllJobs.fulfilled,(state,action)=>{
-            // state.myJobs=action.payload.data.jobs;
+            state.exploreJobs=action.payload.data.jobs;
             console.log(action.payload, 'inside getAll  jobs...'); 
             state.getAllJobsStatus='success'
         })

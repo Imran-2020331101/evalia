@@ -287,7 +287,7 @@ const CandidateProfileContainer = ({user}:propType) => {
             }
             <section className="w-full h-auto bg-slate-900 rounded-xl pb-[40px] ">
               {
-                user?.user?.resumeData?<CandidatesProfileResumePanel isPreview={false}/>:currentAnalyzedUserResume?<CandidatesProfileResumePanel isPreview={true}/>: <AnalyzeResumeSection user={user} setIsUploadResume={setIsUploadResume}/>
+                user?.resumeData?<CandidatesProfileResumePanel isPreview={false}/>:currentAnalyzedUserResume?<CandidatesProfileResumePanel isPreview={true}/>: <AnalyzeResumeSection user={user} setIsUploadResume={setIsUploadResume}/>
               }
             </section>
         </div>
