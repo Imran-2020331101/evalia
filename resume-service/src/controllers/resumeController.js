@@ -1,31 +1,29 @@
-const fs = require('fs');
-const axios = require('axios');
-const resumeService = require('../services/resumeService');
-const logger = require('../utils/logger');
-const cloudinary = require('../config/Cloudinary');
-const Resume = require('../models/Resume');
-const ResumeDTO = require('../dto/ResumeDTO');
-const { mapToResumeDTO } = require('../utils/resumeHelper');
+
+const axios = require("axios");
+const resumeService = require("../services/resumeService");
+const logger = require("../utils/logger");
+const cloudinary = require("../config/Cloudinary");
+const Resume = require("../models/Resume");
+const ResumeDTO = require("../dto/ResumeDTO");
+const { mapToResumeDTO } = require("../utils/resumeHelper");
 const {
   addToVectordb,
   naturalLanguageSearch,
   advancedSearch,
   weightedSearch,
-} = require('../services/vectorDbService');
+} = require("../services/vectorDbService");
 
 class ResumeController {
   async uploadResumeToCloud(req, res) {
     try {
       const pdfFile = req.file;
-      const { userEmail, userId } = z.object(
-        { 
-          userEmail: z.string(),
-          userId: z.string(),
-        }).parse(req.body);
+      const { userEmail, userId } = z
+        .object({ userEmail: z.string(), userId: z.string() })
+        .parse(req.body);
 
-      const cleanUserId = String(userId).replace(/[^a-zA-Z0-9]/g, '_');
+      const cleanUserId = String(userId).replace(/[^a-zA-Z0-9]/g, "_");
 
-      const folderName = "evalia/resume/pdf";
+      const folderName = `${process.env.CLOUDINARY_FOLDER_NAME}`;
       const cloudinaryResult = await resumeService.uploadToCloudinary(
         pdfFile.buffer,
         folderName,
@@ -40,10 +38,10 @@ class ResumeController {
         },
       });
     } catch (error) {
-      logger.error('Failed to upload resume to cloud : ', error);
+      logger.error("Failed to upload resume to cloud : ", error);
       res.status(500).json({
         success: false,
-        error: 'Failed to upload resume to cloud',
+        error: "Failed to upload resume to cloud",
         details: error.message,
       });
     }
@@ -53,10 +51,8 @@ class ResumeController {
     const { resumeURL } = req.body;
     try {
       const fileResponse = await axios.get(resumeURL, {
-        responseType: 'arraybuffer',
+        responseType: "arraybuffer",
       });
-
-      // fs.writeFileSync("resume.pdf", response.data);
 
       console.log("PDF downloaded successfully.");
 
@@ -66,7 +62,7 @@ class ResumeController {
 
       // Create ResumeDTO with analyzed data for frontend
       const extractedResume = new ResumeDTO({
-        filename: 'Parsed Resume',
+        filename: "Parsed Resume",
         originalName: pdfFile.originalname,
         fileLink: resumeURL,
         industry: analysis.industry,
@@ -85,7 +81,7 @@ class ResumeController {
         awards: analysis.awards,
         volunteer: analysis.volunteer,
         interests: analysis.interests,
-        status: 'completed',
+        status: "completed",
       });
 
       const response = {
@@ -102,21 +98,21 @@ class ResumeController {
             sections: analysis.sections,
             keywords: analysis.keywords,
           },
-          uploadedBy: 'imranbinazad777@gmail.com',
+          uploadedBy: "imranbinazad777@gmail.com",
           processedAt: new Date(),
         },
       };
 
       logger.info(
-        'ResumeContoller :: line 127 :: Resume processing completed successfully'
+        "ResumeContoller :: line 127 :: Resume processing completed successfully"
       );
 
       res.status(200).json(response);
     } catch (error) {
-      logger.error('Resume extraction failed:', error);
+      logger.error("Resume extraction failed:", error);
       res.status(500).json({
         success: false,
-        error: 'Failed to extract resume ',
+        error: "Failed to extract resume ",
         details: error.message,
       });
     }
@@ -129,7 +125,7 @@ class ResumeController {
       if (!resumeData) {
         return res.status(400).json({
           success: false,
-          error: 'Resume data is required',
+          error: "Resume data is required",
         });
       }
 
@@ -141,7 +137,7 @@ class ResumeController {
 
       if (existingResume) {
         // Update the existing resume with new data
-        logger.info('Updating existing resume for user', {
+        logger.info("Updating existing resume for user", {
           userEmail: resumeData.uploadedBy,
           existingResumeId: existingResume._id,
         });
@@ -155,7 +151,7 @@ class ResumeController {
         savedResume = await newResume.save();
       }
 
-      logger.info('Resume Controller :: Resume saved to MongoDB', {
+      logger.info("Resume Controller :: Resume saved to MongoDB", {
         resumeId: savedResume._id,
         filename: savedResume.filename,
         userEmail: savedResume.uploadedBy,
@@ -173,8 +169,8 @@ class ResumeController {
       res.status(200).json({
         success: true,
         message: existingResume
-          ? 'Resume updated successfully'
-          : 'Resume saved successfully',
+          ? "Resume updated successfully"
+          : "Resume saved successfully",
         data: {
           id: savedResume._id,
           filename: savedResume.filename,
@@ -184,10 +180,10 @@ class ResumeController {
         },
       });
     } catch (error) {
-      logger.error('Failed to save resume:', error);
+      logger.error("Failed to save resume:", error);
       res.status(500).json({
         success: false,
-        error: 'Failed to save resume',
+        error: "Failed to save resume",
         details: error.message,
       });
     }
@@ -203,7 +199,7 @@ class ResumeController {
       if (!id) {
         return res.status(400).json({
           success: false,
-          error: 'Resume ID is required',
+          error: "Resume ID is required",
         });
       }
 
@@ -212,11 +208,11 @@ class ResumeController {
       if (!resume) {
         return res.status(404).json({
           success: false,
-          error: 'Resume not found',
+          error: "Resume not found",
         });
       }
 
-      logger.info('Retrieved resume by ID', {
+      logger.info("Retrieved resume by ID", {
         resumeId: id,
         userEmail: resume.uploadedBy,
         downloadUrl,
@@ -230,10 +226,10 @@ class ResumeController {
         },
       });
     } catch (error) {
-      logger.error('Failed to retrieve resume by ID:', error);
+      logger.error("Failed to retrieve resume by ID:", error);
       res.status(500).json({
         success: false,
-        error: 'Failed to retrieve resume',
+        error: "Failed to retrieve resume",
         details: error.message,
       });
     }
@@ -249,7 +245,7 @@ class ResumeController {
       if (!email) {
         return res.status(400).json({
           success: false,
-          error: 'Email address is required',
+          error: "Email address is required",
         });
       }
 
@@ -258,11 +254,11 @@ class ResumeController {
       if (!resume) {
         return res.status(404).json({
           success: false,
-          error: 'Resume not found for this email',
+          error: "Resume not found for this email",
         });
       }
 
-      logger.info('Retrieved resume by email', {
+      logger.info("Retrieved resume by email", {
         email: email,
         resumeId: resume._id,
         downloadUrl: resume.fileLink,
@@ -272,17 +268,17 @@ class ResumeController {
 
       const { isValid, errors } = resumeDTO.validate();
       if (!isValid) {
-        console.error('Validation errors:', errors);
+        console.error("Validation errors:", errors);
       }
 
       res.status(200).json({
         ...resumeDTO.toObject(),
       });
     } catch (error) {
-      logger.error('Failed to retrieve resume by email:', error);
+      logger.error("Failed to retrieve resume by email:", error);
       res.status(500).json({
         success: false,
-        error: 'Failed to retrieve resume',
+        error: "Failed to retrieve resume",
         details: error.message,
       });
     }
@@ -298,7 +294,7 @@ class ResumeController {
       if (!id) {
         return res.status(400).json({
           success: false,
-          error: 'Resume ID is required',
+          error: "Resume ID is required",
         });
       }
 
@@ -307,37 +303,37 @@ class ResumeController {
       if (!resume) {
         return res.status(404).json({
           success: false,
-          error: 'Resume not found',
+          error: "Resume not found",
         });
       }
 
       // Generate download URL with proper PDF headers
       const downloadUrl = cloudinary.url(resume.filename, {
-        resource_type: 'raw',
-        flags: 'attachment',
-        format: 'pdf',
+        resource_type: "raw",
+        flags: "attachment",
+        format: "pdf",
       });
 
       // Set proper headers for PDF download
-      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
-        'Content-Disposition',
+        "Content-Disposition",
         `attachment; filename="${resume.originalName}"`
       );
 
       // Redirect to Cloudinary download URL
       res.redirect(downloadUrl);
 
-      logger.info('Resume download initiated', {
+      logger.info("Resume download initiated", {
         resumeId: id,
         filename: resume.originalName,
         userEmail: resume.uploadedBy,
       });
     } catch (error) {
-      logger.error('Failed to download resume:', error);
+      logger.error("Failed to download resume:", error);
       res.status(500).json({
         success: false,
-        error: 'Failed to download resume',
+        error: "Failed to download resume",
         details: error.message,
       });
     }
@@ -352,15 +348,15 @@ class ResumeController {
     try {
       res.status(200).json({
         success: true,
-        message: 'Resume upload service is running',
+        message: "Resume upload service is running",
         timestamp: new Date().toISOString(),
-        service: 'evalia-ai-server',
+        service: "evalia-ai-server",
       });
     } catch (error) {
-      logger.error('Status check failed:', error);
+      logger.error("Status check failed:", error);
       res.status(500).json({
         success: false,
-        error: 'Service status check failed',
+        error: "Service status check failed",
       });
     }
   }
@@ -372,7 +368,7 @@ class ResumeController {
       if (!job_description) {
         return res.status(400).json({
           success: false,
-          error: 'Job description is required',
+          error: "Job description is required",
         });
       }
 
@@ -384,19 +380,19 @@ class ResumeController {
       ``;
       const Candidates = await naturalLanguageSearch(requirement);
 
-      console.log('Candidates from search:', Candidates);
-      console.log('Is Candidates an array?', Array.isArray(Candidates));
+      console.log("Candidates from search:", Candidates);
+      console.log("Is Candidates an array?", Array.isArray(Candidates));
 
       res.status(200).json({
         success: true,
         candidates: Candidates,
-        message: 'Basic search completed successfully',
+        message: "Basic search completed successfully",
       });
     } catch (error) {
-      logger.error('Basic search failed:', error);
+      logger.error("Basic search failed:", error);
       res.status(500).json({
         success: false,
-        error: 'Failed to perform basic search',
+        error: "Failed to perform basic search",
         details: error.message,
       });
     }

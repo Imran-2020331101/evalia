@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -58,7 +59,7 @@ public class AuthController {
             @ApiResponse(responseCode = "400", description = "Email is already in use", content = @Content)
     })
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterDto registerDto) {
+    public ResponseEntity<?> register(@RequestBody RegisterDto registerDto) throws MessagingException {
         return authService.register(registerDto);
     }
 
@@ -106,7 +107,7 @@ public class AuthController {
             @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
     })
     @PostMapping("/resend-verification")
-    public ResponseEntity<?> resendVerificationEmail(@RequestBody String email) {
+    public ResponseEntity<?> resendVerificationEmail(@RequestBody String email) throws MessagingException {
         return authService.resendVerificationEmail(email);
     }
 
