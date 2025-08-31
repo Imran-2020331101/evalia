@@ -37,7 +37,7 @@ export const deleteJob = createAsyncThunk('job/deleteJob', async(jobId:string, t
 
 export const exploreAllJobs = createAsyncThunk('job/exploreAllJobs', async(_,thunkAPI)=>{
     try {
-        const response = await axios.get(`http://localhost:8080/api/job`,{withCredentials:true});
+        const response = await axios.get(`http://localhost:8080/api/job/active-jobs`,{withCredentials:true});
         return response.data;
     } catch (error:any) {
         return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed fetching jobs' })
@@ -123,7 +123,7 @@ const jobSlice = createSlice({
             state.getAllJobsStatus='error'
         })
         .addCase(exploreAllJobs.fulfilled,(state,action)=>{
-            // state.myJobs=action.payload.data.jobs;
+            state.exploreJobs=action.payload.data.jobs;
             console.log(action.payload, 'inside getAll  jobs...'); 
             state.getAllJobsStatus='success'
         })

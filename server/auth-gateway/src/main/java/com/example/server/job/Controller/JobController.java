@@ -28,8 +28,9 @@ public class JobController {
         this.jobProxy           = jobProxy;
     }
 
-    @GetMapping("/")
+    @GetMapping("/active-jobs")
     public ResponseEntity<String> getAllActiveJobs(Principal principal) {
+        logger.info("Received get job request from "+ principal.getName());
         return ResponseEntity.status(HttpStatus.OK)
                 .body(jobProxy.getAllActiveJobs());
     }
