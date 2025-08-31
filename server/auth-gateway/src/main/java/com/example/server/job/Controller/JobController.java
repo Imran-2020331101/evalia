@@ -28,6 +28,11 @@ public class JobController {
         this.jobProxy           = jobProxy;
     }
 
+    @GetMapping("/")
+    public ResponseEntity<String> getAllActiveJobs(Principal principal) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(jobProxy.getAllActiveJobs());
+    }
 
     @GetMapping("/organization/{OrganizationId}")
     public ResponseEntity<String> getAllJobsOfAnOrganization(@PathVariable("OrganizationId") String OrganizationId,
@@ -74,8 +79,6 @@ public class JobController {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(jobProxy.getJobById(jobId));
     }
-
-
 
     @DeleteMapping("/{jobId}")
     public ResponseEntity<String> deleteJobById(@PathVariable ("jobId") String jobId, Principal principal) {

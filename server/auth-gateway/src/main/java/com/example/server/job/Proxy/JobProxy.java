@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "jobClient",
              url  = "http://localhost:7000/api/jobs")
 public interface JobProxy {
+
+    @GetMapping(value = "/")
+    String getAllActiveJobs();
+
     @PostMapping   (value = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
     String createJob     ( @RequestBody   JobCreationRequest jobCreationRequest);
 
@@ -21,10 +25,10 @@ public interface JobProxy {
     String deleteJobById ( @PathVariable ("jobId") String jobId,
                            @RequestParam ("email") String email);
 
-    @GetMapping   (value = "/organization/{OrganizationId}")
+    @GetMapping    (value = "/organization/{OrganizationId}")
     String getAllJobsOfAnOrganization(@PathVariable ("OrganizationId") String OrganizationId);
 
-    @DeleteMapping(value = "/organization/{OrganizationId}")
+    @DeleteMapping (value = "/organization/{OrganizationId}")
     String deleteAllJobsOfAnOrganization(@PathVariable ("OrganizationId") String OrganizationId);
 
     @PostMapping   (value = "/apply", consumes = MediaType.APPLICATION_JSON_VALUE)
