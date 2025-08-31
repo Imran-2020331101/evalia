@@ -408,6 +408,61 @@ async rejectRemainingCandidates(req: Request, res: Response): Promise<void> {
     } as ApiResponse);
   }
 }
+
+
+  async  getAllJobsAppliedByAUser(req: Request, res: Response): Promise<void>{
+    try {
+      const jobIds = req.body;
+      
+      // Validate input
+      if (!Array.isArray(jobIds)) {
+        res.status(400).json({
+          success: false,
+          error: "Request body must be an array of job IDs"
+        } as ApiResponse);
+        return;
+      }
+
+      if (jobIds.length === 0) {
+        res.status(200).json({
+          success: true,
+          message: "No jobs applied",
+          data: []
+        } as ApiResponse);
+        return;
+      }
+
+      logger.info("Fetching job details for applied jobs", { 
+        jobIdsCount: jobIds.length,
+        jobIds: jobIds 
+      });
+
+      // Fetch job details from database
+      const jobDetails = await JobService.findJobsByIds(jobIds);
+
+      logger.info("Successfully retrieved job details", {
+        requestedCount: jobIds.length,
+        foundCount: jobDetails.length
+      });
+
+      res.status(200).json({
+        success: true,
+        message: `Retrieved ${jobDetails.length} job details`,
+        data: jobDetails
+      } as ApiResponse);
+
+    } catch (error: any) {
+      logger.error("Error fetching applied jobs", {
+        error: error.message,
+        stack: error.stack
+      });
+
+      res.status(500).json({
+        success: false,
+        error: "Internal server error while fetching applied jobs"
+      } as ApiResponse);
+    }
+  }
   
 }
 

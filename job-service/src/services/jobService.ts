@@ -326,6 +326,37 @@ class jobService{
       }
     }
 
+    async findJobsByIds(jobIds: string[]): Promise<IJobDetailsDocument[]> {
+      try {
+        // Validate all job IDs
+        const validJobIds = jobIds.filter(id => Types.ObjectId.isValid(id));
+        
+        if (validJobIds.length === 0) {
+          logger.warn("No valid job IDs provided", { jobIds });
+          return [];
+        }
+
+        // Find all jobs with the provided IDs
+        const jobs = await JobDetailsModel.find({
+          _id: { $in: validJobIds.map(id => new Types.ObjectId(id)) }
+        }).lean();
+
+        logger.info("Retrieved jobs by IDs", {
+          requestedCount: jobIds.length,
+          validCount: validJobIds.length,
+          foundCount: jobs.length
+        });
+
+        return jobs;
+      } catch (error: any) {
+        logger.error("Error fetching jobs by IDs", { 
+          error: error.message, 
+          jobIds: jobIds.length 
+        });
+        throw new Error("Failed to fetch jobs by IDs");
+      }
+    }
+
     
 }
 

@@ -39,6 +39,9 @@ public class userEntity implements UserDetails {
     private boolean emailVerified = false;
     private boolean hasResume = false;
     private String resumeUrl = null;
+    private List<String> savedJobs = new ArrayList<>();
+    private int numberOfAppliedJobs = 0;
+    private List<String> appliedJobs = new ArrayList<>();
     private boolean hasAnyOrganization = false;
     private List<String> organizationId = new ArrayList<>(); // List of organization IDs the user owns or is part of
     private LocalDateTime createdAt = LocalDateTime.now();

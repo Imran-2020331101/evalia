@@ -7,6 +7,7 @@ import com.example.server.resume.DTO.ResumeDataRequest;
 import com.example.server.resume.DTO.ResumeForwardWrapper;
 import com.example.server.resume.Proxy.ResumeJsonProxy;
 import com.example.server.resume.Proxy.ResumeProxy;
+import com.example.server.resume.exception.ResumeNotFoundException;
 import com.example.server.security.models.userEntity;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -85,14 +86,8 @@ public class ResumeController {
     public ResponseEntity<?> extractDetailsFromResume(Principal principal) {
         userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
 
-//        TODO: Use ResumeNotFound Exception Instead of manual handling
-        if (user == null || !user.isHasResume()) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("error", "Resume not found for user. Please upload a resume first.");
-            response.put("details", "User: " + principal.getName() + " has no resume uploaded.");
-
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        if (!user.isHasResume()) {
+            throw new ResumeNotFoundException("No resume found for user: " + principal.getName());
         }
 
         return ResponseEntity.status(HttpStatus.OK)
