@@ -35,18 +35,42 @@ export const deleteJob = createAsyncThunk('job/deleteJob', async(jobId:string, t
     }
 })
 
+export const exploreAllJobs = createAsyncThunk('job/exploreAllJobs', async(_,thunkAPI)=>{
+    try {
+        const response = await axios.get(`http://localhost:8080/api/job`,{withCredentials:true});
+        return response.data;
+    } catch (error:any) {
+        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed fetching jobs' })
+    }
+})
+
+export const applyJob = createAsyncThunk('job/applyJob', async(jobId,thunkAPI)=>{
+    try {
+        const response = await axios.post(`http://localhost:8080/api/job/${jobId}/apply`,{withCredentials:true})
+        return response.data;
+    } catch (error:any) {
+        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed deleting job' })
+    }
+})
+
 type statusType = 'idle' | 'pending' | 'success' | 'error';
 interface initialStateType {
     createJobStatus: statusType,
     fetchJobStatus: statusType,
+    getAllJobsStatus: statusType,
+    applyJobStatus: statusType,
+    exploreJobs:any,
     myJobs:any , // type will be  updated later 
     selectedOrgId:string|null
 }
 
 const initialState :initialStateType = {
+    exploreJobs:[],
     myJobs:[],
     createJobStatus:'idle',
     fetchJobStatus:'idle',
+    getAllJobsStatus:'idle',
+    applyJobStatus:'idle',
     selectedOrgId:null
 }
 
@@ -56,7 +80,13 @@ const jobSlice = createSlice({
     reducers:{
         setSelectedOrgId(state,action){
             state.selectedOrgId=action.payload;
-        }
+        },
+        setApplyJobStatus(state,action){
+            state.applyJobStatus=action.payload;
+        },
+        setGetAllJobStatus(state,action){
+            state.getAllJobsStatus=action.payload;
+        },
     },
     extraReducers(builder){
         builder
@@ -86,12 +116,37 @@ const jobSlice = createSlice({
             const newJobs = state.myJobs.filter((item:any)=>item._id!==action.payload)
             state.myJobs=newJobs;
         })
+        .addCase(exploreAllJobs.pending,(state)=>{
+            state.getAllJobsStatus='pending'
+        })
+        .addCase(exploreAllJobs.rejected,(state)=>{
+            state.getAllJobsStatus='error'
+        })
+        .addCase(exploreAllJobs.fulfilled,(state,action)=>{
+            // state.myJobs=action.payload.data.jobs;
+            console.log(action.payload, 'inside getAll  jobs...'); 
+            state.getAllJobsStatus='success'
+        })
+        .addCase(applyJob.pending,(state)=>{
+            state.applyJobStatus='pending'
+        })
+        .addCase(applyJob.rejected,(state)=>{
+            state.applyJobStatus='error'
+        })
+        .addCase(applyJob.fulfilled,(state,action)=>{
+            // state.myJobs=action.payload.data.jobs;
+            console.log(action.payload, 'inside apply  job...'); 
+            state.applyJobStatus='success'
+        })
     }
 })
 
 export default jobSlice.reducer;
-export const {setSelectedOrgId}=jobSlice.actions;
+export const {setSelectedOrgId, setApplyJobStatus, setGetAllJobStatus}=jobSlice.actions;
+export const exploreJobs = (state:RootState)=>state.job.exploreJobs;
 export const myJobs = (state:RootState)=>state.job.myJobs;
 export const createJobStatus = (state:RootState)=>state.job.createJobStatus;
+export const getAllJobsStatus = (state:RootState)=>state.job.getAllJobsStatus;
 export const fetchJobStatus = (state:RootState)=>state.job.fetchJobStatus;
+export const applyJobStatus = (state:RootState)=>state.job.applyJobStatus;
 export const selectedOrgId = (state:RootState)=>state.job.selectedOrgId;
