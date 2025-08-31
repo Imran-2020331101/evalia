@@ -9,12 +9,14 @@ public class ResumeForwardWrapper {
     private String resumeURL;
     private String userId;
     private String userName;
+    private String userEmail;
 
-    public ResumeForwardWrapper(ResumeDataRequest resumeData,String resumeURL, ObjectId id, String userName ) {
+    public ResumeForwardWrapper(ResumeDataRequest resumeData,String resumeURL, ObjectId id, String userName, String userEmail) {
         this.resumeData = resumeData;
         this.resumeURL = resumeURL;
         this.userId = id.toString();
         this.userName = userName;
+        this.userEmail = userEmail;
     }
 
 }

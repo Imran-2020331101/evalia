@@ -1,5 +1,6 @@
 package com.example.server.resume.DTO;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import java.util.Date;
@@ -81,12 +82,13 @@ public class ResumeDataRequest {
     }
 
     @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Award {
         private String title;
         private String organization;
         private String year;
         private String description;
-
+        private String _id; // <--- add this field
     }
 
     @Data
