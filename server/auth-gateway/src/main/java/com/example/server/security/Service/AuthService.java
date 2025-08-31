@@ -1,7 +1,11 @@
 package com.example.server.security.Service;
 
+import com.example.server.exception.CustomExceptions.UserNotFoundException;
 import com.example.server.security.JWT.JwtService;
 import com.example.server.security.DTO.*;
+import com.example.server.security.exception.InvalidTokenException;
+import com.example.server.security.exception.TokenExpiredException;
+import com.example.server.security.exception.UserAlreadyExistsException;
 import com.example.server.security.models.ConfirmationToken;
 import com.example.server.security.models.Role;
 import com.example.server.security.models.userEntity;
@@ -17,7 +21,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -58,20 +61,8 @@ public class AuthService {
     }
 
     public ResponseEntity<?> login(LoginDto loginDto) {
-
-        try {
-            // Check if user exists first
-            if (!userRepository.existsByEmail(loginDto.getEmail())) {
-                logger.warning("Login attempt with non-existent email: " + loginDto.getEmail());
-                return new ResponseEntity<>("User with this email does not exist", HttpStatus.NOT_FOUND);
-            }
-
-            // Check if a user account is verified
-            userEntity user = userRepository.findByEmail(loginDto.getEmail()).orElse(null);
-            if (user == null) {
-                logger.warning("User not found during login: " + loginDto.getEmail());
-                return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
-            }
+            userEntity user = userRepository.findByEmail(loginDto.getEmail())
+                    .orElseThrow(() -> new UserNotFoundException("User with this email does not exist :" + loginDto.getEmail()));
 
             if (!user.isEmailVerified()) {
                 logger.warning("Login attempt with unverified email: " + loginDto.getEmail());
@@ -93,18 +84,13 @@ public class AuthService {
             logger.info("Successful login for user: " + loginDto.getEmail());
             return new ResponseEntity<>(loginResponse, HttpStatus.OK);
 
-        } catch (Exception e) {
-            logger.severe("Unexpected error during login for email: " + loginDto.getEmail() + " - " + e.getMessage());
-            return new ResponseEntity<>("An unexpected error occurred during login", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+
     }
 
-    public ResponseEntity<?> register(RegisterDto registerDto) {
+    public ResponseEntity<?> register(RegisterDto registerDto) throws MessagingException {
 
         if (Boolean.TRUE.equals(userRepository.existsByEmail(registerDto.getEmail()))) {
-            return new ResponseEntity<>(
-                    new RegistrationResponseDTO("Email is already in use!",null)
-                                                      , HttpStatus.BAD_REQUEST);
+            throw new UserAlreadyExistsException("User already exists with email: " + registerDto.getEmail());
         }
 
         userEntity user = new userEntity();
@@ -121,18 +107,16 @@ public class AuthService {
 
         String temporaryToken = temporarilyAuthenticate(user);
 
-        try {
-            sendConfirmationToken(registerDto.getEmail());
-        } catch (MessagingException e) {
-            throw new RuntimeException("Unable to send Mail from User Service");
-        }
+
+        sendConfirmationToken(registerDto.getEmail());
+
 
         return new ResponseEntity<>(
                 new RegistrationResponseDTO("User registered success!",temporaryToken)
                                                   , HttpStatus.OK);
     }
 
-    public String confirmEmail(VerifyDTO verifyDTO) throws Exception {
+    public String confirmEmail(VerifyDTO verifyDTO){
 
         String confirmationToken = verifyDTO.getOtp();
         String email = verifyDTO.getEmail();
@@ -141,7 +125,7 @@ public class AuthService {
 
         // Input validation
         if (confirmationToken == null || confirmationToken.trim().isEmpty()) {
-            throw new Exception("Confirmation token cannot be empty");
+            throw new InvalidTokenException("Confirmation token cannot be empty");
         }
 
         Optional<ConfirmationToken> token = Optional.ofNullable(
@@ -156,7 +140,7 @@ public class AuthService {
                     confirmToken.getExpiryDate().isBefore(LocalDateTime.now())) {
                 logger.warning("Expired token used: " + confirmationToken);
                 confirmationTokenRepository.deleteById(confirmToken.getId());
-                throw new Exception("OTP has expired. Please request a new one.");
+                throw new TokenExpiredException("OTP has expired. Please request a new one.");
             }
 
             logger.info("Valid token found for verification");
@@ -165,7 +149,7 @@ public class AuthService {
             String userEmail = confirmToken.getUserEmail();
             if (userEmail != null && userEmail.equals(email)) {
                 userEntity user = userRepository.findByEmail(userEmail)
-                        .orElseThrow(() -> new Exception("User not found for the given token"));
+                        .orElseThrow(() -> new UserNotFoundException("User not found for the given token"));
 
                 // Check if already verified
                 if (user.isEmailVerified()) {
@@ -183,7 +167,7 @@ public class AuthService {
         }
 
         logger.warning("Invalid token attempted: " + confirmationToken);
-        throw new Exception("Invalid OTP. Please check your OTP and try again.");
+        throw new InvalidTokenException("Invalid OTP. Please check your OTP and try again.");
     }
 
     public void sendConfirmationToken(String email) throws MessagingException {
@@ -191,55 +175,36 @@ public class AuthService {
         int randomNumber = 1000 + random.nextInt(9000);
         String otpString = String.valueOf(randomNumber);
 
-        ConfirmationToken confirmationToken = new ConfirmationToken(randomNumber);
-        confirmationToken.setUserEmail(email);
-
-        confirmationToken.setExpiryDate(LocalDateTime.now().plusMinutes(10));
+        ConfirmationToken confirmationToken = new ConfirmationToken(randomNumber,email,LocalDateTime.now().plusMinutes(10));
 
         confirmationTokenRepository.save(confirmationToken);
-
         emailService.sendVerificationEmail(email, otpString);
 
         logger.info("Confirmation Token: " + confirmationToken.getToken());
     }
 
-    public ResponseEntity<?> resendVerificationEmail(String email) {
+    public ResponseEntity<?> resendVerificationEmail(String email) throws MessagingException {
         // Input validation
         if (email == null || email.trim().isEmpty()) {
             return new ResponseEntity<>("Email is required", HttpStatus.BAD_REQUEST);
         }
 
-        try {
-            // Check if user exists
-            if (!userRepository.existsByEmail(email)) {
-                logger.warning("Resend verification attempted for non-existent email: " + email);
-                return new ResponseEntity<>("User with this email does not exist", HttpStatus.NOT_FOUND);
-            }
+        userEntity user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new UserNotFoundException("User with email " + email + " does not exist"));
 
-            // Check if user is already verified
-            userEntity user = userRepository.findByEmail(email).orElse(null);
-            if (user != null && user.isEmailVerified()) {
-                return new ResponseEntity<>("Email is already verified", HttpStatus.BAD_REQUEST);
-            }
-
-            // Send new verification token
-            sendConfirmationToken(email);
-            logger.info("Verification email resent successfully to: " + email);
-            return new ResponseEntity<>("Verification email sent successfully", HttpStatus.OK);
-
-        } catch (MessagingException e) {
-            logger.severe("Failed to send verification email to: " + email + " - " + e.getMessage());
-            return new ResponseEntity<>("Failed to send verification email. Please try again later.",
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (Exception e) {
-            logger.severe("Unexpected error while resending verification email to: " + email + " - " + e.getMessage());
-            return new ResponseEntity<>("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
+        if (user != null && user.isEmailVerified()) {
+            return new ResponseEntity<>("Email is already verified", HttpStatus.BAD_REQUEST);
         }
+
+        // Send new verification token
+        sendConfirmationToken(email);
+        logger.info("Verification email resent successfully to: " + email);
+        return new ResponseEntity<>("Verification email sent successfully", HttpStatus.OK);
     }
 
     public void updateRole(String email, String roleName) {
         userEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email:"+ email));
+                .orElseThrow(() -> new UserNotFoundException("User not found with email:"+ email));
         Role role = roleRepository.findByName(roleName)
                 .orElseThrow(() -> new IllegalArgumentException("Role not found with name: "+ roleName));
 

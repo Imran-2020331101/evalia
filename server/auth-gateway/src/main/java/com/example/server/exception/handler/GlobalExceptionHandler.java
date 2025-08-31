@@ -7,6 +7,7 @@ import com.example.server.job.exception.JobNotFoundException;
 import com.example.server.resume.exception.ResumeNotFoundException;
 import com.example.server.resume.exception.ResumeParsingException;
 import com.example.server.security.exception.*;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // 🔹 Common exceptions
+    // Common exceptions
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ExceptionResponse> handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest req) {
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), req);
@@ -46,7 +47,7 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage(), req);
     }
 
-    // 🔹 Job exceptions
+    // Job exceptions
     @ExceptionHandler(JobNotFoundException.class)
     public ResponseEntity<ExceptionResponse> handleJobNotFound(JobNotFoundException ex, HttpServletRequest req) {
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), req);
@@ -62,7 +63,7 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), req);
     }
 
-    // 🔹 Resume exceptions
+    //Resume exceptions
     @ExceptionHandler(ResumeNotFoundException.class)
     public ResponseEntity<ExceptionResponse> handleResumeNotFound(ResumeNotFoundException ex, HttpServletRequest req) {
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), req);
@@ -73,7 +74,7 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), req);
     }
 
-    // 🔹 User exceptions
+    //User exceptions
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ExceptionResponse> handleUserNotFound(UserNotFoundException ex, HttpServletRequest req) {
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), req);
@@ -89,7 +90,7 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), req);
     }
 
-    // 🔹 Security exceptions
+    //Security exceptions
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ExceptionResponse> handleUnauthorized(UnauthorizedException ex, HttpServletRequest req) {
         return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), req);
@@ -110,7 +111,13 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), req);
     }
 
-    // 🔹 Fallback - catches anything not handled above
+    // Email exceptions
+    @ExceptionHandler(MessagingException.class)
+    public ResponseEntity<ExceptionResponse> handleMessagingException(MessagingException ex, HttpServletRequest req) {
+        return buildResponse(HttpStatus.SERVICE_UNAVAILABLE,ex.getMessage(), req);
+    }
+
+    //Fallback - catches anything not handled above
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionResponse> handleGeneral(Exception e, HttpServletRequest req) {
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error occurred", req);

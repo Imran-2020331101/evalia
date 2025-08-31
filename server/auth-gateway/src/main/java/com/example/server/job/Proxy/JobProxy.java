@@ -1,5 +1,6 @@
 package com.example.server.job.Proxy;
 
+import com.example.server.job.DTO.JobApplicationRequest;
 import com.example.server.job.DTO.JobCreationRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
@@ -26,4 +27,9 @@ public interface JobProxy {
     @DeleteMapping(value = "/organization/{OrganizationId}")
     String deleteAllJobsOfAnOrganization(@PathVariable ("OrganizationId") String OrganizationId);
 
+    @PostMapping   (value = "/apply", consumes = MediaType.APPLICATION_JSON_VALUE)
+    String applyToAJob     ( @RequestBody JobApplicationRequest jobApplicationRequest);
+
+    @PostMapping   (value = "/shortlist", consumes = MediaType.APPLICATION_JSON_VALUE)
+    String shortlistCandidatesOfAJob     ( @RequestBody JobApplicationRequest jobApplicationRequest);
 }
