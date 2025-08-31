@@ -101,21 +101,23 @@ public class ResumeController {
                             null,
                             user.getResumeUrl(),
                             user.getId(),
-                            user.getUsername()
+                            user.getUsername(),
+                            principal.getName()
         )));
     }
 
     @PostMapping("/save")
-    public String saveResume(@RequestBody ResumeDataRequest resumeData) {
+    public String saveResume(@RequestBody ResumeDataRequest resumeData, Principal principal) {
 
-        logger.info("Received request to save resume data for user: " + resumeData.getFilename());
+        logger.info("Received request to save resume data for user: " + principal.getName());
 
-        userEntity user = (userEntity) userDetailsService.loadUserByUsername(resumeData.getUploadedBy());
+        userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
         return resumeJsonProxy.saveResume(new ResumeForwardWrapper(
                 resumeData,
                 null,
                 user.getId(),
-                user.getUsername()
+                user.getUsername(),
+                principal.getName()
         ));
     }
 

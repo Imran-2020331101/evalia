@@ -1,4 +1,3 @@
-
 const axios = require("axios");
 const resumeService = require("../services/resumeService");
 const logger = require("../utils/logger");
@@ -48,7 +47,7 @@ class ResumeController {
   }
 
   async extractDetailsFromResume(req, res) {
-    const { resumeURL } = req.body;
+    const { resumeURL, userEmail } = req.body;
     try {
       const fileResponse = await axios.get(resumeURL, {
         responseType: "arraybuffer",
@@ -98,7 +97,7 @@ class ResumeController {
             sections: analysis.sections,
             keywords: analysis.keywords,
           },
-          uploadedBy: "imranbinazad777@gmail.com",
+          uploadedBy: userEmail,
           processedAt: new Date(),
         },
       };
@@ -120,7 +119,13 @@ class ResumeController {
 
   async saveResume(req, res) {
     try {
-      const { resumeData, userId, userName } = req.body;
+      const { resumeData, userId, userName, userEmail } = req.body;
+      console.log(
+        "Received parameters in job service ",
+        userId,
+        userName,
+        resumeData.uploadedBy
+      );
 
       if (!resumeData) {
         return res.status(400).json({
@@ -272,7 +277,10 @@ class ResumeController {
       }
 
       res.status(200).json({
-        ...resumeDTO.toObject(),
+        success: true,
+        data: {
+          ...resumeDTO.toObject(),
+        },
       });
     } catch (error) {
       logger.error("Failed to retrieve resume by email:", error);
