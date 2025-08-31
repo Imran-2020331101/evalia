@@ -7,10 +7,11 @@ import Education  from "./Education";
 import Projects from "./Projects";
 import Certifications from "./Certifications";
 import Awards from "./Awards";
-import { useAppSelector } from "@/redux/lib/hooks";
-import { analyzedUserResume } from "@/redux/features/auth";
+import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks";
+import { analyzedUserResume, saveAnalyzedResume, saveUserResumeStatus } from "@/redux/features/auth";
 
 import { ResumeResponse } from "@/Data/resume_response";
+import { ClipLoader } from "react-spinners";
 
 export const dummyCandidateData = {
   skills: {
@@ -197,7 +198,16 @@ const CandidatesProfileResumePanel = ({isPreview}:{isPreview:boolean}) => {
     const [editedAwards, setAwards] = useState<Award[]>([])
     const [editSkills, setSkills] = useState<Skills>({})
 
+    const dispatch = useAppDispatch()
+
     const currentAnalyzedUserResume = useAppSelector(analyzedUserResume);
+    const currentSaveUserResumeStatus = useAppSelector(saveUserResumeStatus);
+
+    const handleSaveResumeToProfile =()=>{
+      const resumeData = {...currentAnalyzedUserResume, experience:editExperience, education:editEducation, skills:editSkills, projects:editedProjects,awards:editedAwards,certifications:certs};
+      console.log(resumeData, 'resumeData')
+      dispatch(saveAnalyzedResume(resumeData))
+    }
   useEffect(()=>{
     if(currentAnalyzedUserResume && isPreview){
       console.log(currentAnalyzedUserResume, 'cuurent analyzed resume inside useEffect')
@@ -225,7 +235,15 @@ const CandidatesProfileResumePanel = ({isPreview}:{isPreview:boolean}) => {
       {/* Skills */}
       <Skills editSkills={editSkills} setSkills={setSkills}/>
       {currentAnalyzedUserResume && <div className="w-full flex gap-1">
-          <button className="flex-1 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-md text-white flex justify-center">Add to my profile</button>
+          <button onClick={handleSaveResumeToProfile} disabled={currentSaveUserResumeStatus==='pending'?true:false} className="flex-1 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-md text-white flex justify-center">
+            {
+              currentSaveUserResumeStatus==='pending'?
+                <div className="flex items-center gap-2">
+                  <ClipLoader size={17} color="white"/> Saving to your profile ..
+                </div>
+              :'Add to my profile'
+            }
+          </button>
           <button className="flex-1 py-1 rounded-lg bg-gray-700 hover:bg-gray-800 text-md text-white flex justify-center">reset</button>
         </div>}
     </div>
