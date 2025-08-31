@@ -6,8 +6,10 @@ import saveLogo from '../../../../public/book-mark.svg'
 import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks'
 import { previewedJob, setPreviewedJob } from '@/redux/features/utils'
 import { useEffect } from 'react'
+import { applyJob } from '@/redux/features/job'
 
-const JobCard = () => {
+const JobCard = ({job}:{job:any}) => {
+  const {_id, company, title, jobLocation, jobType, status, workPlaceType, salary, createdAt}=job;
   const dispatch = useAppDispatch()
   const currentPreviewedJob = useAppSelector(previewedJob)
   useEffect(()=>console.log(currentPreviewedJob))
@@ -19,12 +21,12 @@ const JobCard = () => {
            alt='company logo' width={100} height={100} className='w-full h-full object-cover rounded-sm'/>
         </div>
         <div className="flex flex-col h-[50px] justify-between items-start flex-1">
-          <button onClick={()=>dispatch(setPreviewedJob(true))} className='text-[12px] text-gray-100 font-semibold tracking-wider cursor-pointer hover:underline'>QA Engineer</button>
+          <button onClick={()=>dispatch(setPreviewedJob(true))} className='text-[12px] text-gray-100 font-semibold tracking-wider cursor-pointer hover:underline'>{title}</button>
           <button onClick={()=>dispatch(setPreviewedJob(true))} className="w-full h-full items-center justify-start flex overflow-hidden">
             <p className='text-[12px] text-gray-300'>{`Google`}</p><p className='font-bold text-sm m-1'>.</p>
-            <p className='text-[12px] text-gray-400'>{`Remote only`}</p><p className='font-bold text-sm m-1'>.</p>
-            <p className='text-[12px] text-gray-300'>{`Bangladesh`}</p><p className='font-bold text-sm m-1'>.</p>
-            <p className='text-[12px] text-gray-300'>{`$40k - $86k`}</p><p className='font-bold text-sm m-1'>.</p>
+            <p className='text-[12px] text-gray-400'>{workPlaceType}</p><p className='font-bold text-sm m-1'>.</p>
+            <p className='text-[12px] text-gray-300'>{jobLocation}</p><p className='font-bold text-sm m-1'>.</p>
+            <p className='text-[12px] text-gray-300'>{`$${salary.from}k - $${salary.to}k`}</p><p className='font-bold text-sm m-1'>.</p>
             <p className='text-[12px] text-gray-300'>{`2 days ago`}</p>
           </button>
         </div>
@@ -34,7 +36,7 @@ const JobCard = () => {
           <Image src={saveLogo} alt='save job' className='w-[13px]'/>
           <p className='text-[10px] font-semibold '>Save</p>
         </button>
-        <button className='w-[60px] h-[30px] border-[1px] border-gray-300 flex justify-center items-center rounded-sm gap-1 text-gray-300 hover:text-blue-500 hover:border-blue-500 cursor-pointer'>
+        <button onClick={()=>dispatch(applyJob(_id))} className='w-[60px] h-[30px] border-[1px] border-gray-300 flex justify-center items-center rounded-sm gap-1 text-gray-300 hover:text-blue-500 hover:border-blue-500 cursor-pointer'>
           <Image src={applyLogo} alt='apply job' className='w-[13px]'/>
           <p className='text-[10px] font-semibold '>Apply</p>
         </button>

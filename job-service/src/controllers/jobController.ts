@@ -147,6 +147,7 @@ export class JobController {
    */
   async getAllJobs(req: Request, res: Response): Promise<void> {
     try {
+      logger.info("All jobs request sent from ///////////////");
       const filterValidation = JobFilterSchema.safeParse(req.query);
       
       if (!filterValidation.success) {
