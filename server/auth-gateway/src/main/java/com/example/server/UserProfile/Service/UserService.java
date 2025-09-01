@@ -10,7 +10,6 @@ import com.example.server.security.models.userEntity;
 import com.example.server.security.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.types.ObjectId;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,7 +39,7 @@ public class UserService {
 
     public userEntity loadUserById(String id) {
         return userRepository.findById(new ObjectId(id))
-                .orElseThrow(() -> new UsernameNotFoundException("Email not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
     }
 
     public void saveUpdatedUser(userEntity user) {
@@ -49,7 +48,7 @@ public class UserService {
 
     public String updateUserProfilePicture(MultipartFile file, String email) throws IOException {
         userEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
         String imageUrl = cloudinaryService.uploadImageToCloudinary(file, "profile_images");
         user.setProfilePictureUrl(imageUrl);
         userRepository.save(user);
@@ -105,9 +104,7 @@ public class UserService {
             return new Profile(null, toUserDTO(user));
         }
         try {
-            String jsonResponse = resumeJsonProxy.getResumeByEmail(
-                    new ForwardProfileRequest(user.getEmail())
-            );
+            String jsonResponse = resumeJsonProxy.getResumeByEmail(user.getEmail());
 
             logger.info("returned response from resume server " + jsonResponse);
 

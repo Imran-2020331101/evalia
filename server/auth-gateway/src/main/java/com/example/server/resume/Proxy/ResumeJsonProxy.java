@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(name = "resumeJsonClient",
         url = "http://localhost:5000/api/resume")
@@ -23,5 +24,5 @@ public interface ResumeJsonProxy {
     String basicSearchResume(@RequestBody BasicSearchRequest basicSearchRequest);
 
     @GetMapping(value = "/retrieve", consumes = MediaType.APPLICATION_JSON_VALUE)
-    String getResumeByEmail(@RequestBody ForwardProfileRequest email);
+    String getResumeByEmail(@RequestParam String email);
 }

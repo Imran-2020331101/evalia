@@ -74,6 +74,7 @@ export const saveJob = createAsyncThunk('job/saveJob', async(jobId:any,thunkAPI)
 export const getAllSavedJobs = createAsyncThunk('job/getAllSavedJobs', async(_, thunkAPI)=>{
     try {
         const response = await axios.get(`http://localhost:8080/api/job/user/saved`,{withCredentials:true})
+        console.log(response.data);
         return response.data;
     } catch (error:any) {
         return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed fetching saved job' })

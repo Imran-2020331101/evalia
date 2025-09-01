@@ -103,12 +103,13 @@ public class JobController {
     @PostMapping("/{jobId}/apply")
     public ResponseEntity<String> applyToAJob(@PathVariable("jobId") String jobId, Principal principal) {
 
+        userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
+
         ResponseEntity<String> response = jobProxy.applyToAJob(
-                new JobApplicationRequest(jobId, principal.getName()));
+                new JobApplicationRequest(jobId, principal.getName(),user.getId().toString()));
 
         if(response.getStatusCode().equals(HttpStatus.OK)){
             logger.info("User: " + principal.getName() + " applied to job: " + jobId);
-            userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
             user.setNumberOfAppliedJobs(user.getNumberOfAppliedJobs() + 1);
             user.getAppliedJobs().add(jobId);
             userService.saveUpdatedUser(user);
@@ -135,7 +136,7 @@ public class JobController {
     public ResponseEntity<String> shortlistCandidatesOfAJob(@PathVariable("jobId") String jobId, Principal principal) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(jobProxy.shortlistCandidatesOfAJob(
-                        new JobApplicationRequest(jobId, principal.getName())
+                        new JobApplicationRequest(jobId, principal.getName(),null)
                 ));
     }
 

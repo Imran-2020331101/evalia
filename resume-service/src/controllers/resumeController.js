@@ -246,7 +246,7 @@ class ResumeController {
    */
   async getResumeByEmail(req, res) {
     try {
-      const { email } = req.body;
+      const { email } = req.params;
 
       if (!email) {
         return res.status(400).json({
