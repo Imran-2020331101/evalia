@@ -8,9 +8,10 @@ import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks'
 import { previewedJob, setPreviewedJob } from '@/redux/features/utils'
 import { useEffect, useState } from 'react'
 import { applyJob } from '@/redux/features/job'
+import { format } from 'timeago.js'
 
 const JobCard = ({job}:{job:any}) => {
-  const {_id, company, title, jobLocation, jobType, status, workPlaceType, salary, createdAt}=job;
+  const {_id, company, title, jobLocation, jobType, status, workPlaceType, salary, createdAt, deadline}=job;
   const [organization,setOrganization]=useState<any>(null);
   const dispatch = useAppDispatch()
   const currentPreviewedJob = useAppSelector(previewedJob)
@@ -28,8 +29,9 @@ const JobCard = ({job}:{job:any}) => {
         return error
     }
     }
-    fetchOrg()
+    if(!organization) fetchOrg()
   },[])
+  if(!organization) return null;
   return (
     <div className="w-full h-auto border-b-[1px] border-gray-800 hover:border-blue-400  flex justify-between shrink-0">
       <div className="h-full w-[65%] flex justify-start items-center gap-4">
@@ -47,7 +49,7 @@ const JobCard = ({job}:{job:any}) => {
             <div className="w-full h-auto flex mt-[-4px]">
               <p className='text-[12px] text-gray-300'>{jobLocation}</p><p className='font-bold text-sm mx-1'>.</p>
               <p className='text-[12px] text-gray-300'>{`$${salary.from}k - $${salary.to}k`}</p><p className='font-bold text-sm mx-1'>.</p>
-              <p className='text-[12px] text-gray-300'>{`2 days ago`}</p>
+              <p className='text-[12px] text-gray-300'>{ deadline?format(createdAt):''}</p>
             </div>
           </button>
         </div>

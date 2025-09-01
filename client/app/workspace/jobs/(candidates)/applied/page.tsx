@@ -1,9 +1,9 @@
-import JobContainer from '@/components/workspace/candidates/jobs/JobContainer'
+import AppliedJobContainer from "@/components/workspace/candidates/jobs/AppliedJobContainer"
 
 const AppliedJobsPage = () => {
   return (
     <div className='w-full h-full'>
-      <JobContainer/>
+      <AppliedJobContainer/>
     </div>
   )
 }

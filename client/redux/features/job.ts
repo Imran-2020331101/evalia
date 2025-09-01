@@ -49,7 +49,16 @@ export const applyJob = createAsyncThunk('job/applyJob', async(jobId:any,thunkAP
         const response = await axios.post(`http://localhost:8080/api/job/${jobId}/apply`,null,{withCredentials:true})
         return response.data;
     } catch (error:any) {
-        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed deleting job' })
+        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed apply job' })
+    }
+})
+
+export const getAllAppliedJobs = createAsyncThunk('job/getAllAppliedJobs', async(_, thunkAPI)=>{
+    try {
+        const response = await axios.get(`http://localhost:8080/api/job/user/applied`,{withCredentials:true})
+        return response.data;
+    } catch (error:any) {
+        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed fetching applied job' })
     }
 })
 
@@ -140,12 +149,24 @@ const jobSlice = createSlice({
             console.log(action.payload, 'inside apply  job...'); 
             state.applyJobStatus='success'
         })
+        .addCase(getAllAppliedJobs.pending,(state)=>{
+            state.applyJobStatus='pending'
+        })
+        .addCase(getAllAppliedJobs.rejected,(state)=>{
+            state.applyJobStatus='error'
+        })
+        .addCase(getAllAppliedJobs.fulfilled,(state,action)=>{
+            // state.myJobs=action.payload.data.jobs;
+            console.log(action.payload, 'inside fetch all applied  jobs...'); 
+            state.applyJobStatus='success'
+        })
     }
 })
 
 export default jobSlice.reducer;
 export const {setSelectedOrgId, setApplyJobStatus, setGetAllJobStatus}=jobSlice.actions;
 export const exploreJobs = (state:RootState)=>state.job.exploreJobs;
+export const appliedJobs = (state:RootState)=>state.job.appliedJobs;
 export const myJobs = (state:RootState)=>state.job.myJobs;
 export const createJobStatus = (state:RootState)=>state.job.createJobStatus;
 export const getAllJobsStatus = (state:RootState)=>state.job.getAllJobsStatus;
