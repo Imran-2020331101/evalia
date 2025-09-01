@@ -5,7 +5,7 @@ import axios from 'axios'
 import applyLogo from '../../../../public/paper-plane.svg'
 import saveLogo from '../../../../public/book-mark.svg'
 import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks'
-import { previewedJob, setPreviewedJob } from '@/redux/features/utils'
+import { previewedJob, setPreviewedJob, setPreviewOrganization } from '@/redux/features/utils'
 import { useEffect, useState } from 'react'
 import { applyJob } from '@/redux/features/job'
 import { format } from 'timeago.js'
@@ -35,10 +35,10 @@ const JobCard = ({job}:{job:any}) => {
   return (
     <div className="w-full h-auto border-b-[1px] border-gray-800 hover:border-blue-400  flex justify-between shrink-0">
       <div className="h-full w-[65%] flex justify-start items-center gap-4">
-        <div className="w-[55px] h-[50px] self-start rounded-sm">
+        <button onClick={()=>dispatch(setPreviewOrganization(organization))} className="w-[55px] h-[50px] self-start rounded-sm">
           <Image src={organization?.organizationProfileImageUrl||'https://i.pinimg.com/736x/cf/41/82/cf4182b20a5c74ceac60149066a52841.jpg'}
            alt='company logo' width={100} height={100} className='w-full h-full object-cover rounded-sm'/>
-        </div>
+        </button>
         <div className="flex flex-col h-auto justify-between items-start flex-1">
           <button onClick={()=>dispatch(handleSetPreviewedJOb)} className='text-[12px] text-gray-100 font-semibold tracking-wider cursor-pointer hover:underline'>{title}</button>
           <button onClick={()=>dispatch(handleSetPreviewedJOb)} className="w-full h-auto items-center justify-start flex flex-col overflow-hidden">
