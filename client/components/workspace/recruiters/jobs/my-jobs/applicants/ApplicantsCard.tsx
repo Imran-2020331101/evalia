@@ -1,6 +1,7 @@
 'use client'
 import { setPreviewedCandidate } from "@/redux/features/utils"
 import { useAppDispatch } from "@/redux/lib/hooks"
+import axios from "axios"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 
@@ -12,7 +13,16 @@ const ApplicantsCard = ({applicantId}:{applicantId:any}) => {
         dispatch(setPreviewedCandidate(true))
     }
     useEffect(()=>{
-
+        const userId=applicantId;
+        const fetchApplicantsData = async()=>{
+            try {
+                const response = await axios.get(`http://localhost:8080/api/user/${userId}/single`, {withCredentials:true});
+                console.log(response.data, 'applicants fetched');
+            } catch (error) {
+                console.log(error);
+            }
+        }
+         fetchApplicantsData();
     },[])
   return (
     <div className='w-full h-[60px] shrink-0 flex justify-start items-center px-2 gap-3 text-[12px] text-gray-200 border-b-[1px] border-gray-700 pb-2 hover:border-blue-500 transition-colors duration-300 '>
