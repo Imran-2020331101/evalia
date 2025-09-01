@@ -53,7 +53,17 @@ public class JobController {
     @GetMapping("/user/applied")
     public ResponseEntity<String> getAllJobsAppliedByUser(Principal principal) {
         userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
-        return jobProxy.getAllJobsAppliedByUser(user.getAppliedJobs());
+        ResponseEntity<String> response = jobProxy.getAllJobsAppliedByUser(user.getAppliedJobs());
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
+    }
+
+    @GetMapping("/user/saved")
+    public ResponseEntity<String> getAllJobsSavedByUser(Principal principal) {
+        userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
+        ResponseEntity<String> response = jobProxy.getAllJobsSavedByUser(user.getSavedJobs());
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
     }
 
 
@@ -91,7 +101,7 @@ public class JobController {
     }
 
     @PostMapping("/{jobId}/apply")
-    public ResponseEntity<String> applyJob(@PathVariable("jobId") String jobId, Principal principal) {
+    public ResponseEntity<String> applyToAJob(@PathVariable("jobId") String jobId, Principal principal) {
 
         ResponseEntity<String> response = jobProxy.applyToAJob(
                 new JobApplicationRequest(jobId, principal.getName()));
@@ -106,6 +116,19 @@ public class JobController {
 
         return ResponseEntity.status(response.getStatusCode())
                 .body(response.getBody());
+    }
+
+    @PostMapping("/{jobId}/save")
+    public ResponseEntity<String> saveAJob(@PathVariable("jobId") String jobId, Principal principal) {
+        userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
+        if(user.getSavedJobs().contains(jobId)){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Job already saved");
+        }
+        user.getSavedJobs().add(jobId);
+        userService.saveUpdatedUser(user);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body("Job saved successfully");
     }
 
     @PostMapping("/{jobId}/shortlist")
