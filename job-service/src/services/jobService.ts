@@ -181,7 +181,7 @@ class jobService{
       };
     }
 
-    async applyToJob(jobId: string, candidateEmail: string, resumeId?: string): Promise<ApiResponse> {
+    async applyToJob(jobId: string, candidateEmail: string, candidateId: string): Promise<ApiResponse> {
       try {
         // Check if candidate already applied
         const existingJob = await JobDetailsModel.findById(jobId);
@@ -198,8 +198,9 @@ class jobService{
 
         const application = {
           candidateEmail,
-          appliedAt: new Date(),
-          status: ApplicationStatus.Pending,
+          candidateId,
+          appliedAt : new Date(),
+          status    : ApplicationStatus.Pending,
         };
 
         const job = await JobDetailsModel.findByIdAndUpdate(
