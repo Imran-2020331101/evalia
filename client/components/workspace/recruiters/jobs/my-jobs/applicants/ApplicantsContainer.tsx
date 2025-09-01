@@ -1,17 +1,22 @@
 'use client'
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SlidersHorizontal ,UserCheck, Target} from 'lucide-react';
 
 import ApplicantsCard from './ApplicantsCard'
+import { useAppSelector } from '@/redux/lib/hooks';
+import { recruitersSelectedJob } from '@/redux/features/job';
 
 const ApplicantsContainer = () => {
   const [isShowModal, setIsShowModal] = useState(false);
   const [target, setTarget] = useState(5)
 
+  const currentSelectedRecruiterJob = useAppSelector(recruitersSelectedJob);
+  const {applications}=currentSelectedRecruiterJob || [];
     const handleSubmit =()=>{
 
   }
+  useEffect(()=>console.log(currentSelectedRecruiterJob, 'job details inside applicants container'))
   return (
     <div className='w-full h-full flex flex-col pt-[10px] p-[30px] pb-[10px]'>
       <div className="w-full h-auto flex justify-end items-center shrink-0">
@@ -75,9 +80,9 @@ const ApplicantsContainer = () => {
             </section>  
           </div>  
         </div>
-        <ApplicantsCard/>
-        <ApplicantsCard/>
-        <ApplicantsCard/>
+        {
+          applications?.map((item:any)=><ApplicantsCard key={item._id} applicantId={item._id}/>)
+        }
       </div>
     </div>
   )

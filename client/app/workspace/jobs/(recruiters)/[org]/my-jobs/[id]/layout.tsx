@@ -6,6 +6,8 @@ import MyJobsSingle from '@/components/workspace/recruiters/jobs/my-jobs/MyJobsS
 import { Didact_Gothic } from 'next/font/google'
 import { useParams } from 'next/navigation'
 import { ScaleLoader } from 'react-spinners'
+import { useAppDispatch } from '@/redux/lib/hooks'
+import { setRecruiterSelectedJob } from '@/redux/features/job'
 
 const didact_gothic = Didact_Gothic({ weight: ['400'], subsets: ['latin'] })
 
@@ -19,7 +21,7 @@ interface RecruitersSingleJobLayoutProps {
 
 const RecruitersSingleJobLayout = ({ children}: RecruitersSingleJobLayoutProps) => {
   const {id} = useParams()
-
+  const dispatch = useAppDispatch()
   const [job, setJob]=useState<any>(null);
 
   useEffect(()=>{
@@ -28,6 +30,7 @@ const RecruitersSingleJobLayout = ({ children}: RecruitersSingleJobLayoutProps) 
           try {
               const response = await axios.get(`http://localhost:8080/api/job/${id}`, {withCredentials:true})
               setJob(response.data.data)
+              dispatch(setRecruiterSelectedJob(response.data.data));
               console.log(response.data, 'fetch single job')
           } catch (err:any) {
               console.log(err, 'error')

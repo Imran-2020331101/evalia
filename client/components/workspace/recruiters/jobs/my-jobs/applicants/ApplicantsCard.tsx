@@ -2,13 +2,18 @@
 import { setPreviewedCandidate } from "@/redux/features/utils"
 import { useAppDispatch } from "@/redux/lib/hooks"
 import Image from "next/image"
+import { useEffect, useState } from "react"
 
 
-const ApplicantsCard = () => {
+const ApplicantsCard = ({applicantId}:{applicantId:any}) => {
+    const [applicant, setApplicant]= useState<any>(null);
     const dispatch = useAppDispatch()
     const handleViewProfile = ()=>{
         dispatch(setPreviewedCandidate(true))
     }
+    useEffect(()=>{
+
+    },[])
   return (
     <div className='w-full h-[60px] shrink-0 flex justify-start items-center px-2 gap-3 text-[12px] text-gray-200 border-b-[1px] border-gray-700 pb-2 hover:border-blue-500 transition-colors duration-300 '>
         <div className="w-[40px] h-[40px] rounded-full ">

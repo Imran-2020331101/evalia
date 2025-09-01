@@ -7,7 +7,7 @@ import { SplitText } from 'gsap/all'
 import { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks'
 import { fetchUserData, getAllOrganizations, organizations, user } from '@/redux/features/auth'
-import { appliedJobs, getAllAppliedJobs } from '@/redux/features/job'
+import { appliedJobs, getAllAppliedJobs, getAllSavedJobs, savedJobs } from '@/redux/features/job'
 
 gsap.registerPlugin(SplitText)
 
@@ -18,6 +18,7 @@ const workSpacePage = () => {
   const currentUser = useAppSelector(user)
   const currentOrganizations = useAppSelector(organizations)
   const currentAppliedJobs = useAppSelector(appliedJobs)
+  const currentSavedJobs = useAppSelector(savedJobs);
 
   useGSAP(()=>{
     const logo = document.getElementById('logo');
@@ -32,6 +33,7 @@ const workSpacePage = () => {
     if(!currentUser) dispatch(fetchUserData())
     if(!currentOrganizations.length) dispatch(getAllOrganizations())
     if(!currentAppliedJobs.length) dispatch(getAllAppliedJobs())
+    if(!currentSavedJobs.length) dispatch(getAllSavedJobs())
   },[])
 
   return (

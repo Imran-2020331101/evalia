@@ -1,14 +1,14 @@
 'use client'
 import Image from 'next/image'
 import axios from 'axios'
-import { CheckCheck, Send } from 'lucide-react'
+import { CheckCheck, Save, Send } from 'lucide-react'
 
 import applyLogo from '../../../../public/paper-plane.svg'
 import saveLogo from '../../../../public/book-mark.svg'
 import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks'
 import { previewedJob, setPreviewedJob, setPreviewOrganization } from '@/redux/features/utils'
 import { useEffect, useState } from 'react'
-import { appliedJobs, applyJob, applyJobId, applyJobStatus, setApplyJobId, setApplyJobStatus } from '@/redux/features/job'
+import { appliedJobs, applyJob, applyJobId, applyJobStatus, savedJobs, saveJob, saveJobId, saveJobStatus, setApplyJobId, setApplyJobStatus, setSaveJobId } from '@/redux/features/job'
 import { format } from 'timeago.js'
 import { ClipLoader } from 'react-spinners'
 import { user } from '@/redux/features/auth'
@@ -19,6 +19,7 @@ const JobCard = ({job}:{job:any}) => {
   const {_id, company, title, jobLocation, jobType, status, workPlaceType, salary, createdAt, deadline}=job;
   const [organization,setOrganization]=useState<any>(null);
   const [isApplied, setIsApplied]=useState<boolean>(false)
+  const [isSaved, setIsSaved]=useState<boolean>(false)
 
 
   const dispatch = useAppDispatch()
@@ -26,8 +27,11 @@ const JobCard = ({job}:{job:any}) => {
 
   const currentPreviewedJob = useAppSelector(previewedJob);
   const currentAppliedJobs = useAppSelector(appliedJobs);
+  const currentSavedJobs = useAppSelector(savedJobs)
   const currentApplyJobStatus = useAppSelector(applyJobStatus);
   const currentApplyJobId = useAppSelector(applyJobId);
+  const currentSaveJobId = useAppSelector(saveJobId);
+  const currentSaveJobStatus = useAppSelector(saveJobStatus);
   const currentUser = useAppSelector(user);
 
   
@@ -43,6 +47,10 @@ const JobCard = ({job}:{job:any}) => {
     }
     dispatch(setApplyJobId(_id));
     dispatch(applyJob(_id));
+  }
+  const handleSaveJob = ()=>{
+    dispatch(setSaveJobId(_id));
+    dispatch(saveJob(_id));
   }
 
   useEffect(()=>{
@@ -61,7 +69,9 @@ const JobCard = ({job}:{job:any}) => {
   useEffect(()=>{
     const applied = currentAppliedJobs?.find((item:any)=>item._id===_id)
     if(applied) setIsApplied(true);
-  },[currentAppliedJobs.length])
+    const saved = currentSavedJobs?.find((item:any)=>item._id===_id);
+    if(saved) setIsSaved(true)
+  },[currentAppliedJobs.length, currentSavedJobs.length])
   if(!organization) return null;
   return (
     <div className="w-full h-auto border-b-[1px] border-gray-800 hover:border-blue-400  flex justify-between shrink-0">
@@ -86,9 +96,16 @@ const JobCard = ({job}:{job:any}) => {
         </div>
       </div>
       <div className="h-full w-[20%] flex justify-end items-center gap-4">
-        <button className='w-[60px] h-[30px] border-[1px] border-gray-300 flex justify-center items-center rounded-sm gap-1 text-gray-300 hover:text-teal-500 hover:border-teal-500 cursor-pointer'>
-          <Image src={saveLogo} alt='save job' className='w-[13px]'/>
+        <button onClick={handleSaveJob} className='w-[65px] h-[30px] border-[1px] border-gray-300 flex justify-center items-center rounded-sm gap-1 text-gray-300 hover:text-teal-500 hover:border-teal-500 cursor-pointer'>
+          {
+            currentSaveJobStatus==='pending' && currentSaveJobId===_id?<ClipLoader size={15} color='white'/>:isSaved?<>
+          <Save color='white' size={14}/> 
+          <p className='text-[10px] font-semibold '>Saved</p>
+          </>: <>
+          <Save size={14}/> 
           <p className='text-[10px] font-semibold '>Save</p>
+          </>
+          }
         </button>
         <button disabled={isApplied?true:false} onClick={handleApplyToJob} className={`w-[65px] h-[30px] border-[1px]  flex justify-center items-center rounded-sm gap-1 ${isApplied?'text-gray-200 bg-gray-700 border-gray-500':'text-gray-300 hover:text-blue-500 hover:border-blue-500 border-gray-300'} cursor-pointer`}>
           {
