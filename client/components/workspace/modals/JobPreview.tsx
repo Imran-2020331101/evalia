@@ -12,7 +12,7 @@ import applyLogo from '../../../public/paper-plane.svg'
 import exitLogo from '../../../public/x-solid.svg'
 import evaliaLogo from '../../../public/evalia-short.png'
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
-import { previewedJob, setPreviewedJob } from "@/redux/features/utils"
+import { previewedJob, setPreviewedJob, setPreviewOrganization } from "@/redux/features/utils"
 
 const didact_gothic = Didact_Gothic({ weight: ['400'], subsets: ['latin'] })
 
@@ -57,11 +57,11 @@ const JobPreview = () => {
             </div>
             <div className="w-full h-auto flex flex-col justify-start items-start ">
                 <section className="w-[60%] h-auto flex justify-start items-start gap-4">
-                    <div className="w-[80px] h-[70px] rounded-xl ">
+                    <button onClick={()=>dispatch(setPreviewOrganization(company))} className="w-[80px] h-[70px] rounded-xl ">
                         <Image className="w-full h-full rounded-xl object-cover" width={150} height={120} src={company?.organizationProfileImageUrl||'https://i.pinimg.com/736x/cf/41/82/cf4182b20a5c74ceac60149066a52841.jpg'} alt="company logo" />
-                    </div>
+                    </button>
                     <div className="flex-1 h-auto flex flex-col items-start ">
-                        <p className="font-semibold tracking-widest">{company?.organizationName||''}</p>
+                        <button onClick={()=>dispatch(setPreviewOrganization(company))} className="font-semibold tracking-widest">{company?.organizationName||''}</button>
                         <p className="w-full h-[40px] overflow-hidden text-[13px] text-gray-300">
                             {company?.businessDescription||''}
                         </p>
