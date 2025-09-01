@@ -27,9 +27,9 @@ export interface IJobDetailsModel extends Model<IJobDetailsDocument> {
 // Sub-schema (minimal validation — Zod handles actual validation)
 const DomainItemSchema = new Schema<DomainItem>(
   {
-    type: { type: String },
-    category: { type: String, trim: true },
-    description: { type: String, trim: true },
+    type        : { type: String },
+    category    : { type: String, trim: true },
+    description : { type: String, trim: true },
   },
   { _id: false }
 );
@@ -37,36 +37,42 @@ const DomainItemSchema = new Schema<DomainItem>(
 // Main schema
 const JobDetailsMongooseSchema = new Schema<IJobDetailsDocument>(
   {
-    title:{type:String, trim:true},
-    jobDescription: { type: String, trim: true },
-    jobLocation: { type: String, trim: true },
+    title          : { type: String, trim:true},
+    jobDescription : { type: String, trim: true },
+    jobLocation    : { type: String, trim: true },
+
     salary: {
-      from: { type: Number },
-      to: { type: Number },
+      from : { type: Number },
+      to   : { type: Number },
     },
-    deadline: { type: Date },
-    jobType: { type: String },
-    workPlaceType: { type: String },
-    employmentLevel: { type: String },
-    requirements: { type: [DomainItemSchema], default: [] },
-    responsibilities: { type: [DomainItemSchema], default: [] },
-    skills: { type: [DomainItemSchema], default: [] },
-    postedBy: { type: String },
+
+    deadline : { type: Date },
+    jobType  : { type: String },
+    workPlaceType    : { type: String },
+    employmentLevel  : { type: String },
+    requirements     : { type: [DomainItemSchema], default: [] },
+    responsibilities : { type: [DomainItemSchema], default: [] },
+    skills           : { type: [DomainItemSchema], default: [] },
+    postedBy         : { type: String },
+
     company: {
       OrganizationId    : { type: String },
       OrganizationEmail : { type: String },
     },
+
     status: { 
       type    : String ,
       enum    : ['DRAFT','ACTIVE','FILLED','ARCHIVED','DELETED'],
       default : 'ACTIVE',
     },
+    
     applications: {
       type: [
         {
-          candidateName: {type:String},
-          candidateEmail: { type: String },
-          appliedAt: { type: Date, default: Date.now },
+          candidateName  : {type: String },
+          candidateEmail : {type: String },
+          candidateId    : {type: String },
+          appliedAt      : {type: Date, default: Date.now },
           status: {
             type    : String,
             enum    : ['PENDING', 'SHORTLISTED', 'REJECTED', 'HIRED'],
@@ -76,23 +82,24 @@ const JobDetailsMongooseSchema = new Schema<IJobDetailsDocument>(
       ],
       default: [],
     },
-    views: { type: Number, default: 0 },
-    featured: { type: Boolean, default: false },
-    tags: [{ type: String, trim: true }],
+
+    views    : { type: Number, default: 0 },
+    featured : { type: Boolean, default: false },
+    tags     : [{ type: String, trim: true }],
     interviewQA: {
       type: [
         {
-          question: { type: String },
-          referenceAnswer: { type: String },
+          question        : { type: String },
+          referenceAnswer : { type: String },
         },
       ],
       default: [],
     },
   },
   {
-    timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
+    timestamps : true,
+    toJSON     : { virtuals: true },
+    toObject   : { virtuals: true },
   }
 );
 
