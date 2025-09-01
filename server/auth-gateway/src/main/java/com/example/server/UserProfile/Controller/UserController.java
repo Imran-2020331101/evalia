@@ -45,40 +45,24 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getUserProfileByUserId(@PathVariable String userId) {
-        try {
+    public ResponseEntity<?> getUserProfileByUserId(@PathVariable String userId) throws IOException {
             // Fetch user information
             userEntity user = (userEntity) userService.loadUserById(userId);
 
-            // Fetch resume data from Resume Server
-            String jsonResponse          = resumeJsonProxy.getResumeByEmail(new ForwardProfileRequest(user.getEmail()));
-            ObjectMapper mapper          = new ObjectMapper();
-            ResumeDataRequest resumeData = mapper.readValue(jsonResponse, ResumeDataRequest.class);
-
-            return ResponseEntity.ok(new Profile(resumeData, userService.toUserDTO(user)));
-        } catch (Exception e) {
-            logger.severe("Error retrieving resume: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to retrieve resume: " + e.getMessage());
-        }
+        Profile profile = userService.obtainCandidateProfileFromResume(user.getEmail());
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of(
+                "success", true,
+                "data", profile
+        ));
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<?> getCandidateProfile(Principal principal) {
-        try {
+    public ResponseEntity<?> getCandidateProfile(Principal principal) throws IOException {
             Profile profile = userService.obtainCandidateProfileFromResume(principal.getName());
             return ResponseEntity.status(HttpStatus.OK).body(Map.of(
                     "success", true,
                     "data", profile
             ));
-        } catch (Exception e) {
-            logger.severe("Error retrieving resume: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of(
-                            "success", false,
-                            "data", "Failed to retrieve resume: " + e.getMessage()
-                    ));
-        }
     }
 
     @PostMapping("/update/profile-photo")
