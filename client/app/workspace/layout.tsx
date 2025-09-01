@@ -4,11 +4,13 @@ import MenuContainer from "@/components/workspace/menu/MenuContainer";
 import RecruitersWorkSpaceMenu from "@/components/workspace/menu/RecruitersWorkSpaceMenu";
 import CandidateProfilePreview from "@/components/workspace/modals/CandidateProfilePreview";
 import JobPreview from "@/components/workspace/modals/JobPreview";
+import OrganizationPreviewModal from "@/components/workspace/modals/OrganizationPreview";
 
 const WorkSpaceLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   return (
     <div className="fixed inset-0 z-[100] bg-neutral-950 h-screen">
       <JobPreview/>
+      <OrganizationPreviewModal/>
       <CandidateProfilePreview/>
       <div className="flex w-full h-full bg-gray-950/90 min-h-0">
         {/* Sidebar */}
