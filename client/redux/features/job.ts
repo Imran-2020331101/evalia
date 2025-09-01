@@ -65,6 +65,7 @@ export const getAllAppliedJobs = createAsyncThunk('job/getAllAppliedJobs', async
 export const saveJob = createAsyncThunk('job/saveJob', async(jobId:any,thunkAPI)=>{
     try {
         const response = await axios.post(`http://localhost:8080/api/job/${jobId}/save`,null,{withCredentials:true})
+        console.log(response.data, 'response of apply job')
         return response.data;
     } catch (error:any) {
         return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed apply job' })
