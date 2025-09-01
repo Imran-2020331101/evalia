@@ -31,7 +31,7 @@ public interface JobProxy {
     String createJob     ( @RequestBody   JobCreationRequest jobCreationRequest);
 
     @GetMapping    (value = "/{jobId}")
-    String getJobById    ( @PathVariable ("jobId") String jobId);
+    ResponseEntity<String> getJobById    ( @PathVariable ("jobId") String jobId);
 
     @DeleteMapping (value = "/{jobId}")
     String deleteJobById ( @PathVariable ("jobId") String jobId,

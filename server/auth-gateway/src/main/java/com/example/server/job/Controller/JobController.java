@@ -90,8 +90,9 @@ public class JobController {
     @GetMapping("/{jobId}")
     public ResponseEntity<String> getJobById(@PathVariable ("jobId") String jobId) {
 
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(jobProxy.getJobById(jobId));
+        ResponseEntity<String> response = jobProxy.getJobById(jobId);
+            return ResponseEntity.status(response.getStatusCode())
+                    .body(response.getBody());
     }
 
     @DeleteMapping("/{jobId}")
@@ -121,15 +122,32 @@ public class JobController {
 
     @PostMapping("/{jobId}/save")
     public ResponseEntity<String> saveAJob(@PathVariable("jobId") String jobId, Principal principal) {
+
         userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
+        ResponseEntity<String> response = jobProxy.getJobById(jobId);
+
         if(user.getSavedJobs().contains(jobId)){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Job already saved");
         }
+
         user.getSavedJobs().add(jobId);
         userService.saveUpdatedUser(user);
         return ResponseEntity.status(HttpStatus.OK)
-                .body("Job saved successfully");
+                .body(response.getBody());
+    }
+
+    @PostMapping("/{jobId}/unsave")
+    public ResponseEntity<String> unsaveAJob(@PathVariable("jobId") String jobId, Principal principal) {
+        userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
+        if(!user.getSavedJobs().contains(jobId)){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Job not in saved list");
+        }
+        user.getSavedJobs().remove(jobId);
+        userService.saveUpdatedUser(user);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body("Job removed from saved list");
     }
 
     @PostMapping("/{jobId}/shortlist")
