@@ -26,57 +26,54 @@ import java.util.logging.Logger;
 @RequestMapping("/api/user")
 public class UserController {
 
-    private static final Logger      logger = Logger.getLogger(UserController.class.getName());
-    private final UserService        userService;
-    private final ResumeJsonProxy    resumeJsonProxy;
-    private final ModelMapper        modelMapper;
-    private final Cloudinary         cloudinary;
+    private static final Logger logger = Logger.getLogger(UserController.class.getName());
+    private final UserService userService;
+    private final ResumeJsonProxy resumeJsonProxy;
+    private final ModelMapper modelMapper;
+    private final Cloudinary cloudinary;
 
+    public UserController(UserService userService,
+            ResumeJsonProxy resumeJsonProxy,
+            ModelMapper modelMapper,
+            Cloudinary cloudinary) {
 
-    public UserController(UserService        userService,
-                          ResumeJsonProxy    resumeJsonProxy,
-                          ModelMapper        modelMapper,
-                          Cloudinary         cloudinary) {
-
-        this.userService        = userService;
-        this.resumeJsonProxy    = resumeJsonProxy;
-        this.modelMapper        = modelMapper;
-        this.cloudinary         = cloudinary;
+        this.userService = userService;
+        this.resumeJsonProxy = resumeJsonProxy;
+        this.modelMapper = modelMapper;
+        this.cloudinary = cloudinary;
     }
 
     @GetMapping("/{userId}/single")
     public ResponseEntity<?> getUserProfileByUserId(@PathVariable String userId) throws IOException {
-        logger.info("User fetching request recieved with : " + userId);
-            // Fetch user information
-            userEntity user = (userEntity) userService.loadUserById(userId);
+        logger.info("Request to getUserProfileByUserId with : " + userId);
+        // Fetch user information
+        userEntity user = (userEntity) userService.loadUserById(userId);
 
-            logger.info("User found with email " + user.getEmail());
+        logger.info("fetched user with userId has email : " + user.getEmail());
 
         Profile profile = userService.obtainCandidateProfileFromResume(user.getEmail());
         return ResponseEntity.status(HttpStatus.OK).body(Map.of(
                 "success", true,
-                "data", profile
-        ));
+                "data", profile));
     }
 
     @GetMapping("/profile")
     public ResponseEntity<?> getCandidateProfile(Principal principal) throws IOException {
-            Profile profile = userService.obtainCandidateProfileFromResume(principal.getName());
-            return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-                    "success", true,
-                    "data", profile
-            ));
+        Profile profile = userService.obtainCandidateProfileFromResume(principal.getName());
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of(
+                "success", true,
+                "data", profile));
     }
 
     @PostMapping("/update/profile-photo")
     public ResponseEntity<?> uploadUserProfilePhoto(@RequestParam("file") MultipartFile file,
-                                                                      Principal principal) {
+            Principal principal) {
 
         try {
             String url = userService.updateUserProfilePicture(file, principal.getName());
 
             return ResponseEntity.ok(
-                    new ImageUploadResponse(true,url));
+                    new ImageUploadResponse(true, url));
         } catch (IOException e) {
             return ResponseEntity.status(500).body(Map.of("success", false, "error", e.getMessage()));
         }
@@ -84,7 +81,7 @@ public class UserController {
 
     @PostMapping("/update/cover-photo")
     public ResponseEntity<?> uploadUserCoverPhoto(@RequestParam("file") MultipartFile file,
-                                                                    Principal principal) {
+            Principal principal) {
 
         try {
             String url = userService.updateUserCoverPicture(file, principal.getName());
@@ -97,14 +94,13 @@ public class UserController {
     }
 
     @PatchMapping("/update/details")
-    public ResponseEntity<?> updateUserProfile( @RequestBody UpdateUserProfileRequest dto,
-                                                 Principal principal) {
-        UserDTO user =  userService.updateUserProfile(dto, principal.getName());
+    public ResponseEntity<?> updateUserProfile(@RequestBody UpdateUserProfileRequest dto,
+            Principal principal) {
+        UserDTO user = userService.updateUserProfile(dto, principal.getName());
         return ResponseEntity.ok(Map.of(
                 "success", true,
                 "data", user));
     }
-
 
     @PostMapping("/image/upload")
     public ResponseEntity<Map<String, Object>> uploadImages(@RequestParam("files") MultipartFile[] files) {
@@ -126,8 +122,7 @@ public class UserController {
         } catch (IOException e) {
             return ResponseEntity.status(500).body(Map.of(
                     "success", false,
-                    "error", e.getMessage()
-            ));
+                    "error", e.getMessage()));
         }
     }
 
