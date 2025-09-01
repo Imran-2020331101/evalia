@@ -62,21 +62,45 @@ export const getAllAppliedJobs = createAsyncThunk('job/getAllAppliedJobs', async
     }
 })
 
+export const saveJob = createAsyncThunk('job/saveJob', async(jobId:any,thunkAPI)=>{
+    try {
+        const response = await axios.post(`http://localhost:8080/api/job/${jobId}/save`,null,{withCredentials:true})
+        return response.data;
+    } catch (error:any) {
+        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed apply job' })
+    }
+})
+
+export const getAllSavedJobs = createAsyncThunk('job/getAllSavedJobs', async(_, thunkAPI)=>{
+    try {
+        const response = await axios.get(`http://localhost:8080/api/job/user/saved`,{withCredentials:true})
+        return response.data;
+    } catch (error:any) {
+        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed fetching saved job' })
+    }
+})
+
 type statusType = 'idle' | 'pending' | 'success' | 'error';
 interface initialStateType {
     createJobStatus: statusType,
     fetchJobStatus: statusType,
     getAllJobsStatus: statusType,
     applyJobStatus: statusType,
+    saveJobStatus: statusType,
     applyJobId:string|null,
+    saveJobId:string|null,
+    savedJobs:any,
     appliedJobs:any,
     exploreJobs:any,
     myJobs:any , // type will be  updated later 
-    selectedOrgId:string|null
+    selectedOrgId:string|null,
+    recruitersSelectedJob:any,
 }
 
 const initialState :initialStateType = {
+    saveJobId:null,
     applyJobId:null,
+    savedJobs:[], //candidate
     appliedJobs:[], //candidate
     exploreJobs:[],//candidate
     myJobs:[], // recruiter
@@ -84,7 +108,9 @@ const initialState :initialStateType = {
     fetchJobStatus:'idle',
     getAllJobsStatus:'idle',
     applyJobStatus:'idle',
-    selectedOrgId:null
+    saveJobStatus:'idle',
+    selectedOrgId:null,
+    recruitersSelectedJob:null
 }
 
 const jobSlice = createSlice({
@@ -102,6 +128,12 @@ const jobSlice = createSlice({
         },
         setApplyJobId(state,action){
             state.applyJobId=action.payload;
+        },
+        setSaveJobId(state,action){
+            state.applyJobId=action.payload;
+        },
+        setRecruiterSelectedJob(state, action){
+            state.recruitersSelectedJob=action.payload;
         }
     },
     extraReducers(builder){
@@ -158,27 +190,53 @@ const jobSlice = createSlice({
             state.applyJobId=null;
         })
         .addCase(getAllAppliedJobs.pending,(state)=>{
-            state.applyJobStatus='pending'
+            state.getAllJobsStatus='pending'
         })
         .addCase(getAllAppliedJobs.rejected,(state)=>{
-            state.applyJobStatus='error'
+            state.getAllJobsStatus='error'
         })
         .addCase(getAllAppliedJobs.fulfilled,(state,action)=>{
             state.appliedJobs=action.payload.data;
             console.log(action.payload, 'inside fetch all applied  jobs...'); 
-            state.applyJobStatus='success'
+            state.getAllJobsStatus='success'
+        })
+        .addCase(saveJob.pending,(state)=>{
+            state.saveJobStatus='pending'
+        })
+        .addCase(saveJob.rejected,(state)=>{
+            state.saveJobStatus='error'
+        })
+        .addCase(saveJob.fulfilled,(state,action)=>{
+            // state.savedJobs.push(action.payload.data);
+            console.log(action.payload, 'inside save jobs...'); 
+            state.saveJobStatus='success'
+        })
+        .addCase(getAllSavedJobs.pending,(state)=>{
+            state.getAllJobsStatus='pending'
+        })
+        .addCase(getAllSavedJobs.rejected,(state)=>{
+            state.getAllJobsStatus='error'
+        })
+        .addCase(getAllSavedJobs.fulfilled,(state,action)=>{
+            state.savedJobs=action.payload.data;
+            console.log(action.payload, 'inside fetch all saved  jobs...'); 
+            state.getAllJobsStatus='success'
         })
     }
 })
 
 export default jobSlice.reducer;
-export const {setSelectedOrgId, setApplyJobStatus, setGetAllJobStatus, setApplyJobId}=jobSlice.actions;
+export const {setSelectedOrgId, setApplyJobStatus, setGetAllJobStatus, setApplyJobId, setSaveJobId, setRecruiterSelectedJob}=jobSlice.actions;
 export const exploreJobs = (state:RootState)=>state.job.exploreJobs;
 export const appliedJobs = (state:RootState)=>state.job.appliedJobs;
+export const savedJobs = (state:RootState)=>state.job.savedJobs;
 export const myJobs = (state:RootState)=>state.job.myJobs;
 export const applyJobId = (state:RootState)=>state.job.applyJobId;
+export const saveJobId = (state:RootState)=>state.job.saveJobId;
 export const createJobStatus = (state:RootState)=>state.job.createJobStatus;
 export const getAllJobsStatus = (state:RootState)=>state.job.getAllJobsStatus;
 export const fetchJobStatus = (state:RootState)=>state.job.fetchJobStatus;
 export const applyJobStatus = (state:RootState)=>state.job.applyJobStatus;
+export const saveJobStatus = (state:RootState)=>state.job.saveJobStatus;
 export const selectedOrgId = (state:RootState)=>state.job.selectedOrgId;
+export const recruitersSelectedJob = (state:RootState)=>state.job.recruitersSelectedJob;
