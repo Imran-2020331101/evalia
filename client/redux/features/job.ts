@@ -68,6 +68,7 @@ interface initialStateType {
     fetchJobStatus: statusType,
     getAllJobsStatus: statusType,
     applyJobStatus: statusType,
+    applyJobId:string|null,
     appliedJobs:any,
     exploreJobs:any,
     myJobs:any , // type will be  updated later 
@@ -75,6 +76,7 @@ interface initialStateType {
 }
 
 const initialState :initialStateType = {
+    applyJobId:null,
     appliedJobs:[], //candidate
     exploreJobs:[],//candidate
     myJobs:[], // recruiter
@@ -98,6 +100,9 @@ const jobSlice = createSlice({
         setGetAllJobStatus(state,action){
             state.getAllJobsStatus=action.payload;
         },
+        setApplyJobId(state,action){
+            state.applyJobId=action.payload;
+        }
     },
     extraReducers(builder){
         builder
@@ -143,11 +148,14 @@ const jobSlice = createSlice({
         })
         .addCase(applyJob.rejected,(state)=>{
             state.applyJobStatus='error'
+            state.applyJobId=null
         })
         .addCase(applyJob.fulfilled,(state,action)=>{
-            // state.myJobs=action.payload.data.jobs;
+            state.appliedJobs.push(action.payload.data.job)
             console.log(action.payload, 'inside apply  job...'); 
+            console.log(state.appliedJobs)
             state.applyJobStatus='success'
+            state.applyJobId=null;
         })
         .addCase(getAllAppliedJobs.pending,(state)=>{
             state.applyJobStatus='pending'
@@ -156,7 +164,7 @@ const jobSlice = createSlice({
             state.applyJobStatus='error'
         })
         .addCase(getAllAppliedJobs.fulfilled,(state,action)=>{
-            // state.myJobs=action.payload.data.jobs;
+            state.appliedJobs=action.payload.data;
             console.log(action.payload, 'inside fetch all applied  jobs...'); 
             state.applyJobStatus='success'
         })
@@ -164,10 +172,11 @@ const jobSlice = createSlice({
 })
 
 export default jobSlice.reducer;
-export const {setSelectedOrgId, setApplyJobStatus, setGetAllJobStatus}=jobSlice.actions;
+export const {setSelectedOrgId, setApplyJobStatus, setGetAllJobStatus, setApplyJobId}=jobSlice.actions;
 export const exploreJobs = (state:RootState)=>state.job.exploreJobs;
 export const appliedJobs = (state:RootState)=>state.job.appliedJobs;
 export const myJobs = (state:RootState)=>state.job.myJobs;
+export const applyJobId = (state:RootState)=>state.job.applyJobId;
 export const createJobStatus = (state:RootState)=>state.job.createJobStatus;
 export const getAllJobsStatus = (state:RootState)=>state.job.getAllJobsStatus;
 export const fetchJobStatus = (state:RootState)=>state.job.fetchJobStatus;
