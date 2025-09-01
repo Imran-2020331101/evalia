@@ -18,7 +18,7 @@ const didact_gothic = Didact_Gothic({ weight: ['400'], subsets: ['latin'] })
 
 const JobPreview = () => {
     const dispatch = useAppDispatch()
-    const [isShowApplyButton, setIsShowApplyButton] = useState(false);
+    const [isShowApplyButton, setIsShowApplyButton] = useState(true);
 
     const currentPreviewedJob = useAppSelector(previewedJob)
     const {_id, company, title, jobLocation,employmentLevel, jobType, status, workPlaceType, salary, createdAt, requirements, responsibilities, skills,jobDescription, deadline}=currentPreviewedJob || {};
@@ -30,7 +30,6 @@ const JobPreview = () => {
             return formatted;
         }
     }
-
   return (
     <div className={` ${didact_gothic.className} ${currentPreviewedJob?'fixed':'hidden'} tracking-wider top-0 left-0 right-0 bottom-0 z-[120] `}>
         <button className="fixed top-4 left-2 z-10 cursor-pointer">

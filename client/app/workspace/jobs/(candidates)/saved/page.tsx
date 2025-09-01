@@ -1,4 +1,4 @@
-import JobContainer from '@/components/workspace/candidates/jobs/JobContainer'
+import JobContainer from '@/components/workspace/candidates/jobs/ExploreJobContainer'
 
 const SavedJobsPage = () => {
   return (
