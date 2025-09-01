@@ -201,6 +201,7 @@ class ResumeController {
   async getResumeById(req, res) {
     try {
       const { id } = req.params;
+      console.log(id);
 
       if (!id) {
         return res.status(400).json({
@@ -223,7 +224,7 @@ class ResumeController {
         userEmail: resume.uploadedBy,
         downloadUrl,
       });
-
+      console.log("fetched resume of the user",resume);
       res.status(200).json({
         success: true,
         data: {
@@ -246,7 +247,9 @@ class ResumeController {
    */
   async getResumeByEmail(req, res) {
     try {
-      const { email } = req.params;
+      const { email } = req.query;
+
+      console.log(email);
 
       if (!email) {
         return res.status(400).json({
@@ -276,6 +279,7 @@ class ResumeController {
       if (!isValid) {
         console.error("Validation errors:", errors);
       }
+      
 
       res.status(200).json({
         success: true,

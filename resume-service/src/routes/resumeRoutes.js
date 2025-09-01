@@ -32,7 +32,7 @@ router.post('/save', resumeController.saveResume);
  * @desc    Get resume by email address
  * @access  Public
  */
-router.post('/retrieve', resumeController.getResumeByEmail);
+router.get('/retrieve', resumeController.getResumeByEmail);
 
 /**
  * @route   GET /api/resume/status
