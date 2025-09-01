@@ -44,10 +44,13 @@ public class UserController {
         this.cloudinary         = cloudinary;
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/{userId}/single")
     public ResponseEntity<?> getUserProfileByUserId(@PathVariable String userId) throws IOException {
+        logger.info("User fetching request recieved with : " + userId);
             // Fetch user information
             userEntity user = (userEntity) userService.loadUserById(userId);
+
+            logger.info("User found with email " + user.getEmail());
 
         Profile profile = userService.obtainCandidateProfileFromResume(user.getEmail());
         return ResponseEntity.status(HttpStatus.OK).body(Map.of(

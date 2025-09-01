@@ -213,7 +213,7 @@ class jobService{
           success: true,
           message: "Application submitted successfully",
           data: {
-            jobId: job?._id,
+            job: job,
             candidateEmail,
           },
         };
