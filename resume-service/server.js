@@ -1,6 +1,6 @@
-const app = require("./src/app");
-const config = require("./src/config");
-const logger = require("./src/utils/logger");
+const app = require('./src/app');
+const config = require('./src/config');
+const logger = require('./src/utils/logger');
 
 const PORT = config.PORT;
 
@@ -14,8 +14,8 @@ const server = app.listen(PORT, () => {
 });
 
 // Handle unhandled promise rejections
-process.on("unhandledRejection", (err, promise) => {
-  logger.error("Unhandled Promise Rejection:", err);
+process.on('unhandledRejection', (err, promise) => {
+  logger.error('Unhandled Promise Rejection:', err);
   // Close server & exit process
   server.close(() => {
     process.exit(1);
@@ -23,8 +23,8 @@ process.on("unhandledRejection", (err, promise) => {
 });
 
 // Handle uncaught exceptions
-process.on("uncaughtException", (err) => {
-  logger.error("Uncaught Exception:", err);
+process.on('uncaughtException', (err) => {
+  logger.error('Uncaught Exception:', err);
   process.exit(1);
 });
 
