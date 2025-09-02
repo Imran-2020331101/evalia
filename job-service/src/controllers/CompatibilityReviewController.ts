@@ -14,19 +14,19 @@ export class CompatibilityReviewController {
 	 */
 	async getCompatibilityById(req: Request, res: Response): Promise<void> {
 		try {
-			const { id } = req.params;
-			if (!id) {
+			const { reviewId } = req.params;
+			if (!reviewId) {
 				res.status(400).json({ success: false, error: 'Review ID is required' });
 				return;
 			}
-			const review = await CompatibilityReviewModel.findById(id);
+			const review = await CompatibilityReviewModel.findById(reviewId);
 			if (!review) {
 				res.status(404).json({ success: false, error: 'Compatibility review not found' });
 				return;
 			}
 			res.json({ success: true, data: review });
 		} catch (error: any) {
-			logger.error('Error fetching compatibility review', { error: error.message, id: req.params.id });
+			logger.error('Error fetching compatibility review', { error: error.message, id: req.params.reviewId });
 			res.status(500).json({ success: false, error: 'Internal server error while fetching compatibility review' });
 		}
 	}

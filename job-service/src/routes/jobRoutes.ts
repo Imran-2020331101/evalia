@@ -18,6 +18,7 @@ router.put("/:jobId/status", jobController.updateJobStatus.bind(jobController));
 
 
 router.post("/apply",jobController.applyToJob.bind(jobController));
+router.post("/withdraw",jobController.withDrawApplicationFromAJob.bind(jobController));
 router.post("/shortlist",jobController.shortListCandidate.bind(jobController));
 router.post("/reject", jobController.rejectRemainingCandidates.bind(jobController));
 
