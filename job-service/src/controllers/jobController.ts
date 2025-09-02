@@ -322,9 +322,18 @@ export class JobController {
             const resumeResponse = await axios.post(`${process.env.RESUME_SERVICE_URL}/api/resume/retrive`,{ email });
             const resume: ResumeDTO = resumeResponse.data as ResumeDTO;
             const jobResult = await JobService.findJobById(jobId);
-            jobResult && await ApplicationCompatibilityService.evaluateCandidateProfile(jobResult, resume, email);
+            if(jobResult){
+              const review = await ApplicationCompatibilityService.evaluateCandidateProfile(jobResult, resume, email);
+              if (review && review._id) {
+                await JobService.addReviewIdToApplication(
+                  jobId, 
+                  review._id.toString(), 
+                  email
+                );
+              }
+            } 
           } catch (err) {
-            logger.error("Error in async profile evaluation", { error: (err as Error).message, jobId, email });
+            console.log("Error in async profile evaluation", { error: (err as Error).message, jobId, email });
           }
         })();
       }
