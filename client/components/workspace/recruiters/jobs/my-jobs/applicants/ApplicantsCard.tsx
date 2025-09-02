@@ -20,6 +20,7 @@ const ApplicantsCard = ({applicantId, applicantStatus, appliedAt}:{applicantId:a
                 const response = await axios.get(`http://localhost:8080/api/user/${userId}/single`, {withCredentials:true});
                 console.log(response.data, 'applicants fetched');
                 setApplicant(response.data.data);
+                
             } catch (error) {
                 console.log(error);
             }

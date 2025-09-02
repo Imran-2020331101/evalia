@@ -14,6 +14,7 @@ const MyJobsSingle = ({job}:{job:any}) => {
   const currentOrganizations = useAppSelector(organizations)
   const organization = currentOrganizations.find(item=>item.id===company.OrganizationId)
 //   useEffect(()=>console.log(myCurrentJobs, jobId, 'testing,.'), [])
+if(!job || !currentOrganizations) return null;
   return (
     <div className={` w-full h-full relative tracking-wider `}>
       <div className="w-full h-full backdrop-blur-2xl z-10 flex justify-center overflow-hidden ">
@@ -21,12 +22,12 @@ const MyJobsSingle = ({job}:{job:any}) => {
             <div className="w-full h-auto flex flex-col justify-start items-start ">
                 <section className="w-[60%] h-auto flex justify-start items-start gap-4">
                     <div className="w-[80px] h-[70px] rounded-xl ">
-                        <Image className="w-full h-full rounded-xl object-cover" width={150} height={120} src={organization.organizationProfileImageUrl||''} alt="company logo" />
+                        <Image className="w-full h-full rounded-xl object-cover" width={150} height={120} src={organization?.organizationProfileImageUrl||''} alt="company logo" />
                     </div>
                     <div className="flex-1 h-auto flex flex-col items-start ">
-                        <p className="font-semibold tracking-widest">{organization.organizationName}</p>
+                        <p className="font-semibold tracking-widest">{organization?.organizationName}</p>
                         <p className="w-full h-[40px] overflow-hidden text-[13px] text-gray-300">
-                            {organization.businessDescription}
+                            {organization?.businessDescription}
                         </p>
                     </div>
                 </section>

@@ -1,6 +1,7 @@
 'use client'
 
 import Image from "next/image"
+import axios from "axios"
 import bg from '../../../public/gradient_bg.jpg'
 import {  Mail, MapPin, SlidersVertical, X } from "lucide-react"
 
@@ -10,20 +11,32 @@ import lego from '../../../public/lego.png'
 
 import { useRef, useState, useEffect } from "react"
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
-import { previewedCandidate, setPreviewedCandidate } from "@/redux/features/utils"
+import { compatibilityReviewId, previewedCandidate, setCompatibilityReviewId, setPreviewedCandidate } from "@/redux/features/utils"
 import CandidatesResumePanel from "../../utils/CandidatesResumePanel"
 
 const CandidateProfilePreview = () => {
     const modalRef = useRef<HTMLDivElement>(null)
     const [isShowModal , setIsShowModal] = useState(false)
-    const [isReportGenerated, setIsReportGenerated] = useState(false)
+    const [compatibilityReport, setCompatibilityReport] = useState<any>(null)
 
     const dispatch = useAppDispatch()
 
     const currentPreviewedCandidate = useAppSelector(previewedCandidate)
+    const reviewId = useAppSelector(compatibilityReviewId);
 
     const  candidate = currentPreviewedCandidate?.user
     const resumeData = currentPreviewedCandidate?.resumeData
+
+    const generateCompatibilityReview = async()=>{
+        try {
+            const response = await axios.get(`http://localhost:8080/api/compatibility/${reviewId}`,{withCredentials:true})
+            console.log(response.data);
+            // return response.data;
+        } catch (error:any) {
+            console.log(error)
+        }
+    }
+
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -31,6 +44,7 @@ const CandidateProfilePreview = () => {
             modalRef.current &&
             !modalRef.current.contains(event.target as Node)
             ) {
+                dispatch(setCompatibilityReviewId(null));
                 dispatch(setPreviewedCandidate(null))
             }
         };
@@ -90,7 +104,7 @@ const CandidateProfilePreview = () => {
                 </section>
                 <CandidatesResumePanel resumeData={resumeData} isScroll={true}/>
                 <section className={`absolute top-0 right-0 w-full h-full transition-transform duration-300 origin-top-right bg-slate-900 flex flex-col py-[20px] px-[30px] pt-[10%] overflow-y-scroll scroll-container ${isShowModal?'scale-100':'scale-0'}`}>
-                    { isReportGenerated?
+                    { compatibilityReport?
                      <>
                         <h2 className="text-xl font-semibold text-white mb-4">
                         Application Compatibility Review
@@ -210,7 +224,7 @@ const CandidateProfilePreview = () => {
 
                         {/* Action Button */}
                         <button
-                            onClick={() => setIsReportGenerated(true)}
+                            onClick={generateCompatibilityReview}
                             className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-md cursor-pointer text-white text-sm font-semibold shadow"
                         >
                             Generate Compatibility Review
