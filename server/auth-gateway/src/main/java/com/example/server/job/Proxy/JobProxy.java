@@ -45,8 +45,9 @@ public interface JobProxy {
     @PostMapping   (value = "/apply", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<String> applyToAJob     (@RequestBody JobApplicationRequest jobApplicationRequest);
 
+    @PostMapping   (value = "/withdraw", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> withdrawApplicationFromAJob(JobApplicationRequest jobApplicationRequest);
+
     @PostMapping   (value = "/shortlist", consumes = MediaType.APPLICATION_JSON_VALUE)
     String shortlistCandidatesOfAJob     ( @RequestBody JobApplicationRequest jobApplicationRequest);
-
-
 }

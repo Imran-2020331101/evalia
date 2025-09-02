@@ -351,6 +351,44 @@ export class JobController {
     }
   }
 
+
+  async withDrawApplicationFromAJob(req: Request, res: Response): Promise<void> {
+    try {
+      const schema = z.object({
+        jobId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID"),
+        email: z.string().email("Invalid candidate email"),
+        candidateId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid candidate ID")
+      });
+      
+      const { jobId, email, candidateId } = schema.parse(req.body);
+      
+      const result = await JobService.withdrawApplication(jobId, email, candidateId);
+      const status = result.success ? 200 : 400;
+      
+      res.status(status).json(result);
+
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({
+          success: false,
+          error: error.errors.map(e => e.message).join(", ")
+        } as ApiResponse);
+        return;
+      }
+      
+      logger.error("Error in withDrawApplicationFromAJob controller", {
+        error: error.message,
+        jobId: req.body.jobId,
+      });
+      
+      res.status(500).json({
+        success: false,
+        error: "Internal server error while withdrawing application"
+      } as ApiResponse);
+    }
+  }
+
+
   async shortListCandidate(req:Request,res:Response):Promise<void>{
     try {
       const schema = z.object({

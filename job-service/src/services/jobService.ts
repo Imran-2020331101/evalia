@@ -214,7 +214,7 @@ class jobService{
           success: true,
           message: "Application submitted successfully",
           data: {
-            job: job,
+            jobId: job?._id,
             candidateEmail,
           },
         };
@@ -226,6 +226,71 @@ class jobService{
         return {
           success: false,
           error: "Internal server error while applying to job",
+        };
+      }
+    }
+
+    async withdrawApplication(jobId: string, candidateEmail: string, candidateId: string): Promise<ApiResponse> {
+      try {
+        // Validate job ID
+        if (!Types.ObjectId.isValid(jobId)) {
+          return { success: false, error: "Invalid job ID format" };
+        }
+
+        // Find the job and check if application exists
+        const existingJob = await JobDetailsModel.findById(jobId);
+        if (!existingJob) {
+          return { success: false, error: "Job not found" };
+        }
+
+        const applicationExists = existingJob.applications?.some(
+          app => app.candidateEmail === candidateEmail
+        );
+        
+        if (!applicationExists) {
+          return {
+            success: false,
+            error: "No application found for this candidate on this job",
+          };
+        }
+
+        // Remove the application using candidateEmail
+        const updatedJob = await JobDetailsModel.findByIdAndUpdate(
+          jobId,
+          { 
+            $pull: { 
+              applications: { 
+                candidateEmail: candidateEmail
+              } 
+            } 
+          },
+          { new: true }
+        );
+
+        logger.info("Application withdrawn successfully", { 
+          jobId: updatedJob?._id.toString(), 
+          candidateEmail,
+          candidateId 
+        });
+
+        return {
+          success: true,
+          message: "Application withdrawn successfully",
+          data: {
+            jobId: updatedJob?._id,
+            candidateEmail,
+            remainingApplications: updatedJob?.applications?.length || 0
+          },
+        };
+      } catch (error: any) {
+        logger.error("Error withdrawing application", {
+          error: error.message,
+          jobId,
+          candidateEmail,
+        });
+        return {
+          success: false,
+          error: "Internal server error while withdrawing application",
         };
       }
     }
