@@ -120,6 +120,27 @@ public class JobController {
                 .body(response.getBody());
     }
 
+    @PostMapping("/{jobId}/withdraw")
+    public ResponseEntity<String> withdrawApplicationFromAJob(@PathVariable("jobId") String jobId, Principal principal) {
+        userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
+        if(!user.getAppliedJobs().contains(jobId)){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Job not in applied list");
+        }
+        ResponseEntity<String> response = jobProxy.withdrawApplicationFromAJob(
+                new JobApplicationRequest(jobId, principal.getName(),user.getId().toString()));
+
+        if(response.getStatusCode().equals(HttpStatus.OK)){
+            logger.info("User: " + principal.getName() + " withdrew application from job: " + jobId);
+            user.setNumberOfAppliedJobs(user.getNumberOfAppliedJobs() - 1);
+            user.getAppliedJobs().remove(jobId);
+            userService.saveUpdatedUser(user);
+        }
+
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
+    }
+
     @PostMapping("/{jobId}/save")
     public ResponseEntity<String> saveAJob(@PathVariable("jobId") String jobId, Principal principal) {
 
