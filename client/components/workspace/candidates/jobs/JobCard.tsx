@@ -8,7 +8,7 @@ import saveLogo from '../../../../public/book-mark.svg'
 import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks'
 import { previewedJob, setPreviewedJob, setPreviewOrganization } from '@/redux/features/utils'
 import { useEffect, useState } from 'react'
-import { appliedJobs, applyJob, applyJobId, applyJobStatus, savedJobs, saveJob, saveJobId, saveJobStatus, setApplyJobId, setApplyJobStatus} from '@/redux/features/job'
+import { appliedJobs, applyJob, applyJobId, applyJobStatus, savedJobs, saveJob, saveJobId, saveJobStatus, setApplyJobId, setApplyJobStatus, setSaveJobId, unsaveJob} from '@/redux/features/job'
 import { format } from 'timeago.js'
 import { ClipLoader } from 'react-spinners'
 import { user } from '@/redux/features/auth'
@@ -20,7 +20,7 @@ const JobCard = ({job}:{job:any}) => {
   const [organization,setOrganization]=useState<any>(null);
   const [isApplied, setIsApplied]=useState<boolean>(false)
   const [isSaved, setIsSaved]=useState<boolean>(false)
-  const [saveJobId, setSaveJobId]=useState<any>(null)
+  // const [saveJobId, setSaveJobId]=useState<any>(null)
 
 
   const dispatch = useAppDispatch()
@@ -31,6 +31,7 @@ const JobCard = ({job}:{job:any}) => {
   const currentSavedJobs = useAppSelector(savedJobs)
   const currentApplyJobStatus = useAppSelector(applyJobStatus);
   const currentApplyJobId = useAppSelector(applyJobId);
+  const currentSaveJobId = useAppSelector(saveJobId);
   // const currentSaveJobId = useAppSelector(saveJobId);
   const currentSaveJobStatus = useAppSelector(saveJobStatus);
   const currentUser = useAppSelector(user);
@@ -50,8 +51,12 @@ const JobCard = ({job}:{job:any}) => {
     dispatch(applyJob(_id));
   }
   const handleSaveJob = ()=>{
-    setSaveJobId(_id);
+    dispatch(setSaveJobId(_id))
     dispatch(saveJob(_id));
+  }
+  const handleUnsaveJob = ()=>{
+    dispatch(setSaveJobId(_id))
+    dispatch(unsaveJob(_id))
   }
 
   useEffect(()=>{
@@ -72,6 +77,7 @@ const JobCard = ({job}:{job:any}) => {
     if(applied) setIsApplied(true);
     const saved = currentSavedJobs?.find((item:any)=>item._id===_id);
     if(saved) setIsSaved(true)
+    else {setIsSaved(false)}
   },[currentAppliedJobs.length, currentSavedJobs.length])
   if(!organization) return null;
   return (
@@ -97,9 +103,9 @@ const JobCard = ({job}:{job:any}) => {
         </div>
       </div>
       <div className="h-full w-[20%] flex justify-end items-center gap-4">
-        <button  disabled={isSaved?true:false} onClick={handleSaveJob} className={`w-[65px] h-[30px] border-[1px]  flex justify-center items-center rounded-sm gap-1 ${isSaved?'text-gray-200 bg-gray-700 border-gray-500':'text-gray-300 hover:text-green-500 hover:border-green-500 border-gray-300'} cursor-pointer`}>
+        <button  disabled={currentApplyJobStatus==='pending' ?true:false} onClick={!isSaved?handleSaveJob:handleUnsaveJob} className={`w-[65px] h-[30px] border-[1px]  flex justify-center items-center rounded-sm gap-1 ${isSaved?'text-gray-200 bg-gray-700 border-gray-500':'text-gray-300 hover:text-green-500 hover:border-green-500 border-gray-300'} cursor-pointer`}>
           {
-            currentSaveJobStatus==='pending' && saveJobId===_id?<ClipLoader size={15} color='white'/>:isSaved?<>
+            currentSaveJobStatus==='pending' && currentSaveJobId===_id?<ClipLoader size={15} color='white'/>:isSaved?<>
           <Save color='white' size={14}/> 
           <p className='text-[10px] font-semibold '>Saved</p>
           </>: <>
