@@ -65,10 +65,19 @@ export const getAllAppliedJobs = createAsyncThunk('job/getAllAppliedJobs', async
 export const saveJob = createAsyncThunk('job/saveJob', async(jobId:any,thunkAPI)=>{
     try {
         const response = await axios.post(`http://localhost:8080/api/job/${jobId}/save`,null,{withCredentials:true})
-        console.log(response.data, 'response of apply job')
+        console.log(response.data, 'response of save job')
         return response.data;
     } catch (error:any) {
-        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed apply job' })
+        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed save job' })
+    }
+})
+export const unsaveJob = createAsyncThunk('job/unsaveJob', async(jobId:any,thunkAPI)=>{
+    try {
+        const response = await axios.post(`http://localhost:8080/api/job/${jobId}/unsave`,null,{withCredentials:true})
+        console.log(response.data, 'response of unsave job')
+        return jobId;
+    } catch (error:any) {
+        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed unsave job' })
     }
 })
 
@@ -132,7 +141,7 @@ const jobSlice = createSlice({
             state.applyJobId=action.payload;
         },
         setSaveJobId(state,action){
-            state.applyJobId=action.payload;
+            state.saveJobId=action.payload;
         },
         setRecruiterSelectedJob(state, action){
             state.recruitersSelectedJob=action.payload;
@@ -207,11 +216,27 @@ const jobSlice = createSlice({
         })
         .addCase(saveJob.rejected,(state)=>{
             state.saveJobStatus='error'
+            state.saveJobId=null
         })
         .addCase(saveJob.fulfilled,(state,action)=>{
             state.savedJobs.push(action.payload.data);
             console.log(action.payload, 'inside save jobs...'); 
             state.saveJobStatus='success'
+            state.saveJobId=null
+        })
+        .addCase(unsaveJob.pending,(state)=>{
+            state.saveJobStatus='pending'
+        })
+        .addCase(unsaveJob.rejected,(state)=>{
+            state.saveJobStatus='error'
+            state.saveJobId=null
+        })
+        .addCase(unsaveJob.fulfilled,(state,action)=>{
+            const newSavedJobs = state.savedJobs.filter((item:any)=>item._id!==action.payload);
+            state.savedJobs=newSavedJobs;
+            console.log(state.savedJobs.length, newSavedJobs.length, 'inside unsave jobs...'); 
+            state.saveJobStatus='success'
+            state.saveJobId=null
         })
         .addCase(getAllSavedJobs.pending,(state)=>{
             state.getAllJobsStatus='pending'
