@@ -8,11 +8,18 @@ import axios from "axios"
 import { organizations } from "@/redux/features/auth"
 
 const MyJobsSingle = ({job}:{job:any}) => {
-    useEffect(()=>{console.log(job, 'in job preview')})
-     
   const {title,jobDescription,employmentLevel,deadline,interviewQA,jobLocation,jobType,requirements,responsibilities,skills,status,workPlaceType,salary, createdAt, company}=job
   const currentOrganizations = useAppSelector(organizations)
   const organization = currentOrganizations.find(item=>item.id===company.OrganizationId)
+  
+  const formattedDeadline = ()=>{
+        if(deadline){
+            const date = new Date(deadline)
+            const formatted = date.toLocaleDateString(); 
+            return formatted;
+        }
+    }   
+  
 //   useEffect(()=>console.log(myCurrentJobs, jobId, 'testing,.'), [])
 if(!job || !currentOrganizations) return null;
   return (
@@ -41,7 +48,7 @@ if(!job || !currentOrganizations) return null;
                     </div>
                     <div className="w-full overflow-hidden flex justify-start items-center gap-2 text-gray-300">
                         <p className="text-[13px]">{`Posted : ${'2 days ago'} `}</p><p>{` . `}</p>
-                        <p className="text-[13px]">{`Application Deadline : `}<span className="text-red-500">{deadline}</span></p>
+                        <p className="text-[13px]">{`Application Deadline : `}<span className="text-red-500">{formattedDeadline()}</span></p>
                     </div>
                 </section>
                 <section className="w-full h-auto flex flex-col justify-start items-start mt-6 text-gray-100 gap-2">

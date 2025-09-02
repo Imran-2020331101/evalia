@@ -214,6 +214,7 @@ class jobService{
           success: true,
           message: "Application submitted successfully",
           data: {
+            job,
             jobId: job?._id,
             candidateEmail,
           },

@@ -5,7 +5,7 @@ import { ChevronDown } from "lucide-react";
 import { JOB_TYPE, WORKPLACE_TYPE, IMPORTANCE_OPTIONS,EMPLOYMENT_LEVEL } from "@/Data/create-job";
 import { toast } from "sonner";
 import { domainType, interviewQAStateType, basicStateType } from "@/types/create-job";
-import { createJob, createJobStatus, selectedOrgId } from "@/redux/features/job";
+import { createJob, createJobStatus, selectedOrgId, setCreateJobStatus } from "@/redux/features/job";
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks";
 interface propType{
   requirement:domainType[],
@@ -190,15 +190,17 @@ const CreateJobForm = ({requirement, responsibilities, skills, basicState, setRe
     }
     console.log(data, 'job data before creation')
     await dispatch(createJob({organizationId:currentSelectedOrgId,data}))
-    if(currentCreateJobStatus==='error') toast.error('something went wrong! please try again later..')
-    else if (currentCreateJobStatus==='success') toast.success('Job successfully created !')
   }
 
   useEffect(()=>console.log(requirement,'requirement'),[requirement])
   useEffect(()=>console.log(responsibilities,'responsibility'),[responsibilities])
   useEffect(()=>console.log(skills,'skills'),[skills])
   useEffect(()=>console.log(basicState, 'basics'))
-
+  useEffect(()=>{
+    if(currentCreateJobStatus==='error') toast.error('something went wrong! please try again later..')
+    else if (currentCreateJobStatus==='success') toast.success('Job successfully created !')
+    dispatch(setCreateJobStatus('idle'));
+  },[currentCreateJobStatus])
    return (
     <div className='w-full h-full  flex justify-center items-center '>
       <div className="w-full h-full flex flex-col justify-start items-start py-[40px] overflow-y-auto scrollbar-hidden text-gray-300 bg-slate-800/20 rounded-lg px-[20px] text-[12px] gap-[40px]">
@@ -319,15 +321,21 @@ const CreateJobForm = ({requirement, responsibilities, skills, basicState, setRe
             </ul>
           </div>
           <div className="w-[45%] h-[60px] flex flex-col justify-start items-start gap-1 shrink-0">
-            <label htmlFor="job-deadline" className='font-semibold'>Deadline <span className="text-gray-400">(dd-mm-yy)</span> : </label>
-            <textarea 
-            onChange={(e)=>updateBasics('deadline',e.target.value)}
-            value={basicState.deadline}
-            name="job-deadline" 
-            id="job-deadline" 
-            className='w-full flex-1 shrink-0 rounded-sm p-2 pt-3 bg-slate-800/30 shadow-md scroll-container shadow-slate-800 focus:border-[1px] border-gray-500 outline-none'>
-            </textarea>
+            <label htmlFor="job-deadline" className="font-semibold">
+              Deadline :
+            </label>
+
+            <input
+              type="date"
+              id="job-deadline"
+              name="job-deadline"
+              value={basicState.deadline}
+              onChange={(e) => updateBasics("deadline", e.target.value)}
+              className="w-full flex-1 shrink-0 rounded-sm p-2 bg-slate-800/30 shadow-md shadow-slate-800 
+                        focus:border-[1px] border-gray-500 outline-none text-white text-[13px]"
+            />
           </div>
+
         </section>
         <section className="w-full h-[60px] flex justify-center items-center gap-[20px] shrink-0">
               <button onClick={()=>setTabIndex(1)} className={`px-[20px] py-[8px] rounded-lg ${tabIndex===1?'bg-blue-400 text-white':''} border-gray-700 cursor-pointer font-semibold hover:text-blue-400 border hover:border-blue-500`}>Requirements</button>

@@ -22,16 +22,17 @@ const CandidateProfilePreview = () => {
     const dispatch = useAppDispatch()
 
     const currentPreviewedCandidate = useAppSelector(previewedCandidate)
-    const reviewId = useAppSelector(compatibilityReviewId);
+    const currentReviewId = useAppSelector(compatibilityReviewId);
 
     const  candidate = currentPreviewedCandidate?.user
     const resumeData = currentPreviewedCandidate?.resumeData
 
-    const generateCompatibilityReview = async()=>{
+    const generateCompatibilityReview = async(reviewId:any)=>{
+        console.log('compatibility id review', reviewId)
         try {
             const response = await axios.get(`http://localhost:8080/api/compatibility/${reviewId}`,{withCredentials:true})
             console.log(response.data);
-            // return response.data;
+            setCompatibilityReport(response.data.data);
         } catch (error:any) {
             console.log(error)
         }
@@ -44,8 +45,9 @@ const CandidateProfilePreview = () => {
             modalRef.current &&
             !modalRef.current.contains(event.target as Node)
             ) {
+                dispatch(setPreviewedCandidate(null));
+                setIsShowModal(false);
                 dispatch(setCompatibilityReviewId(null));
-                dispatch(setPreviewedCandidate(null))
             }
         };
 
@@ -54,8 +56,9 @@ const CandidateProfilePreview = () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
+    useEffect(()=>console.log(currentReviewId,'current review id '))
   return (
-    <div className={`z-[130] top-0 left-0 right-0 bottom-0 backdrop-blur-2xl ${currentPreviewedCandidate?'fixed':'hidden'} `}>
+    <div className={`z-[130] top-0 left-0 right-0 bottom-0 backdrop-blur-sm ${currentPreviewedCandidate?'fixed':'hidden'} `}>
       <div className="absolute z-10 top-2 right-2">
         <X size={25} className=""/>
       </div>
@@ -118,10 +121,10 @@ const CandidateProfilePreview = () => {
                             </p>
                             <div className="mt-3 flex items-center gap-3">
                             <span className="px-3 py-1 bg-green-800/30 text-green-400 text-xs rounded-full">
-                                Overall Match: 78%
+                                Overall Match: {compatibilityReport?.matchPercentage}%
                             </span>
                             <span className="px-3 py-1 bg-yellow-800/30 text-yellow-400 text-xs rounded-full">
-                                Good Fit
+                                {compatibilityReport?.fit}
                             </span>
                             </div>
                         </div>
@@ -130,33 +133,16 @@ const CandidateProfilePreview = () => {
                         <div className="mb-6">
                             <h3 className="text-lg font-semibold  mb-2">Strengths</h3>
                             <ul className="space-y-2 ml-4">
-                            <li className="flex items-start gap-2">
+                            {
+                                compatibilityReport?.strengths?.map((item:any,index:any)=><li key={index} className="flex items-end gap-2">
                                 <span className="text-green-400 mt-1">✔</span>
                                 <div>
-                                <p className="text-sm text-white font-medium">Skills Match</p>
                                 <p className="text-xs text-gray-400">
-                                    Proficient in React, JavaScript, and TailwindCSS – matches core job requirements.
+                                    {item}
                                 </p>
                                 </div>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <span className="text-green-400 mt-1">✔</span>
-                                <div>
-                                <p className="text-sm text-white font-medium">Education</p>
-                                <p className="text-xs text-gray-400">
-                                    Holds a B.Sc. in Computer Science, meeting the degree requirement.
-                                </p>
-                                </div>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <span className="text-green-400 mt-1">✔</span>
-                                <div>
-                                <p className="text-sm text-white font-medium">Experience</p>
-                                <p className="text-xs text-gray-400">
-                                    4+ years in frontend development with portfolio projects relevant to the role.
-                                </p>
-                                </div>
-                            </li>
+                            </li>)
+                            }
                             </ul>
                         </div>
 
@@ -164,33 +150,16 @@ const CandidateProfilePreview = () => {
                         <div>
                             <h3 className="text-lg font-semibold  mb-2">Weaknesses</h3>
                             <ul className="space-y-2  ml-6">
-                            <li className="flex items-start gap-2">
+                            {
+                                compatibilityReport?.weaknesses?.map((item:any, index:any)=><li key={index} className="flex items-center gap-2">
                                 <span className="text-red-400 mt-1">✘</span>
                                 <div>
-                                <p className="text-sm text-white font-medium">Backend Skills</p>
                                 <p className="text-xs text-gray-400">
-                                    Limited experience in Node.js and APIs, which are part of the job's tech stack.
+                                    {item}
                                 </p>
                                 </div>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <span className="text-red-400 mt-1">✘</span>
-                                <div>
-                                <p className="text-sm text-white font-medium">Cloud & DevOps</p>
-                                <p className="text-xs text-gray-400">
-                                    No AWS or Docker exposure, both listed as desired skills in the job post.
-                                </p>
-                                </div>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <span className="text-red-400 mt-1">✘</span>
-                                <div>
-                                <p className="text-sm text-white font-medium">Advanced Frameworks</p>
-                                <p className="text-xs text-gray-400">
-                                    No working knowledge of Next.js, which the employer prefers.
-                                </p>
-                                </div>
-                            </li>
+                            </li>)
+                            }
                             </ul>
                         </div>
                      </>:
@@ -224,7 +193,7 @@ const CandidateProfilePreview = () => {
 
                         {/* Action Button */}
                         <button
-                            onClick={generateCompatibilityReview}
+                            onClick={()=>generateCompatibilityReview(currentReviewId)}
                             className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-md cursor-pointer text-white text-sm font-semibold shadow"
                         >
                             Generate Compatibility Review

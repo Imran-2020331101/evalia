@@ -71,9 +71,9 @@ const JobPreview = () => {
         }
     }
     useEffect(()=>{
-        const applied = currentAppliedJobs?.find((item:any)=>item._id===_id)
+        const applied = currentAppliedJobs?.find((item:any)=>item?._id===_id)
         if(applied) setIsApplied(true);
-        const saved = currentSavedJobs?.find((item:any)=>item._id===_id);
+        const saved = currentSavedJobs?.find((item:any)=>item?._id===_id);
         if(saved) setIsSaved(true)
         else setIsSaved(false)
     },[currentAppliedJobs.length, currentSavedJobs.length,_id])

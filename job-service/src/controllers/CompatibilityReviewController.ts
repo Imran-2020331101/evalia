@@ -15,6 +15,7 @@ export class CompatibilityReviewController {
 	async getCompatibilityById(req: Request, res: Response): Promise<void> {
 		try {
 			const { reviewId } = req.params;
+			console.log(reviewId);
 			if (!reviewId) {
 				res.status(400).json({ success: false, error: 'Review ID is required' });
 				return;

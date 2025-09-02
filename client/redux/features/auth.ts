@@ -93,6 +93,7 @@ export const saveAnalyzedResume = createAsyncThunk('auth/saveAnalyzedResume',asy
     }
 })
 
+
 type statusType = 'idle'|'pending'|'error'|'success';
 interface initialStateType {
     userStatus:statusType
@@ -131,7 +132,7 @@ const initialState :initialStateType={
     analyzeUserResumeStatus:'idle',
     saveUserResumeStatus:'idle',
     organizations:[],
-    isSignedIn:true,
+    isSignedIn:false,
     registerFormData:{
         name:'',
         email:'',
@@ -178,6 +179,9 @@ const authSlice = createSlice({
         },
         setResume(state, action){
             state.user.user.resumeUrl=action.payload;
+        },
+        setIsSingedIn(state, action){
+            state.isSignedIn=action.payload;
         }
     },
     extraReducers(builder){
@@ -296,7 +300,7 @@ const authSlice = createSlice({
 })
 
 export default authSlice.reducer;
-export const {setFormData, setOrgCreationStatus, setOrgFetchStatus,setOrgUpdateStatus, setUserBasicInfoUpdateStatus, setResume, setAnalyzeUserResumeStatus}= authSlice.actions;
+export const {setFormData, setOrgCreationStatus, setOrgFetchStatus,setOrgUpdateStatus, setUserBasicInfoUpdateStatus, setResume, setAnalyzeUserResumeStatus, setIsSingedIn}= authSlice.actions;
 export const currentFormData = (state:RootState)=>state.auth.registerFormData
 export const user = (state:RootState) => state.auth.user;
 export const userStatus = (state:RootState) => state.auth.userStatus;
