@@ -81,7 +81,7 @@ const ApplicantsContainer = () => {
           </div>  
         </div>
         {
-          applications?.map((item:any)=><ApplicantsCard key={item._id} applicantId={item._id}/>)
+          applications?.map((item:any)=><ApplicantsCard key={item._id} appliedAt={item.appliedAt} applicantStatus={item.status} applicantId={item.candidateId}/>)
         }
       </div>
     </div>

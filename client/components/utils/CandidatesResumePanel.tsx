@@ -131,78 +131,16 @@ type CandidateProfileProps = {
 };
 
 interface propType{
-  isScroll:boolean
+  isScroll:boolean,
+  resumeData:any,
 }
 
-const CandidatesResumePanel = ({isScroll}:propType) => {
-    const {skills,experience,education,projects,certifications,awards}=dummyCandidateData
+const CandidatesResumePanel = ({isScroll, resumeData}:propType) => {
+    const {skills,experience,education,projects,certifications,awards}=resumeData || {}
+    if(!resumeData) return null;
   return (
     <div className={`w-full min-h-full ${isScroll?'overflow-y-auto  ':''} scroll-container pl-[7%] bg-slate-900 text-gray-100 p-6 space-y-8`}>
       
-      {/* Skills */}
-      {skills && Object.values(skills).some(arr => arr && arr.length > 0) && (
-        <section>
-          <h2 className="text-lg font-semibold border-b border-gray-700 pb-1 mb-3 flex items-center gap-2">
-            <Code size={18} /> Skills
-          </h2>
-          <div className="space-y-3">
-            {skills.technical?.length ? (
-              <div>
-                <p className="font-medium text-gray-300">Technical</p>
-                <div className="flex flex-wrap gap-2">
-                  {skills.technical.map((skill, idx) => (
-                    <span key={idx} className="px-3 py-1 bg-blue-800/40 rounded-full text-sm">{skill}</span>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
-            {skills.soft?.length ? (
-              <div>
-                <p className="font-medium text-gray-300">Soft Skills</p>
-                <div className="flex flex-wrap gap-2">
-                  {skills.soft.map((skill, idx) => (
-                    <span key={idx} className="px-3 py-1 bg-blue-800/40 rounded-full text-sm">{skill}</span>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
-            {skills.languages?.length ? (
-              <div>
-                <p className="font-medium text-gray-300">Languages</p>
-                <div className="flex flex-wrap gap-2">
-                  {skills.languages.map((lang, idx) => (
-                    <span key={idx} className="px-3 py-1 bg-blue-800/40 rounded-full text-sm">{lang}</span>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
-            {skills.tools?.length ? (
-              <div>
-                <p className="font-medium text-gray-300">Tools & Frameworks</p>
-                <div className="flex flex-wrap gap-2">
-                  {skills.tools.map((tool, idx) => (
-                    <span key={idx} className="px-3 py-1 bg-blue-800/40 rounded-full text-sm">{tool}</span>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
-            {skills.other?.length ? (
-              <div>
-                <p className="font-medium text-gray-300">Other</p>
-                <div className="flex flex-wrap gap-2">
-                  {skills.other.map((skill, idx) => (
-                    <span key={idx} className="px-3 py-1 bg-gray-700 rounded-full text-sm">{skill}</span>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-          </div>
-        </section>
-      )}
 
       {/* Experience */}
       {experience?.length ? (
@@ -210,19 +148,19 @@ const CandidatesResumePanel = ({isScroll}:propType) => {
           <h2 className="text-lg font-semibold border-b border-gray-700 pb-1 mb-3 flex items-center gap-2">
             <Briefcase size={18} /> Experience
           </h2>
-          {experience.map((exp, idx) => (
+          {experience.map((exp:any, idx:any) => (
             <div key={idx} className="mb-4">
               <p className="font-medium text-white">{exp.job_title}</p>
               <p className="text-sm text-blue-400">{exp.company}</p>
               <p className="text-xs text-gray-400">{exp.duration}</p>
               {exp.description?.length ? (
                 <ul className="list-disc list-inside text-sm text-gray-300 mt-1 space-y-1">
-                  {exp.description.map((desc, i) => <li key={i}>{desc}</li>)}
+                  {exp.description.map((desc:any, i:any) => <li key={i}>{desc}</li>)}
                 </ul>
               ) : null}
               {exp.achievements?.length ? (
                 <ul className="list-disc list-inside text-sm text-green-400 mt-1 space-y-1">
-                  {exp.achievements.map((ach, i) => <li key={i}>{ach}</li>)}
+                  {exp.achievements.map((ach:any, i:any) => <li key={i}>{ach}</li>)}
                 </ul>
               ) : null}
             </div>
@@ -236,7 +174,7 @@ const CandidatesResumePanel = ({isScroll}:propType) => {
           <h2 className="text-lg font-semibold border-b border-gray-700 pb-1 mb-3 flex items-center gap-2">
             <GraduationCap size={18} /> Education
           </h2>
-          {education.map((edu, idx) => (
+          {education.map((edu:any, idx:any) => (
             <div key={idx} className="mb-3">
               <p className="font-medium text-white">{edu.degree}</p>
               <p className="text-sm text-green-400">{edu.institution}</p>
@@ -252,13 +190,13 @@ const CandidatesResumePanel = ({isScroll}:propType) => {
           <h2 className="text-lg font-semibold border-b border-gray-700 pb-1 mb-3 flex items-center gap-2">
             <Code size={18} /> Projects
           </h2>
-          {projects.map((proj, idx) => (
+          {projects.map((proj:any, idx:any) => (
             <div key={idx} className="mb-3">
               <p className="font-medium text-white">{proj.title}</p>
               <p className="text-sm text-gray-300">{proj.description}</p>
               {proj.technologies?.length ? (
                 <div className="flex flex-wrap gap-2 mt-1">
-                  {proj.technologies.map((tech, i) => (
+                  {proj.technologies.map((tech:any, i:any) => (
                     <span key={i} className="px-2 py-1 bg-gray-800 rounded text-xs">{tech}</span>
                   ))}
                 </div>
@@ -279,7 +217,7 @@ const CandidatesResumePanel = ({isScroll}:propType) => {
           <h2 className="text-lg font-semibold border-b border-gray-700 pb-1 mb-3 flex items-center gap-2">
             <Award size={18} /> Certifications
           </h2>
-          {certifications.map((cert, idx) => (
+          {certifications.map((cert:any, idx:any) => (
             <div key={idx} className="mb-3">
               <p className="font-medium text-white">{cert.title}</p>
               <p className="text-sm text-gray-300">{cert.provider} • {cert.date}</p>
@@ -299,7 +237,7 @@ const CandidatesResumePanel = ({isScroll}:propType) => {
           <h2 className="text-lg font-semibold border-b border-gray-700 pb-1 mb-3 flex items-center gap-2">
             <Award size={18} /> Awards & Honors
           </h2>
-          {awards.map((awd, idx) => (
+          {awards.map((awd:any, idx:any) => (
             <div key={idx} className="mb-3">
               <p className="font-medium text-white">{awd.title}</p>
               <p className="text-sm text-gray-300">{awd.organization} • {awd.year}</p>
@@ -308,6 +246,71 @@ const CandidatesResumePanel = ({isScroll}:propType) => {
           ))}
         </section>
       ) : null}
+
+            {/* Skills */}
+      {skills && Object.values(skills).some(arr => arr) && (
+        <section>
+          <h2 className="text-lg font-semibold border-b border-gray-700 pb-1 mb-3 flex items-center gap-2">
+            <Code size={18} /> Skills
+          </h2>
+          <div className="space-y-3">
+            {skills.technical?.length ? (
+              <div>
+                <p className="font-medium text-gray-300">Technical</p>
+                <div className="flex flex-wrap gap-2">
+                  {skills.technical.map((skill:any, idx:any) => (
+                    <span key={idx} className="px-3 py-1 bg-blue-800/40 rounded-full text-sm">{skill}</span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {skills.soft?.length ? (
+              <div>
+                <p className="font-medium text-gray-300">Soft Skills</p>
+                <div className="flex flex-wrap gap-2">
+                  {skills.soft.map((skill:any, idx:any) => (
+                    <span key={idx} className="px-3 py-1 bg-blue-800/40 rounded-full text-sm">{skill}</span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {skills.languages?.length ? (
+              <div>
+                <p className="font-medium text-gray-300">Languages</p>
+                <div className="flex flex-wrap gap-2">
+                  {skills.languages.map((lang:any, idx:any) => (
+                    <span key={idx} className="px-3 py-1 bg-blue-800/40 rounded-full text-sm">{lang}</span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {skills.tools?.length ? (
+              <div>
+                <p className="font-medium text-gray-300">Tools & Frameworks</p>
+                <div className="flex flex-wrap gap-2">
+                  {skills.tools.map((tool:any, idx:any) => (
+                    <span key={idx} className="px-3 py-1 bg-blue-800/40 rounded-full text-sm">{tool}</span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {skills.other?.length ? (
+              <div>
+                <p className="font-medium text-gray-300">Other</p>
+                <div className="flex flex-wrap gap-2">
+                  {skills.other.map((skill:any, idx:any) => (
+                    <span key={idx} className="px-3 py-1 bg-gray-700 rounded-full text-sm">{skill}</span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

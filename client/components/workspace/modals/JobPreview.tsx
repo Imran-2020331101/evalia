@@ -16,7 +16,7 @@ import { previewedJob, setPreviewedJob, setPreviewOrganization } from "@/redux/f
 import { user } from "@/redux/features/auth";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { appliedJobs, applyJob, applyJobId, applyJobStatus, savedJobs, saveJob, saveJobStatus, setApplyJobId } from "@/redux/features/job";
+import { appliedJobs, applyJob, applyJobId, applyJobStatus, savedJobs, saveJob, saveJobId, saveJobStatus, setApplyJobId, setSaveJobId, unsaveJob } from "@/redux/features/job";
 import { ClipLoader } from "react-spinners";
 import { Save , Send , CheckCheck} from "lucide-react";
 
@@ -24,7 +24,6 @@ const didact_gothic = Didact_Gothic({ weight: ['400'], subsets: ['latin'] })
 
 const JobPreview = () => {
     const [isShowApplyButton, setIsShowApplyButton] = useState(true);
-    const [saveJobId, setSaveJobId]=useState<any>(null)
     const [isSaved, setIsSaved]=useState<boolean>(false);
     const [isApplied, setIsApplied]=useState<boolean>(false);
 
@@ -35,6 +34,7 @@ const JobPreview = () => {
     const currentSavedJobs = useAppSelector(savedJobs)
     const currentAppliedJobs = useAppSelector(appliedJobs)
     const currentApplyJobId = useAppSelector(applyJobId)
+    const currentSaveJobId = useAppSelector(saveJobId)
     const currentSaveJobStatus = useAppSelector(saveJobStatus)
     const currentApplyJobStatus = useAppSelector(applyJobStatus)
     const currentPreviewedJob = useAppSelector(previewedJob)
@@ -56,9 +56,13 @@ const JobPreview = () => {
     dispatch(applyJob(_id));
   }
   const handleSaveJob = ()=>{
-    setSaveJobId(_id);
+    dispatch(setSaveJobId(_id))
     dispatch(saveJob(_id));
   }
+  const handleUnsaveJob = ()=>{
+        dispatch(setSaveJobId(_id))
+        dispatch(unsaveJob(_id))
+    }
     const formattedDeadline = ()=>{
         if(deadline){
             const date = new Date(deadline)
@@ -71,6 +75,7 @@ const JobPreview = () => {
         if(applied) setIsApplied(true);
         const saved = currentSavedJobs?.find((item:any)=>item._id===_id);
         if(saved) setIsSaved(true)
+        else setIsSaved(false)
     },[currentAppliedJobs.length, currentSavedJobs.length,_id])
     return (
     <div className={` ${didact_gothic.className} ${currentPreviewedJob?'fixed':'hidden'} tracking-wider top-0 left-0 right-0 bottom-0 z-[120] `}>
@@ -87,9 +92,9 @@ const JobPreview = () => {
                     <button onClick={()=>setIsShowApplyButton((prev)=>!prev)} className="p-2 rounded-full cursor-pointer">
                         <Image src={isShowApplyButton?rightLogo:leftLogo} alt="direction" className="w-[25px] object-cover"/>
                     </button>
-                    <button disabled={isSaved?true:false} onClick={handleSaveJob} className={`px-2 py-2 rounded-sm border border-gray-300 ${isSaved?'bg-gray-700 text-gray-100':'hover:border-blue-500 text-white  bg-gray-900'} flex font-semibold justify-center items-center cursor-pointer gap-1`}>
+                    <button disabled={currentApplyJobStatus==='pending' ?true:false} onClick={!isSaved?handleSaveJob:handleUnsaveJob} className={`px-2 py-2 rounded-sm border border-gray-300 ${isSaved?'bg-gray-700 text-gray-100':'hover:border-blue-500 text-white  bg-gray-900'} flex font-semibold justify-center items-center cursor-pointer gap-1`}>
                        {
-                            currentSaveJobStatus==='pending' && saveJobId===_id?<ClipLoader size={15} color='white'/>:isSaved?<>
+                            currentSaveJobStatus==='pending' && currentSaveJobId===_id?<ClipLoader size={15} color='white'/>:isSaved?<>
                             <Save color='white' size={14}/> 
                             <p className='text-[10px] font-semibold '>Saved</p>
                             </>: <>
