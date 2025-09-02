@@ -319,7 +319,7 @@ export class JobController {
       if(result.success){
         (async () => {
           try {
-            const resumeResponse = await axios.post(`${process.env.RESUME_SERVICE_URL}/api/resume/retrive`,{ email });
+            const resumeResponse = await axios.get(`${process.env.RESUME_SERVICE_URL}/api/resume/retrieve?email=${email}`);
             const resume: ResumeDTO = resumeResponse.data as ResumeDTO;
             const jobResult = await JobService.findJobById(jobId);
             if(jobResult){
@@ -334,6 +334,7 @@ export class JobController {
             } 
           } catch (err) {
             console.log("Error in async profile evaluation", { error: (err as Error).message, jobId, email });
+            console.log(err);
           }
         })();
       }

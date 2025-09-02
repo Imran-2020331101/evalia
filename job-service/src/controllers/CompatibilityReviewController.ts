@@ -47,7 +47,7 @@ export class CompatibilityReviewController {
 			const { jobId, candidateEmail } = validation.data;
 
 			console.log(`${process.env.RESUME_SERVICE_URL}`);
-			const resumeResponse    = await axios.post(`${process.env.RESUME_SERVICE_URL}/api/resume/retrive`,{ email : candidateEmail });
+			const resumeResponse    = await axios.get(`${process.env.RESUME_SERVICE_URL}/api/resume/retrieve?email=${candidateEmail}`);
 			const resume: ResumeDTO = resumeResponse.data as ResumeDTO;
 			const jobResult         = await JobService.findJobById(jobId);
 			if(jobResult == null ) throw new Error("Job not found");
