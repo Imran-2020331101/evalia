@@ -9,7 +9,8 @@ import { useRouter } from 'next/navigation'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { SplitText } from 'gsap/all'
-import { isSignedIn } from '@/redux/features/auth'
+import { isSignedIn, setIsSingedIn } from '@/redux/features/auth'
+import { useEffect, useState } from 'react'
 
 gsap.registerPlugin(SplitText)
 
@@ -24,6 +25,7 @@ const michroma = Michroma({
 })
 
 const HamburgerMenu = () => {
+  const [isMounted, setIsMounted]=useState(false);
   const currentIsShowHamburgerMenu = useAppSelector(isShowHamburgerMenu)
   const currentIsSignedIn = useAppSelector(isSignedIn)
 
@@ -86,6 +88,12 @@ const HamburgerMenu = () => {
     return () => ctx.revert();
   });
 }, [currentIsShowHamburgerMenu]);
+
+useEffect(()=>{
+  dispatch(setIsSingedIn(JSON.parse(localStorage.getItem('isSignedIn')??"false")));
+  setIsMounted(true);
+},[])
+
   return (
     <div className={`${currentIsShowHamburgerMenu?'fixed':'hidden'} z-[60] top-[90px] bottom-0 left-0 right-0  px-[50px] pb-[50px]`}>
       <div className="w-full h-full relative flex bg-gray-950/90 flex-col rounded-b-4xl rounded-tl-4xl">
@@ -127,7 +135,7 @@ const HamburgerMenu = () => {
 
             </div>
             {
-              currentIsSignedIn?
+              !isMounted?null: currentIsSignedIn?
                 <div className="w-1/2 h-full flex justify-end items-start pt-[14%] pr-[10%]  tracking-widest ">
                     <div className={` ${michroma.className}  w-auto h-auto flex flex-col justify-center items-start  `}>
                       <div id='profile' className="flex items-center gap-4 group leading-none">

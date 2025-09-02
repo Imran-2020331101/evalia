@@ -39,6 +39,7 @@ const utilsSlice = createSlice({
             state.isShowAuthRole=!state.isShowAuthRole
         },
         setCompatibilityReviewId(state, action){
+            console.log(action.payload, 'inside thunk payload check')
             state.compatibilityReviewId=action.payload;
         }
     }

@@ -34,6 +34,7 @@ const LoginPage = () => {
 
       if (response.ok && data.success) {
         console.log(data, 'user data')
+        localStorage.setItem('isSignedIn',JSON.stringify(true));
         router.push('/workspace')
       } else {
         setError(data.message || 'Login failed. Please check your credentials.')

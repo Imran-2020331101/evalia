@@ -146,6 +146,9 @@ const jobSlice = createSlice({
         },
         setRecruiterSelectedJob(state, action){
             state.recruitersSelectedJob=action.payload;
+        },
+        setCreateJobStatus(state, action){
+            state.createJobStatus=action.payload;
         }
     },
     extraReducers(builder){
@@ -254,7 +257,7 @@ const jobSlice = createSlice({
 })
 
 export default jobSlice.reducer;
-export const {setSelectedOrgId, setApplyJobStatus, setGetAllJobStatus, setApplyJobId, setSaveJobId, setRecruiterSelectedJob}=jobSlice.actions;
+export const {setSelectedOrgId, setApplyJobStatus, setGetAllJobStatus, setApplyJobId, setSaveJobId, setRecruiterSelectedJob, setCreateJobStatus}=jobSlice.actions;
 export const exploreJobs = (state:RootState)=>state.job.exploreJobs;
 export const appliedJobs = (state:RootState)=>state.job.appliedJobs;
 export const savedJobs = (state:RootState)=>state.job.savedJobs;
