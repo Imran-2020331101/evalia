@@ -4,6 +4,7 @@ import { RootState } from "../lib/store";
 interface initialStateType{
     isShowHamburgerMenu:boolean,
     previewedJob:any,
+    compatibilityReviewId:any,
     previewOrganization:any,
     previewedCandidate:any,
     isShowAuthRole:boolean
@@ -12,6 +13,7 @@ interface initialStateType{
 const initialState:initialStateType = {
     isShowAuthRole:false,
     isShowHamburgerMenu:false,
+    compatibilityReviewId:null,
     previewedJob :null,
     previewOrganization:null,
     previewedCandidate:null,
@@ -35,14 +37,18 @@ const utilsSlice = createSlice({
         },
         toggleIsShowAuthRole(state){
             state.isShowAuthRole=!state.isShowAuthRole
+        },
+        setCompatibilityReviewId(state, action){
+            state.compatibilityReviewId=action.payload;
         }
     }
 })
 
 export default utilsSlice.reducer;
-export const {toggleIsShowHamburgerMenu, setPreviewedJob, setPreviewedCandidate, toggleIsShowAuthRole, setPreviewOrganization} = utilsSlice.actions;
+export const {toggleIsShowHamburgerMenu, setPreviewedJob, setPreviewedCandidate, toggleIsShowAuthRole, setPreviewOrganization, setCompatibilityReviewId} = utilsSlice.actions;
 export const isShowHamburgerMenu = (state:RootState) =>state.utils.isShowHamburgerMenu;
 export const previewedJob = (state:RootState)=>state.utils.previewedJob;
 export const previewOrganization = (state:RootState)=>state.utils.previewOrganization;
 export const previewedCandidate = (state:RootState)=>state.utils.previewedCandidate;
 export const isShowAuthRole = (state:RootState)=>state.utils.isShowAuthRole;
+export const compatibilityReviewId = (state:RootState)=>state.utils.compatibilityReviewId;

@@ -4,13 +4,14 @@ import { useAppDispatch } from "@/redux/lib/hooks"
 import axios from "axios"
 import Image from "next/image"
 import { useEffect, useState } from "react"
+import { format } from "timeago.js"
 
 
-const ApplicantsCard = ({applicantId}:{applicantId:any}) => {
+const ApplicantsCard = ({applicantId, applicantStatus, appliedAt}:{applicantId:any, applicantStatus:any, appliedAt:any}) => {
     const [applicant, setApplicant]= useState<any>(null);
     const dispatch = useAppDispatch()
     const handleViewProfile = ()=>{
-        dispatch(setPreviewedCandidate(true))
+        dispatch(setPreviewedCandidate(applicant))
     }
     useEffect(()=>{
         const userId=applicantId;
@@ -18,23 +19,28 @@ const ApplicantsCard = ({applicantId}:{applicantId:any}) => {
             try {
                 const response = await axios.get(`http://localhost:8080/api/user/${userId}/single`, {withCredentials:true});
                 console.log(response.data, 'applicants fetched');
+                setApplicant(response.data.data);
+                
             } catch (error) {
                 console.log(error);
             }
         }
          fetchApplicantsData();
     },[])
+    if(!applicant) return null;
   return (
     <div className='w-full h-[60px] shrink-0 flex justify-start items-center px-2 gap-3 text-[12px] text-gray-200 border-b-[1px] border-gray-700 pb-2 hover:border-blue-500 transition-colors duration-300 '>
         <div className="w-[40px] h-[40px] rounded-full ">
-            <Image width={40} height={40} alt="profile pic" src={'https://i.pinimg.com/736x/3b/9f/d4/3b9fd428da533d3a7c5711bf21cfba91.jpg'} className="w-full h-full object-cover rounded-full"/>
+            <Image width={40} height={40} alt="profile pic" src={applicant?.user?.profilePictureUrl} className="w-full h-full object-cover rounded-full"/>
         </div>
         <div className="flex-1 h-[40px] flex flex-col gap-1">
-            <p className='font-semibold'>Azwoad Islam Nishat</p>
+            <p className='font-semibold'>{applicant?.user?.name||''}</p>
             <div className="w-full flex-1 flex justify-start items-center gap-2 text-[11px] ">
-                <p className={`text-teal-500`}>{'Accepted'}</p><p className='text-[13px] font-extrabold'>{` . `}</p>
-                <p>{'Dhaka, Bangladesh'}</p><p className='text-[13px] font-extrabold'>{` . `}</p>
-                <p>{`Applied at : ${`05-02-2025`}`}</p>
+                <p className={`text-teal-500`}>{applicantStatus||''}</p><p className='text-[13px] font-extrabold'>{` . `}</p>
+                <p>{applicant?.user?.location}</p><p className='text-[13px] font-extrabold'>{` . `}</p>
+                {
+                    appliedAt?<p>{`Applied : ${format(appliedAt)}`}</p>:null
+                }
             </div>
         </div>
         <div className=" self-start mt-[-5px]  relative group">

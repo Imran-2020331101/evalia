@@ -91,6 +91,7 @@ export const getAllSavedJobs = createAsyncThunk('job/getAllSavedJobs', async(_, 
     }
 })
 
+
 type statusType = 'idle' | 'pending' | 'success' | 'error';
 interface initialStateType {
     createJobStatus: statusType,
