@@ -91,9 +91,6 @@ export const getAllSavedJobs = createAsyncThunk('job/getAllSavedJobs', async(_, 
     }
 })
 
-export const generateCompatibilityReviewApplicantToJob = createAsyncThunk('job/generateCompatibilityReviewApplicantToJob', async()=>{
-    
-})
 
 type statusType = 'idle' | 'pending' | 'success' | 'error';
 interface initialStateType {
