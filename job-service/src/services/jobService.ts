@@ -423,6 +423,55 @@ class jobService{
       }
     }
 
+    async addReviewIdToApplication(jobId: string, reviewId: string , email: string): Promise<void>{
+      try {
+        // Validate job ID
+        if (!Types.ObjectId.isValid(jobId)) {
+          logger.error("Invalid job ID format while adding review to applcation");
+          throw new Error("Invalid job ID format");
+        }
+        
+        // Validate email format
+        if (!email || typeof email !== 'string' || !email.includes('@')) {
+          logger.error("Invalid email format while adding review to application");
+          throw new Error("Invalid email format");
+        }
+
+        // Update the specific application with the review ID using candidateEmail
+        const result = await JobDetailsModel.updateOne(
+          { 
+            _id: jobId,
+            "applications.candidateEmail": email
+          },
+          { 
+            $set: { "applications.$.reviewId": reviewId } 
+          }
+        );
+
+        if (result.matchedCount === 0) {
+          throw new Error("Job or application not found for the given email while adding review to applcation");
+        }
+
+        if (result.modifiedCount === 0) {
+          logger.warn("No application was modified", { jobId, email, reviewId });
+        } else {
+          logger.info("Review ID added to application successfully", { 
+            jobId, 
+            email, 
+            reviewId 
+          });
+        }
+
+      } catch (error: any) {
+        logger.error("Error adding review ID to application", {
+          error: error.message,
+          jobId,
+          email,
+          reviewId
+        });
+        throw error;
+      }
+    }
     
 }
 
