@@ -448,6 +448,8 @@ class jobService{
           }
         );
 
+        console.log(result);
+
         if (result.matchedCount === 0) {
           throw new Error("Job or application not found for the given email while adding review to applcation");
         }
