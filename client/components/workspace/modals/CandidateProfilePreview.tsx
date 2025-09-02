@@ -22,6 +22,8 @@ const CandidateProfilePreview = () => {
 
     const currentPreviewedCandidate = useAppSelector(previewedCandidate)
 
+    const  candidate = currentPreviewedCandidate?.user
+    const resumeData = currentPreviewedCandidate?.resumeData
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -51,25 +53,24 @@ const CandidateProfilePreview = () => {
                 </div>
                 <div className="absolute top-0 left-0 w-full h-full bg-gray-900/90 flex flex-col justify-start items-center pt-[15%] gap-2">
                     <div className="w-[150px] h-[150px] rounded-full bg-slate-900">
-                        <Image width={150} height={150} className="w-full h-full object-cover rounded-full" src={'https://i.pinimg.com/1200x/9a/c9/f5/9ac9f517aae16ceb09dc261dcdeb3c94.jpg'} alt=""/>
+                       {
+                        candidate?  <Image width={150} height={150} className="w-full h-full object-cover rounded-full" src={candidate?.profilePictureUrl || ''} alt=""/>:null
+                       }
                     </div>
-                    <p className="text-lg font-semibold tracking-widest scale-120 mt-2">Walter White (heisenberg)</p>
+                    <p className="text-lg font-semibold tracking-widest scale-120 mt-2">{candidate?.name||''}</p>
                     <div className="flex text-sm items-center gap-3 text-gray-200">
                         <div className="flex items-center gap-1">
                             <MapPin size={20} className="text-blue-400"/> 
-                            <p>Sylhet, Bangladesh</p>
+                            <p>{candidate?.location || ''}</p>
                         </div>
                         <p>|</p>
                         <div className="flex items-center gap-1">
                             <Mail size={20} className="text-blue-400"/> 
-                            <p>walterwhite139@gmail.com</p>
+                            <p>{candidate?.email || ''}</p>
                         </div>
                     </div>
                     <div className="w-[65%] h-auto mt-2">
-                        <p className="text-center text-[12px] text-gray-200">Driven and methodical chemical process specialist with over 15 years of experience in teaching advanced
-                             chemistry and managing complex lab operations. Known for precise analytical thinking, innovative problem solving, and an exceptional understanding 
-                             of chemical synthesis and reaction control. Former high school educator with a master’s in chemistry, now seeking roles in R&D, industrial production, 
-                             or laboratory operations where deep domain expertise and calm under pressure are valued.</p>
+                        <p className="text-center text-[12px] text-gray-200">{candidate?.aboutMe || ''}</p>
                     </div>
                 </div>
                 <div className="absolute bottom-0 w-full h-[120px]  z-10 flex justify-center items-center gap-6">
@@ -87,7 +88,7 @@ const CandidateProfilePreview = () => {
                         <SlidersVertical size={20} />
                     </button>
                 </section>
-                <CandidatesResumePanel isScroll={true}/>
+                <CandidatesResumePanel resumeData={resumeData} isScroll={true}/>
                 <section className={`absolute top-0 right-0 w-full h-full transition-transform duration-300 origin-top-right bg-slate-900 flex flex-col py-[20px] px-[30px] pt-[10%] overflow-y-scroll scroll-container ${isShowModal?'scale-100':'scale-0'}`}>
                     { isReportGenerated?
                      <>
