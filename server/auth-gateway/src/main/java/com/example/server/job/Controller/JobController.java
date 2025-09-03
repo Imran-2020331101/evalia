@@ -172,11 +172,17 @@ public class JobController {
     }
 
     @PostMapping("/{jobId}/shortlist")
-    public ResponseEntity<String> shortlistCandidatesOfAJob(@PathVariable("jobId") String jobId, Principal principal) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(jobProxy.shortlistCandidatesOfAJob(
-                        new JobApplicationRequest(jobId, principal.getName(),null)
-                ));
+    public ResponseEntity<String> shortlistCandidatesOfAJob(@PathVariable("jobId") String jobId, @RequestParam("email") String candidateEmail) {
+        ResponseEntity<String> response = jobProxy.shortlistCandidatesOfAJob(new JobApplicationRequest(jobId,candidateEmail,null));
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
+    }
+
+    @GetMapping("/{jobId}/questions")
+    public ResponseEntity<String> getInterviewQuestionsOfAJob(@PathVariable("jobId") String jobId, Principal principal) {
+        ResponseEntity<String> response = jobProxy.getInterviewQuestionsOfAJob(jobId);
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
     }
 
 }

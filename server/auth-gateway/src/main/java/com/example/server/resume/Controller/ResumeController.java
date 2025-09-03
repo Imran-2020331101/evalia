@@ -134,4 +134,17 @@ public class ResumeController {
         }
     }
 
+    @GetMapping("/{jobId}/shortlist/{k}")
+    public ResponseEntity<String> getTopKResumesForJob( @PathVariable("jobId") String jobId,
+                                                   @PathVariable("k") int k,
+                                                   Principal              principal) {
+
+        logger.info("Received request to get top " + k + " resumes for job ID: " + jobId + " from user: " + principal.getName());
+
+        ResponseEntity<String> response = resumeJsonProxy.getTopKResumesForJob(jobId, k);
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
+    }
+
+
 }

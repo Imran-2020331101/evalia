@@ -49,5 +49,8 @@ public interface JobProxy {
     ResponseEntity<String> withdrawApplicationFromAJob(JobApplicationRequest jobApplicationRequest);
 
     @PostMapping   (value = "/shortlist", consumes = MediaType.APPLICATION_JSON_VALUE)
-    String shortlistCandidatesOfAJob     ( @RequestBody JobApplicationRequest jobApplicationRequest);
+    ResponseEntity<String> shortlistCandidatesOfAJob     ( @RequestBody JobApplicationRequest jobApplicationRequest);
+
+    @GetMapping(value = "/{jobId}/interview-questions")
+    ResponseEntity<String> getInterviewQuestionsOfAJob(@PathVariable("jobId") String jobId);
 }

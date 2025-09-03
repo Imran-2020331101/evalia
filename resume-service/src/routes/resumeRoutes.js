@@ -62,4 +62,7 @@ router.get('/:id', resumeController.getResumeById);
  */
 router.get('/:id/download', resumeController.downloadResume);
 
+router.get('/:jobId/shortlist/:k', resumeController.generateAutomatedShortlist);
+
 module.exports = router;
+

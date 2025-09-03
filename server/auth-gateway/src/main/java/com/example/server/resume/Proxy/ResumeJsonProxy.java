@@ -25,4 +25,7 @@ public interface ResumeJsonProxy {
 
     @GetMapping(value = "/retrieve", consumes = MediaType.APPLICATION_JSON_VALUE)
     String getResumeByEmail(@RequestParam String email);
+
+    @GetMapping(value = "/{jobId}/shortlist/{k}")
+    ResponseEntity<String> getTopKResumesForJob( @RequestParam("jobId") String jobId,@RequestParam("k") int k);
 }
