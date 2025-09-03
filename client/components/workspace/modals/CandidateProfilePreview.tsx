@@ -32,12 +32,13 @@ const CandidateProfilePreview = () => {
         try {
             const response = await axios.get(`http://localhost:8080/api/compatibility/${reviewId}`,{withCredentials:true})
             console.log(response.data);
+
             setCompatibilityReport(response.data.data);
+            setIsShowModal(true);
         } catch (error:any) {
             console.log(error)
         }
     }
-
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -45,9 +46,10 @@ const CandidateProfilePreview = () => {
             modalRef.current &&
             !modalRef.current.contains(event.target as Node)
             ) {
-                dispatch(setPreviewedCandidate(null));
                 setIsShowModal(false);
-                dispatch(setCompatibilityReviewId(null));
+                setCompatibilityReport(null);
+                console.log('test click')
+                dispatch(setPreviewedCandidate(null));
             }
         };
 
@@ -107,7 +109,7 @@ const CandidateProfilePreview = () => {
                 </section>
                 <CandidatesResumePanel resumeData={resumeData} isScroll={true}/>
                 <section className={`absolute top-0 right-0 w-full h-full transition-transform duration-300 origin-top-right bg-slate-900 flex flex-col py-[20px] px-[30px] pt-[10%] overflow-y-scroll scroll-container ${isShowModal?'scale-100':'scale-0'}`}>
-                    { compatibilityReport?
+                    { isShowModal && compatibilityReport?
                      <>
                         <h2 className="text-xl font-semibold text-white mb-4">
                         Application Compatibility Review
