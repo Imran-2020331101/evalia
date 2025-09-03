@@ -4,17 +4,20 @@ import { useEffect, useState } from 'react';
 import { SlidersHorizontal ,UserCheck, Target, MenuSquare} from 'lucide-react';
 
 import CandidateCard from '../CandidateCard'
-import { useAppSelector } from '@/redux/lib/hooks';
-import { recruitersSelectedJob } from '@/redux/features/job';
+import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks';
+import { markAsShortListedByAI, recruitersSelectedJob } from '@/redux/features/job';
 
 const ApplicantsContainer = () => {
   const [isShowModal, setIsShowModal] = useState(false);
-  const [target, setTarget] = useState(5)
+  const [target, setTarget] = useState(1)
+
+  const dispatch = useAppDispatch()
 
   const currentSelectedRecruiterJob = useAppSelector(recruitersSelectedJob);
   const {applications}=currentSelectedRecruiterJob || [];
     const handleSubmit =()=>{
-
+      console.log('generate sortlist')
+      dispatch(markAsShortListedByAI({jobId:currentSelectedRecruiterJob._id,k:target}));
   }
   useEffect(()=>console.log(currentSelectedRecruiterJob, 'job details inside applicants container'))
   return (

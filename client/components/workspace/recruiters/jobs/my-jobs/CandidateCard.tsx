@@ -1,10 +1,11 @@
 'use client'
-import { markAsShortListed, recruitersSelectedJob } from "@/redux/features/job"
+import { markAsShortListed, markShortlistedStatus, recruitersSelectedJob } from "@/redux/features/job"
 import { setCompatibilityReviewId, setPreviewedCandidate } from "@/redux/features/utils"
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
 import axios from "axios"
 import Image from "next/image"
 import { useEffect, useState } from "react"
+import { ClipLoader } from "react-spinners"
 import { format } from "timeago.js"
 
 
@@ -13,6 +14,7 @@ const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candi
     const dispatch = useAppDispatch()
 
     const currentSelectedRecruiterJob = useAppSelector(recruitersSelectedJob);
+    const currentMarkShortlistStatus = useAppSelector(markShortlistedStatus)
 
     const handleViewProfile = ()=>{
         dispatch(setCompatibilityReviewId(reviewId));
@@ -66,9 +68,9 @@ const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candi
                 <button onClick={handleViewProfile} className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-blue-600 cursor-pointer">
                     View Profile
                 </button>
-                <button onClick={applicantStatus==='PENDING'?handleMarkShortlist:handleRemoveFromShortlist} className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-teal-600 cursor-pointer">
+                <button disabled={currentMarkShortlistStatus==='pending'?true:false} onClick={applicantStatus==='PENDING'?handleMarkShortlist:handleRemoveFromShortlist} className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-teal-600 cursor-pointer">
                     {
-                        applicantStatus==='PENDING'?'Mark as Shortlisted':'Remove From ShortList'
+                        currentMarkShortlistStatus==='pending'?<ClipLoader size={14} color="white" />:applicantStatus==='PENDING'?'Mark as Shortlisted':'Remove From ShortList'
                     }
                 </button>
                 <button className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-teal-600 cursor-pointer">

@@ -20,8 +20,10 @@ const ShortListContainer = () => {
 
   }
   useEffect(()=>{
-    const shortListed = applications.filter((item:any)=>item.status==='SHORTLISTED')
-    dispatch(setShortListedCandidate(shortListed))
+    if(!currentShortListedCandidates.length){
+      const shortListed = applications.filter((item:any)=>item.status==='SHORTLISTED')
+      dispatch(setShortListedCandidate(shortListed))
+    }
   }, [applications?.length])
   useEffect(()=>console.log(currentSelectedRecruiterJob, 'job details inside Shortlisted container'))
   return (
