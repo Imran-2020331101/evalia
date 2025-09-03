@@ -405,8 +405,11 @@ export class JobController {
         jobId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID"),
         email: z.string().email("Invalid candidate email")
       });
+
+
       const { jobId, email } = schema.parse(req.body);
       const result = await JobService.shortlistCandidate(jobId, email);
+      console.log(result);
       const status = result.success ? 200 : 400;
       res.status(status).json(result);
     } catch (error: any) {
