@@ -475,6 +475,43 @@ class jobService{
         throw error;
       }
     }
+
+    async fetchInterviewQuestions(jobId: string): Promise<string[] | undefined>{
+      try {
+        // Validate job ID
+        if (!Types.ObjectId.isValid(jobId)) {
+          throw new Error("Invalid job ID format");
+        }
+
+        // Await the query to get actual data
+        const jobData = await JobDetailsModel.findOne(
+          { _id: jobId }, 
+          'interviewQA'
+        );
+
+        if (!jobData) {
+          throw new Error("Job not found");
+        }
+
+        const interviewQues = jobData.interviewQA?.map((QA)=>QA.question);
+      
+
+        console.log("Interview Questions:", interviewQues);
+        
+        return interviewQues;
+      } catch (error: any) {
+        logger.error("Error fetching interview questions", {
+          error: error.message,
+          jobId
+        });
+        throw error;
+      }
+    }
+
+    async fetchJobDescription(jobId : string) : Promise<string | null | undefined> {
+      const job = await JobDetailsModel.findOne({_id: jobId},'jobDescription');
+      return job?.jobDescription;
+    }
     
 }
 

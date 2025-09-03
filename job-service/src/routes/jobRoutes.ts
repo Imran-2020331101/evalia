@@ -22,6 +22,9 @@ router.post("/withdraw",jobController.withDrawApplicationFromAJob.bind(jobContro
 router.post("/shortlist",jobController.shortListCandidate.bind(jobController));
 router.post("/reject", jobController.rejectRemainingCandidates.bind(jobController));
 
+router.get("/:jobId/interview-questions",jobController.getInterviewQuestionsOfAJob.bind(jobController));
+router.get("/:jobId/description",jobController.getDescriptionOfAJob.bind(jobController));
+
 
 
 export default router;
