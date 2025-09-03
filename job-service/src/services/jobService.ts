@@ -296,33 +296,33 @@ class jobService{
       }
     }
 
-    async shortlistCandidate(jobId: string, candidateId: string): Promise<ApiResponse> {
+    async shortlistCandidate(jobId: string, candidateEmail: string): Promise<ApiResponse> {
       if (!Types.ObjectId.isValid(jobId)) {
         return { success: false, error: "Invalid job ID" };
       }
-      if (!candidateId || typeof candidateId !== 'string') {
+      if (!candidateEmail || typeof candidateEmail !== 'string') {
         return { success: false, error: "Candidate ID is required and must be a string." };
       }
       try {
         // Update the status of the candidate's application to 'shortlisted'
         const job = await JobDetailsModel.findOneAndUpdate(
-          { _id: jobId, "applications.candidateId": candidateId },
+          { _id: jobId, "applications.candidateEmail": candidateEmail },
           { $set: { "applications.$.status": ApplicationStatus.Shortlisted } },
           { new: true }
         );
         if (!job) {
-          return { success: false, error: "Job or application not found" };
+          return { success: false, error: "Job not found" };
         }
         logger.info("Candidate application status updated to shortlisted", {
           jobId: job._id.toString(),
-          candidateId,
+          candidateEmail,
         });
         return {
           success: true,
           message: "Candidate shortlisted successfully",
           data: {
             jobId: job._id,
-            candidateId,
+            candidateEmail,
           },
         };
       } catch (error: any) {

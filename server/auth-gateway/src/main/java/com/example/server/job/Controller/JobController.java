@@ -173,6 +173,7 @@ public class JobController {
 
     @PostMapping("/{jobId}/shortlist")
     public ResponseEntity<String> shortlistCandidatesOfAJob(@PathVariable("jobId") String jobId, @RequestParam("email") String candidateEmail) {
+        logger.info("shortlistCandidatesOfAJob " + jobId + " " + candidateEmail);
         ResponseEntity<String> response = jobProxy.shortlistCandidatesOfAJob(new JobApplicationRequest(jobId,candidateEmail,null));
         return ResponseEntity.status(response.getStatusCode())
                 .body(response.getBody());
