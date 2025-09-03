@@ -5,6 +5,7 @@ import RecruitersWorkSpaceMenu from "@/components/workspace/menu/RecruitersWorkS
 import CandidateProfilePreview from "@/components/workspace/modals/CandidateProfilePreview";
 import JobPreview from "@/components/workspace/modals/JobPreview";
 import OrganizationPreviewModal from "@/components/workspace/modals/OrganizationPreview";
+import PreviewedShortListModal from "@/components/workspace/recruiters/jobs/my-jobs/shortlist/PreviewedShortListModal";
 
 const WorkSpaceLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   return (
@@ -12,6 +13,7 @@ const WorkSpaceLayout = ({ children }: Readonly<{ children: React.ReactNode }>) 
       <JobPreview/>
       <OrganizationPreviewModal/>
       <CandidateProfilePreview/>
+      <PreviewedShortListModal/>
       <div className="flex w-full h-full bg-gray-950/90 min-h-0">
         {/* Sidebar */}
         <MenuContainer/>

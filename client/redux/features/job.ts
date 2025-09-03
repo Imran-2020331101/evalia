@@ -94,12 +94,24 @@ export const getAllSavedJobs = createAsyncThunk('job/getAllSavedJobs', async(_, 
 
 export const markAsShortListed = createAsyncThunk('job/markAsShortListed', async({jobId, candidateEmail}:{jobId:any, candidateEmail:any},thunkAPI)=>{
     try {
-        const response = await axios.post(`http://localhost:8080/api/jobs/${jobId}/shortlist?email=${encodeURIComponent(candidateEmail)}`,null, {withCredentials:true});
+        const response = await axios.post(`http://localhost:8080/api/job/${jobId}/shortlist?email=${encodeURIComponent(candidateEmail)}`,null, {withCredentials:true});
         return response.data;
     } catch (error:any) {
         return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed marking as shortlisted' })
     }
 })
+
+export const markAsShortListedByAI = createAsyncThunk('job/markAsShortListedByAI', async({jobId, k}:{jobId:any, k:any},thunkAPI)=>{
+    console.log(jobId, k, 'jobId, k')
+    try {
+        const response = await axios.get(`http://localhost:8080/api/resume/${ jobId }/shortlist/${ k }`, {withCredentials:true});
+        return response.data;
+    } catch (error:any) {
+        console.log(error);
+        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed marking as shortlisted By AI' })
+    }
+})
+
 
 
 
@@ -117,6 +129,7 @@ interface initialStateType {
     appliedJobs:any,
     exploreJobs:any,
     myJobs:any , // type will be  updated later 
+    previewedShortListedCandidate:any,
     shortListedCandidate:any,
     selectedOrgId:string|null,
     recruitersSelectedJob:any,
@@ -129,6 +142,7 @@ const initialState :initialStateType = {
     appliedJobs:[], //candidate
     exploreJobs:[],//candidate
     myJobs:[], // recruiter
+    previewedShortListedCandidate:[],
     shortListedCandidate:[],
     markShortlistedStatus:'idle',
     createJobStatus:'idle',
@@ -169,7 +183,7 @@ const jobSlice = createSlice({
             state.markShortlistedStatus=action.payload;
         },
         setShortListedCandidate(state, action){
-            state.shortListedCandidate=[...state.shortListedCandidate, ...action.payload]
+            state.shortListedCandidate=action.payload
         }
     },
     extraReducers(builder){
@@ -281,8 +295,37 @@ const jobSlice = createSlice({
             state.markShortlistedStatus='error'
         })
         .addCase(markAsShortListed.fulfilled,(state,action)=>{
-            // state.savedJobs=action.payload.data;
+            const {candidateEmail} = action.payload.data;
+            const {applications} = state.recruitersSelectedJob;
+            const shortListedCandidate = applications.find((item:any)=>item.candidateEmail===candidateEmail)
+            shortListedCandidate.status='SHORTLISTED';
+            state.shortListedCandidate.push(shortListedCandidate);
+
+            const newApplications = applications.filter((item:any)=>item.candidateEmail!==candidateEmail);
+            newApplications.push(shortListedCandidate);
+            state.recruitersSelectedJob.applications=newApplications;
+
             console.log(action.payload, 'inside markShortlisted thunk'); 
+            state.markShortlistedStatus='success'
+        })
+        .addCase(markAsShortListedByAI.pending,(state)=>{
+            state.markShortlistedStatus='pending'
+        })
+        .addCase(markAsShortListedByAI.rejected,(state)=>{
+            state.markShortlistedStatus='error'
+        })
+        .addCase(markAsShortListedByAI.fulfilled,(state,action)=>{
+            // const {candidateEmail} = action.payload.data;
+            // const {applications} = state.recruitersSelectedJob;
+            // const shortListedCandidate = applications.find((item:any)=>item.candidateEmail===candidateEmail)
+            // shortListedCandidate.status='SHORTLISTED';
+            // state.shortListedCandidate.push(shortListedCandidate);
+
+            // const newApplications = applications.filter((item:any)=>item.candidateEmail!==candidateEmail);
+            // newApplications.push(shortListedCandidate);
+            // state.recruitersSelectedJob.applications=newApplications;
+
+            console.log(action.payload, 'inside markShortlisted AI thunk'); 
             state.markShortlistedStatus='success'
         })
     }
@@ -305,3 +348,4 @@ export const saveJobStatus = (state:RootState)=>state.job.saveJobStatus;
 export const selectedOrgId = (state:RootState)=>state.job.selectedOrgId;
 export const recruitersSelectedJob = (state:RootState)=>state.job.recruitersSelectedJob;
 export const shortListedCandidate = (state:RootState)=>state.job.shortListedCandidate;
+export const previewedShortListedCandidate = (state:RootState)=>state.job.previewedShortListedCandidate;
