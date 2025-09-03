@@ -119,7 +119,7 @@ JobDetailsMongooseSchema.virtual('daysUntilDeadline').get(function () {
 });
 
 JobDetailsMongooseSchema.virtual('applicationCount').get(function () {
-  return this.applications.length;
+  return this.applications?.length || 0;
 });
 
 JobDetailsMongooseSchema.virtual('salaryRange').get(function () {

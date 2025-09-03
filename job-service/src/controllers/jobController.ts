@@ -512,7 +512,7 @@ async rejectRemainingCandidates(req: Request, res: Response): Promise<void> {
     }
   }
 
-    async  getAllJobsSavedByAUser(req: Request, res: Response): Promise<void>{
+  async  getAllJobsSavedByAUser(req: Request, res: Response): Promise<void>{
     try {
       // Zod schema for validation
       const jobIdsSchema = z.array(z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID format"))
@@ -562,6 +562,38 @@ async rejectRemainingCandidates(req: Request, res: Response): Promise<void> {
         success: false,
         error: "Internal server error while fetching saved jobs"
       } as ApiResponse);
+    }
+  }
+
+
+  async getInterviewQuestionsOfAJob(req: Request, res:Response) : Promise<void> {
+    const {jobId} = req.params;
+    const interviewQA = await JobService.fetchInterviewQuestions(jobId);
+    res.status(200).json({
+      success : true,
+      message : `Retrieved ${interviewQA?.length} Questions for interview`,
+      data    : interviewQA 
+    })
+  }
+  
+  //TODO: Implement global error handling
+  async getDescriptionOfAJob(req: Request, res: Response) : Promise<void> {
+    try {
+      const {jobId}      = req.params;
+      console.log(jobId);
+      const description  = await JobService.fetchJobDescription(jobId);
+
+      res.status(200).json({
+        success : true,
+        message : `Retrieved Job Description`,
+        data    : description
+      });
+    } catch (error) {
+        res.status(500).json({
+          success : false,
+          message : `Failed to Retrieved Job Description`,
+          data    : error
+      });
     }
   }
   
