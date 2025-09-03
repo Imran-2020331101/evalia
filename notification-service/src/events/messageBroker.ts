@@ -1,8 +1,8 @@
 import amqp from "amqplib";
 import { env } from "../config/env";
-import { handleIncomingEvent } from "./notificationHandler";
+import { handleIncomingEvent } from "../in-app/handlers/inapp-notification.handler";
 import logger  from "../utils/logger";
-import { handleIncomingMailEvent } from "./emailNotificationHandler";
+import { handleIncomingMailEvent } from "../mail/handlers/mail-notification.handler";
 
 export const connectBroker = async () => {
   try {

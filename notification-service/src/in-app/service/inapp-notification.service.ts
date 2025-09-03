@@ -6,9 +6,9 @@ export const createNotification = async (data: Partial<INotification>) => {
 };
 
 export const getUserNotifications = async (userId: string) => {
-  return Notification.find({ userId }).sort({ createdAt: -1 });
+  return Notification.find({ userId }).sort({ createdAt: -1 }).orFail();
 };
 
 export const markAsRead = async (id: string) => {
-  return Notification.findByIdAndUpdate(id, { isRead: true }, { new: true });
+  return Notification.findByIdAndUpdate(id, { isRead: true }, { new: true }).orFail();
 };
