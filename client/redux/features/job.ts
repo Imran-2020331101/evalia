@@ -92,6 +92,17 @@ export const getAllSavedJobs = createAsyncThunk('job/getAllSavedJobs', async(_, 
 })
 
 
+export const markAsShortListed = createAsyncThunk('job/markAsShortListed', async({jobId, candidateEmail}:{jobId:any, candidateEmail:any},thunkAPI)=>{
+    try {
+        const response = await axios.post(`http://localhost:8080/api/jobs/${jobId}/shortlist?email=${encodeURIComponent(candidateEmail)}`,null, {withCredentials:true});
+        return response.data;
+    } catch (error:any) {
+        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed marking as shortlisted' })
+    }
+})
+
+
+
 type statusType = 'idle' | 'pending' | 'success' | 'error';
 interface initialStateType {
     createJobStatus: statusType,
@@ -99,12 +110,14 @@ interface initialStateType {
     getAllJobsStatus: statusType,
     applyJobStatus: statusType,
     saveJobStatus: statusType,
+    markShortlistedStatus: statusType,
     applyJobId:string|null,
     saveJobId:string|null,
     savedJobs:any,
     appliedJobs:any,
     exploreJobs:any,
     myJobs:any , // type will be  updated later 
+    shortListedCandidate:any,
     selectedOrgId:string|null,
     recruitersSelectedJob:any,
 }
@@ -116,6 +129,8 @@ const initialState :initialStateType = {
     appliedJobs:[], //candidate
     exploreJobs:[],//candidate
     myJobs:[], // recruiter
+    shortListedCandidate:[],
+    markShortlistedStatus:'idle',
     createJobStatus:'idle',
     fetchJobStatus:'idle',
     getAllJobsStatus:'idle',
@@ -149,6 +164,12 @@ const jobSlice = createSlice({
         },
         setCreateJobStatus(state, action){
             state.createJobStatus=action.payload;
+        },
+        setMarkShortListedStatus(state, action){
+            state.markShortlistedStatus=action.payload;
+        },
+        setShortListedCandidate(state, action){
+            state.shortListedCandidate=[...state.shortListedCandidate, ...action.payload]
         }
     },
     extraReducers(builder){
@@ -253,11 +274,22 @@ const jobSlice = createSlice({
             console.log(action.payload, 'inside fetch all saved  jobs...'); 
             state.getAllJobsStatus='success'
         })
+        .addCase(markAsShortListed.pending,(state)=>{
+            state.markShortlistedStatus='pending'
+        })
+        .addCase(markAsShortListed.rejected,(state)=>{
+            state.markShortlistedStatus='error'
+        })
+        .addCase(markAsShortListed.fulfilled,(state,action)=>{
+            // state.savedJobs=action.payload.data;
+            console.log(action.payload, 'inside markShortlisted thunk'); 
+            state.markShortlistedStatus='success'
+        })
     }
 })
 
 export default jobSlice.reducer;
-export const {setSelectedOrgId, setApplyJobStatus, setGetAllJobStatus, setApplyJobId, setSaveJobId, setRecruiterSelectedJob, setCreateJobStatus}=jobSlice.actions;
+export const {setSelectedOrgId, setApplyJobStatus, setGetAllJobStatus, setApplyJobId, setSaveJobId, setRecruiterSelectedJob, setCreateJobStatus,setMarkShortListedStatus, setShortListedCandidate}=jobSlice.actions;
 export const exploreJobs = (state:RootState)=>state.job.exploreJobs;
 export const appliedJobs = (state:RootState)=>state.job.appliedJobs;
 export const savedJobs = (state:RootState)=>state.job.savedJobs;
@@ -268,6 +300,8 @@ export const createJobStatus = (state:RootState)=>state.job.createJobStatus;
 export const getAllJobsStatus = (state:RootState)=>state.job.getAllJobsStatus;
 export const fetchJobStatus = (state:RootState)=>state.job.fetchJobStatus;
 export const applyJobStatus = (state:RootState)=>state.job.applyJobStatus;
+export const markShortlistedStatus = (state:RootState)=>state.job.markShortlistedStatus;
 export const saveJobStatus = (state:RootState)=>state.job.saveJobStatus;
 export const selectedOrgId = (state:RootState)=>state.job.selectedOrgId;
 export const recruitersSelectedJob = (state:RootState)=>state.job.recruitersSelectedJob;
+export const shortListedCandidate = (state:RootState)=>state.job.shortListedCandidate;
