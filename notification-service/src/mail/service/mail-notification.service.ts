@@ -35,7 +35,6 @@ class EmailNotificationService {
   }
 
   async sendMail(options: EmailOptions): Promise<boolean> {
-    try {
       const mailOptions = {
         from: process.env.EMAIL_USERNAME,
         to: options.to,
@@ -47,10 +46,6 @@ class EmailNotificationService {
       const result = await this.transporter.sendMail(mailOptions);
       logger.info(`Email sent successfully to ${options.to}:`, result.messageId);
       return true;
-    } catch (error) {
-      logger.error(`Failed to send email to ${options.to}:`, error);
-      return false;
-    }
   }
 
   async sendRejectionMail(notification: RejectionMailPayload): Promise<boolean> {
