@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { SlidersHorizontal ,UserCheck, Target, MenuSquare} from 'lucide-react';
 
-import ApplicantsCard from './ApplicantsCard'
+import CandidateCard from '../CandidateCard'
 import { useAppSelector } from '@/redux/lib/hooks';
 import { recruitersSelectedJob } from '@/redux/features/job';
 
@@ -82,7 +82,7 @@ const ApplicantsContainer = () => {
           </div>  
         </div>
         {
-          applications?.map((item:any)=><ApplicantsCard key={item?._id} reviewId={item?.reviewId} appliedAt={item?.appliedAt} applicantStatus={item?.status} applicantId={item?.candidateId}/>)
+          applications?.map((item:any)=><CandidateCard key={item?._id} candidateEmail={item?.candidateEmail} reviewId={item?.reviewId} appliedAt={item?.appliedAt} applicantStatus={item?.status} applicantId={item?.candidateId}/>)
         }
       </div>
     </div>

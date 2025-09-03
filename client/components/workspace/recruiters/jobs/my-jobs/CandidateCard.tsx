@@ -1,19 +1,31 @@
 'use client'
+import { markAsShortListed, recruitersSelectedJob } from "@/redux/features/job"
 import { setCompatibilityReviewId, setPreviewedCandidate } from "@/redux/features/utils"
-import { useAppDispatch } from "@/redux/lib/hooks"
+import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
 import axios from "axios"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { format } from "timeago.js"
 
 
-const ApplicantsCard = ({applicantId, applicantStatus, appliedAt, reviewId}:{applicantId:any, applicantStatus:any, appliedAt:any, reviewId:any}) => {
+const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candidateEmail}:{candidateEmail:any,applicantId:any, applicantStatus:any, appliedAt:any, reviewId:any}) => {
     const [applicant, setApplicant]= useState<any>(null);
     const dispatch = useAppDispatch()
+
+    const currentSelectedRecruiterJob = useAppSelector(recruitersSelectedJob);
+
     const handleViewProfile = ()=>{
         dispatch(setCompatibilityReviewId(reviewId));
         dispatch(setPreviewedCandidate(applicant))
     }
+    const handleMarkShortlist = ()=>{
+        // console.log(currentSelectedRecruiterJob,candidateEmail )
+        dispatch(markAsShortListed({jobId:currentSelectedRecruiterJob._id,candidateEmail}));
+    }
+    const handleRemoveFromShortlist = ()=>{
+
+    }
+
     useEffect(()=>{
         const userId=applicantId;
         const fetchApplicantsData = async()=>{
@@ -54,8 +66,10 @@ const ApplicantsCard = ({applicantId, applicantStatus, appliedAt, reviewId}:{app
                 <button onClick={handleViewProfile} className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-blue-600 cursor-pointer">
                     View Profile
                 </button>
-                <button className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-teal-600 cursor-pointer">
-                    Mark as Shortlisted
+                <button onClick={applicantStatus==='PENDING'?handleMarkShortlist:handleRemoveFromShortlist} className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-teal-600 cursor-pointer">
+                    {
+                        applicantStatus==='PENDING'?'Mark as Shortlisted':'Remove From ShortList'
+                    }
                 </button>
                 <button className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-teal-600 cursor-pointer">
                     Mark as Finalist
@@ -69,4 +83,4 @@ const ApplicantsCard = ({applicantId, applicantStatus, appliedAt, reviewId}:{app
   )
 }
 
-export default ApplicantsCard
+export default CandidateCard
