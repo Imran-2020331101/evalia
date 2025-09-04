@@ -55,6 +55,53 @@ const CreateJobForm = ({requirement, responsibilities, skills, basicState, setRe
     referenceAnswer:''
   })
 
+
+const [generatedQuestions, setGeneratedQuestions] = useState<interviewQAStateType[]>([
+    {
+      question: "Can you describe your experience with managing cross-functional teams?",
+      referenceAnswer: "Look for leadership, collaboration, and conflict-resolution experience."
+    },
+    {
+      question: "How do you approach problem-solving when facing a tight deadline?",
+      referenceAnswer: "Expect structured thinking, prioritization, and calm under pressure."
+    },
+    {
+      question: "What skills do you use to prioritize multiple tasks effectively?",
+      referenceAnswer: "Candidate should mention time management, delegation, and planning."
+    },
+    {
+      question: "Tell us about a project where you had to take ownership from start to finish.",
+      // referenceAnswer: "Look for accountability, initiative, and measurable outcomes."
+    },
+  ])
+
+  const [selected, setSelected] = useState<interviewQAStateType[]>([])
+  const [selectAll, setSelectAll] = useState(false)
+
+  const toggleSelectAll = () => {
+    if (selectAll) {
+      setSelected([])
+    } else {
+      setSelected(generatedQuestions)
+    }
+    setSelectAll(!selectAll)
+  }
+
+  const toggleSelection = (question: interviewQAStateType) => {
+    if (selected.find((q) => q.question === question.question)) {
+      setSelected(selected.filter((q) => q.question !== question.question))
+    } else {
+      setSelected([...selected, question])
+    }
+  }
+
+  const handleAdd = () => {
+    setInterviewQA([...interviewQA, ...selected])
+    setGeneratedQuestions([])
+    console.log("Added questions:", selected)
+  }
+
+
   const updateRequirement = (field: string, value: string | boolean) => setRequirementState((prev) => ({ ...prev, [field]: value }));
   const updateResponsibility = (field: string, value: string | boolean) => setResponsibilityState((prev) => ({ ...prev, [field]: value }));
   const updateSkill = (field: string, value: string | boolean) => setSkillState((prev) => ({ ...prev, [field]: value }));
@@ -338,9 +385,9 @@ const CreateJobForm = ({requirement, responsibilities, skills, basicState, setRe
 
         </section>
         <section className="w-full h-[60px] flex justify-center items-center gap-[20px] shrink-0">
-              <button onClick={()=>setTabIndex(1)} className={`px-[20px] py-[8px] rounded-lg ${tabIndex===1?'bg-blue-400 text-white':''} border-gray-700 cursor-pointer font-semibold hover:text-blue-400 border hover:border-blue-500`}>Requirements</button>
-              <button onClick={()=>setTabIndex(3)} className={`px-[20px] py-[8px] rounded-lg ${tabIndex===3?'bg-blue-400 text-white':''} border-gray-700 cursor-pointer font-semibold hover:text-blue-400 border hover:border-blue-500`}>Skills</button>
-              <button onClick={()=>setTabIndex(2)} className={`px-[20px] py-[8px] rounded-lg ${tabIndex===2?'bg-blue-400 text-white':''} border-gray-700 cursor-pointer font-semibold hover:text-blue-400 border hover:border-blue-500`}>Responsibilities</button>
+              <button onClick={()=>setTabIndex(1)} className={`px-[20px] py-[8px] rounded-lg ${tabIndex===1?'bg-blue-400 text-white':'hover:text-blue-400'} border-gray-700 cursor-pointer font-semibold  border hover:border-blue-500`}>Requirements</button>
+              <button onClick={()=>setTabIndex(3)} className={`px-[20px] py-[8px] rounded-lg ${tabIndex===3?'bg-blue-400 text-white':'hover:text-blue-400'} border-gray-700 cursor-pointer font-semibold  border hover:border-blue-500`}>Skills</button>
+              <button onClick={()=>setTabIndex(2)} className={`px-[20px] py-[8px] rounded-lg ${tabIndex===2?'bg-blue-400 text-white':'hover:text-blue-400'} border-gray-700 cursor-pointer font-semibold  border hover:border-blue-500`}>Responsibilities</button>
         </section>
        {
         tabIndex ===1 ?
@@ -443,7 +490,7 @@ const CreateJobForm = ({requirement, responsibilities, skills, basicState, setRe
                 </div>
               </div>
               <div className="w-full h-[50px] rounded-2xl pl-[45px] pr-[20px] mt-8">
-                <button onClick={handleAddResponsibilities} className="w-full h-full hover:border-[#cbcddb] text-[#63666e] border border-[#63666e] hover:text-[#cbcddb] font-bold transition-colors duration-500 cursor-pointer">Add Requirement & Continue with Another...</button>
+                <button onClick={handleAddResponsibilities} className="w-full h-full hover:border-[#cbcddb] text-[#63666e] border border-[#63666e] hover:text-[#cbcddb] font-bold transition-colors duration-500 cursor-pointer">Add Responsibility & Continue with Another...</button>
               </div>
             </section>
         :null
@@ -497,7 +544,7 @@ const CreateJobForm = ({requirement, responsibilities, skills, basicState, setRe
                   </div>
                 </div>
                 <div className="w-full h-[50px] rounded-2xl pl-[45px] pr-[20px] mt-8">
-                  <button onClick={handleAddSkills} className="w-full h-full  border hover:border-[#cbcddb] text-[#63666e] border-[#63666e] hover:text-[#cbcddb] font-bold transition-colors duration-500 cursor-pointer">Add Requirement & Continue with Another...</button>
+                  <button onClick={handleAddSkills} className="w-full h-full  border hover:border-[#cbcddb] text-[#63666e] border-[#63666e] hover:text-[#cbcddb] font-bold transition-colors duration-500 cursor-pointer">Add Skill & Continue with Another...</button>
                 </div>
               </section>
         :null
@@ -508,6 +555,93 @@ const CreateJobForm = ({requirement, responsibilities, skills, basicState, setRe
        </div>
        {
         isChecked?
+          <>
+           {
+            !generatedQuestions.length?
+              <section className="w-full h-auto py-[50px] flex flex-col items-center justify-center text-center px-6 bg-slate-800/20 rounded-2xl">
+                <div className="max-w-3xl">
+                  <h1 className="text-2xl font-semibold text-gray-300 mb-4">
+                    AI-Generated Interview Questions
+                  </h1>
+
+                  <ul className="text-xs text-gray-400 leading-relaxed mb-6 space-y-2 list-disc list-inside text-left mx-auto max-w-md">
+                    <li>Generate tailored interview questions based on the job description</li>
+                    <li>Include required skills and competencies</li>
+                    <li>Cover responsibilities and role expectations</li>
+                    <li>Build structured and professional assessments with ease</li>
+                  </ul>
+
+                  <div className="flex justify-center gap-4">
+                    <button className="w-full py-2 rounded-lg bg-gray-700 text-white text-sm hover:bg-gray-600 transition">
+                      Generate Questions
+                    </button>
+                  </div>
+                </div>
+              </section>
+            :
+            <section className="w-full pl-[45px] pr-[20px] mx-auto py-[50px] bg-slate-800/20">
+              <h2 className="text-2xl font-semibold text-gray-300 mb-4">Generated Questions</h2>
+
+              {/* Select All */}
+              <div className="flex items-center mb-4">
+                <input
+                  type="checkbox"
+                  id="selectAll"
+                  checked={selectAll}
+                  onChange={toggleSelectAll}
+                  className="mr-2 h-4 w-4"
+                />
+                <label htmlFor="selectAll" className="text-sm text-gray-300">
+                  Select All
+                </label>
+              </div>
+
+              {/* Questions List */}
+              <ul className="space-y-3 border border-gray-700 rounded-lg p-4">
+                {generatedQuestions?.map((q, idx) => (
+                  <li key={idx} className="flex flex-col">
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={!!selected.find((sel) => sel.question === q.question)}
+                        onChange={() => toggleSelection(q)}
+                        className="mr-3 h-4 w-4"
+                      />
+                      <span className="text-sm text-gray-300">{q.question}</span>
+                    </div>
+                    <span className="text-xs text-gray-400 italic ml-7 mt-1">
+                      Ref: {q.referenceAnswer || null}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Buttons */}
+              <div className="flex justify-center gap-2 mt-6">
+                <button
+                  className="flex-1 py-2 rounded-lg text-sm font-medium transition bg-gray-700 text-white hover:bg-gray-600"
+                >
+                  Regenerate Questions
+                </button>
+                <button
+                  onClick={handleAdd}
+                  disabled={selected.length === 0}
+                  className={`flex-1 py-2 rounded-lg text-sm font-medium transition ${
+                    selected.length === 0
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-gray-700 text-white hover:bg-gray-600"
+                  }`}
+                >
+                  Add Selected
+                </button>
+              </div>
+            </section>
+           }
+          <section className="w-full flex justify-center items-center px-[10%]">
+            <div className="flex-1 h-[1px] bg-gray-700"></div>
+            <p className="text-xl m-3">Or</p>
+            <div className="flex-1 h-[1px] bg-gray-700"></div>
+          </section>
           <section className=" w-full h-auto shrink-0 flex flex-col justify-start items-start bg-slate-800/20 relative  rounded-sm py-[30px]">
                 <p className=' absolute top-[-14px] left-4 px-2 py-1 font-bold bg-gray-800/80 rounded-2xl'>Interview Q&A : </p>
                 <div className="w-full h-auto flex flex-col gap-4 pl-[45px] pr-[20px] mt-6 shrink-0">
@@ -535,7 +669,8 @@ const CreateJobForm = ({requirement, responsibilities, skills, basicState, setRe
                 <div className="w-full h-[50px] rounded-2xl pl-[45px] pr-[20px] mt-8">
                   <button onClick={handleAddInterviewQA} className="w-full h-full  border hover:border-[#cbcddb] text-[#63666e] border-[#63666e] hover:text-[#cbcddb] font-bold transition-colors duration-500 cursor-pointer">Add a Question & Continue with Another...</button>
                 </div>
-              </section>
+          </section>
+          </>
         :null
        }
         <div className="w-full h-[50px] rounded-2xl shrink-0 mt-8">

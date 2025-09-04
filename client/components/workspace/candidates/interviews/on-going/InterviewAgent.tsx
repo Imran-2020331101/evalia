@@ -35,6 +35,29 @@ const InterviewAgent = ({setTranscript, setIsSpeaking, setOverallPerformance}:in
   const [vapi, setVapi] = useState<any>(null);
   const [isConnected, setIsConnected] = useState(false);
 
+  useEffect(() => {
+    const handleTabLeave = () => {
+      if (document.hidden) {
+        console.warn("User left the tab (visibilitychange). Ending interview...");
+        vapi.stop();
+      }
+    };
+
+    const handleBlur = () => {
+      console.warn("Window lost focus (blur). Ending interview...");
+      vapi.stop();
+    };
+
+    document.addEventListener("visibilitychange", handleTabLeave);
+    window.addEventListener("blur", handleBlur);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleTabLeave);
+      window.removeEventListener("blur", handleBlur);
+    };
+  }, [vapi]);
+
+
   useEffect(()=>{
     const vapiInstance = new Vapi(apiKey);
     setVapi(vapiInstance);
@@ -98,7 +121,7 @@ const InterviewAgent = ({setTranscript, setIsSpeaking, setOverallPerformance}:in
             "হেই! রিঅ্যাক্ট ডেভেলপার সাক্ষাৎকারে আপনাকে স্বাগতম। আসুন কয়েকটি প্রশ্ন দিয়ে শুরু করি!" একবারে একটি প্রশ্ন জিজ্ঞাসা করুন এবং পরবরতি প্রশ্নে যাওয়ার আগে প্রার্থীর উত্তরের জন্য অপেক্ষা করুন। নীচে প্রশ্নগুলো দেওয়া হলঃ 
              ${questionList} যদি প্রার্থীর সমস্যা হয়, তাহলে উত্তর না দিয়েই ইঙ্গিত দিন অথবা প্রশ্নটি পুনরায় লিখুন। উদাহরণ: " আমি কি কিছু ইঙ্গিত দেব? রিঅ্যাক্ট কম্পোনেন্ট আপডেটগুলি কীভাবে ট্র্যাক করে তা ভেবে দেখুন"
              প্রতিটি উত্তরের পরে সংক্ষিপ্ত, উৎসাহব্যঞ্জক প্রতিক্রিয়া প্রদান করুন, উদাহরণস্বরূপ: "চমৎকার! এটা একটা সঠিক উত্তর।" "হুম, পুরপুরি সঠিক নয়! আবারও চেষ্টা করতে চান? কথোপকথনটি স্বাভাবিক এবং আকর্ষণীয় রাখুন -
-              "ঠিক আছে, পরবর্তীতে.." অথবা "এখন একটা জটিল কিছু চেষ্টা করে দেখা যাক!" এর মতো সাধারণ বাক্যাংশ ব্যবহার করতে পারেন। ৫-৭টি প্রশ্ন করুন, তাদের পারফর্মেন্স সারসংক্ষেপ করে সাক্ষাৎকারটি সুচারুভাবে শেষ করুন। উদাহরণস্বরূপ: "দারুন ছিল! আপনি কিছু কঠিন প্রশ্ন ভালোভাবে পরিচালনা করেছেন।
+              "ঠিক আছে, পরবর্তীতে.." অথবা "এখন একটা জটিল কিছু চেষ্টা করে দেখা যাক!" এর মতো সাধারণ বাক্যাংশ ব্যবহার করতে পারেন। ধারাবাহিকভাবে সকল প্রশ্ন করুন, সাক্ষাৎকারটি সুচারুভাবে শেষ করুন। উদাহরণস্বরূপ: "দারুন ছিল! আপনি কিছু কঠিন প্রশ্ন ভালোভাবে পরিচালনা করেছেন।
                আপনার দক্ষতা আরও তীক্ষ্ণ করে চলুন!" শেষটা একটা ইতিবাচক সুরে, যেমনঃ "আড্ডার জন্য ধন্যবাদ! আশা করি আপনি প্রকল্পগুলো সফলভাবে সম্পন্ন করবেন!"
                মূল নির্দেশিকা:
               -বন্ধুত্বপূর্ণ, আকর্ষণীয় এবং মজাদার হোন
