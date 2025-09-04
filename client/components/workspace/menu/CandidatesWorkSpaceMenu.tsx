@@ -21,7 +21,7 @@ const majorMono = Major_Mono_Display({ weight: '400', subsets: ['latin'] });
 
 const CandidatesWorkSpaceMenu = () => {
   const [isShowCourseCategory, setIsShowCourseCategory]=useState(false);
-  const [isShowJobCategory, setIsShowJobCategory]=useState(false);
+  const [isShowJobCategory, setIsShowJobCategory]=useState(true);
   const [isShowInterviewCategory, setIsShowInterviewCategory]=useState(false);
 
   const currentUser = useAppSelector(user);
