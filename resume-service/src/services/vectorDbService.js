@@ -80,12 +80,11 @@ async function naturalLanguageSearch(requirements) {
     return [];
   }
 
-  console.log("natural Language Search function called");
-
+  
   try {
     const index = pc.index(indexName).namespace(industry);
     const allResults = [];
-
+    
     // Define sections to search with their corresponding query text
     const sectionsToSearch = [
       { section: "skills", queryText: skills || "" },
@@ -93,6 +92,7 @@ async function naturalLanguageSearch(requirements) {
       { section: "projects", queryText: projects || "" },
       { section: "education", queryText: education || "" },
     ];
+    console.log("natural Language Search function called", skills, experience, projects);
 
     // Search each section separately
     for (const { section, queryText } of sectionsToSearch) {
