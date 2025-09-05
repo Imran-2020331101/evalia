@@ -184,6 +184,9 @@ const jobSlice = createSlice({
         },
         setShortListedCandidate(state, action){
             state.shortListedCandidate=action.payload
+        },
+        setPreviewedShortListedCandidate(state, action){
+            state.previewedShortListedCandidate=action.payload;
         }
     },
     extraReducers(builder){
@@ -302,7 +305,7 @@ const jobSlice = createSlice({
             state.shortListedCandidate.push(shortListedCandidate);
 
             const newApplications = applications.filter((item:any)=>item.candidateEmail!==candidateEmail);
-            newApplications.push(shortListedCandidate);
+            // newApplications.push(shortListedCandidate);
             state.recruitersSelectedJob.applications=newApplications;
 
             console.log(action.payload, 'inside markShortlisted thunk'); 
@@ -324,6 +327,7 @@ const jobSlice = createSlice({
             // const newApplications = applications.filter((item:any)=>item.candidateEmail!==candidateEmail);
             // newApplications.push(shortListedCandidate);
             // state.recruitersSelectedJob.applications=newApplications;
+            state.previewedShortListedCandidate=action.payload.data
 
             console.log(action.payload, 'inside markShortlisted AI thunk'); 
             state.markShortlistedStatus='success'
@@ -332,7 +336,7 @@ const jobSlice = createSlice({
 })
 
 export default jobSlice.reducer;
-export const {setSelectedOrgId, setApplyJobStatus, setGetAllJobStatus, setApplyJobId, setSaveJobId, setRecruiterSelectedJob, setCreateJobStatus,setMarkShortListedStatus, setShortListedCandidate}=jobSlice.actions;
+export const {setPreviewedShortListedCandidate, setSelectedOrgId, setApplyJobStatus, setGetAllJobStatus, setApplyJobId, setSaveJobId, setRecruiterSelectedJob, setCreateJobStatus,setMarkShortListedStatus, setShortListedCandidate}=jobSlice.actions;
 export const exploreJobs = (state:RootState)=>state.job.exploreJobs;
 export const appliedJobs = (state:RootState)=>state.job.appliedJobs;
 export const savedJobs = (state:RootState)=>state.job.savedJobs;
