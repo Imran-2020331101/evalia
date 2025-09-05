@@ -88,6 +88,15 @@ export const JobDetailsSchema = z.object({
 });
 export type JobDetails = z.infer<typeof JobDetailsSchema>;
 
+export const InterviewQuestionsGenerateSchema = z.object({
+  jobDescription : z.string(),
+  requirements: z.array(DomainItemSchema).optional(),
+  responsibilities: z.array(DomainItemSchema).optional(),
+  skills: z.array(DomainItemSchema).optional(),
+}).passthrough();
+
+export type InterviewQuestionsRequest = z.infer<typeof InterviewQuestionsGenerateSchema>
+
 
 // Request schemas for API endpoints
 export const CreateJobRequestSchema = z.object({
