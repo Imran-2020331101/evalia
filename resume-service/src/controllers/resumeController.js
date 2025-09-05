@@ -224,7 +224,7 @@ class ResumeController {
         userEmail: resume.uploadedBy,
         downloadUrl,
       });
-      console.log("fetched resume of the user",resume);
+      console.log('fetched resume of the user', resume);
       res.status(200).json({
         success: true,
         data: {
@@ -279,7 +279,6 @@ class ResumeController {
       if (!isValid) {
         console.error('Validation errors:', errors);
       }
-      
 
       res.status(200).json({
         success: true,
@@ -380,8 +379,8 @@ class ResumeController {
 
       if (!job_description) {
         return res.status(400).json({
-          success : false,
-          error   : 'Job description is required',
+          success: false,
+          error: 'Job description is required',
         });
       }
 
@@ -390,16 +389,16 @@ class ResumeController {
       );
 
       console.log('job_description parsed ', requirement.industry);
-      
+
       const Candidates = await naturalLanguageSearch(requirement);
 
       console.log('Candidates from search:', Candidates);
       console.log('Is Candidates an array?', Array.isArray(Candidates));
 
       res.status(200).json({
-        success : true,
-        message : 'Vector search completed successfully',
-        data    : Candidates,
+        success: true,
+        message: 'Vector search completed successfully',
+        data: Candidates,
       });
     } catch (error) {
       logger.error('Basic search failed:', error);
@@ -436,14 +435,12 @@ class ResumeController {
       console.log('finalized Candidate List ', matchedCandidates);
 
 
-      res.status(200).json({
-        success : true,
-        message : 'Vector search completed successfully',
-        data    : matchedCandidates,
-      });
+    res.status(200).json({
+      success: true,
+      message: 'Vector search completed successfully',
+      data: matchedCandidates,
+    });
   }
-
-
 }
 
 module.exports = new ResumeController();

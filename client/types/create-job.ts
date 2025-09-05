@@ -6,7 +6,7 @@ export interface domainType{
 
 export interface interviewQAStateType{
   question:string,
-  referenceAnswer:string
+  referenceAnswer?:string
 }
 export enum JobType {
   PART_TIME = "PART_TIME",
