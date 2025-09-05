@@ -72,7 +72,7 @@ async function addToVectordb(email, data, userId, userName) {
   return res || null;
 }
 
-async function naturalLanguageSearch(requirements) {
+async function naturalLanguageSearch(requirements,topK) {
   const { industry, skills, experience, projects, education } = requirements;
 
   if (!industry) {
@@ -106,7 +106,7 @@ async function naturalLanguageSearch(requirements) {
 
         const response = await index.searchRecords({
           query: {
-            topK: 10,
+            topK: topK,
             inputs: { text: queryText },
             filter: { section: section },
           },

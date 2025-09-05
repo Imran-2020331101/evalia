@@ -6,13 +6,17 @@ import {
   JobFilterSchema, 
   ApiResponse, 
   Pagination,
-  ApplicationStatus
+  ApplicationStatus,
+  InterviewQuestionsRequest,
+  InterviewQuestionsGenerateSchema
 } from '../types/job.types';
 import { JobService } from '../services/jobService';
 import { z } from 'zod';
 import { ApplicationCompatibilityService } from '../services/ApplicationCompatibilityService';
 import axios from 'axios';
 import { ResumeDTO } from '../types/resume.types';
+import questionGenerationPrompt from '../prompts/QuestionGenerationPromt';
+import upskillBot from '../config/OpenRouter';
 
 export class JobController {
 
@@ -598,6 +602,43 @@ async rejectRemainingCandidates(req: Request, res: Response): Promise<void> {
           data    : error
       });
     }
+  }
+
+  async generateInterviewQuestions(req: Request, res: Response) : Promise <any> {
+    const validationResult = InterviewQuestionsGenerateSchema.safeParse(req.body);
+
+    if (!validationResult.success) {
+        const errors = validationResult.error.errors.map(err => `${err.path.join('.')}: ${err.message}`);
+        res.status(400).json({
+          success: false,
+          error: "Validation failed",
+          details: errors
+        } as ApiResponse);
+        return;
+    }
+    const {jobDescription, responsibilities, requirements, skills} = validationResult.data;
+
+    const prompt = questionGenerationPrompt( jobDescription , responsibilities, requirements, skills);
+
+
+    const Questions = await upskillBot(prompt);
+    
+          let cleaned = typeof Questions === "string"
+            ? Questions
+                .replace(/^```json\s*/i, "")
+                .replace(/^```\s*/i, "")
+                .replace(/```$/, "")
+                .trim()
+            : Questions;
+    
+          let parsed = JSON.parse(cleaned);
+    
+          logger.info("Generated Questions : ", { Questions, evaluation: parsed });
+
+    return res.status(200).json({
+      success: true,
+      data: Questions
+    })
   }
   
 }
