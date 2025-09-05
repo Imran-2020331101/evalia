@@ -412,7 +412,7 @@ class ResumeController {
   }
 
   async generateAutomatedShortlist(req, res) {
-      const { jobId } = req.params;
+      const { jobId,k } = req.params;
 
       if (!jobId) {
         return res.status(400).json({
@@ -420,28 +420,21 @@ class ResumeController {
           error   : 'Job description is required',
         });
       }
-      // const response = await axios.get(`${process.env.JOB_SERVICE_URL}/api/jobs/${jobId}/description`);
+
       const response    = await axios.get(`${process.env.JOB_SERVICE_URL}/api/jobs/${jobId}`);
       const job = response.data.data;
-      console.log("Fetched job description " , job);
 
       const requirement = await resumeService._extractDetailsFromJobDescription(
         job.jobDescription + job.requirements.description + job.responsibilities.description + job.skills.description
       );
 
       
-      const Candidates = await naturalLanguageSearch(requirement);
-      console.log('Initial Candidate List ', Candidates);
-
-      const appliedCandidates = job.applications.map((application)=> application.candidateId);
-      
-      console.log('Applied Candidate List ', appliedCandidates);
+      const Candidates        = await naturalLanguageSearch(requirement,k);
+      const appliedCandidates = job.applications.map((application)=> application.candidateId);    
       
       const matchedCandidates = Candidates.filter((c)=> appliedCandidates.includes(c.id));
       console.log('finalized Candidate List ', matchedCandidates);
 
-      console.log('Candidates from search:', matchedCandidates);
-      console.log('Is Candidates an array?', Array.isArray(matchedCandidates));
 
       res.status(200).json({
         success : true,
