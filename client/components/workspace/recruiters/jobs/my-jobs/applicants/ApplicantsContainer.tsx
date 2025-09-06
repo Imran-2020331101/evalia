@@ -5,7 +5,8 @@ import { SlidersHorizontal ,UserCheck, Target, MenuSquare, FileQuestion} from 'l
 
 import CandidateCard from '../CandidateCard'
 import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks';
-import { markAsShortListedByAI, recruitersSelectedJob } from '@/redux/features/job';
+import { markAsShortListedByAI, markShortlistedStatus, recruitersSelectedJob } from '@/redux/features/job';
+import { ClipLoader } from 'react-spinners';
 
 const ApplicantsContainer = () => {
   const [isShowModal, setIsShowModal] = useState(false);
@@ -16,6 +17,8 @@ const ApplicantsContainer = () => {
   const dispatch = useAppDispatch()
 
   const currentSelectedRecruiterJob = useAppSelector(recruitersSelectedJob);
+  const currentMarkAsShortlistedStatus = useAppSelector(markShortlistedStatus);
+
   const {applications}=currentSelectedRecruiterJob || [];
     const handleSubmit =()=>{
       console.log('generate sortlist')
@@ -105,10 +108,12 @@ const ApplicantsContainer = () => {
 
                   <button
                     onClick={handleSubmit}
-                    disabled={target < 1 || target > applicants.length}
+                    disabled={target < 1 || target > applicants.length || currentMarkAsShortlistedStatus==='pending'}
                     className=" cursor-pointer bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 mt-4 transition-colors px-6 py-2 rounded-lg text-[11px] font-semibold flex items-center gap-2"
                   >
-                    <Target className="w-4 h-4" /> Generate Shortlist
+                    {
+                      currentMarkAsShortlistedStatus==='pending'?<><ClipLoader size={14} color='white' /> Generate Shortlist</>:<><Target className="w-4 h-4" /> Generate Shortlist</>
+                    }
                   </button>
                 </div>
             </section>  
