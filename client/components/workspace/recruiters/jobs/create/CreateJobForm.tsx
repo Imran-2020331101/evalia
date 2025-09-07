@@ -206,44 +206,56 @@ const [generatedQuestions, setGeneratedQuestions] = useState<interviewQAStateTyp
     toast.success('Question is successfully added')
   }
 
-  const handleFetchQuestions = async (data: any) => {
-    try {
-      const response = await axios.post(
-        "http://localhost:7000/api/jobs/generate/interview-questions",
-        data
-      );
+ const handleFetchQuestions = async (data: any) => {
+  try {
+    const response = await axios.post(
+      "http://localhost:7000/api/jobs/generate/interview-questions",
+      data
+    );
+    console.log(response.data);
+    setLoadingGenQuestions("idle");
 
-      let questions;
-      if (typeof response.data.data === "string") {
-        // backend sent JSON string → parse it
-        questions =  await JSON.parse(response.data.data);
-        setGeneratedQuestions(questions);
-      } else {
-        // backend already sent parsed object
-        questions = response.data.data;
-        setGeneratedQuestions(questions);
-      }
+    let questions;
 
-      setLoadingGenQuestions("idle");
-      console.log(questions, "generated questions by ai");
-    } catch (error: any) {
-      toast.error("something went wrong!");
-      setLoadingGenQuestions("idle");
-      console.log(error, "question generation error");
+    if (typeof response.data.data === "string") {
+      // backend sent JSON string → parse it
+      questions = await JSON.parse(response.data.data);
+    } else {
+      // backend already sent parsed object
+      questions = response.data.data;
     }
-  };
 
+    return questions || []; // always return an array fallback
 
-  const handleGenerateQuestions = async()=>{
-    const {jobDescription} = basicState;
-    if(!jobDescription){
-      toast.error('Please write jobDescription')
-      return;
-    }
-    const data ={jobDescription,requirement, responsibilities, skills};
-    setLoadingGenQuestions('pending')
-    handleFetchQuestions(data)
+  } catch (error: any) {
+    toast.error("Something went wrong!");
+    setLoadingGenQuestions("idle");
+    console.log(error, "question generation error");
+    return []; // fallback ensures consistent return type
   }
+};
+
+const handleGenerateQuestions = async () => {
+  const { jobDescription } = basicState;
+
+  if (!jobDescription) {
+    toast.error("Please write jobDescription");
+    return;
+  }
+
+  const data = { jobDescription, requirement, responsibilities, skills };
+
+  setLoadingGenQuestions("pending");
+
+  const questions = await handleFetchQuestions(data);
+
+  if (questions.length > 0) {
+    setGeneratedQuestions(questions);
+  } else {
+    toast.error("No questions were generated. Try again!");
+  }
+};
+
 
   const handleCreateJob = async()=>{
     const companyInfo={
@@ -327,7 +339,7 @@ const [generatedQuestions, setGeneratedQuestions] = useState<interviewQAStateTyp
               value={basicState.salaryFrom}
               name="salary-from" 
               id="salary-from" 
-              className='w-full flex-1 shrink-0 rounded-sm p-2 pt-3 bg-slate-800/30 shadow-md scroll-container shadow-slate-800 focus:border-[1px] border-gray-500 outline-none'>
+              className='w-full h-[40px] shrink-0 rounded-sm p-2 pt-3 bg-slate-800/30 shadow-md scroll-container shadow-slate-800 focus:border-[1px] border-gray-500 outline-none'>
               </textarea>
             </div>
             <div className="w-[45%] h-full flex flex-col justify-start items-start gap-1 shrink-0">
@@ -337,7 +349,7 @@ const [generatedQuestions, setGeneratedQuestions] = useState<interviewQAStateTyp
               value={basicState.salaryTo}
               name="salary-to" 
               id="salary-to" 
-              className='w-full flex-1 shrink-0 rounded-sm p-2 pt-3 bg-slate-800/30 shadow-md scroll-container shadow-slate-800 focus:border-[1px] border-gray-500 outline-none'>
+              className='w-full h-[40px] shrink-0 rounded-sm p-2 pt-3 bg-slate-800/30 shadow-md scroll-container shadow-slate-800 focus:border-[1px] border-gray-500 outline-none'>
               </textarea>
             </div>
           </div>         
@@ -368,7 +380,7 @@ const [generatedQuestions, setGeneratedQuestions] = useState<interviewQAStateTyp
             value={basicState.jobLocation}
             name="job-location" 
             id="job-location" 
-            className='w-full flex-1 shrink-0 rounded-sm p-2 pt-3 bg-slate-800/30 shadow-md scroll-container shadow-slate-800 focus:border-[1px] border-gray-500 outline-none'>
+            className='w-full h-[40px] shrink-0 rounded-sm p-2 pt-3 bg-slate-800/30 shadow-md scroll-container shadow-slate-800 focus:border-[1px] border-gray-500 outline-none'>
             </textarea>
           </div>
           <div className="w-[45%] shrink-0 h-[60px] self-end flex flex-col justify-start items-start gap-2">

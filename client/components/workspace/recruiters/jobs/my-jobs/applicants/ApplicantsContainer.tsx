@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react';
-import { SlidersHorizontal ,UserCheck, Target, MenuSquare, FileQuestion} from 'lucide-react';
+import { SlidersHorizontal ,UserCheck, Target, MenuSquare, FileQuestion, ArrowUpRight} from 'lucide-react';
 
 import CandidateCard from '../CandidateCard'
 import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks';
@@ -11,7 +11,9 @@ import { ClipLoader } from 'react-spinners';
 const ApplicantsContainer = () => {
   const [isShowModal, setIsShowModal] = useState(false);
   const [isMounted, setIsMounted]=useState<boolean>(false);
+  const [isGenShortlist, setIsGenShortlist]=useState<boolean>(false);
   const [applicants, setApplicants]=useState<any>([]);
+  const [selectedToBeSortListed, setSelectedToBeShortListed]=useState<any>([]);
   const [target, setTarget] = useState(1)
 
   const dispatch = useAppDispatch()
@@ -20,7 +22,24 @@ const ApplicantsContainer = () => {
   const currentMarkAsShortlistedStatus = useAppSelector(markShortlistedStatus);
 
   const {applications}=currentSelectedRecruiterJob || [];
-    const handleSubmit =()=>{
+  const toggleSelectAll = ()=>{
+    if(selectedToBeSortListed.length === applicants.length) {setSelectedToBeShortListed([]); return;}
+    const applicantIds = applicants.map((item:any)=>item.candidateId)
+    setSelectedToBeShortListed(applicantIds);
+        console.log(selectedToBeSortListed, 'selected candidates')
+
+  }
+  const toggleSelectSingle = (candidateId:string)=>{
+    const candidate = selectedToBeSortListed.find((item:any)=>item===candidateId);
+    if(!candidate){
+       setSelectedToBeShortListed([...selectedToBeSortListed, candidateId]);
+       return;
+    }
+    const newSelectedCandidate = selectedToBeSortListed.filter((item:any)=>item!==candidateId);
+    setSelectedToBeShortListed(newSelectedCandidate);
+    console.log(selectedToBeSortListed, 'selected candidates')
+  }
+  const handleSubmit =()=>{
       console.log('generate sortlist')
       dispatch(markAsShortListedByAI({jobId:currentSelectedRecruiterJob._id,k:target}));
   }
@@ -36,7 +55,7 @@ const ApplicantsContainer = () => {
     <>
       {
         !applicants.length?
-         <section className="flex flex-col items-center justify-center py-16 px-4 text-center">
+         <section className="flex flex-col items-center justify-center py-16 px-4 text-center h-full">
             {/* Icon */}
             <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-gray-200">
               <FileQuestion className="h-6 w-6 text-gray-500" />
@@ -55,7 +74,17 @@ const ApplicantsContainer = () => {
           </section>
         :
         <div className='w-full h-full flex flex-col pt-[10px] p-[30px] pb-[10px]'>
-      <div className="w-full h-auto flex justify-end items-center shrink-0">
+      <div className="w-full h-auto flex justify-between items-center shrink-0">
+        <div className="flex gap-4 items-center">
+          <div className="flex gap-2 items-center">
+            <input checked={selectedToBeSortListed.length===applicants.length?true:false} onChange={toggleSelectAll} id='select-all' type="checkbox" className='size-3'/>
+            <label htmlFor="select-all" className='text-sm font-semibold -tracking-normal cursor-pointer'>Select all</label>
+          </div>
+          
+          <button onClick={()=>setIsGenShortlist(true)} disabled={selectedToBeSortListed.length?false:true} className={` text-xs tracking-normal ${selectedToBeSortListed.length?'hover:bg-blue-600 hover:text-white bg-blue-700 cursor-pointer':'bg-gray-400 cursor-not-allowed'} px-2 py-[2px] rounded-md font-bold flex gap-1 items-center`}> <ArrowUpRight size={14} color='white'/>
+           Create Shortlist
+          </button>
+        </div>
         <button onClick={()=>setIsShowModal((prev)=>!prev)} className=' mb-4 relative group'>
             <div className="absolute top-[110%] right-[40%] bg-gray-700 rounded-sm text-gray-100 px-3 py-1 group-hover:flex hidden text-xs">
               Menu
@@ -119,9 +148,11 @@ const ApplicantsContainer = () => {
             </section>  
           </div>  
         </div>
-        {
-          applicants?.map((item:any)=><CandidateCard key={item?._id} candidateEmail={item?.candidateEmail} reviewId={item?.reviewId} appliedAt={item?.appliedAt} applicantStatus={item?.status} applicantId={item?.candidateId}/>)
-        }
+        <div className="w-full flex-1 flex flex-col gap-2 ">
+          {
+            applicants?.map((item:any)=><CandidateCard key={item?._id} toggleSelectSingle={toggleSelectSingle} selected={selectedToBeSortListed} candidateEmail={item?.candidateEmail} reviewId={item?.reviewId} appliedAt={item?.appliedAt} applicantStatus={item?.status} applicantId={item?.candidateId}/>)
+          }
+        </div>
       </div>
     </div>
       }
