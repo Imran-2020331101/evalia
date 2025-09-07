@@ -5,7 +5,7 @@ import { SlidersHorizontal ,UserCheck, Target, MenuSquare, FileQuestion, ArrowUp
 
 import CandidateCard from '../CandidateCard'
 import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks';
-import { markAsShortListedByAI, markShortlistedStatus, recruitersSelectedJob } from '@/redux/features/job';
+import { markAsShortListed, markAsShortListedByAI, markShortlistedStatus, recruitersSelectedJob } from '@/redux/features/job';
 import { ClipLoader } from 'react-spinners';
 
 const ApplicantsContainer = () => {
@@ -39,6 +39,14 @@ const ApplicantsContainer = () => {
     setSelectedToBeShortListed(newSelectedCandidate);
     console.log(selectedToBeSortListed, 'selected candidates')
   }
+  const handleGenerateShortlist =()=>{
+    const data = {
+      candidateIds:selectedToBeSortListed
+    }
+    const jobId = currentSelectedRecruiterJob._id;
+    dispatch(markAsShortListed({jobId,data}));
+  }
+
   const handleSubmit =()=>{
       console.log('generate sortlist')
       dispatch(markAsShortListedByAI({jobId:currentSelectedRecruiterJob._id,k:target}));
@@ -81,7 +89,7 @@ const ApplicantsContainer = () => {
             <label htmlFor="select-all" className='text-sm font-semibold -tracking-normal cursor-pointer'>Select all</label>
           </div>
           
-          <button onClick={()=>setIsGenShortlist(true)} disabled={selectedToBeSortListed.length?false:true} className={` text-xs tracking-normal ${selectedToBeSortListed.length?'hover:bg-blue-600 hover:text-white bg-blue-700 cursor-pointer':'bg-gray-400 cursor-not-allowed'} px-2 py-[2px] rounded-md font-bold flex gap-1 items-center`}> <ArrowUpRight size={14} color='white'/>
+          <button onClick={handleGenerateShortlist} disabled={selectedToBeSortListed.length?false:true} className={` text-xs tracking-normal ${selectedToBeSortListed.length?'hover:bg-blue-600 hover:text-white bg-blue-700 cursor-pointer':'bg-gray-400 cursor-not-allowed'} px-2 py-[2px] rounded-md font-bold flex gap-1 items-center`}> <ArrowUpRight size={14} color='white'/>
            Create Shortlist
           </button>
         </div>

@@ -92,9 +92,9 @@ export const getAllSavedJobs = createAsyncThunk('job/getAllSavedJobs', async(_, 
 })
 
 
-export const markAsShortListed = createAsyncThunk('job/markAsShortListed', async({jobId, candidateEmail}:{jobId:any, candidateEmail:any},thunkAPI)=>{
+export const markAsShortListed = createAsyncThunk('job/markAsShortListed', async({jobId, data}:{jobId:any, data:any},thunkAPI)=>{
     try {
-        const response = await axios.post(`http://localhost:8080/api/job/${jobId}/shortlist?email=${encodeURIComponent(candidateEmail)}`,null, {withCredentials:true});
+        const response = await axios.post(`http://localhost:8080/api/job/${jobId}/shortlist`,data, {withCredentials:true});
         return response.data;
     } catch (error:any) {
         return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed marking as shortlisted' })
