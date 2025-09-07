@@ -3,6 +3,7 @@ package com.example.server.job.Controller;
 import com.example.server.UserProfile.Service.UserService;
 import com.example.server.job.DTO.JobApplicationRequest;
 import com.example.server.job.DTO.JobCreationRequest;
+import com.example.server.job.DTO.ShortlistRequest;
 import com.example.server.job.Proxy.JobProxy;
 import com.example.server.security.models.userEntity;
 import org.springframework.http.HttpStatus;
@@ -172,9 +173,9 @@ public class JobController {
     }
 
     @PostMapping("/{jobId}/shortlist")
-    public ResponseEntity<String> shortlistCandidatesOfAJob(@PathVariable("jobId") String jobId, @RequestParam("email") String candidateEmail) {
-        logger.info("shortlistCandidatesOfAJob " + jobId + " " + candidateEmail);
-        ResponseEntity<String> response = jobProxy.shortlistCandidatesOfAJob(new JobApplicationRequest(jobId,candidateEmail,null));
+    public ResponseEntity<String> shortlistCandidatesOfAJob(@PathVariable("jobId") String jobId, @RequestBody ShortlistRequest shortlistRequest) {
+        logger.info("shortlistCandidatesOfAJob " + jobId + " " + shortlistRequest.toString());
+        ResponseEntity<String> response = jobProxy.shortlistCandidatesOfAJob(jobId,shortlistRequest);
         return ResponseEntity.status(response.getStatusCode())
                 .body(response.getBody());
     }
