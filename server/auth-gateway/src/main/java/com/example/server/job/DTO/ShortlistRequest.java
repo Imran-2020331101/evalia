@@ -1,4 +1,6 @@
 package com.example.server.job.DTO;
 
-public record ShortlistRequest() {
+import java.util.List;
+
+public record ShortlistRequest(List<String> candidateIds) {
 }
