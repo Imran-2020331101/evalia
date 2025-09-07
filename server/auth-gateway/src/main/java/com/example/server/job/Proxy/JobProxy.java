@@ -2,6 +2,7 @@ package com.example.server.job.Proxy;
 
 import com.example.server.job.DTO.JobApplicationRequest;
 import com.example.server.job.DTO.JobCreationRequest;
+import com.example.server.job.DTO.ShortlistRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -48,8 +49,9 @@ public interface JobProxy {
     @PostMapping   (value = "/withdraw", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<String> withdrawApplicationFromAJob(JobApplicationRequest jobApplicationRequest);
 
-    @PostMapping   (value = "/shortlist", consumes = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<String> shortlistCandidatesOfAJob     ( @RequestBody JobApplicationRequest jobApplicationRequest);
+    @PostMapping   (value = "{jobId}/shortlist", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> shortlistCandidatesOfAJob     ( @PathVariable("jobId") String jobId,
+                                                           @RequestBody ShortlistRequest shortlistRequest);
 
     @GetMapping(value = "/{jobId}/interview-questions")
     ResponseEntity<String> getInterviewQuestionsOfAJob(@PathVariable("jobId") String jobId);
