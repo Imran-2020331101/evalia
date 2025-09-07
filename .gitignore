@@ -11,6 +11,18 @@ package-lock.json
 .env
 .env.*
 !.env.example
+node_modules/
+dist/
+.env
+.env.local
+*.log
+.DS_Store
+venv/
+__pycache__/
+*.pyc
+uploads/
+logs/
+
 
 # Logs
 logs/

@@ -26,6 +26,19 @@ pids
 coverage/
 *.lcov
 
+node_modules/
+dist/
+.env
+.env.local
+*.log
+.DS_Store
+venv/
+__pycache__/
+*.pyc
+uploads/
+logs/
+
+
 # Build outputs
 dist/
 build/
