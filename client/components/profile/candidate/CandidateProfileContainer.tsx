@@ -100,7 +100,7 @@ const CandidateProfileContainer = ({user}:propType) => {
   return (
       <div className="w-full h-full bg-gray-950/80 flex items-start justify-center py-[10px] ">
       <div className="w-[85%] ml-[5%] h-full rounded-lg flex justify-center items-center p-[6px] gap-[13px]">
-        <div className="w-[60%] h-full flex flex-col pb-[40px] gap-[14px] overflow-y-scroll scrollbar-hidden ">
+        <div className="w-[60%] h-full flex flex-col gap-[14px] overflow-y-scroll scrollbar-hidden ">
             <section className='w-full h-auto bg-slate-900 rounded-xl'>
                 <div className="w-full h-[200px] relative rounded-t-xl">
                   {
@@ -149,7 +149,7 @@ const CandidateProfileContainer = ({user}:propType) => {
                     <div className="w-full min-h-[80px] flex justify-between items-start">
                       <div className="w-[60%] h-auto">
                           <p className="w-full max-h-[40px] text-[13px] flex justify-start items-start overflow-hidden text-gray-400">{user?.user?.bio?user.user.bio:'No bio found, make a short bio'}</p>
-                          <p className="w-full max-h-[40px] text-[13px] flex justify-start  overflow-hidden text-gray-400 items-center"><span> {user?.user?.location?`📍${user.user.location}`:'No location found, set you location'}</span> <span className="text-2xl font-bold m-1 mt-[-8px]">.</span> <span>{user?.user?.email}</span></p>
+                          <p className="w-full max-h-[40px] text-[13px] flex justify-start  overflow-hidden text-gray-400 items-center"><span> {user?.user?.location?`${user.user.location}`:'No location found, set you location'}</span> <span className="text-2xl font-bold m-1 mt-[-8px]">.</span> <span>{user?.user?.email}</span></p>
                       </div>
                       <div className="w-auto  h-full flex flex-col justify-start items-end gap-2 pr-[20px]">
                         {
