@@ -41,9 +41,10 @@ const ApplicantsContainer = () => {
   }
   const handleGenerateShortlist =()=>{
     const data = {
-      candidateIds:selectedToBeSortListed
+      "candidateIds":selectedToBeSortListed
     }
     const jobId = currentSelectedRecruiterJob._id;
+    console.log(data, 'submitted data')
     dispatch(markAsShortListed({jobId,data}));
   }
 
