@@ -25,7 +25,7 @@ const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candi
     }
     const handleMarkShortlist = ()=>{
         // console.log(currentSelectedRecruiterJob,candidateEmail )
-        dispatch(markAsShortListed({jobId:currentSelectedRecruiterJob._id,candidateEmail}));
+        // dispatch(markAsShortListed({jobId:currentSelectedRecruiterJob._id,candidateEmail}));
     }
     const handleRemoveFromShortlist = ()=>{
 
@@ -80,11 +80,11 @@ const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candi
                 <button onClick={handleViewProfile} className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-blue-600 cursor-pointer">
                     View Profile
                 </button>
-                <button disabled={currentMarkShortlistStatus==='pending'?true:false} onClick={applicantStatus==='PENDING'?handleMarkShortlist:handleRemoveFromShortlist} className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-teal-600 cursor-pointer">
+                {/* <button disabled={currentMarkShortlistStatus==='pending'?true:false} onClick={applicantStatus==='PENDING'?handleMarkShortlist:handleRemoveFromShortlist} className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-teal-600 cursor-pointer">
                     {
                         currentMarkShortlistStatus==='pending'?<ClipLoader size={14} color="white" />:applicantStatus==='PENDING'?'Mark as Shortlisted':'Remove From ShortList'
                     }
-                </button>
+                </button> */}
                 <button className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-teal-600 cursor-pointer">
                     Mark as Finalist
                 </button>
