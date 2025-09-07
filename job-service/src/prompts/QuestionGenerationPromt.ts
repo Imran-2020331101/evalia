@@ -3,7 +3,7 @@ export const questionGenerationPrompt = (
   responsibilities: any,
   requirements: any,
   skills: any
-): string => `You are a helpful assistant. Based on the given job information, generate interview-style questions and respond ONLY in valid JSON that matches this schema:
+): string => `You are a helpful assistant. Based on the given job information, generate interview-style 10 questions and respond ONLY in valid JSON that matches this schema:
 
 {
   [
