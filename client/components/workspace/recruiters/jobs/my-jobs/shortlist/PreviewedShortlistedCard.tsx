@@ -58,26 +58,26 @@ const PreviewedShortlistedCard = ({candidate}:{candidate:any}) => {
             {
               candidate?.skills?
                 <div>
-                  <p className="text-sm font-medium text-gray-300 mb-1">Skills</p>
+                  <p className="text-sm font-medium text-gray-300 mb-1">Skills { candidate?.skills.score ? `( ${candidate?.skills.score * 100}% )`:null}</p>
                   <ProgressBar value={candidate?.skills.score || 0} />
                 </div>
               :null
             }
             {
               candidate?.experience && <div>
-              <p className="text-sm font-medium text-gray-300 mb-1">Experience</p>
+              <p className="text-sm font-medium text-gray-300 mb-1">Experience { candidate?.experience.score ? `( ${candidate?.experience.score * 100}% )`:null}</p>
               <ProgressBar value={candidate?.experience.score || 0} />
             </div>
             }
             {
               candidate?.projects && <div>
-              <p className="text-sm font-medium text-gray-300 mb-1">Projects</p>
+              <p className="text-sm font-medium text-gray-300 mb-1">Projects { candidate?.projects.score ? `( ${candidate?.projects.score * 100}% )`:null}</p>
               <ProgressBar value={candidate?.projects.score || 0} />
             </div>
             }
             {
               candidate?.education && <div>
-              <p className="text-sm font-medium text-gray-300 mb-1">Education</p>
+              <p className="text-sm font-medium text-gray-300 mb-1">Education { candidate?.education.score ? `( ${candidate?.education.score * 100}% )`:null}</p>
               <ProgressBar value={candidate?.education.score || 0} />
             </div>
             }

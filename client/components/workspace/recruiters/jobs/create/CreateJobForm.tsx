@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { domainType, interviewQAStateType, basicStateType } from "@/types/create-job";
 import { createJob, createJobStatus, selectedOrgId, setCreateJobStatus } from "@/redux/features/job";
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks";
+import axios from "axios";
+import { ClipLoader } from "react-spinners";
 interface propType{
   requirement:domainType[],
   responsibilities:domainType[],
@@ -56,27 +58,11 @@ const CreateJobForm = ({requirement, responsibilities, skills, basicState, setRe
   })
 
 
-const [generatedQuestions, setGeneratedQuestions] = useState<interviewQAStateType[]>([
-    {
-      question: "Can you describe your experience with managing cross-functional teams?",
-      referenceAnswer: "Look for leadership, collaboration, and conflict-resolution experience."
-    },
-    {
-      question: "How do you approach problem-solving when facing a tight deadline?",
-      referenceAnswer: "Expect structured thinking, prioritization, and calm under pressure."
-    },
-    {
-      question: "What skills do you use to prioritize multiple tasks effectively?",
-      referenceAnswer: "Candidate should mention time management, delegation, and planning."
-    },
-    {
-      question: "Tell us about a project where you had to take ownership from start to finish.",
-      // referenceAnswer: "Look for accountability, initiative, and measurable outcomes."
-    },
-  ])
+const [generatedQuestions, setGeneratedQuestions] = useState<interviewQAStateType[]>([])
 
   const [selected, setSelected] = useState<interviewQAStateType[]>([])
   const [selectAll, setSelectAll] = useState(false)
+  const [loadingGenQuestions, setLoadingGenQuestions] = useState<'idle'|'pending'|'success'|'error'>('idle')
 
   const toggleSelectAll = () => {
     if (selectAll) {
@@ -220,6 +206,57 @@ const [generatedQuestions, setGeneratedQuestions] = useState<interviewQAStateTyp
     toast.success('Question is successfully added')
   }
 
+ const handleFetchQuestions = async (data: any) => {
+  try {
+    const response = await axios.post(
+      "http://localhost:7000/api/jobs/generate/interview-questions",
+      data
+    );
+    console.log(response.data);
+    setLoadingGenQuestions("idle");
+
+    let questions;
+
+    if (typeof response.data.data === "string") {
+      // backend sent JSON string → parse it
+      questions = await JSON.parse(response.data.data);
+    } else {
+      // backend already sent parsed object
+      questions = response.data.data;
+    }
+
+    return questions || []; // always return an array fallback
+
+  } catch (error: any) {
+    toast.error("Something went wrong!");
+    setLoadingGenQuestions("idle");
+    console.log(error, "question generation error");
+    return []; // fallback ensures consistent return type
+  }
+};
+
+const handleGenerateQuestions = async () => {
+  const { jobDescription } = basicState;
+
+  if (!jobDescription) {
+    toast.error("Please write jobDescription");
+    return;
+  }
+
+  const data = { jobDescription, requirement, responsibilities, skills };
+
+  setLoadingGenQuestions("pending");
+
+  const questions = await handleFetchQuestions(data);
+
+  if (questions.length > 0) {
+    setGeneratedQuestions(questions);
+  } else {
+    toast.error("No questions were generated. Try again!");
+  }
+};
+
+
   const handleCreateJob = async()=>{
     const companyInfo={
       id:currentSelectedOrgId
@@ -244,9 +281,8 @@ const [generatedQuestions, setGeneratedQuestions] = useState<interviewQAStateTyp
   useEffect(()=>console.log(skills,'skills'),[skills])
   useEffect(()=>console.log(basicState, 'basics'))
   useEffect(()=>{
-    if(currentCreateJobStatus==='error') toast.error('something went wrong! please try again later..')
-    else if (currentCreateJobStatus==='success') toast.success('Job successfully created !')
-    dispatch(setCreateJobStatus('idle'));
+    if(currentCreateJobStatus==='error') {toast.error('something went wrong! please try again later..'); dispatch(setCreateJobStatus('idle'))}
+    else if (currentCreateJobStatus==='success') {toast.success('Job successfully created !'); dispatch(setCreateJobStatus('idle'))}    
   },[currentCreateJobStatus])
    return (
     <div className='w-full h-full  flex justify-center items-center '>
@@ -303,7 +339,7 @@ const [generatedQuestions, setGeneratedQuestions] = useState<interviewQAStateTyp
               value={basicState.salaryFrom}
               name="salary-from" 
               id="salary-from" 
-              className='w-full flex-1 shrink-0 rounded-sm p-2 pt-3 bg-slate-800/30 shadow-md scroll-container shadow-slate-800 focus:border-[1px] border-gray-500 outline-none'>
+              className='w-full h-[40px] shrink-0 rounded-sm p-2 pt-3 bg-slate-800/30 shadow-md scroll-container shadow-slate-800 focus:border-[1px] border-gray-500 outline-none'>
               </textarea>
             </div>
             <div className="w-[45%] h-full flex flex-col justify-start items-start gap-1 shrink-0">
@@ -313,7 +349,7 @@ const [generatedQuestions, setGeneratedQuestions] = useState<interviewQAStateTyp
               value={basicState.salaryTo}
               name="salary-to" 
               id="salary-to" 
-              className='w-full flex-1 shrink-0 rounded-sm p-2 pt-3 bg-slate-800/30 shadow-md scroll-container shadow-slate-800 focus:border-[1px] border-gray-500 outline-none'>
+              className='w-full h-[40px] shrink-0 rounded-sm p-2 pt-3 bg-slate-800/30 shadow-md scroll-container shadow-slate-800 focus:border-[1px] border-gray-500 outline-none'>
               </textarea>
             </div>
           </div>         
@@ -344,7 +380,7 @@ const [generatedQuestions, setGeneratedQuestions] = useState<interviewQAStateTyp
             value={basicState.jobLocation}
             name="job-location" 
             id="job-location" 
-            className='w-full flex-1 shrink-0 rounded-sm p-2 pt-3 bg-slate-800/30 shadow-md scroll-container shadow-slate-800 focus:border-[1px] border-gray-500 outline-none'>
+            className='w-full h-[40px] shrink-0 rounded-sm p-2 pt-3 bg-slate-800/30 shadow-md scroll-container shadow-slate-800 focus:border-[1px] border-gray-500 outline-none'>
             </textarea>
           </div>
           <div className="w-[45%] shrink-0 h-[60px] self-end flex flex-col justify-start items-start gap-2">
@@ -572,8 +608,10 @@ const [generatedQuestions, setGeneratedQuestions] = useState<interviewQAStateTyp
                   </ul>
 
                   <div className="flex justify-center gap-4">
-                    <button className="w-full py-2 rounded-lg bg-gray-700 text-white text-sm hover:bg-gray-600 transition">
-                      Generate Questions
+                    <button disabled={loadingGenQuestions==='pending'?true:false} onClick={handleGenerateQuestions} className="w-full py-2 rounded-lg bg-gray-700 text-white text-sm hover:bg-gray-600 transition">
+                      {
+                        loadingGenQuestions==='pending'?<><ClipLoader size={14} color="white"/> Generate Questions</>:'Generate Questions'
+                      }
                     </button>
                   </div>
                 </div>
@@ -619,9 +657,13 @@ const [generatedQuestions, setGeneratedQuestions] = useState<interviewQAStateTyp
               {/* Buttons */}
               <div className="flex justify-center gap-2 mt-6">
                 <button
+                  disabled={loadingGenQuestions==='pending'?true:false}
+                  onClick={handleGenerateQuestions}
                   className="flex-1 py-2 rounded-lg text-sm font-medium transition bg-gray-700 text-white hover:bg-gray-600"
                 >
-                  Regenerate Questions
+                  {
+                        loadingGenQuestions==='pending'?<><ClipLoader size={14} color="white"/> Regenerate Questions</>:'Regenerate Questions'
+                      }
                 </button>
                 <button
                   onClick={handleAdd}

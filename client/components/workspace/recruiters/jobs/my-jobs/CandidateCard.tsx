@@ -8,9 +8,12 @@ import { useEffect, useState } from "react"
 import { ClipLoader } from "react-spinners"
 import { format } from "timeago.js"
 
+interface propType{candidateEmail:any,applicantId:any, applicantStatus:any, appliedAt:any, reviewId:any, selected:any, toggleSelectSingle:any}
 
-const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candidateEmail}:{candidateEmail:any,applicantId:any, applicantStatus:any, appliedAt:any, reviewId:any}) => {
+const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candidateEmail, selected, toggleSelectSingle}:propType) => {
     const [applicant, setApplicant]= useState<any>(null);
+    const [isChecked, setIsChecked]=useState<boolean>(false);
+
     const dispatch = useAppDispatch()
 
     const currentSelectedRecruiterJob = useAppSelector(recruitersSelectedJob);
@@ -27,7 +30,15 @@ const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candi
     const handleRemoveFromShortlist = ()=>{
 
     }
-
+    const handleSelectChange =()=>{
+        toggleSelectSingle(applicantId);
+        // setIsChecked((prev)=>!prev);
+    }
+    useEffect(()=>{
+        const isSelected = selected.find((item:string)=>item===applicantId);
+        if(isSelected) setIsChecked(true)
+        else setIsChecked(false)
+    },[selected.length])
     useEffect(()=>{
         const userId=applicantId;
         const fetchApplicantsData = async()=>{
@@ -49,6 +60,7 @@ const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candi
     if(!applicant) return null;
   return (
     <div className='w-full h-[60px] shrink-0 flex justify-start items-center px-2 gap-3 text-[12px] text-gray-200 border-b-[1px] border-gray-700 pb-2 hover:border-blue-500 transition-colors duration-300 '>
+        <input checked={isChecked} onChange={handleSelectChange} type="checkbox" className="self-start mt-2 size-3" />
         <button onClick={handleViewProfile} className="w-[40px] h-[40px] rounded-full ">
             <Image width={40} height={40} alt="profile pic" src={applicant?.user?.profilePictureUrl} className="w-full h-full object-cover rounded-full"/>
         </button>

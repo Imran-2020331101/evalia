@@ -4,7 +4,7 @@ import { io, Socket } from "socket.io-client";
 import { DefaultEventsMap } from "@socket.io/component-emitter";
 
 
-const PORT = 'http://localhost:5000'
+const PORT = 'http://localhost:4000'
 
 interface propType {
     setOverallPerformance:React.Dispatch<React.SetStateAction<number>>
