@@ -1,9 +1,9 @@
-import InterviewContainer from "@/components/workspace/candidates/interviews/InterviewContainer"
+import PendingInterviewsContainer from "@/components/workspace/candidates/interviews/pending/PendingInterviewsContainer"
 
 const CandidatesPendingInterviewPage = () => {
   return (
     <div className='w-full h-full'>
-      <InterviewContainer/>
+      <PendingInterviewsContainer/>
     </div>
   )
 }
