@@ -17,13 +17,14 @@ import axios from 'axios';
 import { ResumeDTO } from '../types/resume.types';
 import { applicationService } from '../services/applicationService';
 import { asyncHandler } from '../utils/asyncHandler';
+import { ShortlistRequest } from '@/types/aplication.types';
 
 
 
 
 export class ApplicationController{
     
-    /**
+  /**
   * Apply for a job (add candidate information to job's applications)
   * @route POST /api/jobs/apply
   */
@@ -86,15 +87,10 @@ export class ApplicationController{
    * @route POST /api/jobs/:jobId/shortlist
    */
   shortListCandidates = asyncHandler(async (req:Request,res:Response):Promise<void> => {
-    const schema = z.object({
-      candidateIds : z.array(z.string())
-    }).passthrough();
-
-    const { candidateIds } = schema.parse(req.body);
+    const { candidates } = ShortlistRequest.parse(req.body);
     const { jobId } = req.params;
 
-    const result = await applicationService.shortlistCandidate(jobId, candidateIds);
-    // applicationService.sendInterviewInvitation(candidateIds, jobId);
+    const result = await applicationService.shortlistCandidate(jobId, candidates);
 
     res.status(200).json({
       success: true,
