@@ -1,3 +1,4 @@
+import {z} from 'zod';
 import { Document, Types } from 'mongoose';
 
 // Individual question-answer pair interface
@@ -26,7 +27,7 @@ export interface IInterviewTranscript extends Document {
   // Interview details
   interviewType: 'TECHNICAL' | 'BEHAVIORAL' | 'MIXED' | 'SCREENING';
   interviewStatus: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
-  scheduledAt: Date;
+  deadline: Date;
   startedAt?: Date;
   completedAt?: Date;
   totalDuration: number;
@@ -109,12 +110,25 @@ export interface IJobResponse {
 }
 
 // API Request interfaces
-export interface IScheduleInterviewRequest {
-  candidateId: string;
-  candidateEmail: string;
-  candidateName: string;
-  jobId: string;
-}
+
+export const ScheduleInterviewRequest = z.object({
+    candidate : z.object({
+        id    : z.string(),
+        email : z.string(),
+        name  : z.string(),
+    }),
+    job : z.object({
+        id    : z.string(),
+        title : z.string(),
+        interviewQA : z.array(z.object({
+          question: z.string(),
+          referenceAnswer: z.string(),
+        }))
+    }),
+    deadline: z.string(),
+}).loose();
+
+export type IScheduleInterviewRequest = z.infer<typeof ScheduleInterviewRequest>;
 
 export interface IScheduleInterviewResponse {
   success: boolean;
@@ -124,7 +138,7 @@ export interface IScheduleInterviewResponse {
     candidateId: string;
     jobId: string;
     jobTitle: string;
-    scheduledAt: Date;
+    deadline: Date;
     totalQuestions: number;
     status: string;
   };
