@@ -92,7 +92,7 @@ const InterviewTranscriptSchema = new Schema<IInterviewTranscript>(
       default: "SCHEDULED",
     },
 
-    scheduledAt: {
+    deadline: {
       type: Date,
       required: true,
     },
@@ -288,7 +288,7 @@ InterviewTranscriptSchema.pre('save', function(this: IInterviewTranscript, next)
 type InterviewTranscriptModel = Model<IInterviewTranscript> & IInterviewTranscriptStatics;
 
 // Export the models
-export const InterviewTranscript = mongoose.model<IInterviewTranscript, InterviewTranscriptModel>(
+export const Interview = mongoose.model<IInterviewTranscript, InterviewTranscriptModel>(
   "InterviewTranscript",
   InterviewTranscriptSchema
 );
