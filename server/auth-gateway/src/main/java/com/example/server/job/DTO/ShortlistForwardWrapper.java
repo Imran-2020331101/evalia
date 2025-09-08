@@ -1,4 +1,6 @@
 package com.example.server.job.DTO;
 
-public record ShortlistForwardWrapper() {
+import java.util.List;
+
+public record ShortlistForwardWrapper(List<candidateInfo> candidates) {
 }
