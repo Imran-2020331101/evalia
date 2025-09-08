@@ -7,6 +7,7 @@ import CandidateCard from '../CandidateCard'
 import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks';
 import { markAsShortListed, markAsShortListedByAI, markShortlistedStatus, recruitersSelectedJob } from '@/redux/features/job';
 import { ClipLoader } from 'react-spinners';
+import { useDeepCompareEffect } from '@/custom-hooks/useDeepCompareEffect';
 
 const ApplicantsContainer = () => {
   const [isShowModal, setIsShowModal] = useState(false);
@@ -53,12 +54,17 @@ const ApplicantsContainer = () => {
       dispatch(markAsShortListedByAI({jobId:currentSelectedRecruiterJob._id,k:target}));
   }
   useEffect(()=>{
-        const currentApplicants = applications.filter((item:any)=>item.status==='PENDING')
-        setApplicants(currentApplicants);
-        setIsMounted(true);
-        return ()=>setIsMounted(false);
-    }, [applications?.length])
+        
+    }, [])
+  useDeepCompareEffect(()=>{
+    const currentApplicants = currentSelectedRecruiterJob.applications.filter((item:any)=>item.status==='PENDING')
+    setApplicants(currentApplicants);
+    setIsMounted(true);
+    return ()=>setIsMounted(false);
+  },[currentSelectedRecruiterJob.applications])
   useEffect(()=>console.log(currentSelectedRecruiterJob, 'job details inside applicants container'))
+
+  useEffect(()=>console.log(currentSelectedRecruiterJob, 'test current selected recruiter job'))
   if(!isMounted) return null;
   return (
     <>

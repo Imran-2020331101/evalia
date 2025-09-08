@@ -8,7 +8,7 @@ import { useEffect, useState } from "react"
 import { ClipLoader } from "react-spinners"
 import { format } from "timeago.js"
 
-interface propType{candidateEmail:any,applicantId:any, applicantStatus:any, appliedAt:any, reviewId:any, selected:any, toggleSelectSingle:any}
+interface propType{candidateEmail:any,applicantId:any, applicantStatus:any, appliedAt:any, reviewId:any, selected?:any, toggleSelectSingle?:any}
 
 const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candidateEmail, selected, toggleSelectSingle}:propType) => {
     const [applicant, setApplicant]= useState<any>(null);
@@ -35,10 +35,10 @@ const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candi
         // setIsChecked((prev)=>!prev);
     }
     useEffect(()=>{
-        const isSelected = selected.find((item:string)=>item===applicantId);
+        const isSelected = selected?.find((item:string)=>item===applicantId);
         if(isSelected) setIsChecked(true)
         else setIsChecked(false)
-    },[selected.length])
+    },[selected?.length])
     useEffect(()=>{
         const userId=applicantId;
         const fetchApplicantsData = async()=>{
@@ -60,7 +60,9 @@ const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candi
     if(!applicant) return null;
   return (
     <div className='w-full h-[60px] shrink-0 flex justify-start items-center px-2 gap-3 text-[12px] text-gray-200 border-b-[1px] border-gray-700 pb-2 hover:border-blue-500 transition-colors duration-300 '>
-        <input checked={isChecked} onChange={handleSelectChange} type="checkbox" className="self-start mt-2 size-3" />
+        {
+            applicantStatus==='PENDING' && <input checked={isChecked} onChange={handleSelectChange} type="checkbox" className="self-start mt-2 size-3" />
+        }
         <button onClick={handleViewProfile} className="w-[40px] h-[40px] rounded-full ">
             <Image width={40} height={40} alt="profile pic" src={applicant?.user?.profilePictureUrl} className="w-full h-full object-cover rounded-full"/>
         </button>
@@ -85,12 +87,16 @@ const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candi
                         currentMarkShortlistStatus==='pending'?<ClipLoader size={14} color="white" />:applicantStatus==='PENDING'?'Mark as Shortlisted':'Remove From ShortList'
                     }
                 </button> */}
-                <button className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-teal-600 cursor-pointer">
-                    Mark as Finalist
-                </button>
-                <button className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-red-600 cursor-pointer">
-                    Reject
-                </button>
+                {
+                    applicantStatus==='PENDING' && <>
+                        <button className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-teal-600 cursor-pointer">
+                            Mark as Finalist
+                        </button>
+                        <button className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-red-600 cursor-pointer">
+                            Reject
+                        </button>
+                    </>
+                }
             </div>
         </div>
     </div>

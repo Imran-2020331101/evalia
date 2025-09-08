@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import google from '../../../public/google.png'
+import github from '../../../public/github.svg'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -102,22 +103,24 @@ const LoginPage = () => {
           <p className='text-sm min-[1200px]:text-[14px] min-[1600px]:text-[16px]'>Or</p>
           <div className="w-[35%] h-[1px] bg-gray-700"></div>
         </div>
-        <div className="w-full h-[40px]  flex justify-center items-center mt-[-10px]">
+        <div className="w-full h-auto  flex justify-center gap-3 items-center mt-[-10px]">
           <button type="button" className='flex justify-center items-center gap-[10px] cursor-pointer'>
-            <Image src={google} width={34} height={34} alt='google icon' className='w-[20px] h-[20px] object-cover'/>
+            
             <a href='http://localhost:8080/oauth2/authorization/google' className='hover:underline min-[1200px]:text-[14px] min-[1600px]:text-[16px]'>
-                Sign in with Google
+                <Image src={google} width={34} height={34} alt='google icon' className='w-[20px] h-[20px] object-cover'/>
             </a>
           </button>
+          <div className='flex justify-center items-center gap-[10px] cursor-pointer'>
+              
+              <a 
+                href='http://localhost:8080/oauth2/authorization/github'
+                className='hover:underline min-[1200px]:text-[14px] min-[1600px]:text-[16px]'
+              >
+                <Image src={github} width={34} height={34} alt='google icon' className='w-[25px] h-[25px] object-cover'/>
+              </a>
+          </div>
         </div>
-        <div>
-            <a 
-              href='http://localhost:8080/oauth2/authorization/github'
-              className='hover:underline min-[1200px]:text-[14px] min-[1600px]:text-[16px]'
-            >
-              Sign in with Github
-            </a>
-        </div>
+        
         <div className="w-full h-[30px] flex text-sm mt-[-20px] justify-center items-center">
           <p className='text-xs min-[1200px]:text-[12px] min-[1600px]:text-[14px]'>Don't have any account?</p>
           <Link prefetch href={'/auth/register'} className='underline cursor-pointer text-gray-200 min-[1200px]:text-[14px] min-[1600px]:text-[16px]'>

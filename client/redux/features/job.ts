@@ -298,15 +298,16 @@ const jobSlice = createSlice({
             state.markShortlistedStatus='error'
         })
         .addCase(markAsShortListed.fulfilled,(state,action)=>{
-            const {candidateEmail} = action.payload.data;
-            const {applications} = state.recruitersSelectedJob;
-            const shortListedCandidate = applications.find((item:any)=>item.candidateEmail===candidateEmail)
-            shortListedCandidate.status='SHORTLISTED';
-            state.shortListedCandidate.push(shortListedCandidate);
+            // const {candidateEmail} = action.payload.data;
+            // const {applications} = state.recruitersSelectedJob;
+            // const shortListedCandidate = applications.find((item:any)=>item.candidateEmail===candidateEmail)
+            // shortListedCandidate.status='SHORTLISTED';
+            // state.shortListedCandidate.push(shortListedCandidate);
 
-            const newApplications = applications.filter((item:any)=>item.candidateEmail!==candidateEmail);
-            // newApplications.push(shortListedCandidate);
-            state.recruitersSelectedJob.applications=newApplications;
+            // const newApplications = applications.filter((item:any)=>item.candidateEmail!==candidateEmail);
+            // // newApplications.push(shortListedCandidate);
+            // state.recruitersSelectedJob.applications=newApplications;
+            state.recruitersSelectedJob=action.payload.data[0];
 
             console.log(action.payload, 'inside markShortlisted thunk'); 
             state.markShortlistedStatus='success'
