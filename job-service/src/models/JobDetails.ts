@@ -58,6 +58,7 @@ const JobDetailsMongooseSchema = new Schema<IJobDetailsDocument>(
     company: {
       OrganizationId    : { type: String },
       OrganizationEmail : { type: String },
+      OrganizationName  : { type: String , required: false}
     },
 
     status: { 

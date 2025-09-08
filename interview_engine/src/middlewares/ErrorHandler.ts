@@ -46,6 +46,26 @@ export const errorHandlerMiddleware = (
     });
     return;
   }
+
+  // Handle job service errors
+  if ((err as any).response && (err as any).response.status === 404) {
+    console.log('[ERROR HANDLER] Sending job service 404 response');
+    res.status(404).json({
+      success: false,
+      message: 'Job service not found or job does not exist'
+    });
+    return;
+  }
+
+  // Handle custom job not found errors
+  if (err.message === 'Job not found') {
+    console.log('[ERROR HANDLER] Sending Job not found response');
+    res.status(404).json({
+      success: false,
+      message: 'Job does not exist'
+    });
+    return;
+  }
   
   console.log('[ERROR HANDLER] Sending generic 500 error response');
   res.status(500).json({ 

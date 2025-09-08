@@ -94,12 +94,70 @@ export class ApplicationController{
     const { jobId } = req.params;
 
     const result = await applicationService.shortlistCandidate(jobId, candidateIds);
+    // applicationService.sendInterviewInvitation(candidateIds, jobId);
 
     res.status(200).json({
       success: true,
       data   : result
     });
   });
+
+  
+
+  rejectRemainingCandidates = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { jobId, currentStatus } = req.body;
+
+    if (!ApplicationStatus.options.includes(currentStatus)) {
+      res.status(400).json({
+        success : false,
+        error   : "Invalid status type. You must include a valid current status of the candidates",
+      } as ApiResponse);
+      return ;
+    }
+
+    const result = await JobService.bulkRejectApplications(jobId, currentStatus);
+
+    const statusCode = result.success ? 200 : 400;
+    res.status(statusCode).json(result);
+  });
+
+  test = asyncHandler(async( req: Request, res: Response) : Promise<void> => {
+    // Test data - replace with actual candidate and job data
+    const testCandidates = [
+      {
+        candidateId: "60f1b2b8e1234567890abcde", // Replace with actual candidate ID
+        candidateName: "John Doe",
+        candidateEmail: "ajoadislam@gmail.com"
+      },
+      {
+        candidateId: "60f1b2b8e1234567890abcdf", // Replace with actual candidate ID
+        candidateName: "Jane Smith", 
+        candidateEmail: "nazmulhossenrahul@gmail.com"
+      }
+    ];
+    
+    const testJobId = "68bdb2710feddd9cc58bb236"; 
+    
+    try {
+      await applicationService.sendInterviewInvitation(testCandidates, testJobId);
+      
+      res.status(200).json({
+        success: true,
+        message: "Interview invitations sent successfully",
+        data: {
+          candidatesInvited: testCandidates.length,
+          jobId: testJobId
+        }
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to send interview invitations",
+        error: (error as Error).message
+      });
+    }
+  });
+  
 }
 
 export const applicationController = new ApplicationController();

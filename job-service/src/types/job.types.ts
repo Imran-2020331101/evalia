@@ -2,27 +2,27 @@ import { z } from 'zod';
 
 // Importance levels for job requirements, responsibilities, and skills
 export const ImportanceLevel = z.enum(['critical', 'high', 'moderate', 'low', 'optional']);
-export type ImportanceLevel = z.infer<typeof ImportanceLevel>;
+export type ImportanceLevel  = z.infer<typeof ImportanceLevel>;
 
 // Job types
 export const JobType = z.enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERN']);
-export type JobType = z.infer<typeof JobType>;
+export type JobType  = z.infer<typeof JobType>;
 
 // Workplace types
 export const WorkplaceType = z.enum(['ONSITE', 'REMOTE', 'HYBRID']);
-export type WorkplaceType = z.infer<typeof WorkplaceType>;
+export type WorkplaceType  = z.infer<typeof WorkplaceType>;
 
 // Employment levels
 export const EmploymentLevel = z.enum(['ENTRY', 'MID', 'SENIOR']);
-export type EmploymentLevel = z.infer<typeof EmploymentLevel>;
+export type EmploymentLevel  = z.infer<typeof EmploymentLevel>;
 
 // Job status
 export const JobStatus = z.enum(['DRAFT','ACTIVE','FILLED','ARCHIVED','DELETED']);
-export type JobStatus = z.infer<typeof JobStatus>;
+export type JobStatus  = z.infer<typeof JobStatus>;
 
 // Application status
 export const ApplicationStatus = z.enum(['PENDING', 'SHORTLISTED', 'REJECTED', 'HIRED']);
-export type ApplicationStatus = z.infer<typeof ApplicationStatus>;
+export type ApplicationStatus  = z.infer<typeof ApplicationStatus>;
 
 // Domain item schema (for requirements, responsibilities, skills)
 export const DomainItemSchema = z.object({
@@ -43,56 +43,57 @@ export type Salary = z.infer<typeof SalarySchema>;
 
 // Company schema
 export const CompanySchema = z.object({
-  OrganizationId: z.string(),
-  OrganizationEmail: z.string().optional(),
+  OrganizationId    : z.string(),
+  OrganizationEmail : z.string().optional(),
+  OrganizationName  : z.string().optional(),
 });
 export type Company = z.infer<typeof CompanySchema>;
 
 // Application schema
 export const ApplicationSchema = z.object({
-  candidateName: z.string(),
-  candidateEmail: z.string().min(1, 'Candidate ID is required'),
-  appliedAt: z.date().optional(),
-  status: ApplicationStatus.default('PENDING'),
-  resumeId: z.string().optional()
+  candidateName  : z.string(),
+  candidateEmail : z.string().min(1, 'Candidate ID is required'),
+  appliedAt      : z.date().optional(),
+  status         : ApplicationStatus.default('PENDING'),
+  resumeId       : z.string().optional()
 });
 export type Application = z.infer<typeof ApplicationSchema>;
 
 
 // Base job schema
 export const JobDetailsSchema = z.object({
-  title:z.string().trim(),
-  jobDescription: z.string().min(1, 'Job description is required').max(5000, 'Job description cannot exceed 5000 characters').trim(),
-  jobLocation: z.string().min(1, 'Job location is required').max(100, 'Job location cannot exceed 100 characters').trim(),
-  salary: SalarySchema,
+  title          : z.string().trim(),
+  jobDescription : z.string().min(1, 'Job description is required').max(5000, 'Job description cannot exceed 5000 characters').trim(),
+  jobLocation    : z.string().min(1, 'Job location is required').max(100, 'Job location cannot exceed 100 characters').trim(),
+  salary         : SalarySchema,
   deadline: z.date().refine((date: Date) => date > new Date(), {
     message: 'Deadline must be in the future'
   }),
   jobType: JobType,
-  workPlaceType: WorkplaceType,
-  employmentLevel: EmploymentLevel,
-  requirements: z.array(DomainItemSchema).min(1, 'At least one requirement is required'),
+  workPlaceType   : WorkplaceType,
+  employmentLevel : EmploymentLevel,
+  requirements    : z.array(DomainItemSchema).min(1, 'At least one requirement is required'),
   responsibilities: z.array(DomainItemSchema).min(1, 'At least one responsibility is required'),
-  skills: z.array(DomainItemSchema).min(1, 'At least one skill is required'),
-  postedBy: z.string().min(1, 'Job poster information is required'),
-  company: CompanySchema,
-  status: JobStatus.default('ACTIVE'),
-  applications: z.array(ApplicationSchema).default([]),
-  views: z.number().min(0).default(0),
-  featured: z.boolean().default(false),
-  tags: z.array(z.string().trim()).default([]),
-  interviewQA: z.array(z.object({
-    question: z.string().min(1).max(5000),
-    referenceAnswer: z.string().optional(),
+  skills          : z.array(DomainItemSchema).min(1, 'At least one skill is required'),
+  postedBy        : z.string().min(1, 'Job poster information is required'),
+  company         : CompanySchema,
+  status          : JobStatus.default('ACTIVE'),
+  applications    : z.array(ApplicationSchema).default([]),
+  views           : z.number().min(0).default(0),
+  featured        : z.boolean().default(false),
+  tags            : z.array(z.string().trim()).default([]),
+  interviewQA : z.array(z.object({
+    question        : z.string().min(1).max(5000),
+    referenceAnswer : z.string().optional(),
   })).optional(),
 });
 export type JobDetails = z.infer<typeof JobDetailsSchema>;
 
 export const InterviewQuestionsGenerateSchema = z.object({
-  jobDescription : z.string(),
-  requirements: z.array(DomainItemSchema).optional(),
-  responsibilities: z.array(DomainItemSchema).optional(),
-  skills: z.array(DomainItemSchema).optional(),
+  jobDescription   : z.string(),
+  requirements     : z.array(DomainItemSchema).optional(),
+  responsibilities : z.array(DomainItemSchema).optional(),
+  skills           : z.array(DomainItemSchema).optional(),
 }).passthrough();
 
 export type InterviewQuestionsRequest = z.infer<typeof InterviewQuestionsGenerateSchema>
@@ -105,14 +106,14 @@ export const CreateJobRequestSchema = z.object({
     organizationEmail: z.string().nullable().transform((val) => val || "unknown@company.com"),  
   }),
   basic: z.object({
-    title: z.string().min(1).max(200).trim(),
-    jobDescription: z.string().min(1).max(5000).trim(),
-    jobLocation: z.string().min(1).max(100).trim(),
-    salaryFrom: z.number().min(0, 'Salary cannot be negative'),
-    salaryTo: z.number().min(0, 'Salary cannot be negative'),
-    deadline: z.string(),
-    jobType: JobType,
-    workPlaceType: WorkplaceType,
+    title          : z.string().min(1).max(200).trim(),
+    jobDescription : z.string().min(1).max(5000).trim(),
+    jobLocation    : z.string().min(1).max(100).trim(),
+    salaryFrom     : z.number().min(0, 'Salary cannot be negative'),
+    salaryTo       : z.number().min(0, 'Salary cannot be negative'),
+    deadline       : z.string(),
+    jobType        : JobType,
+    workPlaceType  : WorkplaceType,
     employmentLevelType: EmploymentLevel,
   }),
   requirements: z.array(DomainItemSchema).min(1),

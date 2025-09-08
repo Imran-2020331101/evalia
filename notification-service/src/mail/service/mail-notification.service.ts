@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import logger from "../../utils/logger";
-import { generateInterviewInvitationMail, generateRejectionFeedbackEmail } from "../template/FeedbackMails";
+import { generateRejectionFeedbackEmail } from "../template/rejection";
+import { generateInterviewInvitationMail } from "../template/interviewInvitation";
 import { InterviewInvitationPayload} from "../types/interview-invitation.payload";
 import { RejectionMailPayload } from "../types/rejection-mail.type";
 
@@ -60,7 +61,7 @@ class EmailNotificationService {
     return await this.sendMail({
         to: notification.candidateEmail,
         subject: `Interview for ${notification.jobTitle} at ${notification.OrganizationName}`,
-        html: generateInterviewInvitationMail(notification)
+        html: generateInterviewInvitationMail(notification),
       })
   }
 
