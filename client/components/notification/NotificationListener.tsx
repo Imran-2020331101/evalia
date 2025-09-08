@@ -11,7 +11,7 @@ export default function NotificationListener() {
   const notifications = useSelector(selectNotifications);
   const currentUser = useSelector(user)
 
-  const SOCKET_URL = "http://localhost:6000";
+  const SOCKET_URL = "http://localhost:6001";
 
   useEffect(() => {
     if(!currentUser) return ;
@@ -29,6 +29,11 @@ export default function NotificationListener() {
       dispatch(addNotification(notif));
     });
     
+    socket.on("interview",(notif)=>{
+      console.log("new interview notification",notif);
+    })
+
+
     socket.on("connect_error", (error) => {
       console.error("Socket connection error:", error);
     });
