@@ -14,7 +14,7 @@ export const handleIncomingMailEvent = async (event: any) => {
         emailNotificationService.sendInterviewInvitation(event);
         break;
         
-        case 'job.application.rejected':
+      case 'job.application.rejected':
         console.log(event);
         emailNotificationService.sendRejectionMail(event);
         break;
