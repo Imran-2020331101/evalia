@@ -3,12 +3,8 @@ import { interviewController } from '../controllers/InterviewController';
 
 const router = Router();
 
-router.post('/', async (req, res) => {
-  await interviewController.scheduleInterview(req, res);
-});
+router.post('/',interviewController.scheduleInterview);
 
-router.patch('/:interviewId/transcript', async (req, res) => {
-  await interviewController.addTranscriptToInterview(req, res);
-});
+router.patch('/:interviewId/transcript', interviewController.addTranscriptToInterview);
 
 export { router as interviewRouter };

@@ -17,6 +17,7 @@ import axios from 'axios';
 import { ResumeDTO } from '../types/resume.types';
 import questionGenerationPrompt from '../prompts/QuestionGenerationPromt';
 import upskillBot from '../config/OpenRouter';
+import { asyncHandler } from '../utils';
 
 export class JobController {
 
@@ -220,8 +221,7 @@ export class JobController {
    * Update job status
    * @route PUT /api/jobs/:jobId/status
    */
-  async updateJobStatus(req: Request, res: Response): Promise<void> {
-    try {
+  updateJobStatus = asyncHandler(async (req: Request, res: Response): Promise<void> => {
       const { jobId } = req.params;
       const { status } = req.body;
 
@@ -239,20 +239,7 @@ export class JobController {
         jobId,
         { status },
         { new: true, runValidators: true }
-      );
-
-      if (!updatedJob) {
-        res.status(404).json({
-          success: false,
-          error: "Job not found",
-        } as ApiResponse);
-        return;
-      }
-
-      logger.info("Job status updated", {
-        jobId: updatedJob._id.toString(),
-        newStatus: status,
-      });
+      ).orFail();
 
       res.json({
         success: true,
@@ -262,18 +249,7 @@ export class JobController {
           status: updatedJob.status,
         },
       } as ApiResponse);
-    } catch (error: any) {
-      logger.error("Error updating job status", {
-        error: error.message,
-        jobId: req.params.jobId,
-      });
-
-      res.status(500).json({
-        success: false,
-        error: "Internal server error while updating job status",
-      } as ApiResponse);
-    }
-  }
+  });
 
   /**
    * Delete a job
@@ -304,99 +280,6 @@ export class JobController {
       } as ApiResponse);
     }
   }
-
-  /**
-  * Apply for a job (add candidate information to job's applications)
-  * @route POST /api/jobs/apply
-  */
-  async applyToJob(req: Request, res: Response): Promise<void> {
-    try {
-      
-      const schema = z.object({
-        jobId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID"),
-        email: z.string().email("Invalid candidate email"),
-        candidateId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID")
-      });
-      const { jobId, email, candidateId } = schema.parse(req.body);
-   
-      const result = await JobService.applyToJob(jobId, email, candidateId);
-      if(result.success){
-        (async () => {
-          try {
-            const resumeResponse = await axios.get(`${process.env.RESUME_SERVICE_URL}/api/resume/retrieve?email=${email}`);
-            const resume: ResumeDTO = resumeResponse.data as ResumeDTO;
-            const jobResult = await JobService.findJobById(jobId);
-            if(jobResult){
-              const review = await ApplicationCompatibilityService.evaluateCandidateProfile(jobResult, resume, email);
-              if (review && review._id) {
-                await JobService.addReviewIdToApplication(
-                  jobId, 
-                  review._id.toString(), 
-                  email
-                );
-              }
-            } 
-          } catch (err) {
-            console.log("Error in async profile evaluation", { error: (err as Error).message, jobId, email });
-            console.log(err);
-          }
-        })();
-      }
-      const status = result.success ? 200 : 400;
-      res.status(status).json(result);
-
-
-    } catch (error: any) {
-      if (error instanceof z.ZodError) {
-        res.status(400).json({
-          success: false,
-          error: error.errors.map(e => e.message).join(", ")
-        } as ApiResponse);
-        return;
-      }
-      logger.error("Error in applyToJob controller", {
-        error: error.message,
-        jobId: req.body.jobId,
-      });
-      res.status(500).json({
-        success: false,
-        error: "Internal server error while applying to job",
-      } as ApiResponse);
-    }
-  }
-
-  
-
-async rejectRemainingCandidates(req: Request, res: Response): Promise<void> {
-  try {
-    const { jobId, currentStatus } = req.body;
-
-    if (!ApplicationStatus.options.includes(currentStatus)) {
-      res.status(400).json({
-        success : false,
-        error   : "Invalid status type. You must include a valid current status of the candidates",
-      } as ApiResponse);
-      return ;
-    }
-
-    const result = await JobService.bulkRejectApplications(jobId, currentStatus);
-
-    const statusCode = result.success ? 200 : 400;
-    res.status(statusCode).json(result);
-
-  } catch (error: any) {
-    logger.error("Error in rejectRemainingCandidates controller", {
-      error : error.message,
-      jobId : req.body.jobId,
-    });
-
-    res.status(500).json({
-      success : false,
-      error   : "Internal server error while rejecting candidates",
-    } as ApiResponse);
-  }
-}
-
 
   async  fetchBatchJobInfo(req: Request, res: Response): Promise<void>{
     try {
