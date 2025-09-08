@@ -10,31 +10,11 @@ export const handleIncomingMailEvent = async (event: any) => {
     
     switch (event.type) {
       case 'job.application.shortlisted':
-        notification = {
-          userName: event.userName || 'Candidate',
-          userEmail: event.userEmail || event.candidateEmail,
-          type: 'APPLICATION_SHORTLISTED',
-          jobTitle: event.jobTitle,
-          jobId: event.jobId,
-          stage: event.stage || 'Application Review',
-          subject: `Great News! You've been shortlisted for ${event.jobTitle}`,
-          body: `
-            <html>
-              <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-                <h2 style="color: #5cb85c;">Congratulations! 🎉</h2>
-                <p>Dear ${event.userName || 'Candidate'},</p>
-                <p>We're excited to inform you that you've been shortlisted for the <strong>${event.jobTitle}</strong> position!</p>
-                <p>Our team was impressed with your application and we'd like to move forward with the next stage of our hiring process.</p>
-                <p>We'll be in touch soon with details about the next steps.</p>
-                <p>Best regards,<br/>The Hiring Team</p>
-              </body>
-            </html>
-          `,
-          sentAt: currentDate
-        };
+        console.log(event);
+        emailNotificationService.sendInterviewInvitation(event);
         break;
-
-      case 'job.application.rejected':
+        
+        case 'job.application.rejected':
         console.log(event);
         emailNotificationService.sendRejectionMail(event);
         break;
