@@ -1,9 +1,9 @@
-import InterviewContainer from "@/components/workspace/candidates/interviews/InterviewContainer"
+import ExpiredInterviewsContainer from "@/components/workspace/candidates/interviews/expired/ExpiredInterviewsContainer"
 
 const CandidatesExpiredInterviewPage = () => {
   return (
     <div className='w-full h-full'>
-      <InterviewContainer/>
+      <ExpiredInterviewsContainer/>
     </div>
   )
 }

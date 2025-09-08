@@ -10,7 +10,7 @@ import rightArrowLogo from '../../../../public/right-arrow.svg'
 import sortUpLogo from '../../../../public/sort-up.svg'
 import sortDownLogo from '../../../../public/sort-down.svg'
 
-const InterviewContainer = () => {
+const InterviewContainer = ({interviews}:{interviews:any}) => {
   const [detailsCardId, setDetailsCardId] = useState<null | number>(null)
   const [isShowFilter, setIsShowFilter] = useState(false)
 
