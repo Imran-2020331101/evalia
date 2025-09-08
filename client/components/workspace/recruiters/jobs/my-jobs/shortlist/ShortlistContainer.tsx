@@ -6,9 +6,12 @@ import { SlidersHorizontal ,UserCheck, Target, MenuSquare} from 'lucide-react';
 import CandidateCard from '../CandidateCard'
 import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks';
 import { recruitersSelectedJob, setShortListedCandidate, shortListedCandidate } from '@/redux/features/job';
+import { useDeepCompareEffect } from '@/custom-hooks/useDeepCompareEffect';
 
 const ShortListContainer = () => {
   const [isShowModal, setIsShowModal] = useState(false);
+  const [shortListedCandidates, setShortListedCandidates]=useState<any>(null)
+  const [isMounted, setIsMounted]=useState<boolean>(false);
   const [target, setTarget] = useState(5)
 
   const dispatch = useAppDispatch()
@@ -18,14 +21,16 @@ const ShortListContainer = () => {
   const currentShortListedCandidates = useAppSelector(shortListedCandidate)
     const handleSubmit =()=>{
 
+      // const shortListed = applications.filter((item:any)=>item.status==='SHORTLISTED')
   }
-  useEffect(()=>{
-    if(!currentShortListedCandidates.length){
-      const shortListed = applications.filter((item:any)=>item.status==='SHORTLISTED')
-      dispatch(setShortListedCandidate(shortListed))
-    }
-  }, [applications?.length])
+  useDeepCompareEffect(()=>{
+    const shortListed = currentSelectedRecruiterJob.applications.filter((item:any)=>item.status==='SHORTLISTED')
+    setShortListedCandidates(shortListed);
+    setIsMounted(true);
+    return ()=>setIsMounted(false);
+  },[currentSelectedRecruiterJob.applications])
   useEffect(()=>console.log(currentSelectedRecruiterJob, 'job details inside Shortlisted container'))
+  if(!isMounted) return null
   return (
     <div className='w-full h-full flex flex-col pt-[10px] p-[30px] pb-[10px]'>
       <div className="w-full h-auto flex justify-end items-center shrink-0">
@@ -91,7 +96,7 @@ const ShortListContainer = () => {
           </div>  
         </div>
         {
-          currentShortListedCandidates?.map((item:any)=><CandidateCard key={item?._id} candidateEmail={item?.candidateEmail} reviewId={item?.reviewId} appliedAt={item?.appliedAt} applicantStatus={item?.status} applicantId={item?.candidateId}/>)
+          shortListedCandidates?.map((item:any)=><CandidateCard key={item?._id} candidateEmail={item?.candidateEmail} reviewId={item?.reviewId} appliedAt={item?.appliedAt} applicantStatus={item?.status} applicantId={item?.candidateId}/>)
         }
       </div>
     </div>
