@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "noEmit": true,
+    "target": "ES2020",                      
+    "module": "commonjs",                    
+    "outDir": "./dist",                       
+    "rootDir": "./src",                       
+    "strict": true,                           
+    "esModuleInterop": true,                  
+    "skipLibCheck": true,                     
+    "forceConsistentCasingInFileNames": true, 
+    "resolveJsonModule": true,                
+    "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
+    "noImplicitAny": false,                   
+    "types": ["node", "express", "socket.io"] 
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
+ 

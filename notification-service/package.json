@@ -1,0 +1,36 @@
+{
+  "name": "notification-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon --exec ts-node ./src/server.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/nodemailer": "^7.0.0",
+    "amqplib": "^0.10.8",
+    "axios": "^1.11.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.17.1",
+    "nodemailer": "^7.0.5",
+    "nodemon": "^3.1.10",
+    "socket.io": "^4.8.1",
+    "winston": "^3.17.0",
+    "zod": "^4.1.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.2.1",
+    "@types/socket.io": "^3.0.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  }
+}
