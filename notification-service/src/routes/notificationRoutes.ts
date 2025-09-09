@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { getUserNotifications, markAsRead } from "../in-app/service/inapp-notification.service";
-import { handleIncomingEvent } from "../in-app/handlers/inapp-notification.handler";
+import { handleInAppNotifications } from "../in-app/handlers/inapp-notification.handler";
+import { inAppNotificationService } from "../in-app/service/inapp-notification.service";
 import { EventTypes } from "../events/eventTypes";
 import { asyncHandler, ApiResponse, ApiError } from "../utils";
 import logger from "../utils/logger";
@@ -14,7 +14,7 @@ router.get("/:userId", asyncHandler(async (req, res) => {
     throw new ApiError(400, "User ID is required");
   }
   
-  const notifs = await getUserNotifications(userId);
+  const notifs = await inAppNotificationService.getUserNotifications(userId);
   const response = new ApiResponse(200, notifs, "Notifications retrieved successfully");
   res.status(200).json(response);
 }));
@@ -26,7 +26,7 @@ router.patch("/:id/read", asyncHandler(async (req, res) => {
     throw new ApiError(400, "Notification ID is required");
   }
   
-  const updated = await markAsRead(id);
+  const updated = await inAppNotificationService.markAsRead(id);
   
   if (!updated) {
     throw new ApiError(404, "Notification not found");
@@ -75,7 +75,7 @@ router.post("/batch-rejection-feedback", async (req, res) => {
     logger.info(`Received batch rejection request for job: ${jobId}`);
 
     // Trigger the batch processing via event handler
-    await handleIncomingEvent({
+    await handleInAppNotifications({
       type: EventTypes.BATCH_REJECTION_FEEDBACK,
       jobId,
       jobTitle,
