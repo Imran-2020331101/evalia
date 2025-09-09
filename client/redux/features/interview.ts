@@ -5,7 +5,7 @@ import axios from "axios";
 
 export const getallInterviews = createAsyncThunk('interview/getallInterviews',async(_,thunkAPI)=>{
     try {
-        const response = await axios.get(`http://localhost:8080/api/interview`, {withCredentials:true});
+        const response = await axios.get(`http://localhost:8080/api/interviews/`, {withCredentials:true});
         return response.data;
     } catch (error:any) {
         console.log(error);
@@ -51,7 +51,7 @@ const interviewSlice = createSlice({
             state.getAllInterviewStatus='error'
         })
         .addCase(getallInterviews.fulfilled,(state,action)=>{
-            // state.myJobs.push(action.payload.data);
+            state.allInterviews=action.payload.data;
             console.log(action.payload, 'inside fetch all interviews'); 
             state.getAllInterviewStatus='success'
         })

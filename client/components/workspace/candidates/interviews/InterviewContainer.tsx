@@ -62,18 +62,8 @@ const InterviewContainer = ({interviews}:{interviews:any}) => {
       </div>
       <div className='w-[60%] flex-1 overflow-y-auto flex flex-col gap-2 scrollbar-hidden'>
         {
-          Array.from({ length: 50 }, (_, index) => (
-            <InterviewCard
-              key={index}
-              detailsCardId={detailsCardId}
-              setDetailsCardId={setDetailsCardId}
-              item={{
-                id: index,
-                jobTitle: `Job Title No : ${index}`,
-                status: index%3===0?'expired':index & 1 ? 'completed' : 'pending'
-              }}
-            />
-          ))
+          interviews.map((item:any)=><InterviewCard key={item._id} detailsCardId={detailsCardId} setDetailsCardId={setDetailsCardId} item={item}  />)
+          
         }
       </div>
     </div>
