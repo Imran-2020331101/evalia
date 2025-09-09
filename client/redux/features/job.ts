@@ -309,7 +309,7 @@ const jobSlice = createSlice({
             // const newApplications = applications.filter((item:any)=>item.candidateEmail!==candidateEmail);
             // // newApplications.push(shortListedCandidate);
             // state.recruitersSelectedJob.applications=newApplications;
-            state.recruitersSelectedJob=action.payload.data[0];
+            state.recruitersSelectedJob=action.payload.data;
 
             console.log(action.payload, 'inside markShortlisted thunk'); 
             state.markShortlistedStatus='success'

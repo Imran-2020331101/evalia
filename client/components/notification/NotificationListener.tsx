@@ -2,13 +2,13 @@
 import { useEffect } from "react";
 import { io } from "socket.io-client";
 import { useDispatch, useSelector } from "react-redux";
-import { addNotification, selectNotifications } from "../../redux/features/notification";
+import {  } from "../../redux/features/notification";
 import { isSignedIn, user } from "@/redux/features/auth";
 
 
 export default function NotificationListener() {
   const dispatch = useDispatch();
-  const notifications = useSelector(selectNotifications);
+  // const notifications = useSelector(selectNotifications);
   const currentUser = useSelector(user)
 
   const SOCKET_URL = "http://localhost:6001";
@@ -26,7 +26,7 @@ export default function NotificationListener() {
     
     socket.on("notification", (notif) => {
       console.log("New notification received:", notif);
-      dispatch(addNotification(notif));
+      // dispatch(addNotification(notif));
     });
     
     socket.on("interview",(notif)=>{
