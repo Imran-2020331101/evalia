@@ -11,7 +11,7 @@ import {
   IQuestionAnswer,
   ScheduleInterviewRequest
 } from '../types/interview';
-import { InterviewCreatedNotification } from '../types/notification.types';
+import { EventTypes, InterviewCreatedNotification } from '../types/notification.types';
 
 export class InterviewController {
 
@@ -26,9 +26,10 @@ export class InterviewController {
     const createdInterview = await interviewService.createNewInterview(interviewData);
 
     const notification : InterviewCreatedNotification = {
-      type: 'interview.scheduled',
+      type: EventTypes.INTERVIEW_SCHEDULED,
       interviewId: createdInterview.interviewId,
       candidateId: createdInterview.candidateId,
+      candidateEmail: createdInterview.candidateEmail,
       jobId: createdInterview.jobId,
       jobTitle: createdInterview.jobTitle,
       deadline: createdInterview.deadline,

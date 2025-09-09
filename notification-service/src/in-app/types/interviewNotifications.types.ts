@@ -12,6 +12,7 @@ export const InterviewCreatedNotificationSchema = z.object({
   type: z.string(),
   interviewId: z.string(),
   candidateId: z.string(),
+  candidateEmail: z.string(),
   jobId: z.string(),
   jobTitle: z.string(),
   deadline: z.union([z.string(), z.date()]),
