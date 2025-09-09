@@ -68,7 +68,7 @@ const InterviewTranscriptSchema = new Schema<IInterviewTranscript>(
       trim: true,
     },
 
-    // Job information
+    // Job info
     jobId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
@@ -78,6 +78,13 @@ const InterviewTranscriptSchema = new Schema<IInterviewTranscript>(
       type: String,
       required: true,
       trim: true,
+    },
+
+    //Organization info
+    organizationId: {
+      type     : mongoose.Schema.Types.ObjectId, 
+      required : true,
+      index    : true,
     },
 
     // Interview details

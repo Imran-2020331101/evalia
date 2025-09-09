@@ -7,16 +7,30 @@ export enum EventTypes{
   
 }
 
-type InterviewStatus = "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "NO_SHOW";
+import { z } from "zod";
 
-export type InterviewCreatedNotification = {
-  type: string;
-  interviewId: string;
-  candidateId: string;
-  candidateEmail: string;
-  jobId: string;
-  jobTitle: string;
-  deadline: string | Date;
-  totalQuestions: number;
-  status: InterviewStatus;
-};
+export const InterviewStatusSchema = z.enum([
+  "SCHEDULED",
+  "IN_PROGRESS",
+  "COMPLETED",
+  "CANCELLED",
+  "NO_SHOW",
+]);
+
+export const InterviewCreatedNotificationSchema = z.object({
+  type: z.string(),
+  interviewId: z.string(),
+  candidateId: z.string(),
+  candidateEmail: z.string(),
+  jobId: z.string(),
+  jobTitle: z.string(),
+  organizationId: z.string(),
+  deadline: z.union([z.string(), z.date()]),
+  totalQuestions: z.number(),
+  status: InterviewStatusSchema,
+}).loose();
+
+export type InterviewCreatedNotification = z.infer<
+  typeof InterviewCreatedNotificationSchema
+>;
+
