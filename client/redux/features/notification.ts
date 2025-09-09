@@ -1,5 +1,20 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState } from "../lib/store";
+import axios from "axios";
+
+
+export const getAllNotifications = createAsyncThunk('notifications/getAllNotifications',async(_,thunkAPI)=>{
+  try {
+        const response = await axios.post(
+            `http://localhost:8080/api/notifications/`,{
+                withCredentials: true,
+            })
+        return response.data
+    } catch (error:any) {
+        return thunkAPI.rejectWithValue(
+            error.response? { message: error.response.data } : { message: 'failed fetching notifications' })
+    }
+})
 
 export interface Notification {
   id: string;
@@ -12,20 +27,44 @@ export interface Notification {
   createdAt: Date;
 }
 
+type statusType = 'idle' | 'pending' | 'success' | 'error';
+interface initialStateType {
+  allNotifications:any,
+  getAllNotificationStatus:statusType,
+  unreadNOtifications:null|number,
+}
+
+const initialState:initialStateType ={
+  allNotifications:[],
+  getAllNotificationStatus:'idle',
+  unreadNOtifications:null
+}
+
 const notificationsSlice = createSlice({
   name: "notifications",
-  initialState: [] as Notification[],
+  initialState,
   reducers: {
-    setNotifications: (state, action: PayloadAction<Notification[]>) => action.payload,
-    addNotification: (state, action: PayloadAction<Notification>) => [action.payload, ...state],
-    markRead: (state, action: PayloadAction<string>) =>
-      state.map((n) =>
-        n.id === action.payload ? { ...n, isRead: true } : n
-      ),
+    addNotification(state,action){
+      state.allNotifications.push(action.payload)
+    }
   },
+  extraReducers(builder){
+    builder
+    .addCase(getAllNotifications.pending,(state)=>{
+        state.getAllNotificationStatus='pending'
+    })
+    .addCase(getAllNotifications.rejected,(state)=>{
+        state.getAllNotificationStatus='error'
+    })
+    .addCase(getAllNotifications.fulfilled,(state,action)=>{
+        console.log(action.payload, 'all notifications')
+        state.getAllNotificationStatus='success'
+    })
+  }
 });
 
-export const { setNotifications, addNotification, markRead } = notificationsSlice.actions;
-export const selectNotifications = (state: RootState) => state.notifications;
 export default notificationsSlice.reducer;
+export const {  } = notificationsSlice.actions;
+export const  allNotifications = (state: RootState) => state.notifications.allNotifications;
+export const  unreadNOtifications = (state: RootState) => state.notifications.unreadNOtifications;
  

@@ -24,11 +24,11 @@ const ShortListContainer = () => {
       // const shortListed = applications.filter((item:any)=>item.status==='SHORTLISTED')
   }
   useDeepCompareEffect(()=>{
-    const shortListed = currentSelectedRecruiterJob.applications.filter((item:any)=>item.status==='SHORTLISTED')
-    setShortListedCandidates(shortListed);
+    const shortListed = currentSelectedRecruiterJob?.applications.filter((item:any)=>item.status==='SHORTLISTED')
+    setShortListedCandidates(shortListed||[]);
     setIsMounted(true);
     return ()=>setIsMounted(false);
-  },[currentSelectedRecruiterJob.applications])
+  },[currentSelectedRecruiterJob?.applications])
   useEffect(()=>console.log(currentSelectedRecruiterJob, 'job details inside Shortlisted container'))
   if(!isMounted) return null
   return (

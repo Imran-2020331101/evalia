@@ -1,10 +1,10 @@
 'use client'
 
 import { Major_Mono_Display } from "next/font/google"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Plus, Grid2X2,ChevronDown, ChevronUp, Dot, Frown } from "lucide-react";
+import { Plus, Grid2X2,ChevronDown, ChevronUp, Dot, Frown, Bell } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks";
 import { selectedOrgId, setSelectedOrgId } from "@/redux/features/job";
 import { organizations, user } from "@/redux/features/auth";
@@ -17,19 +17,36 @@ const RecruitersWorkSpaceMenu = () => {
     const currentOrganizations = useAppSelector(organizations)
     const currentUser = useAppSelector(user)
 
+    const currentNotifications = [1, 2];
+
     const dispatch = useAppDispatch()
     const currentSelectedOrgId = useAppSelector(selectedOrgId)
+  useEffect(()=>{
+    if(!currentSelectedOrgId && currentOrganizations.length) dispatch(setSelectedOrgId(currentOrganizations[0].id))
+  },[currentOrganizations.length])
   return (
-    <div className='w-full h-full flex flex-col justify-between px-[10px] py-[6%]'>
-      <Link href={'/'} className={`${majorMono.className} text-2xl fixed top-2 left-3`}>EVALIA</Link>
-      <div className="w-full h-auto flex flex-col justify-start pt-[50px] pl-[20px] gap-2 text-gray-400">
+    <div className='w-full h-full flex flex-col relative justify-between px-[10px] py-[6%]'>
+      <div className="flex justify-between items-end px-4 absolute top-4 left-0 w-full">
+        <Link href={'/'} className={`${majorMono.className} text-2xl `}>EVALIA</Link>
+        <Link href={'/workspace/notifications'} className="relative inline-block ">
+            {/* Bell Icon */}
+            <Bell className="text-gray-100 size-6" />
+
+            {/* Badge */}
+            {currentNotifications.length > 0 && (
+              <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
+                {currentNotifications.length}
+              </span>
+            )}
+          </Link>
+      </div>
+      <div className="w-full h-auto flex flex-col justify-start pt-[70px] pl-[20px] gap-2 text-gray-400">
         {
           currentOrganizations.length?
           <>
-            <h1 className="text-gray-300 font-semibold tracking-wider">Organizations : </h1>
             {
               currentOrganizations.map((item:any)=><div  key={item.id} className="w-full h-auto flex flex-col gap-2 ml-[5px]">
-                <button onClick={()=>dispatch(setSelectedOrgId(item.id))} className="text-sm flex font-semibold  group"><Dot className="group-hover:text-blue-500 size-6"/> {item.organizationName} </button>
+                <button onClick={()=>dispatch(setSelectedOrgId(item.id))} className="text-sm text-gray-200 flex font-semibold  group"><Dot className="group-hover:text-blue-500 size-6"/> {item.organizationName} </button>
                 {
                   currentSelectedOrgId===item.id?
                     <div className="w-full flex flex-col gap-1 ml-[20px]">
