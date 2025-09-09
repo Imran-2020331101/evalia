@@ -177,16 +177,20 @@ public class JobController {
         logger.info("shortlistCandidatesOfAJob " + jobId + " " + shortlistRequest.toString());
         List<candidateInfo> candidates = shortlistRequest.candidateIds().stream().map(
                 candidateId -> {
-                    userEntity user = (userEntity) userDetailsService.loadUserByUsername(candidateId);
+                    userEntity user = userService.loadUserById(candidateId);
+                    logger.info("user: " + candidateId + " " + user.getId());
                     return new candidateInfo(
                             user.getId().toString(),
-                            user.getEmail(),
-                            user.getDisplayName()
+                            user.getDisplayName(),
+                            user.getEmail()
                     );
                 }
         ).toList();
 
+        logger.info(candidates.toString());
+
         ResponseEntity<String> response = jobProxy.shortlistCandidatesOfAJob(jobId, new ShortlistForwardWrapper(candidates));
+        logger.info(response.getBody());
         return ResponseEntity.status(response.getStatusCode())
                 .body(response.getBody());
     }

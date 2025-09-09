@@ -123,8 +123,8 @@ export const ScheduleInterviewRequest = z.object({
         title : z.string(),
         interviewQA : z.array(z.object({
           question: z.string(),
-          referenceAnswer: z.string(),
-        }))
+          referenceAnswer: z.string().optional(),
+        }).loose())
     }),
     deadline: z.string(),
 }).loose();

@@ -8,6 +8,7 @@ yarn-error.log*
 package-lock.json
 
 # Environment variables
+.venv
 .env
 .env.*
 !.env.example
@@ -22,7 +23,7 @@ __pycache__/
 *.pyc
 uploads/
 logs/
-
+.github/
 
 # Logs
 logs/
