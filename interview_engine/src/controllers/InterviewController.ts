@@ -3,6 +3,7 @@ import { Interview, QAwithReference } from '../models/InterviewSchema';
 import { asyncHandler } from '../utils/asyncHandler';
 import { BadRequestError, NotFoundError } from '../errors';
 import { interviewService } from '../services/InterviewService';
+import { sendNotification } from '../utils/notify';
 import { 
   IScheduleInterviewRequest, 
   IScheduleInterviewResponse, 
@@ -10,6 +11,7 @@ import {
   IQuestionAnswer,
   ScheduleInterviewRequest
 } from '../types/interview';
+import { InterviewCreatedNotification } from '../types/notification.types';
 
 export class InterviewController {
 
@@ -22,6 +24,18 @@ export class InterviewController {
 
     const interviewData = validationResult.data;    
     const createdInterview = await interviewService.createNewInterview(interviewData);
+
+    const notification : InterviewCreatedNotification = {
+      type: 'interview.scheduled',
+      interviewId: createdInterview.interviewId,
+      candidateId: createdInterview.candidateId,
+      jobId: createdInterview.jobId,
+      jobTitle: createdInterview.jobTitle,
+      deadline: createdInterview.deadline,
+      totalQuestions: createdInterview.totalQuestions,
+      status: createdInterview.status
+    }
+    sendNotification(notification, "notifications");
 
     res.status(201).json({
       success: true,

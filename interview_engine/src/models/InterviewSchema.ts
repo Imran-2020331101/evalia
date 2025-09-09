@@ -4,6 +4,7 @@ import {
   IInterviewTranscript, 
   IInterviewTranscriptStatics 
 } from '../types/interview';
+import { required } from 'zod/v4/core/util.cjs';
 
 // Individual question-answer pair schema
 const QuestionAnswerSchema = new Schema<IQuestionAnswer>(
@@ -109,13 +110,17 @@ const InterviewTranscriptSchema = new Schema<IInterviewTranscript>(
       default: 0,
     },
 
-    // Questions and answers
+    // Transcript the audio of the interview
     questionsAnswers: {
       type: [QuestionAnswerSchema],
       default: [],
     },
 
     // Overall assessment
+    summary : {
+      type: String,
+      default: "",
+    },
     overallScore: {
       type: Number,
       min: 0,

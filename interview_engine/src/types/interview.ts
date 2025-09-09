@@ -36,6 +36,7 @@ export interface IInterviewTranscript extends Document {
   questionsAnswers: IQuestionAnswer[];
 
   // Overall assessment
+  summary : string;
   overallScore?: number;
   overallFeedback?: string;
   recommendation: 'STRONG_HIRE' | 'HIRE' | 'NO_HIRE' | 'STRONG_NO_HIRE' | 'PENDING';

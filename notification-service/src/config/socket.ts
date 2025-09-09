@@ -8,14 +8,14 @@ let io: Server;
 export const initSocket = (server: http.Server) => {
   io = new Server(server, { 
     cors: { 
-      origin: "http://localhost:3000", 
+      origin: `${process.env.FRONTEND_URL}` || 'http://localhost:3000', 
       credentials: true,
       allowedHeaders: ["authorization", "content-type"]
     } 
   });
 
   io.use((socket, next) => {
-    // First try to get token from auth (manual passing)
+
     let token = socket.handshake.auth?.token;
     
     // If not found, try to extract from Authorization header (Bearer token)
@@ -57,6 +57,46 @@ export const initSocket = (server: http.Server) => {
   });
 
   return io;
+};
+
+// Global notification methods
+
+export const notifyUser = (userId: string, notification: any) => {
+  if (io) {
+    io.to(userId).emit("notification", notification);
+    console.log(`General notification emitted to user: ${userId}`);
+  } else {
+    console.warn("Socket.IO instance not available for real-time notification");
+  }
+};
+
+export const notifyMultipleUsers = (userIds: string[], notification: any) => {
+  if (io) {
+    userIds.forEach(userId => {
+      io.to(userId).emit("notification", notification);
+    });
+    console.log(`General notification emitted to ${userIds.length} users`);
+  } else {
+    console.warn("Socket.IO instance not available for real-time notification");
+  }
+};
+
+export const broadcastNotification = (notification: any) => {
+  if (io) {
+    io.emit("notification", notification);
+    console.log("General notification broadcasted to all connected users");
+  } else {
+    console.warn("Socket.IO instance not available for real-time notification");
+  }
+};
+
+export const notifyInterviewUpdate = (userId: string, interviewNotification: any) => {
+  if (io) {
+    io.to(userId).emit("interview-notification", interviewNotification);
+    console.log(`Interview notification emitted to user: ${userId}`);
+  } else {
+    console.warn("Socket.IO instance not available for real-time interview notification");
+  }
 };
 
 export { io };

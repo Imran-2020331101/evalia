@@ -1,5 +1,5 @@
 import { EventTypes } from "../../events/eventTypes";
-import { createNotification } from "../service/inapp-notification.service";
+import { inAppNotificationService } from "../service/inapp-notification.service";
 import { io } from "../../config/socket";
 import logger from "../../utils/logger";
 
@@ -10,7 +10,7 @@ export const handleIncomingEvent = async (event: any) => {
     switch (event.type) {
       // Resume Processing Events
       case EventTypes.RESUME_ANALYSIS_COMPLETED:
-        notification = await createNotification({
+        notification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: "Resume Analysis Complete",
           message: "Your resume has been successfully analyzed. View your detailed insights and skill recommendations.",
@@ -20,7 +20,7 @@ export const handleIncomingEvent = async (event: any) => {
         break;
 
       case EventTypes.RESUME_ANALYSIS_FAILED:
-        notification = await createNotification({
+        notification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: "Resume Analysis Failed",
           message: "We encountered an issue analyzing your resume. Please try uploading again or contact support.",
@@ -32,7 +32,7 @@ export const handleIncomingEvent = async (event: any) => {
       // Job Matching Events
 
       case EventTypes.JOB_POSTING_CREATED:
-        notification = await createNotification({
+        notification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: "Job Posted Successfully!",
           message: `Your job posting "${event.jobTitle}" has been created and is now live. Start receiving applications from qualified candidates.`,
@@ -42,7 +42,7 @@ export const handleIncomingEvent = async (event: any) => {
         break;
 
       case EventTypes.JOB_MATCH_FOUND:
-        notification = await createNotification({
+        notification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: "New Job Match Found!",
           message: `We found a ${event.matchScore}% match for ${event.jobTitle} at ${event.companyName}. Check it out!`,
@@ -51,18 +51,13 @@ export const handleIncomingEvent = async (event: any) => {
         });
         break;
 
-      case EventTypes.JOB_APPLICATION_SHORTLISTED:
-        notification = await createNotification({
-          userId: event.userId,
-          title: "Application Shortlisted! 🎉",
-          message: `Great news! You've been shortlisted for ${event.jobTitle} at ${event.companyName}.`,
-          type: "success",
-          link: `/applications/${event.applicationId}`
-        });
+      case 'job.application.shortlisted':
+        console.log(event);
+        inAppNotificationService.notifyInterviewCreation(event);
         break;
 
       case EventTypes.JOB_APPLICATION_REJECTED:
-        notification = await createNotification({
+        notification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: "Application Update",
           message: `Your application for ${event.jobTitle} at ${event.companyName} was not selected. Keep applying!`,
@@ -72,7 +67,7 @@ export const handleIncomingEvent = async (event: any) => {
         break;
 
       case EventTypes.JOB_APPLICATION_ACCEPTED:
-        notification = await createNotification({
+        notification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: "Congratulations! Job Offer Received 🎊",
           message: `You've received a job offer for ${event.jobTitle} at ${event.companyName}! Review the details.`,
@@ -82,7 +77,7 @@ export const handleIncomingEvent = async (event: any) => {
         break;
 
       case EventTypes.CAREER_RECOMMENDATION_GENERATED:
-        notification = await createNotification({
+        notification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: "New Career Recommendations",
           message: "We've generated personalized career recommendations based on your profile and market trends.",
@@ -95,7 +90,7 @@ export const handleIncomingEvent = async (event: any) => {
 
       // Authentication & Security Events
       case EventTypes.USER_EMAIL_VERIFIED:
-        notification = await createNotification({
+        notification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: "Email Verified Successfully ✅",
           message: "Your email has been verified. You now have full access to all platform features.",
@@ -105,7 +100,7 @@ export const handleIncomingEvent = async (event: any) => {
         break;
 
       case EventTypes.USER_ACCOUNT_LOCKED:
-        notification = await createNotification({
+        notification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: "Account Temporarily Locked 🔒",
           message: "Your account has been locked due to security concerns. Contact support if you need assistance.",
@@ -115,7 +110,7 @@ export const handleIncomingEvent = async (event: any) => {
         break;
 
       case EventTypes.USER_ACCOUNT_UNLOCKED:
-        notification = await createNotification({
+        notification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: "Account Unlocked 🔓",
           message: "Your account has been unlocked. You can now access all features normally.",
@@ -125,7 +120,7 @@ export const handleIncomingEvent = async (event: any) => {
         break;
 
       case EventTypes.SUSPICIOUS_LOGIN_DETECTED:
-        notification = await createNotification({
+        notification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: "Suspicious Login Detected ⚠️",
           message: `A login attempt was made from ${event.location} using ${event.device}. If this wasn't you, secure your account immediately.`,
@@ -136,7 +131,7 @@ export const handleIncomingEvent = async (event: any) => {
 
       // Recruiter Events
       case EventTypes.RECRUITER_PROFILE_APPROVED:
-        notification = await createNotification({
+        notification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: "Recruiter Profile Approved! 🎉",
           message: "Your recruiter profile has been approved. You can now start posting jobs and finding candidates.",
@@ -146,7 +141,7 @@ export const handleIncomingEvent = async (event: any) => {
         break;
 
       case EventTypes.RECRUITER_PROFILE_REJECTED:
-        notification = await createNotification({
+        notification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: "Recruiter Profile Needs Review",
           message: "Your recruiter profile requires additional information. Please review and resubmit.",
@@ -157,7 +152,7 @@ export const handleIncomingEvent = async (event: any) => {
 
       // System Events
       case EventTypes.SYSTEM_MAINTENANCE_SCHEDULED:
-        notification = await createNotification({
+        notification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: "Scheduled Maintenance Notice 🔧",
           message: `System maintenance is scheduled for ${event.maintenanceDate}. Some features may be temporarily unavailable.`,
@@ -167,7 +162,7 @@ export const handleIncomingEvent = async (event: any) => {
         break;
 
       case EventTypes.SYSTEM_UPDATE_AVAILABLE:
-        notification = await createNotification({
+        notification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: "New Features Available! ✨",
           message: "We've released new features and improvements. Check out what's new in this update.",
@@ -178,7 +173,7 @@ export const handleIncomingEvent = async (event: any) => {
 
       // Interview & Assessment Events
       case EventTypes.INTERVIEW_SCHEDULED:
-        notification = await createNotification({
+        notification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: "Interview Scheduled 📅",
           message: `Your interview for ${event.jobTitle} at ${event.companyName} is scheduled for ${event.interviewDate}.`,
@@ -188,7 +183,7 @@ export const handleIncomingEvent = async (event: any) => {
         break;
 
       case EventTypes.INTERVIEW_CANCELLED:
-        notification = await createNotification({
+        notification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: "Interview Cancelled",
           message: `Your interview for ${event.jobTitle} at ${event.companyName} has been cancelled. ${event.reason || ''}`,
@@ -198,7 +193,7 @@ export const handleIncomingEvent = async (event: any) => {
         break;
 
       case EventTypes.ASSIGNMENT_CREATED:
-        notification = await createNotification({
+        notification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: "New Assignment Received 📝",
           message: `You have a new assignment for ${event.jobTitle}. Due date: ${event.dueDate}`,
@@ -208,7 +203,7 @@ export const handleIncomingEvent = async (event: any) => {
         break;
 
       case EventTypes.ASSIGNMENT_GRADED:
-        notification = await createNotification({
+        notification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: "Assignment Graded ✅",
           message: `Your assignment has been graded. Score: ${event.score}/${event.totalScore}`,
@@ -219,7 +214,7 @@ export const handleIncomingEvent = async (event: any) => {
 
       // Financial Events
       case EventTypes.SUBSCRIPTION_EXPIRED:
-        notification = await createNotification({
+        notification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: "Subscription Expired 💳",
           message: "Your subscription has expired. Renew now to continue accessing premium features.",
@@ -229,7 +224,7 @@ export const handleIncomingEvent = async (event: any) => {
         break;
 
       case EventTypes.PAYMENT_FAILED:
-        notification = await createNotification({
+        notification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: "Payment Failed ❌",
           message: "Your payment could not be processed. Please update your payment method to continue your subscription.",
@@ -240,7 +235,7 @@ export const handleIncomingEvent = async (event: any) => {
 
       // Messages
       case EventTypes.MESSAGE_RECEIVED:
-        notification = await createNotification({
+        notification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: `New Message from ${event.senderName}`,
           message: event.messagePreview || "You have received a new message.",
@@ -268,7 +263,7 @@ export const handleIncomingEvent = async (event: any) => {
     // Send error notification to user if critical
     if (event.userId && event.type) {
       try {
-        const errorNotification = await createNotification({
+        const errorNotification = await inAppNotificationService.createNotification({
           userId: event.userId,
           title: "Notification Error",
           message: "We had trouble processing a notification for you. Please refresh the page.",
