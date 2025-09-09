@@ -3,7 +3,7 @@ import { inAppNotificationService } from "../service/inapp-notification.service"
 import { io } from "../../config/socket";
 import logger from "../../utils/logger";
 
-export const handleIncomingEvent = async (event: any) => {
+export const handleInAppNotifications = async (event: any) => {
   try {
     let notification;
     console.log(event.type);
@@ -53,8 +53,10 @@ export const handleIncomingEvent = async (event: any) => {
 
       case 'job.application.shortlisted':
         console.log(event);
-        inAppNotificationService.notifyInterviewCreation(event);
-        break;
+        // This event is handled by the mail service, not the in-app notification service
+        // The actual interview notification will come as 'interview.scheduled' event
+        console.log('job.application.shortlisted event received - will be handled by mail service');
+        return; // Don't create in-app notification for this event
 
       case EventTypes.JOB_APPLICATION_REJECTED:
         notification = await inAppNotificationService.createNotification({
@@ -173,12 +175,29 @@ export const handleIncomingEvent = async (event: any) => {
 
       // Interview & Assessment Events
       case EventTypes.INTERVIEW_SCHEDULED:
-        notification = await inAppNotificationService.createNotification({
-          userId: event.userId,
-          title: "Interview Scheduled 📅",
-          message: `Your interview for ${event.jobTitle} at ${event.companyName} is scheduled for ${event.interviewDate}.`,
-          type: "info",
-          link: `/interviews/${event.interviewId}`
+        // Handle interview scheduled event - map candidateId to userId
+        console.log('Processing interview.scheduled event:', event);
+        console.log('event.userId:', event.userId);
+        console.log('event.candidateId:', event.candidateId);
+        
+        const userId = event.userId || event.candidateId; // Support both field names
+        console.log('Resolved userId:', userId);
+        
+        if (!userId) {
+          console.error('Interview scheduled event missing userId/candidateId:', event);
+          throw new Error('Missing userId or candidateId in interview scheduled event');
+        }
+        
+        // Call the interview-specific notification service directly
+        notification = await inAppNotificationService.notifyInterviewCreation({
+          type: event.type,
+          interviewId: event.interviewId,
+          candidateId: userId,
+          jobId: event.jobId,
+          jobTitle: event.jobTitle,
+          deadline: event.deadline,
+          totalQuestions: event.totalQuestions,
+          status: event.status
         });
         break;
 

@@ -17,6 +17,8 @@ class InAppNotificationService {
   };
 
   notifyInterviewCreation = async (notification: InterviewCreatedNotification) => {
+    console.log('notifyInterviewCreation called with:', notification);
+    console.log('notification.candidateId:', notification.candidateId);
 
     const savedNotification = await this.createNotification({
       userId: notification.candidateId,

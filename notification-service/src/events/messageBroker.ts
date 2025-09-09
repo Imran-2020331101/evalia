@@ -1,6 +1,6 @@
 import amqp from "amqplib";
 import { env } from "../config/env";
-import { handleIncomingEvent } from "../in-app/handlers/inapp-notification.handler";
+import { handleInAppNotifications} from "../in-app/handlers/inapp-notification.handler";
 import logger  from "../utils/logger";
 import { handleIncomingMailEvent } from "../mail/handlers/mail-notification.handler";
 
@@ -16,7 +16,7 @@ export const connectBroker = async () => {
       if (msg) {
         const event = JSON.parse(msg.content)
         console.log(event);
-        handleIncomingEvent(event);
+        handleInAppNotifications(event);
         channel.ack(msg);
       }
     });
