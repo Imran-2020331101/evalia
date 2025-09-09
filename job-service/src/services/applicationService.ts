@@ -14,6 +14,7 @@ enum ApplicationStatus {
 }
 import { JobDetailsModel, IJobDetailsDocument } from '../models/JobDetails';
 import { sendNotification } from '../utils/notify';
+import { EventTypes } from '../types/notifications.types';
 
 
 class ApplicationService{
@@ -68,10 +69,12 @@ class ApplicationService{
       
       //sending email to the candidate
       const notification = {
-        type             : 'job.application.shortlisted',
+        type             : EventTypes.JOB_APPLICATION_SHORTLISTED,
+        candidateId      : candidate.candidateId,
         candidateName    : candidate.candidateName,
         candidateEmail   : candidate.candidateEmail,
         jobTitle         : job.title,
+        OrganizationId   : job.company.OrganizationId,
         OrganizationName : job.company.OrganizationName || " No name Found ",
         OrganizationEmail: job.company.OrganizationEmail,
         deadline         : interview.deadline,
