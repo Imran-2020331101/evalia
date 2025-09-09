@@ -1,40 +1,18 @@
 import { Router } from "express";
 import { handleInAppNotifications } from "../in-app/handlers/inapp-notification.handler";
 import { inAppNotificationService } from "../in-app/service/inapp-notification.service";
+import { notificationController } from "../controllers";
 import { EventTypes } from "../events/eventTypes";
 import { asyncHandler, ApiResponse, ApiError } from "../utils";
 import logger from "../utils/logger";
 
 const router = Router();
 
-router.get("/:userId", asyncHandler(async (req, res) => {
-  const { userId } = req.params;
-  
-  if (!userId) {
-    throw new ApiError(400, "User ID is required");
-  }
-  
-  const notifs = await inAppNotificationService.getUserNotifications(userId);
-  const response = new ApiResponse(200, notifs, "Notifications retrieved successfully");
-  res.status(200).json(response);
-}));
+router.get("/:userId", notificationController.fetchNotificationsOfAUser.bind(notificationController) );
 
-router.patch("/:id/read", asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  
-  if (!id) {
-    throw new ApiError(400, "Notification ID is required");
-  }
-  
-  const updated = await inAppNotificationService.markAsRead(id);
-  
-  if (!updated) {
-    throw new ApiError(404, "Notification not found");
-  }
-  
-  const response = new ApiResponse(200, updated, "Notification marked as read successfully");
-  res.status(200).json(response);
-}));
+router.put("/:notificationId/read", notificationController.readNotification.bind(notificationController));
+
+router.put("/:userId/read-all", notificationController.readAllNotification.bind(notificationController));
 
 // New endpoint for batch rejection feedback
 router.post("/batch-rejection-feedback", async (req, res) => {

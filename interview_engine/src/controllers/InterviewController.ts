@@ -26,22 +26,23 @@ export class InterviewController {
     const createdInterview = await interviewService.createNewInterview(interviewData);
 
     const notification : InterviewCreatedNotification = {
-      type: EventTypes.INTERVIEW_SCHEDULED,
-      interviewId: createdInterview.interviewId,
-      candidateId: createdInterview.candidateId,
+      type          : EventTypes.INTERVIEW_SCHEDULED,
+      interviewId   : createdInterview.interviewId,
+      candidateId   : createdInterview.candidateId,
       candidateEmail: createdInterview.candidateEmail,
-      jobId: createdInterview.jobId,
-      jobTitle: createdInterview.jobTitle,
-      deadline: createdInterview.deadline,
+      jobId         : createdInterview.jobId,
+      jobTitle      : createdInterview.jobTitle,
+      organizationId: createdInterview.organizationId,
+      deadline      : createdInterview.deadline,
       totalQuestions: createdInterview.totalQuestions,
-      status: createdInterview.status
+      status        : createdInterview.status
     }
     sendNotification(notification, "notifications");
 
     res.status(201).json({
-      success: true,
-      message: "Interview scheduled successfully",
-      data: createdInterview,
+      success : true,
+      message : "Interview scheduled successfully",
+      data    : createdInterview,
     });
   });
 
@@ -55,15 +56,23 @@ export class InterviewController {
       { new: true, runValidators: true } 
     ).orFail();
 
-    console.log(updatedUser);
+    const interviewSummary : string = await interviewService.generateSummaryUsingLLM(updatedUser.questionsAnswers);
+
+    const updatedInterview = await Interview.findByIdAndUpdate(
+      interviewId,
+      { $set: {summary : interviewSummary}},
+      { new: true }
+    );
+
+    console.log(updatedInterview);
 
     res.status(200).json({
         success : true,
-        data    : updatedUser
+        data    : updatedInterview
     });
   });
 
-  getAllInterviewOfAUser = asyncHandler(async (req: Request, res: Response): Promise<void> =>{
+  getAllInterviewsOfAUser = asyncHandler(async (req: Request, res: Response): Promise<void> =>{
     const { userId } = req.params;
     const interviews = await interviewService.getAllInterviewsOfAUser(userId);
     
@@ -81,6 +90,16 @@ export class InterviewController {
     res.status(200).json({
       success: true,
       date   : interview
+    })
+  })
+
+  getSummaryOfAnInterview = asyncHandler(async( req: Request, res: Response) => {
+    const { interviewId } = req.params;
+    const summary = await interviewService.fetchSummaryById( interviewId );
+
+    res.status(200).json({
+      success: true,
+      date   : summary
     })
   })
 

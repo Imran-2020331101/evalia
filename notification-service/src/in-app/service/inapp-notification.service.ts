@@ -9,12 +9,19 @@ class InAppNotificationService {
   };
 
   getUserNotifications = async (userId: string) => {
-    return Notification.find({ userId }).sort({ createdAt: -1 }).orFail();
+    return Notification.find({ userId }).sort({ createdAt: -1 });
   };
 
   markAsRead = async (id: string) => {
     return Notification.findByIdAndUpdate(id, { isRead: true }, { new: true }).orFail();
   };
+
+  markAllAsRead = async (userId: string) => {
+    return Notification.updateMany(
+      { userId },
+      { $set: { isRead: true } }
+    ).orFail();
+  }
 
   notifyInterviewCreation = async (notification: InterviewCreatedNotification) => {
     console.log('notifyInterviewCreation called with:', notification);
