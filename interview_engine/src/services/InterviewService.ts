@@ -31,6 +31,7 @@ class InterviewService{
         return {
             interviewId: (savedInterview._id as any).toString(),
             candidateId: savedInterview.candidateId.toString(),
+            candidateEmail: savedInterview.candidateEmail,
             jobId: savedInterview.jobId.toString(),
             jobTitle: savedInterview.jobTitle,
             deadline: savedInterview.deadline,

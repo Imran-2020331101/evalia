@@ -21,7 +21,7 @@ class InAppNotificationService {
     console.log('notification.candidateId:', notification.candidateId);
 
     const savedNotification = await this.createNotification({
-      userId: notification.candidateId,
+      userId: notification.candidateEmail,
       title: "Interview Scheduled",
       message: `You have been scheduled for an interview for ${notification.jobTitle}`,
       type: "interview_scheduled",
@@ -37,7 +37,7 @@ class InAppNotificationService {
     });
 
     // Emit general notification
-    notifyUser(notification.candidateId, {
+    notifyUser(notification.candidateEmail, {
       id: savedNotification._id,
       title: savedNotification.title,
       message: savedNotification.message,
