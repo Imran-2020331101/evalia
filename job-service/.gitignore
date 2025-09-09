@@ -134,7 +134,6 @@ checkpoints/
 data/
 datasets/
 *.csv
-*.json
 *.xlsx
 *.parquet
 

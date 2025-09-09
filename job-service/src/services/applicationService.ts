@@ -1,6 +1,7 @@
 import { 
   CandidateInfo,
   InterviewData,
+  ShortlistRequest,
 } from '../types/aplication.types';
 import { asyncHandler } from '../utils';
 import axios from 'axios';
@@ -12,26 +13,36 @@ enum ApplicationStatus {
   Rejected = 'REJECTED',
 }
 import { JobDetailsModel, IJobDetailsDocument } from '../models/JobDetails';
-import { Types } from 'mongoose';
-import { logger } from '../config/logger';
 import { sendNotification } from '../utils/notify';
-import { mapJobData } from '../utils/jobMapper';
-import { ApplicationCompatibilityService } from './ApplicationCompatibilityService';
 
 
 class ApplicationService{
 
-  async shortlistCandidate(jobId: string, candidateIds : Array<string>): Promise<IJobDetailsDocument[]> {
+  async shortlistCandidate(jobId: string, candidates : Array<CandidateInfo>): Promise<IJobDetailsDocument | null> {
+    
+    const candidateIds = candidates.map(candidate => candidate.candidateId);
+    
+    const job = await JobDetailsModel.findOneAndUpdate(
+      { 
+        _id: jobId, 
+        "applications.candidateId": { $in: candidateIds } 
+      },
+      { 
+        $set: { 
+          "applications.$[elem].status": ApplicationStatus.Shortlisted 
+        } 
+      },
+      { 
+        new: true,
+        arrayFilters: [{ "elem.candidateId": { $in: candidateIds } }]
+      }
+    ).orFail();
 
-    const job = candidateIds.map(async ( id )=>{
-        return await JobDetailsModel.findOneAndUpdate(
-            { _id: jobId, "applications.candidateId": id },
-            { $set: { "applications.$.status": ApplicationStatus.Shortlisted } },
-            { new: true }
-            ).orFail();
-    }) 
+    if(job?.interviewQA?.length != 0 ){
+      this.sendInterviewInvitation(candidates, jobId);
+    }
 
-    return Promise.all(job);
+    return job;
   }
   
   async sendInterviewInvitation(candidates: CandidateInfo[], jobId: string): Promise<void> {
@@ -41,25 +52,26 @@ class ApplicationService{
     for (const candidate of candidates) {
       const response = await axios.post(`${process.env.INTERVIEW_SERVICE_URL}/api/interview`, {
         candidate: {
-          id: candidate.candidateId,
-          email: candidate.candidateEmail,
-          name: candidate.candidateName,
+          id    : candidate.candidateId,
+          email : candidate.candidateEmail,
+          name  : candidate.candidateName,
         },
         job: {
-          id: job._id.toString(),
-          title: job.title,
-          interviewQA: job.interviewQA || [], // Assuming this field exists in your job model
+          id          : job._id.toString(),
+          title       : job.title,
+          interviewQA : job.interviewQA || [],
         },
-        deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+        deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), //(7 days )
       });
       
       const interview: InterviewData = response.data.data;
       
+      //sending email to the candidate
       const notification = {
-        type          : 'job.application.shortlisted',
-        candidateName : candidate.candidateName,
-        candidateEmail: candidate.candidateEmail,
-        jobTitle      : job.title,
+        type             : 'job.application.shortlisted',
+        candidateName    : candidate.candidateName,
+        candidateEmail   : candidate.candidateEmail,
+        jobTitle         : job.title,
         OrganizationName : job.company.OrganizationName || " No name Found ",
         OrganizationEmail: job.company.OrganizationEmail,
         deadline         : interview.deadline,
