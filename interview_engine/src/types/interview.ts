@@ -1,5 +1,6 @@
 import {z} from 'zod';
 import { Document, Types } from 'mongoose';
+import { id } from 'zod/v4/locales/index.cjs';
 
 // Individual question-answer pair interface
 export interface IQuestionAnswer {
@@ -23,6 +24,9 @@ export interface IInterviewTranscript extends Document {
   // Job information
   jobId: Types.ObjectId;
   jobTitle: string;
+
+  // Organization info
+  organizationId: Types.ObjectId;
 
   // Interview details
   interviewType: 'TECHNICAL' | 'BEHAVIORAL' | 'MIXED' | 'SCREENING';
@@ -125,6 +129,9 @@ export const ScheduleInterviewRequest = z.object({
           question: z.string(),
           referenceAnswer: z.string().optional(),
         }).loose())
+    }),
+    organization : z.object({
+        id    : z.string(),
     }),
     deadline: z.string(),
 }).loose();

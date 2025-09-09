@@ -336,9 +336,8 @@ export class JobController {
 
   async  getAllJobsSavedByAUser(req: Request, res: Response): Promise<void>{
     try {
-      // Zod schema for validation
+
       const jobIdsSchema = z.array(z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID format"))
-        .min(1, "At least one job ID is required")
         .max(100, "Maximum 100 job IDs allowed per request");
 
       const validationResult = jobIdsSchema.safeParse(req.body);
@@ -388,7 +387,7 @@ export class JobController {
   }
 
 
-  async getInterviewQuestionsOfAJob(req: Request, res:Response) : Promise<void> {
+  getInterviewQuestionsOfAJob = asyncHandler(async (req: Request, res:Response) : Promise<void> => {
     const {jobId} = req.params;
     const interviewQA = await JobService.fetchInterviewQuestions(jobId);
     res.status(200).json({
@@ -396,30 +395,22 @@ export class JobController {
       message : `Retrieved ${interviewQA?.length} Questions for interview`,
       data    : interviewQA 
     })
-  }
+  })
   
-  //TODO: Implement global error handling
-  async getDescriptionOfAJob(req: Request, res: Response) : Promise<void> {
-    try {
-      const {jobId}      = req.params;
-      console.log(jobId);
-      const description  = await JobService.fetchJobDescription(jobId);
 
-      res.status(200).json({
-        success : true,
-        message : `Retrieved Job Description`,
-        data    : description
-      });
-    } catch (error) {
-        res.status(500).json({
-          success : false,
-          message : `Failed to Retrieved Job Description`,
-          data    : error
-      });
-    }
-  }
+  getDescriptionOfAJob = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { jobId } = req.params;
+    console.log(jobId);
+    const description = await JobService.fetchJobDescription(jobId);
 
-  async generateInterviewQuestions(req: Request, res: Response) : Promise <any> {
+    res.status(200).json({
+      success: true,
+      message: `Retrieved Job Description`,
+      data: description
+    });
+  });
+
+  generateInterviewQuestions = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const validationResult = InterviewQuestionsGenerateSchema.safeParse(req.body);
 
     if (!validationResult.success) {
@@ -435,27 +426,25 @@ export class JobController {
 
     const prompt = questionGenerationPrompt( jobDescription , responsibilities, requirements, skills);
 
+    const Questions : string = await upskillBot(prompt);
+    
+    let cleaned = typeof Questions === "string"
+      ? Questions
+          .replace(/^```json\s*/i, "")
+          .replace(/^```\s*/i, "")
+          .replace(/```$/, "")
+          .trim()
+      : Questions;
 
-    const Questions = await upskillBot(prompt);
-    
-          let cleaned = typeof Questions === "string"
-            ? Questions
-                .replace(/^```json\s*/i, "")
-                .replace(/^```\s*/i, "")
-                .replace(/```$/, "")
-                .trim()
-            : Questions;
-    
-          let parsed = JSON.parse(cleaned);
-    
-          logger.info("Generated Questions : ", { Questions, evaluation: parsed });
+    let parsedQuestions = JSON.parse(cleaned);
 
-    return res.status(200).json({
+    logger.info("Generated Questions : ", { parsedQuestions });
+
+    res.status(200).json({
       success: true,
-      data: Questions
-    })
-  }
-  
+      data: parsedQuestions
+    });
+  });
 }
 
 export const jobController = new JobController();

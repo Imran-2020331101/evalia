@@ -7,7 +7,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @SpringBootApplication
 @EnableFeignClients(basePackages = {
 		"com.example.server.resume",
-		"com.example.server.job.Proxy"
+		"com.example.server.job.Proxy",
+		"com.example.server.notification.Proxy"
 })
 public class ServerApplication {
 

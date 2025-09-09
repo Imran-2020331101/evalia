@@ -1,5 +1,6 @@
 package com.example.server.resume.Config;
 
+import feign.Logger;
 import feign.form.spring.SpringFormEncoder;
 import feign.codec.Encoder;
 import org.springframework.context.annotation.Bean;
@@ -26,5 +27,10 @@ public class FeignMultipartSupportConfig {
     @Bean
     public Client feignClient(OkHttpClient okHttpClient) {
         return new feign.okhttp.OkHttpClient(okHttpClient);
+    }
+
+    @Bean
+    Logger.Level feignLoggerLevel() {
+        return Logger.Level.FULL;
     }
 }
