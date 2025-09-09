@@ -8,7 +8,6 @@ export const getAllNotifications = createAsyncThunk('notifications/getAllNotific
         const response = await axios.get(`http://localhost:8080/api/notifications/`,{
                 withCredentials: true,
             })
-            console.log(response.data)
         return response.data
     } catch (error:any) {
       console.log(error)
@@ -59,6 +58,7 @@ const notificationsSlice = createSlice({
     })
     .addCase(getAllNotifications.fulfilled,(state,action)=>{
         console.log(action.payload, 'all notifications')
+        state.allNotifications=action.payload.data;
         state.getAllNotificationStatus='success'
     })
   }
