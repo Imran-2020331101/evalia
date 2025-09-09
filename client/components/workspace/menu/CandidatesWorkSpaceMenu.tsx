@@ -20,9 +20,9 @@ import { user } from "@/redux/features/auth";
 const majorMono = Major_Mono_Display({ weight: '400', subsets: ['latin'] });
 
 const CandidatesWorkSpaceMenu = () => {
-  const [isShowCourseCategory, setIsShowCourseCategory]=useState(false);
+  const [isShowCourseCategory, setIsShowCourseCategory]=useState(true);
   const [isShowJobCategory, setIsShowJobCategory]=useState(true);
-  const [isShowInterviewCategory, setIsShowInterviewCategory]=useState(false);
+  const [isShowInterviewCategory, setIsShowInterviewCategory]=useState(true);
 
   const currentUser = useAppSelector(user);
 

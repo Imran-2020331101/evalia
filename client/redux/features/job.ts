@@ -87,6 +87,7 @@ export const getAllSavedJobs = createAsyncThunk('job/getAllSavedJobs', async(_, 
         console.log(response.data);
         return response.data;
     } catch (error:any) {
+        console.log(error, 'get all saved job error')
         return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed fetching saved job' })
     }
 })
@@ -283,8 +284,9 @@ const jobSlice = createSlice({
         .addCase(getAllSavedJobs.pending,(state)=>{
             state.getAllJobsStatus='pending'
         })
-        .addCase(getAllSavedJobs.rejected,(state)=>{
+        .addCase(getAllSavedJobs.rejected,(state, action)=>{
             state.getAllJobsStatus='error'
+            console.log(action.payload, 'error getting saved jobs')
         })
         .addCase(getAllSavedJobs.fulfilled,(state,action)=>{
             state.savedJobs=action.payload.data;
