@@ -9,7 +9,7 @@ import { Briefcase } from 'lucide-react'  // hero icon
 
 const AppliedJobContainer = () => {
   const dispatch = useAppDispatch();
-  const currentAppliedJobs = useAppSelector(appliedJobs)
+  const currentAppliedJobs = useAppSelector(appliedJobs) || []
   const currentExploreAllJobsStatus = useAppSelector(getAllJobsStatus)
 
   useEffect(()=>{
