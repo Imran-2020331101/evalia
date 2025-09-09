@@ -81,7 +81,7 @@ const JobCard = ({job}:{job:any}) => {
   },[currentAppliedJobs.length, currentSavedJobs.length])
   if(!organization) return null;
   return (
-    <div className="w-full h-auto border-b-[1px] border-gray-800 hover:border-blue-400  flex justify-between shrink-0">
+    <div className="w-full h-auto border-b-[1px] border-transparent bg-gray-900/40 px-3 transition-colors duration-300 py-2 rounded-lg hover:border-blue-400  flex justify-between shrink-0">
       <div className="h-full w-[65%] flex justify-start items-center gap-4">
         <button onClick={()=>dispatch(setPreviewOrganization(organization))} className="w-[55px] h-[50px] self-start rounded-sm">
           <Image src={organization?.organizationProfileImageUrl||'https://i.pinimg.com/736x/cf/41/82/cf4182b20a5c74ceac60149066a52841.jpg'}
@@ -103,7 +103,7 @@ const JobCard = ({job}:{job:any}) => {
         </div>
       </div>
       <div className="h-full w-[20%] flex justify-end items-center gap-4">
-        <button  disabled={currentApplyJobStatus==='pending' ?true:false} onClick={!isSaved?handleSaveJob:handleUnsaveJob} className={`w-[65px] h-[30px] border-[1px]  flex justify-center items-center rounded-sm gap-1 ${isSaved?'text-gray-200 bg-gray-700 border-gray-500':'text-gray-300 hover:text-green-500 hover:border-green-500 border-gray-300'} cursor-pointer`}>
+        <button  disabled={currentApplyJobStatus==='pending' ?true:false} onClick={!isSaved?handleSaveJob:handleUnsaveJob} className={`w-[80px] py-2 rounded-sm border border-gray-300 ${isSaved?'bg-gray-700 text-gray-100':'hover:border-blue-500 text-white  bg-gray-900'} flex font-semibold justify-center items-center cursor-pointer gap-1`}>
           {
             currentSaveJobStatus==='pending' && currentSaveJobId===_id?<ClipLoader size={15} color='white'/>:isSaved?<>
           <Save color='white' size={14}/> 
@@ -114,7 +114,7 @@ const JobCard = ({job}:{job:any}) => {
           </>
           }
         </button>
-        <button disabled={isApplied?true:false} onClick={handleApplyToJob} className={`w-[65px] h-[30px] border-[1px]  flex justify-center items-center rounded-sm gap-1 ${isApplied?'text-gray-200 bg-gray-700 border-gray-500':'text-gray-300 hover:text-blue-500 hover:border-blue-500 border-gray-300'} cursor-pointer`}>
+        <button disabled={isApplied?true:false} onClick={handleApplyToJob} className={`w-[80px] py-2 ml-2 rounded-sm font-bold ${isApplied?'bg-gray-700 text-gray-100':'bg-indigo-700 hover:bg-indigo-600 text-white'} flex justify-center items-center cursor-pointer gap-1`}>
           {
             currentApplyJobStatus==='pending' && currentApplyJobId===_id?<ClipLoader size={15} color='white'/>:isApplied?<>
           <CheckCheck size={14}/> 

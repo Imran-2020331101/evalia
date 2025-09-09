@@ -153,7 +153,7 @@ const CandidateProfileContainer = ({user}:propType) => {
                       </div>
                       <div className="w-auto  h-full flex flex-col justify-start items-end gap-2 pr-[20px]">
                         {
-                          isShowResume && <div className="fixed top-0 left-0 right-0 bottom-0 backdrop-blur-sm  flex justify-center items-center">
+                          isShowResume && <div className="fixed top-0 left-0 right-0 bottom-0 backdrop-blur-sm z-[150] flex justify-center items-center">
                               <div ref={resumePreviewContainerRef} className="w-[60%] h-[95%] bg-gray-200 rounded-lg overflow-y-scroll scroll-container">
                                 <iframe src={user?.user?.resumeUrl || ''} width="100%" height="auto" className="w-full h-full object-contain"></iframe>
                               </div>
