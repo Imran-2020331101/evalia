@@ -57,11 +57,11 @@ const ApplicantsContainer = () => {
         
     }, [])
   useDeepCompareEffect(()=>{
-    const currentApplicants = currentSelectedRecruiterJob.applications.filter((item:any)=>item.status==='PENDING')
-    setApplicants(currentApplicants);
+    const currentApplicants = currentSelectedRecruiterJob?.applications.filter((item:any)=>item.status==='PENDING')
+    setApplicants(currentApplicants || []);
     setIsMounted(true);
     return ()=>setIsMounted(false);
-  },[currentSelectedRecruiterJob.applications])
+  },[currentSelectedRecruiterJob?.applications])
   useEffect(()=>console.log(currentSelectedRecruiterJob, 'job details inside applicants container'))
 
   useEffect(()=>console.log(currentSelectedRecruiterJob, 'test current selected recruiter job'))
