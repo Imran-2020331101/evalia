@@ -22,7 +22,6 @@ class InterviewService{
             jobId: job.id,
             jobTitle: job.title,
             deadline: deadline,
-            questionsAnswers: QAwithRef,
             interviewStatus: "SCHEDULED",
         });
 

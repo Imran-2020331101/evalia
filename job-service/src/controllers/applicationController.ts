@@ -17,7 +17,7 @@ import axios from 'axios';
 import { ResumeDTO } from '../types/resume.types';
 import { applicationService } from '../services/applicationService';
 import { asyncHandler } from '../utils/asyncHandler';
-import { ShortlistRequest } from '@/types/aplication.types';
+import { ShortlistRequest } from '../types/aplication.types';
 
 
 
@@ -89,6 +89,9 @@ export class ApplicationController{
   shortListCandidates = asyncHandler(async (req:Request,res:Response):Promise<void> => {
     const { candidates } = ShortlistRequest.parse(req.body);
     const { jobId } = req.params;
+
+    console.log(candidates);
+    logger.info(jobId);
 
     const result = await applicationService.shortlistCandidate(jobId, candidates);
 
