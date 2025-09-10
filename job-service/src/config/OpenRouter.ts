@@ -12,7 +12,8 @@ const openai = new OpenAI({
 
 export async function upskillBot(message: string): Promise<string> {
   const completion = await openai.chat.completions.create({
-    model: "deepseek/deepseek-r1-0528-qwen3-8b:free",
+    // model: "deepseek/deepseek-r1-0528-qwen3-8b:free",
+    model: 'openai/gpt-4o-mini-2024-07-18',
     messages: [
       {
         role: "user",
