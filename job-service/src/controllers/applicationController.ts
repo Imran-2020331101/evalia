@@ -32,11 +32,12 @@ export class ApplicationController{
     const schema = z.object({
       jobId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID"),
       email: z.string().email("Invalid candidate email"),
-      candidateId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID")
+      candidateId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID"),
+      candidateName: z.string().optional()
     });
-    const { jobId, email, candidateId } = schema.parse(req.body);
+    const { jobId, email, candidateId, candidateName } = schema.parse(req.body);
  
-    const result = await JobService.applyToJob(jobId, email, candidateId);
+    const result = await JobService.applyToJob(jobId, email, candidateId, candidateName || "No name found");
     if(result.success){
       (async () => {
         try {

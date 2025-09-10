@@ -12,18 +12,17 @@ enum ApplicationStatus {
   Rejected = 'REJECTED',
 }
 import { JobDetailsModel, IJobDetailsDocument } from '../models/JobDetails';
-import { Types } from 'mongoose';
+import { Document, Types, UpdateResult } from 'mongoose';
 import { logger } from '../config/logger';
 import { sendNotification } from '../utils/notify';
 import { mapJobData } from '../utils/jobMapper';
 import { ApplicationCompatibilityService } from './ApplicationCompatibilityService';
+import { EventTypes } from '../types/notifications.types';
 
 class jobService{
   
-    async createJob(payload: CreateJobRequest): Promise<ApiResponse> {    
+    async createJob(payload: CreateJobRequest): Promise<IJobDetailsDocument> {    
 
-      try {
-        
         const jobData  = mapJobData(payload);
         const savedJob = await new JobDetailsModel(jobData).save();
 
@@ -43,40 +42,12 @@ class jobService{
           postedBy : savedJob.postedBy,
         });
 
-        return {
-          success : true,
-          message : "Job created successfully",
-          data    : savedJob
-        };
-      } catch (error: any) {
-        logger.error("Error creating job", { error: error.message, stack: error.stack });
-        
-        if (error.name === "ValidationError") {
-          const validationErrors = Object.values(error.errors).map((err: any) => err.message);
-          return {
-            success : false,
-            error   : "Validation failed",
-            details : validationErrors,
-          };
-        }
-        
-        return {
-          success : false,
-          error   : "Internal server error while creating job",
-        };
-      }
+        return savedJob;
     }
 
     async findJobById(jobId: string): Promise<IJobDetailsDocument | null> {
-      if (!Types.ObjectId.isValid(jobId)) {
-        logger.error("Invalid jobId provided", { jobId });
-        throw new Error("Invalid job Id provided");
-      }
-      
-      const job = await JobDetailsModel.findById(jobId).catch((e)=> {
-        logger.error("Job not found", { jobId, error: e.message });
-        throw new Error("Job not found")
-      });
+
+      const job = await JobDetailsModel.findById(jobId).orFail();
       
       // Best-effort view increment (don't fail the whole request if this fails)
       JobDetailsModel.findByIdAndUpdate(jobId, { $inc: { views: 1 } })
@@ -130,173 +101,20 @@ class jobService{
     }
 
 
-    async bulkJobDelete(OrganizationId: string): Promise<ApiResponse>{
-      try {       
-        const result = await JobDetailsModel.updateMany(
+    async bulkJobDelete(OrganizationId: string): Promise<UpdateResult>{
+     
+        return await JobDetailsModel.updateMany(
           { "organization.id": OrganizationId },
           { $set: { status: "DELETED" } }
-        );
+        ).orFail();
 
-        logger.info("Bulk job status updated to DELETED", {
-          organizationId: OrganizationId,
-          matchedCount: result.matchedCount,
-          modifiedCount: result.modifiedCount,
-        });
-        return {
-          success: true,
-          message: `All jobs for organization ${OrganizationId} marked as DELETED`,
-          data: {
-            matchedCount: result.matchedCount,
-            modifiedCount: result.modifiedCount,
-          },
-        };
-       } catch (error) {
-        return {
-          success: false,
-          message: `failed to delete the jobs of the Organization :  ${OrganizationId}`,
-        }
-      }
     }
 
-    async deleteJobByJobId(jobId: string) : Promise<{
-      success: boolean,
-      jobId: string,
-      title: string
-    }>{
-      const deletedJob = await JobDetailsModel.findByIdAndDelete(jobId);
-
-      if (!deletedJob) {
-        throw new Error(`Job with ID ${jobId} not found`);
-      }
-      
-      logger.info("Job deleted", {
-        jobId: deletedJob._id.toString(),
-        company: deletedJob.company.OrganizationId,
-      });
-
-      return {
-        success: true,
-        jobId: deletedJob._id.toString(),
-        title: deletedJob.title
-      };
+    async deleteJobByJobId(jobId: string) : Promise<IJobDetailsDocument>{
+      return await JobDetailsModel.findByIdAndDelete(jobId).orFail();
     }
+   
 
-    async applyToJob(jobId: string, candidateEmail: string, candidateId: string): Promise<ApiResponse> {
-      try {
-        // Check if candidate already applied
-        const existingJob = await JobDetailsModel.findById(jobId);
-        if (!existingJob) {
-          return { success: false, error: "Job not found" };
-        }
-        const alreadyApplied = existingJob.applications?.some(app => app.candidateEmail === candidateEmail);
-        if (alreadyApplied) {
-          return {
-            success: false,
-            error: "Candidate has already applied to this job",
-          };
-        }
-
-        const application = {
-          candidateEmail,
-          candidateId,
-          appliedAt : new Date(),
-          status    : ApplicationStatus.Pending,
-        };
-
-        const job = await JobDetailsModel.findByIdAndUpdate(
-          jobId,
-          { $addToSet: { applications: application } },
-          { new: true }
-        );
-
-        logger.info("Candidate applied to job", { jobId: job?._id.toString(), candidateEmail, });
-        return {
-          success: true,
-          message: "Application submitted successfully",
-          data: {
-            job,
-            jobId: job?._id,
-            candidateEmail,
-          },
-        };
-      } catch (error: any) {
-        logger.error("Error applying to job", {
-          error: error.message,
-          jobId,
-        });
-        return {
-          success: false,
-          error: "Internal server error while applying to job",
-        };
-      }
-    }
-
-    async withdrawApplication(jobId: string, candidateEmail: string, candidateId: string): Promise<ApiResponse> {
-      try {
-        // Validate job ID
-        if (!Types.ObjectId.isValid(jobId)) {
-          return { success: false, error: "Invalid job ID format" };
-        }
-
-        // Find the job and check if application exists
-        const existingJob = await JobDetailsModel.findById(jobId);
-        if (!existingJob) {
-          return { success: false, error: "Job not found" };
-        }
-
-        const applicationExists = existingJob.applications?.some(
-          app => app.candidateEmail === candidateEmail
-        );
-        
-        if (!applicationExists) {
-          return {
-            success: false,
-            error: "No application found for this candidate on this job",
-          };
-        }
-
-        // Remove the application using candidateEmail
-        const updatedJob = await JobDetailsModel.findByIdAndUpdate(
-          jobId,
-          { 
-            $pull: { 
-              applications: { 
-                candidateEmail: candidateEmail
-              } 
-            } 
-          },
-          { new: true }
-        );
-
-        logger.info("Application withdrawn successfully", { 
-          jobId: updatedJob?._id.toString(), 
-          candidateEmail,
-          candidateId 
-        });
-
-        return {
-          success: true,
-          message: "Application withdrawn successfully",
-          data: {
-            jobId: updatedJob?._id,
-            candidateEmail,
-            remainingApplications: updatedJob?.applications?.length || 0
-          },
-        };
-      } catch (error: any) {
-        logger.error("Error withdrawing application", {
-          error: error.message,
-          jobId,
-          candidateEmail,
-        });
-        return {
-          success: false,
-          error: "Internal server error while withdrawing application",
-        };
-      }
-    }
-
-    
     async bulkRejectApplications(jobId: string, currentStatus: string): Promise<ApiResponse> {
       if (!Types.ObjectId.isValid(jobId)) {
         return { success: false, error: "Invalid job ID" };
@@ -306,10 +124,7 @@ class jobService{
         const job = await JobDetailsModel.findOne(
           { _id: jobId },
           { applications: 1, title: 1 }
-        ).lean();
-        if (!job) {
-          return { success: false, error: "Job not found" };
-        }
+        ).orFail();
         const rejectedCandidates = job.applications.filter(app => app.status === currentStatus);
         const updatedCount = rejectedCandidates.length;
 
@@ -354,19 +169,12 @@ class jobService{
     }
 
     async findJobsByIds(jobIds: string[]): Promise<IJobDetailsDocument[]> {
-      try {
-        // Validate all job IDs
+
         const validJobIds = jobIds.filter(id => Types.ObjectId.isValid(id));
         
-        if (validJobIds.length === 0) {
-          logger.warn("No valid job IDs provided", { jobIds });
-          return [];
-        }
-
-        // Find all jobs with the provided IDs
         const jobs = await JobDetailsModel.find({
           _id: { $in: validJobIds.map(id => new Types.ObjectId(id)) }
-        }).lean();
+        });
 
         logger.info("Retrieved jobs by IDs", {
           requestedCount: jobIds.length,
@@ -375,13 +183,6 @@ class jobService{
         });
 
         return jobs;
-      } catch (error: any) {
-        logger.error("Error fetching jobs by IDs", { 
-          error: error.message, 
-          jobIds: jobIds.length 
-        });
-        throw new Error("Failed to fetch jobs by IDs");
-      }
     }
 
     async addReviewIdToApplication(jobId: string, reviewId: string , email: string): Promise<void>{
@@ -437,35 +238,16 @@ class jobService{
     }
 
     async fetchInterviewQuestions(jobId: string): Promise<string[] | undefined>{
-      try {
-        // Validate job ID
-        if (!Types.ObjectId.isValid(jobId)) {
-          throw new Error("Invalid job ID format");
-        }
 
-        // Await the query to get actual data
         const jobData = await JobDetailsModel.findOne(
           { _id: jobId }, 
           'interviewQA'
-        );
+        ).orFail();
 
-        if (!jobData) {
-          throw new Error("Job not found");
-        }
-
-        const interviewQues = jobData.interviewQA?.map((QA)=>QA.question);
-      
-
+        const interviewQues = jobData.interviewQA?.map((QA)=>QA.question);    
         console.log("Interview Questions:", interviewQues);
         
         return interviewQues;
-      } catch (error: any) {
-        logger.error("Error fetching interview questions", {
-          error: error.message,
-          jobId
-        });
-        throw error;
-      }
     }
 
     async fetchJobDescription(jobId : string) : Promise<string | null | undefined> {
