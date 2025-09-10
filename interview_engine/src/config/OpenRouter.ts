@@ -6,7 +6,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPEN_ROUTER_API_KEY,
   defaultHeaders: {
     "HTTP-Referer": process.env.OPENROUTER_HTTP_REFERER ?? "http://localhost:7000",
-    "X-Title": "evalia upskill engine",
+    "X-Title": "evalia interview engine",
   },
 });
 

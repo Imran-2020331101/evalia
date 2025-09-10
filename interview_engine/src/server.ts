@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+dotenv.config();
 import 'express-async-errors';
 import { Server as SocketServer, Socket } from 'socket.io';
 import { spawn, ChildProcess } from 'child_process';
@@ -10,7 +11,6 @@ import { interviewRouter } from './routes/interview';
 import { IVideoFrameData, IPythonMetricsResult } from './types/interview';
 import { connectDatabase } from './config/database';
 
-dotenv.config();
 
 const app: Application = express();
 const server: HttpServer = createServer(app);
