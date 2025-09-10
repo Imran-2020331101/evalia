@@ -1,4 +1,5 @@
 import logger from '../utils/logger';
+import { CustomApiError } from '../errors';
 
 // Type definitions for error handling
 interface CustomError extends Error {
@@ -62,6 +63,21 @@ const errorHandler = (
     stack: err.stack,
     body: req.method !== 'GET' ? req.body : undefined,
   });
+
+  // Handle CustomApiError instances first
+  if (err instanceof CustomApiError) {
+    const errorResponse: ErrorResponse = {
+      success: false,
+      error: err.message,
+      requestId,
+    };
+    
+    if (err.errors && err.errors.length > 0) {
+      errorResponse.details = err.errors;
+    }
+    
+    return res.status(err.statusCode).json(errorResponse);
+  }
 
   // Handle different types of errors
   
