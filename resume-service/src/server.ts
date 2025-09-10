@@ -55,7 +55,7 @@ const startServer = (): void => {
       });
 
       // Log configuration summary
-      logger.info('⚙️ Service configuration loaded', {
+      logger.info('Service configuration loaded', {
         logLevel: config.LOG_LEVEL,
         corsOrigins: config.CORS_ORIGINS.length,
         maxFileSize: `${Math.round(config.MAX_FILE_SIZE / 1024 / 1024)}MB`,

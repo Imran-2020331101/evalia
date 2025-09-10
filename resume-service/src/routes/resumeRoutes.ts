@@ -70,15 +70,7 @@ router.post('/basic-search', resumeController.searchCandidatesUsingNLP);
  * @desc    Get specific resume by ID
  * @access  Public
  */
-router.get('/:id', resumeController.getResumeById);
-
-/**
- * @route   GET /api/resume/:id/download
- * @desc    Download resume PDF file
- * @access  Public
- */
-router.get('/:id/download', resumeController.downloadResume);
-
+router.get('/:resumeId', resumeController.getResumeById);
 router.get('/:jobId/shortlist/:k', resumeController.generateAutomatedShortlist);
 
 export default router;
