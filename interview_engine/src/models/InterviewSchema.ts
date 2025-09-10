@@ -83,7 +83,7 @@ const InterviewTranscriptSchema = new Schema<IInterviewTranscript>(
     //Organization info
     organizationId: {
       type     : mongoose.Schema.Types.ObjectId, 
-      required : true,
+      required : false,
       index    : true,
     },
 

@@ -13,7 +13,7 @@ const SavedJobContainer = () => {
   const currentGetAllSavedJobsStatus = useAppSelector(getAllJobsStatus)
 
   useEffect(()=>{
-    if(!currentAllSavedJobs.length || currentGetAllSavedJobsStatus==='error') {
+    if(!currentAllSavedJobs?.length || currentGetAllSavedJobsStatus==='error') {
       dispatch(getAllSavedJobs())
     }
   },[])
@@ -22,7 +22,7 @@ const SavedJobContainer = () => {
   if(currentGetAllSavedJobsStatus==='error') return <Error/>
 
   // 🔹 HERO SECTION (when no saved jobs exist)
-  if(!currentAllSavedJobs.length){
+  if(!currentAllSavedJobs?.length){
     return (
       <section className="flex flex-col w-full h-full items-center justify-center text-center px-4">
         <div className="flex flex-col items-center">
