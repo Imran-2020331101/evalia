@@ -8,17 +8,17 @@ class InAppNotificationService {
     return notification;
   };
 
-  getUserNotifications = async (userId: string) => {
-    return Notification.find({ userId }).sort({ createdAt: -1 });
+  getUserNotifications = async (recieverEmail: string) => {
+    return Notification.find({ recieverEmail }).sort({ createdAt: -1 });
   };
 
   markAsRead = async (id: string) => {
     return Notification.findByIdAndUpdate(id, { isRead: true }, { new: true }).orFail();
   };
 
-  markAllAsRead = async (userId: string) => {
+  markAllAsRead = async (recieverEmail: string) => {
     return Notification.updateMany(
-      { userId },
+      { recieverEmail },
       { $set: { isRead: true } }
     ).orFail();
   }
@@ -28,7 +28,8 @@ class InAppNotificationService {
     console.log('notification.candidateId:', notification.candidateId);
 
     const savedNotification = await this.createNotification({
-      userId: notification.candidateEmail,
+      recieverId  : notification.candidateId,
+      recieverEmail: notification.candidateEmail,
       title: "Interview Scheduled",
       message: `You have been scheduled for an interview for ${notification.jobTitle}`,
       type: "interview_scheduled",

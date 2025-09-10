@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
+dotenv.config();
 import 'express-async-errors';
 import { Server as SocketServer, Socket } from 'socket.io';
 import { spawn, ChildProcess } from 'child_process';
