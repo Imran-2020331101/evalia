@@ -1,4 +1,4 @@
-import { Request, response, Response } from 'express';
+import { Request, Response } from 'express';
 import { JobDetailsModel, IJobDetailsDocument } from '../models/JobDetails';
 import { logger } from '../config/logger';
 import { 
@@ -6,15 +6,10 @@ import {
   JobFilterSchema, 
   ApiResponse, 
   Pagination,
-  ApplicationStatus,
-  InterviewQuestionsRequest,
   InterviewQuestionsGenerateSchema
 } from '../types/job.types';
 import { JobService } from '../services/jobService';
 import { z } from 'zod';
-import { ApplicationCompatibilityService } from '../services/ApplicationCompatibilityService';
-import axios from 'axios';
-import { ResumeDTO } from '../types/resume.types';
 import questionGenerationPrompt from '../prompts/QuestionGenerationPromt';
 import upskillBot from '../config/OpenRouter';
 import { asyncHandler } from '../utils';
@@ -31,7 +26,6 @@ export class JobController {
     const validationResult = CreateJobRequestSchema.safeParse(req.body);
     
     if (!validationResult.success) {
-      
       const errors = validationResult.error.errors.map(err => `${err.path.join('.')}: ${err.message}`);
       logger.warn("Validation failed", { errors });
       
@@ -45,9 +39,12 @@ export class JobController {
     }
 
     const result = await JobService.createJob(validationResult.data);
-    const status = result.success ? 201 : (result.details || result.error === 'Validation failed') ? 400 : 500;
+    
 
-    res.status(status).json(result);
+    res.status(200).json({
+      success : true,
+      data    : result,
+    });
   });
 
   /**
@@ -91,21 +88,22 @@ export class JobController {
     } as ApiResponse);
   });
 
-  deleteAllJobsOfAnOrganization = asyncHandler(async (req:Request, res: Response) : Promise<void> => {
-    const { OrganizationId } = req.params;
-    if (!OrganizationId) {
-      res.status(400).json({
-        success : false,
-        error   : "Organization Id is required",
-      } as ApiResponse);
-      return;
-    }
+  deleteAllJobsOfAnOrganization= asyncHandler(async (req:Request, res: Response) : Promise<void> => {
+      const { OrganizationId } = req.params;
+      if (!OrganizationId) {
+        res.status(400).json({
+          success : false,
+          error   : "Organization Id is required",
+        } as ApiResponse);
+        return;
+      }
 
-    // Bulk update jobs to status 'DELETED'
-    const result = await JobService.bulkJobDelete(OrganizationId);
-    const status = result.success ? 201 : (result.details || result.error === 'Validation failed') ? 400 : 500;
-    
-    res.status(status).json(result);
+      const result = await JobService.bulkJobDelete(OrganizationId);
+      
+      res.status(200).json({
+        success : true,
+        data    : result
+      });
   });
 
   /**
@@ -206,18 +204,17 @@ export class JobController {
    * @route DELETE /api/jobs/:jobId
    */
   deleteJob = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const { jobId } = req.params;
-    const result = await JobService.deleteJobByJobId(jobId);
 
-    res.json({
-      success: result.success,
-      message: "Job deleted successfully",
-      data: {
-        jobId: result.jobId,
-        title: result.title,
-      },
-    } as ApiResponse);
-  });
+      const { jobId } = req.params;
+      const result = await JobService.deleteJobByJobId(jobId);
+
+      res.json({
+        success: true,
+        message: "Job deleted successfully",
+        data: result,
+      } as ApiResponse);
+
+  })
 
   fetchBatchJobInfo = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const jobIdsSchema = z.array(z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID format"))
