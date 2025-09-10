@@ -14,12 +14,12 @@ enum ApplicationStatus {
 }
 import { JobDetailsModel, IJobDetailsDocument } from '../models/JobDetails';
 import { sendNotification } from '../utils/notify';
-import { EventTypes } from '../types/notifications.types';
-
+import { EventTypes, INotification } from '../types/notifications.types';
+import logger from '../config/logger';
 
 class ApplicationService{
 
-      async applyToJob(jobId: string, candidateEmail: string, candidateId: string, candidateName: string): Promise<IJobDetailsDocument> {
+  async applyToJob(jobId: string, candidateEmail: string, candidateId: string, candidateName: string): Promise<IJobDetailsDocument> {
 
         const existingJob = await JobDetailsModel.findById(jobId).orFail();
 
@@ -35,11 +35,25 @@ class ApplicationService{
           status    : ApplicationStatus.Pending,
         };
 
-        return await JobDetailsModel.findByIdAndUpdate(
+        const updatedJob = await JobDetailsModel.findByIdAndUpdate(
           jobId,
           { $addToSet: { applications: application } },
           { new: true }
         ).orFail();
+
+        if(updatedJob){
+          const notification : INotification = {
+            recieverEmail : updatedJob.postedBy,
+            recieverId    : updatedJob.company.OrganizationId,
+            type          : EventTypes.NEW_JOB_APPLICATION,
+            title         : "New Job Application Recieved",
+            message       : `${candidateName} applied for the position of ${updatedJob.title}`,
+          }
+          logger.info("Sending notification to Recruiter : ", notification);
+          await sendNotification(notification,"notifications");
+        }
+
+        return updatedJob;
     }
 
 
@@ -121,7 +135,7 @@ class ApplicationService{
       const interview: InterviewData = response.data.data;
       
       //sending email to the candidate
-      const notification = {
+      const notification  = {
         type             : EventTypes.JOB_APPLICATION_SHORTLISTED,
         candidateId      : candidate.candidateId,
         candidateName    : candidate.candidateName,

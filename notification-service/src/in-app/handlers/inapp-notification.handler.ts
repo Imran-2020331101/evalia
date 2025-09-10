@@ -2,10 +2,11 @@ import { EventTypes } from "../../events/eventTypes";
 import { inAppNotificationService } from "../service/inapp-notification.service";
 import { io } from "../../config/socket";
 import logger from "../../utils/logger";
+import { INotification } from "../types/notification.types";
 
 export const handleInAppNotifications = async (event: any) => {
   try {
-    let notification;
+    let notification : INotification | null = null;
     console.log(event.type);
     switch (event.type) {
       // Resume Processing Events
@@ -81,6 +82,11 @@ export const handleInAppNotifications = async (event: any) => {
           type: "info",
           link: `/dashboard/recommendations`
         });
+        break;
+
+      // Recruiters notifcation
+      case EventTypes.NEW_JOB_APPLICATION:
+        notification = await inAppNotificationService.createNotification(event);
         break;
 
 
@@ -170,7 +176,7 @@ export const handleInAppNotifications = async (event: any) => {
 
       // Interview & Assessment Events
       case EventTypes.INTERVIEW_SCHEDULED:
-        inAppNotificationService.notifyInterviewCreation(event);
+        notification = await inAppNotificationService.notifyInterviewCreation(event);
         break;
 
       case EventTypes.INTERVIEW_CANCELLED:
@@ -196,7 +202,7 @@ export const handleInAppNotifications = async (event: any) => {
       case EventTypes.ASSIGNMENT_GRADED:
         notification = await inAppNotificationService.createNotification({
           recieverEmail: event.recieverEmail,
-          title: "Assignment Graded ✅",
+          title: "Assignment Graded ",
           message: `Your assignment has been graded. Score: ${event.score}/${event.totalScore}`,
           type: "success",
           link: `/assignments/${event.assignmentId}/results`
@@ -207,7 +213,7 @@ export const handleInAppNotifications = async (event: any) => {
       case EventTypes.SUBSCRIPTION_EXPIRED:
         notification = await inAppNotificationService.createNotification({
           recieverEmail: event.recieverEmail,
-          title: "Subscription Expired 💳",
+          title: "Subscription Expired ",
           message: "Your subscription has expired. Renew now to continue accessing premium features.",
           type: "warning",
           link: `/subscription/renew`
@@ -217,7 +223,7 @@ export const handleInAppNotifications = async (event: any) => {
       case EventTypes.PAYMENT_FAILED:
         notification = await inAppNotificationService.createNotification({
           recieverEmail: event.recieverEmail,
-          title: "Payment Failed ❌",
+          title: "Payment Failed ",
           message: "Your payment could not be processed. Please update your payment method to continue your subscription.",
           type: "error",
           link: `/billing/payment-methods`
@@ -241,10 +247,8 @@ export const handleInAppNotifications = async (event: any) => {
     }
 
     if (notification) {
-      // Send real-time notification via WebSocket (Fixed: use correct room name and event)
+
       io.to(event.recieverEmail).emit("notification", notification);
-      
-      // Log successful notification creation
       console.log(`Notification created for user ${event.recieverEmail}: ${event.type}`);
     }
 
