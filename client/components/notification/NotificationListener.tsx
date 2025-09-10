@@ -1,5 +1,5 @@
 "use client"; 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useDispatch, useSelector } from "react-redux";
 import {  } from "../../redux/features/notification";
@@ -7,6 +7,7 @@ import { isSignedIn, user } from "@/redux/features/auth";
 
 
 export default function NotificationListener() {
+  const [isMounted, setIsMounted]=useState<boolean>(false);
   const dispatch = useDispatch();
   // const notifications = useSelector(selectNotifications);
   const currentUser = useSelector(user)
@@ -14,7 +15,6 @@ export default function NotificationListener() {
   const SOCKET_URL = "http://localhost:6001";
 
   useEffect(() => {
-    if(!currentUser) return ;
 
     const socket = io(SOCKET_URL, { 
       withCredentials: true, 
@@ -41,7 +41,7 @@ export default function NotificationListener() {
     return () => {
       socket.disconnect();
     };
-  }, [currentUser]);
+  }, []);
 
   return null; 
 }
