@@ -1,7 +1,8 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface INotification extends Document {
-  userId: string;
+  recieverId: string;
+  recieverEmail: string;
   title: string;
   message: string;
   type: string;
@@ -12,7 +13,8 @@ export interface INotification extends Document {
 }
 
 const NotificationSchema: Schema = new Schema({
-  userId: { type: String, required: true },
+  recieverId   : {type: String, required: true},
+  recieverEmail: { type: String, required: true },
   title: { type: String, required: true },
   message: { type: String, required: true },
   type: { type: String, required: true },

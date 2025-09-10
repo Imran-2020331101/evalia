@@ -17,6 +17,6 @@ export const env = {
   FROM_NAME: process.env.FROM_NAME || "Evalia Team",
   
   // AI Server Integration
-  AI_SERVER_URL: process.env.AI_SERVER_URL || "http://localhost:5001",
-  UPSKILL_ENGINE_URL: process.env.UPSKILL_ENGINE_URL || "http://localhost:7001"
+  AI_SERVER_URL: process.env.AI_SERVER_URL || "http://localhost:5000",
+  UPSKILL_ENGINE_URL: process.env.UPSKILL_ENGINE_URL || "http://localhost:7000"
 };
