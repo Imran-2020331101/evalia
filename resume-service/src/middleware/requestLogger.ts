@@ -1,5 +1,5 @@
-const express = require('express');
-const logger = require("../utils/logger");
+import express from 'express'
+import logger from "../utils/logger";
 
 // Custom type definitions for Express objects
 interface Request {

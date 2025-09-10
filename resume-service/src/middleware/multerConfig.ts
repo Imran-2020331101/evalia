@@ -1,7 +1,7 @@
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-const config = require("../config");
+import config from "../config";
 
 // Type definitions for multer configuration
 interface MulterFile {

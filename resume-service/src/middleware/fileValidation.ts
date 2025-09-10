@@ -1,4 +1,4 @@
-const config = require("../config");
+import config from "../config";
 import logger from "../utils/logger";
 
 // Type definitions for file validation

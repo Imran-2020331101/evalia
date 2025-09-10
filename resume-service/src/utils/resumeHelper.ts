@@ -1,5 +1,5 @@
-// Import ResumeDTO - using require for compatibility with existing JS DTO
-const ResumeDTO = require("../dto/ResumeDTO");
+// Import ResumeDTO - using ES6 import
+import ResumeDTO from "../dto/resumeDTO";
 
 // Type definitions for Resume data structures
 interface Skills {
@@ -250,7 +250,7 @@ function mapToResumeDTO(source: ResumeSource): any {
     filename: source.filename,
     originalName: source.originalName,
     fileLink: source.fileLink,
-    industry: source.industry,
+    industry: (source.industry as any) || "Others",
     skills: {
       technical: source.skills?.technical || [],
       soft: source.skills?.soft || [],
@@ -259,23 +259,23 @@ function mapToResumeDTO(source: ResumeSource): any {
       other: source.skills?.other || [],
     },
     experience: source.experience?.map(exp => ({
-      job_title: exp.job_title,
-      company: exp.company,
-      duration: exp.duration,
+      job_title: exp.job_title || "",
+      company: exp.company || "",
+      duration: exp.duration || "",
       description: exp.description || [],
       achievements: exp.achievements || [],
     })) || [],
     education: source.education?.map(edu => ({
-      degree: edu.degree,
-      institution: edu.institution,
-      year: edu.year,
-      gpa: edu.gpa,
+      degree: edu.degree || "",
+      institution: edu.institution || "",
+      year: edu.year || "",
+      gpa: edu.gpa?.toString() || "",
     })) || [],
     projects: source.projects?.map(project => ({
-      title: project.title,
-      description: project.description,
+      title: project.title || "",
+      description: project.description || "",
       technologies: project.technologies || [],
-      url: project.url || null,
+      url: project.url || "",
     })) || [],
     contact: {
       email: source.contact?.email || "",
@@ -285,15 +285,19 @@ function mapToResumeDTO(source: ResumeSource): any {
       location: source.contact?.location || "",
     },
     certifications: source.certifications?.map(cert => ({
-      title: cert.title,
-      provider: cert.provider,
-      date: cert.date,
-      link: cert.link,
+      title: cert.title || "",
+      provider: cert.provider || "",
+      date: cert.date || "",
+      link: cert.link || "",
     })) || [],
-    awards: source.awards || [],
+    awards: (source.awards || []).map(award => 
+      typeof award === 'string' 
+        ? { title: award, organization: "", year: "", description: "" }
+        : award
+    ),
     volunteer: source.volunteer || [],
     interests: source.interests || [],
-    status: source.status || "completed"
+    status: (source.status as any) || "completed"
   });
 }
 

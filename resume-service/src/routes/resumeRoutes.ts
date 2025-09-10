@@ -1,9 +1,9 @@
 import express, { Router } from 'express';
 import multer from 'multer';
 
-// Import JavaScript modules using require for compatibility
-const cloudinary = require('../config/Cloudinary');
-const resumeController = require('../controllers/resumeController');
+// Import modules using ES6 imports
+import cloudinary from '../config/Cloudinary';
+import resumeController from '../controllers/resumeController';
 
 // Configure multer for file uploads
 const upload = multer({ 

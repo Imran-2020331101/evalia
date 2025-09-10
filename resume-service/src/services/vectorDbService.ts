@@ -1,12 +1,12 @@
 import { Pinecone } from "@pinecone-database/pinecone";
 import logger from "../utils/logger";
-const {
+import {
   skillsToString,
   educationToString,
   projectsToString,
   experienceToString,
   aggregateResultsByCandidate,
-} = require("../utils/resumeHelper");
+} from "../utils/resumeHelper";
 
 // Type definitions
 interface VectorRecord {
@@ -40,7 +40,7 @@ interface SearchRequirements {
 interface SearchResult {
   id: string;
   score: number;
-  section: string;
+  section: 'skills' | 'experience' | 'projects' | 'education';
   candidateEmail: string;
   candidateName: string;
   candidateId: string;
