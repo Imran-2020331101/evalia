@@ -112,6 +112,9 @@ class ApplicationService{
           title       : job.title,
           interviewQA : job.interviewQA || [],
         },
+        organization : {
+          id  : job.company.OrganizationId,
+        },
         deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), //(7 days )
       });
       
