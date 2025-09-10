@@ -10,6 +10,8 @@ export const connectBroker = async () => {
     const channel = await conn.createChannel();
 
     await channel.assertQueue("notifications",{ durable: true });
+    await channel.assertQueue("email-notification",{ durable: true});
+    
     logger.info("Connected to message broker and listening...");
 
     channel.consume("notifications", (msg) => {

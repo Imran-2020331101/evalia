@@ -1,15 +1,15 @@
-const { Pinecone } = require("@pinecone-database/pinecone");
-const logger = require("../utils/logger");
+const { Pinecone } = require('@pinecone-database/pinecone');
+const logger = require('../utils/logger');
 const {
   skillsToString,
   educationToString,
   projectsToString,
   experienceToString,
   aggregateResultsByCandidate,
-} = require("../utils/resumeHelper");
+} = require('../utils/resumeHelper');
 
 const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
-const indexName = "resume-bot";
+const indexName = 'resume-bot';
 
 async function addToVectordb(email, data, userId, userName) {
   // Convert structured data to strings
@@ -22,19 +22,19 @@ async function addToVectordb(email, data, userId, userName) {
   const potentialSections = [
     {
       text: skillsText,
-      section: "skills",
+      section: 'skills',
     },
     {
       text: educationText,
-      section: "education",
+      section: 'education',
     },
     {
       text: projectsText,
-      section: "projects",
+      section: 'projects',
     },
     {
       text: experienceText,
-      section: "experience",
+      section: 'experience',
     },
   ];
 
@@ -42,9 +42,9 @@ async function addToVectordb(email, data, userId, userName) {
   const records = [];
 
   potentialSections.forEach(({ text, section }) => {
-    if (text && text.trim() !== "") {
+    if (text && text.trim() !== '') {
       records.push({
-        _id: email + "_" + section,
+        _id: email + '_' + section,
         text: text,
         section: section,
         candidate_email: email,
@@ -68,35 +68,39 @@ async function addToVectordb(email, data, userId, userName) {
   // Upsert the records into a namespace
   const res = await index.upsertRecords(records);
 
-  console.log("Vector DB Service :: Response from vector DB :: ", res);
+  console.log('Vector DB Service :: Response from vector DB :: ', res);
   return res || null;
 }
 
-async function naturalLanguageSearch(requirements,topK) {
+async function naturalLanguageSearch(requirements, topK) {
   const { industry, skills, experience, projects, education } = requirements;
 
   if (!industry) {
-    logger.error("NO industry found for the job description");
+    logger.error('NO industry found for the job description');
     return [];
   }
 
-  
   try {
     const index = pc.index(indexName).namespace(industry);
     const allResults = [];
-    
+
     // Define sections to search with their corresponding query text
     const sectionsToSearch = [
-      { section: "skills", queryText: skills || "" },
-      { section: "experience", queryText: experience || "" },
-      { section: "projects", queryText: projects || "" },
-      { section: "education", queryText: education || "" },
+      { section: 'skills', queryText: skills || '' },
+      { section: 'experience', queryText: experience || '' },
+      { section: 'projects', queryText: projects || '' },
+      { section: 'education', queryText: education || '' },
     ];
-    console.log("natural Language Search function called", skills, experience, projects);
+    console.log(
+      'natural Language Search function called',
+      skills,
+      experience,
+      projects
+    );
 
     // Search each section separately
     for (const { section, queryText } of sectionsToSearch) {
-      if (queryText && queryText.trim() !== "") {
+      if (queryText && queryText.trim() !== '') {
         logger.info(
           `Searching in ${section} section with query: ${queryText.substring(
             0,
@@ -106,20 +110,20 @@ async function naturalLanguageSearch(requirements,topK) {
 
         const response = await index.searchRecords({
           query: {
-            topK: topK,
+            topK: parseInt(topK, 10),
             inputs: { text: queryText },
             filter: { section: section },
           },
           fields: [
-            "text",
-            "section",
-            "candidate_email",
-            "candidate_name",
-            "candidate_id",
+            'text',
+            'section',
+            'candidate_email',
+            'candidate_name',
+            'candidate_id',
           ],
         });
 
-        console.log("Pinecone search response received");
+        console.log('Pinecone search response received');
 
         if (response && response.result && response.result.hits) {
           // Add section info to each result
@@ -154,7 +158,7 @@ async function naturalLanguageSearch(requirements,topK) {
 
     return aggregatedCandidates.length > 0 ? aggregatedCandidates : [];
   } catch (error) {
-    logger.error("Error in naturalLanguageSearch:", error);
+    logger.error('Error in naturalLanguageSearch:', error);
     return [];
   }
 }
@@ -170,7 +174,7 @@ async function advancedSearch(referenceCV, industry, numOfResults = 10) {
       includeMetadata: true,
     });
 
-    logger.info("Advanced search results:", results.matches.length);
+    logger.info('Advanced search results:', results.matches.length);
 
     // Return more detailed results
     return results.matches.map((match) => ({
@@ -181,18 +185,18 @@ async function advancedSearch(referenceCV, industry, numOfResults = 10) {
       originalText: match.metadata.original_text,
     }));
   } catch (error) {
-    logger.error("Error in advancedSearch:", error);
+    logger.error('Error in advancedSearch:', error);
     return [];
   }
 }
 
-async function weightedSearch(recruiterQuery, industry = "example-namespace") {
+async function weightedSearch(recruiterQuery, industry = 'example-namespace') {
   try {
     const index = pc.index(indexName).namespace(industry);
     const resultChunks = [];
 
     // Search each section separately
-    for (const section of ["skills", "experience", "education", "projects"]) {
+    for (const section of ['skills', 'experience', 'education', 'projects']) {
       const results = await index.query({
         data: recruiterQuery,
         topK: 10,
@@ -228,7 +232,7 @@ async function weightedSearch(recruiterQuery, industry = "example-namespace") {
 
     return topCandidates;
   } catch (error) {
-    logger.error("Error in weightedSearch:", error);
+    logger.error('Error in weightedSearch:', error);
     return [];
   }
 }
