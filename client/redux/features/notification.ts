@@ -5,12 +5,12 @@ import axios from "axios";
 
 export const getAllNotifications = createAsyncThunk('notifications/getAllNotifications',async(_,thunkAPI)=>{
   try {
-        const response = await axios.post(
-            `http://localhost:8080/api/notifications/`,{
+        const response = await axios.get(`http://localhost:8080/api/notifications/`,{
                 withCredentials: true,
             })
         return response.data
     } catch (error:any) {
+      console.log(error)
         return thunkAPI.rejectWithValue(
             error.response? { message: error.response.data } : { message: 'failed fetching notifications' })
     }
@@ -58,6 +58,7 @@ const notificationsSlice = createSlice({
     })
     .addCase(getAllNotifications.fulfilled,(state,action)=>{
         console.log(action.payload, 'all notifications')
+        state.allNotifications=action.payload.data;
         state.getAllNotificationStatus='success'
     })
   }
