@@ -3,7 +3,7 @@ import {
   InterviewData,
   ShortlistRequest,
 } from '../types/aplication.types';
-import { asyncHandler } from '../utils';
+import { ApiError, asyncHandler } from '../utils';
 import axios from 'axios';
 
 // Status enum for job applications
@@ -18,6 +18,56 @@ import { EventTypes } from '../types/notifications.types';
 
 
 class ApplicationService{
+
+      async applyToJob(jobId: string, candidateEmail: string, candidateId: string, candidateName: string): Promise<IJobDetailsDocument> {
+
+        const existingJob = await JobDetailsModel.findById(jobId).orFail();
+
+        const alreadyApplied = existingJob.applications?.some(app => app.candidateEmail === candidateEmail);
+        if (alreadyApplied) {
+          throw new ApiError(400,"User Already Applied to this job");
+        }
+
+        const application = {
+          candidateEmail,
+          candidateId,
+          appliedAt : new Date(),
+          status    : ApplicationStatus.Pending,
+        };
+
+        return await JobDetailsModel.findByIdAndUpdate(
+          jobId,
+          { $addToSet: { applications: application } },
+          { new: true }
+        ).orFail();
+    }
+
+
+    async withdrawApplication(jobId: string, candidateEmail: string, candidateId: string): Promise<IJobDetailsDocument> {
+     
+        const existingJob = await JobDetailsModel.findById(jobId).orFail();
+
+        const applicationExists = existingJob?.applications?.some(
+          app => app.candidateEmail === candidateEmail
+        );
+        
+        if (!applicationExists) {
+          throw new ApiError(400, "You never applied for this job. No such application found ");
+        }
+
+        return await JobDetailsModel.findByIdAndUpdate(
+          jobId,
+          { 
+            $pull: { 
+              applications: { 
+                candidateEmail: candidateEmail
+              } 
+            } 
+          },
+          { new: true }
+        ).orFail();
+    }
+
 
   async shortlistCandidate(jobId: string, candidates : Array<CandidateInfo>): Promise<IJobDetailsDocument | null> {
     
