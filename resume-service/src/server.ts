@@ -10,12 +10,12 @@ let server: Server;
  * Graceful shutdown handler
  */
 const gracefulShutdown = (signal: string): void => {
-  logger.info(`📡 Received ${signal}. Starting graceful shutdown...`);
+  logger.info(` Received ${signal}. Starting graceful shutdown...`);
   
   if (server) {
     server.close((err) => {
       if (err) {
-        logger.error('❌ Error during server shutdown:', err);
+        logger.error('Error during server shutdown:', err);
         process.exit(1);
       }
       
@@ -25,7 +25,7 @@ const gracefulShutdown = (signal: string): void => {
     
     // Force shutdown after timeout
     setTimeout(() => {
-      logger.error('⏰ Graceful shutdown timeout. Forcing shutdown...');
+      logger.error('Graceful shutdown timeout. Forcing shutdown...');
       process.exit(1);
     }, 30000); // 30 seconds timeout
   } else {
@@ -43,7 +43,7 @@ const startServer = (): void => {
     
     // Start the server
     server = app.listen(PORT, () => {
-      logger.info('🚀 Evalia Resume Service successfully started', {
+      logger.info('Evalia Resume Service successfully started', {
         port: PORT,
         environment: config.NODE_ENV,
         nodeVersion: process.version,
@@ -83,10 +83,10 @@ const startServer = (): void => {
       // Handle specific listen errors with friendly messages
       switch ((error as any).code) {
         case 'EACCES':
-          logger.error(`❌ ${bind} requires elevated privileges`);
+          logger.error(` ${bind} requires elevated privileges`);
           process.exit(1);
         case 'EADDRINUSE':
-          logger.error(`❌ ${bind} is already in use`);
+          logger.error(` ${bind} is already in use`);
           process.exit(1);
         default:
           throw error;
@@ -108,7 +108,7 @@ const startServer = (): void => {
     });
 
   } catch (error) {
-    logger.error('❌ Failed to start server:', error);
+    logger.error('Failed to start server:', error);
     process.exit(1);
   }
 };
@@ -131,7 +131,7 @@ const setupProcessHandlers = (): void => {
       'unhandledRejection'
     );
     
-    logger.error('🚨 Unhandled Promise Rejection detected', {
+    logger.error(' Unhandled Promise Rejection detected', {
       reason: errorMessage,
       stack: errorStack,
       promise: promise.toString(),
@@ -140,7 +140,7 @@ const setupProcessHandlers = (): void => {
 
     // In development, don't exit the process
     if (config.NODE_ENV === 'development') {
-      logger.warn('⚠️ Development mode: continuing despite unhandled rejection');
+      logger.warn(' Development mode: continuing despite unhandled rejection');
       return;
     }
 
@@ -152,7 +152,7 @@ const setupProcessHandlers = (): void => {
   process.on('uncaughtException', (error: Error) => {
     logUnhandledError(error, 'uncaughtException');
     
-    logger.error('💥 Uncaught Exception detected - shutting down', {
+    logger.error(' Uncaught Exception detected - shutting down', {
       error: error.message,
       stack: error.stack,
       name: error.name,
@@ -165,7 +165,7 @@ const setupProcessHandlers = (): void => {
 
   // Handle warning events
   process.on('warning', (warning) => {
-    logger.warn('⚠️ Node.js warning detected', {
+    logger.warn(' Node.js warning detected', {
       name: warning.name,
       message: warning.message,
       stack: warning.stack,
@@ -175,7 +175,7 @@ const setupProcessHandlers = (): void => {
 
   // Log process exit
   process.on('exit', (code) => {
-    logger.info(`👋 Process exiting with code: ${code}`, {
+    logger.info(` Process exiting with code: ${code}`, {
       uptime: Math.floor(process.uptime()),
       memoryUsage: process.memoryUsage(),
       timestamp: new Date().toISOString(),

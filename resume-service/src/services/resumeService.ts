@@ -1,10 +1,10 @@
 import pdfParse from "pdf-parse";
 import logger from "../utils/logger";
-const openRouter = require("../config/OpenRouter");
-const streamifier = require("streamifier");
-const cloudinary = require("../config/Cloudinary");
-const parseResumePrompt = require("../prompts/parseResumePrompt");
-const parseJobDescriptionPrompt = require("../prompts/parseJobDescriptionPrompt");
+import openRouter from "../config/OpenRouter";
+import streamifier from "streamifier";
+import cloudinary from "../config/Cloudinary";
+import parseResumePrompt from "../prompts/parseResumePrompt";
+import parseJobDescriptionPrompt from "../prompts/parseJobDescriptionprompt";
 
 // Type definitions
 interface CloudinaryResult {
@@ -192,9 +192,8 @@ class ResumeService {
    * Extract details from job description using AI
    * @param jobDescription - Job description text
    * @returns Promise<JobDescriptionDetails> - Extracted job details
-   * @private
    */
-  private async _extractDetailsFromJobDescription(
+  async extractDetailsFromJobDescription(
     jobDescription: string
   ): Promise<JobDescriptionDetails> {
     const prompt = parseJobDescriptionPrompt(jobDescription);
@@ -212,10 +211,10 @@ class ResumeService {
           .trim();
 
         console.log("extracted job description ", cleaned);
-        return JSON.parse(cleaned);
+        return JSON.parse(cleaned) as JobDescriptionDetails;
       }
 
-      return res as JobDescriptionDetails;
+      return res as unknown as JobDescriptionDetails;
     } catch (error) {
       logger.error("Job description Failed", error);
       throw new Error("Failed to parse job description through AI");

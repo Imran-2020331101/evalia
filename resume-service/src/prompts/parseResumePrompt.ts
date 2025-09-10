@@ -74,10 +74,10 @@ interface ParsedResumeResult {
 /**
  * Generate prompt for parsing resume text using AI
  * @param resumeText - The raw resume text to parse
- * @param industry - The target industry for keyword generation
+ * @param industry - The target industry for keyword generation (optional)
  * @returns Formatted prompt string for AI processing
  */
-const parseResumePrompt = (resumeText: string, industry: string): string => `You are an expert resume parser.
+const parseResumePrompt = (resumeText: string, industry: string = "General"): string => `You are an expert resume parser.
 
 Given the following raw resume text, extract and return structured information in **VALID JSON** format only.
 
