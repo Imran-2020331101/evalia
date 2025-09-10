@@ -18,14 +18,19 @@ export enum EventTypes{
 }
 
 
-export const NotificationSchema = z.object({
-  userId: z.string(),
+
+export const NotificationZodSchema = z.object({
+  recieverId: z.string(),
+  recieverEmail: z.string().email(),
   title: z.string(),
   message: z.string(),
   type: z.string(),
   link: z.string().optional(),
-  isRead: z.boolean(),
-  createdAt: z.date(),
+  isRead: z.boolean().default(false).optional(),
+  createdAt: z.date().default(() => new Date()).optional(),
+  data: z.any().optional(),
 }).passthrough();
 
-export type INotification = z.infer<typeof NotificationSchema>;
+
+export type INotification = z.infer<typeof NotificationZodSchema>;
+

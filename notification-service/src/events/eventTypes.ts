@@ -11,6 +11,13 @@ export enum EventTypes {
   JOB_APPLICATION_ACCEPTED = "job.application.accepted",
   CAREER_RECOMMENDATION_GENERATED = "career.recommendation.generated",
   
+  // For Recruiter
+  NEW_JOB_APPLICATION = "new.job.application",
+  JOB_POSTING_EXPIRED = "job.posting.expired",  
+  CANDIDATE_WITHDRAWN_APPLICATION = "candidate.withdrawn",
+  
+
+
   // Batch Processing Events - For bulk operations
   BATCH_REJECTION_FEEDBACK = "batch.rejection.feedback",
   

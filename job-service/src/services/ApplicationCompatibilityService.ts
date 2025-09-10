@@ -23,8 +23,6 @@ class applicationCompatibilityService {
 
       let parsed = JSON.parse(cleaned);
 
-      logger.info("Candidate evaluation result", { job, evaluation: parsed });
-
       const reviewDoc = new CompatibilityReviewModel({
         jobId: job._id || "",
         candidateEmail: email || "",
