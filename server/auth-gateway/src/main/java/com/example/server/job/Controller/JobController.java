@@ -62,6 +62,10 @@ public class JobController {
     @GetMapping("/user/saved")
     public ResponseEntity<String> getAllJobsSavedByUser(Principal principal) {
         userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
+        if(user.getSavedJobs().isEmpty()){
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body("[]");
+        }
         ResponseEntity<String> response = jobProxy.getAllJobsSavedByUser(user.getSavedJobs());
         return ResponseEntity.status(response.getStatusCode())
                 .body(response.getBody());

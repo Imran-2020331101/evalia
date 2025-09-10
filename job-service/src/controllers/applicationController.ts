@@ -32,12 +32,13 @@ export class ApplicationController{
     const schema = z.object({
       jobId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID"),
       email: z.string().email("Invalid candidate email"),
-      candidateId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID")
+      candidateId: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid job ID"),
+      candidateName: z.string().optional()
     });
-    const { jobId, email, candidateId } = schema.parse(req.body);
+    const { jobId, email, candidateId, candidateName } = schema.parse(req.body);
  
-    const result = await JobService.applyToJob(jobId, email, candidateId);
-    if(result.success){
+    const result = await applicationService.applyToJob(jobId, email, candidateId, candidateName || "No name found");
+    if(result){
       (async () => {
         try {
           const resumeResponse = await axios.get(`${process.env.RESUME_SERVICE_URL}/api/resume/retrieve?email=${email}`);
@@ -59,8 +60,11 @@ export class ApplicationController{
         }
       })();
     }
-    const status = result.success ? 200 : 400;
-    res.status(status).json(result);
+
+    res.status(200).json({
+      success : true,
+      data    : result,
+    });
   });
 
   /**
@@ -76,10 +80,12 @@ export class ApplicationController{
     
     const { jobId, email, candidateId } = schema.parse(req.body);
     
-    const result = await JobService.withdrawApplication(jobId, email, candidateId);
-    const status = result.success ? 200 : 400;
+    const result = await applicationService.withdrawApplication(jobId, email, candidateId);
     
-    res.status(status).json(result);
+    res.status(200).json({
+      success : true,
+      data    : result
+    });
   });
 
   /**
