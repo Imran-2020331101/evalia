@@ -34,8 +34,10 @@ public class JobController {
     @GetMapping("/active-jobs")
     public ResponseEntity<String> getAllActiveJobs(Principal principal) {
         logger.info("Received get job request from "+ principal.getName());
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(jobProxy.getAllActiveJobs());
+        ResponseEntity<String> response = jobProxy.getAllActiveJobs();
+
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
     }
 
     @GetMapping("/organization/{OrganizationId}")
@@ -46,8 +48,9 @@ public class JobController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                       .body("User does not have any organization");
         }
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(jobProxy.getAllJobsOfAnOrganization(OrganizationId));
+        ResponseEntity<String> response = jobProxy.getAllJobsOfAnOrganization(OrganizationId);
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
     }
 
     @GetMapping("/user/applied")
@@ -83,11 +86,10 @@ public class JobController {
             logger.info(" Job creation request received from user: " + principal.getName() +
                              " For the Organization: " + jobCreationRequest.getCompanyInfo());
 
-            String response = jobProxy.createJob(jobCreationRequest);
+            ResponseEntity<String> response = jobProxy.createJob(jobCreationRequest);
 
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(response);
-
+            return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
     }
 
 
@@ -101,8 +103,10 @@ public class JobController {
 
     @DeleteMapping("/{jobId}")
     public ResponseEntity<String> deleteJobById(@PathVariable ("jobId") String jobId, Principal principal) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(jobProxy.deleteJobById(jobId, principal.getName()));
+        ResponseEntity<String> response =jobProxy.deleteJobById(jobId, principal.getName());
+
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
     }
 
     @PostMapping("/{jobId}/apply")

@@ -18,10 +18,10 @@ import java.util.List;
 public interface JobProxy {
 
     @GetMapping(value = "/")
-    String getAllActiveJobs();
+    ResponseEntity<String> getAllActiveJobs();
 
     @GetMapping    (value = "/organization/{OrganizationId}")
-    String getAllJobsOfAnOrganization(@PathVariable ("OrganizationId") String OrganizationId);
+    ResponseEntity<String> getAllJobsOfAnOrganization(@PathVariable ("OrganizationId") String OrganizationId);
 
     @PostMapping(value = "/user/applied")
     ResponseEntity<String> getAllJobsAppliedByUser(@RequestBody List<String> jobIds);
@@ -30,19 +30,19 @@ public interface JobProxy {
     ResponseEntity<String> getAllJobsSavedByUser(@RequestBody List<String> jobIds);
 
     @PostMapping   (value = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
-    String createJob     ( @RequestBody   JobCreationRequest jobCreationRequest);
+    ResponseEntity<String> createJob     ( @RequestBody   JobCreationRequest jobCreationRequest);
 
     @GetMapping    (value = "/{jobId}")
     ResponseEntity<String> getJobById    ( @PathVariable ("jobId") String jobId);
 
     @DeleteMapping (value = "/{jobId}")
-    String deleteJobById ( @PathVariable ("jobId") String jobId,
+    ResponseEntity<String> deleteJobById ( @PathVariable ("jobId") String jobId,
                            @RequestParam ("email") String email);
 
 
 
     @DeleteMapping (value = "/organization/{OrganizationId}")
-    String deleteAllJobsOfAnOrganization(@PathVariable ("OrganizationId") String OrganizationId);
+    ResponseEntity<String> deleteAllJobsOfAnOrganization(@PathVariable ("OrganizationId") String OrganizationId);
 
     @PostMapping   (value = "/apply", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<String> applyToAJob     (@RequestBody JobApplicationRequest jobApplicationRequest);
