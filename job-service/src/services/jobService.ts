@@ -26,16 +26,6 @@ class jobService{
         const jobData  = mapJobData(payload);
         const savedJob = await new JobDetailsModel(jobData).save();
 
-        if(savedJob){
-          const notification = {
-            userId   : savedJob.company.OrganizationId,
-            type     : "job.posting.created",
-            jobTitle : savedJob.title,
-            jobId    : savedJob._id || "unknown"
-          }
-          sendNotification(notification,"notifications");
-        }
-        
         logger.info("New job created successfully", {
           jobId    : savedJob._id.toString(),
           company  : savedJob.company?.OrganizationId,

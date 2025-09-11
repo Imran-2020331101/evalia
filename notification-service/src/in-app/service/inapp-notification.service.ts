@@ -5,11 +5,13 @@ import { notifyUser, notifyInterviewUpdate } from "../../config/socket";
 class InAppNotificationService {
   createNotification = async (data: Partial<INotification>) => {
     const notification = await Notification.create(data);
+    console.log("New notification created ", notification);
     return notification;
   };
 
-  getUserNotifications = async (recieverEmail: string) => {
-    return Notification.find({ recieverEmail }).sort({ createdAt: -1 });
+  getUserNotifications = async (recieverId: string) => {
+    console.log(recieverId);
+    return Notification.find({ recieverId }).sort({ createdAt: -1 });
   };
 
   markAsRead = async (id: string) => {

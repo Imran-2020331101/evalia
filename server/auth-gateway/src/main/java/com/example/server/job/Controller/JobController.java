@@ -4,7 +4,6 @@ import com.example.server.UserProfile.Service.UserService;
 import com.example.server.job.DTO.*;
 import com.example.server.job.Proxy.JobProxy;
 import com.example.server.security.models.userEntity;
-import jdk.dynalink.linker.LinkerServices;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -112,7 +111,7 @@ public class JobController {
         userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
 
         ResponseEntity<String> response = jobProxy.applyToAJob(
-                new JobApplicationRequest(jobId, principal.getName(),user.getId().toString()));
+                new JobApplicationRequest(jobId, principal.getName(),user.getId().toString(), user.getDisplayName()));
 
         if(response.getStatusCode().equals(HttpStatus.OK)){
             logger.info("User: " + principal.getName() + " applied to job: " + jobId);
@@ -133,7 +132,7 @@ public class JobController {
                     .body("Job not in applied list");
         }
         ResponseEntity<String> response = jobProxy.withdrawApplicationFromAJob(
-                new JobApplicationRequest(jobId, principal.getName(),user.getId().toString()));
+                new JobApplicationRequest(jobId, principal.getName(),user.getId().toString(), user.getDisplayName()));
 
         if(response.getStatusCode().equals(HttpStatus.OK)){
             logger.info("User: " + principal.getName() + " withdrew application from job: " + jobId);
