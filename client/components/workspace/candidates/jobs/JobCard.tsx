@@ -78,7 +78,7 @@ const JobCard = ({job}:{job:any}) => {
     const saved = currentSavedJobs?.find((item:any)=>item._id===_id);
     if(saved) setIsSaved(true)
     else {setIsSaved(false)}
-  },[currentAppliedJobs.length, currentSavedJobs.length])
+  },[currentAppliedJobs?.length, currentSavedJobs?.length])
   if(!organization) return null;
   return (
     <div className="w-full h-auto border-b-[1px] border-transparent bg-gray-900/40 px-3 transition-colors duration-300 py-2 rounded-lg hover:border-blue-400  flex justify-between shrink-0">
