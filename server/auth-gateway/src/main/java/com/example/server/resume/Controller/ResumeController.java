@@ -102,18 +102,17 @@ public class ResumeController {
     }
 
     @PostMapping("/save")
-    public String saveResume(@RequestBody ResumeDataRequest resumeData, Principal principal) {
-
-        logger.info("Received request to save resume data for user: " + principal.getName());
-
+    public ResponseEntity<String> saveResume(@RequestBody ResumeDataRequest resumeData, Principal principal) {
         userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
-        return resumeJsonProxy.saveResume(new ResumeForwardWrapper(
+        ResponseEntity<String> response = resumeJsonProxy.saveResume(new ResumeForwardWrapper(
                 resumeData,
                 null,
                 user.getId(),
                 user.getUsername(),
                 principal.getName()
         ));
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
     }
 
     @PostMapping("/basic-search")
@@ -122,9 +121,9 @@ public class ResumeController {
         logger.info("Received basic search request from user: " + principal.getName());
 
         try {
-            String jsonResponse          = resumeJsonProxy.basicSearchResume(basicSearchRequest);
+            ResponseEntity<String> jsonResponse          = resumeJsonProxy.basicSearchResume(basicSearchRequest);
             ObjectMapper mapper          = new ObjectMapper();
-            BasicSearchResponse response = mapper.readValue(jsonResponse, BasicSearchResponse.class);
+            BasicSearchResponse response = mapper.readValue(jsonResponse.getBody(), BasicSearchResponse.class);
 
             return ResponseEntity.status(HttpStatus.OK)
                     .body(response);
