@@ -1,7 +1,7 @@
 package com.example.server.resume.Proxy;
 
-import com.example.server.UserProfile.DTO.ForwardProfileRequest;
 import com.example.server.resume.DTO.BasicSearchRequest;
+import com.example.server.resume.DTO.GlobalSearchRequest;
 import com.example.server.resume.DTO.ResumeForwardWrapper;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
@@ -25,4 +25,7 @@ public interface ResumeJsonProxy {
 
     @GetMapping(value = "/{jobId}/shortlist/{k}")
     ResponseEntity<String> getTopKResumesForJob(@PathVariable("jobId") String jobId, @PathVariable("k") int k);
+
+    @PostMapping(value = "/shortlist/{k}")
+    ResponseEntity<String> globalResumeSearch(@PathVariable("k") int k, @RequestBody GlobalSearchRequest globalSearchRequest);
 }

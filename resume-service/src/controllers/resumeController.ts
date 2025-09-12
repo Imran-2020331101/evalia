@@ -11,12 +11,6 @@ import {
 
 } from '../types/resume.types';
 import { mapToResumeDTO } from '../utils/resumeHelper';
-import {
-  addToVectordb,
-  naturalLanguageSearch,
-  advancedSearch,
-  weightedSearch,
-} from '../services/vectorDbService';
 import { asyncHandler } from '../utils/asyncHandler';
 import {
   BadRequestError,
@@ -226,25 +220,26 @@ class ResumeController {
   })
 
   searchCandidatesUsingNLP = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const { job_description } = req.body;
+    const { job_description} = req.body;
+    const {k} = req.params;
 
     if (!job_description) {
       throw new MissingRequiredFieldError('job_description');
     }
 
-      const requirement = await resumeService.extractDetailsFromJobDescription(
+      const requirements = await resumeService.extractDetailsFromJobDescription(
         job_description
       );
 
-      console.log('job_description parsed ', requirement.industry);
+      console.log('job_description parsed ', requirements.industry);
 
-      const Candidates = await naturalLanguageSearch(requirement, 10);
+      const matchedCandidates = await resumeService.globalResumeSearch(requirements, k);
 
 
       res.status(200).json({
         success: true,
         message: 'Vector search completed successfully',
-        data: Candidates,
+        data: matchedCandidates,
       });
   })
 
@@ -263,7 +258,6 @@ class ResumeController {
 
       const candidates : string[] = job.applications.map((app)=> app.candidateId);
       
-      console.log('aplied candidates : ',candidates);
 
       const requirement: JobDescriptionResult = {
           industry: 'STEM & Technical',

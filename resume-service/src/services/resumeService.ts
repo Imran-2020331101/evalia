@@ -14,6 +14,7 @@ import { asyncHandler } from "../middleware/errorHandler";
 import { ExtractedResume } from "../models/ExtractedText";
 import { Document } from "mongoose";
 import { qdrantService, SearchResult } from "./QdrantService";
+import { JobEmbeddingResult, openAIService } from "./OpenAIService";
 
 
 // Type definitions
@@ -240,60 +241,70 @@ class ResumeService {
 
   }
 
- parseCandidateScores(data: SearchResult[]): CandidateScore[] {
-  
-      console.log('candidates before transforming : ', data[0].result.points);
-  const candidatesMap = new Map<string, CandidateScore>();
+  async globalResumeSearch(requirement : JobDescriptionResult, k : string) : Promise<CandidateScore[]>{
+    
+    const requirementEmbeddings : JobEmbeddingResult[] = await  openAIService.createJobEmbedding(requirement.skills, requirement.experience, requirement.projects, requirement.education);
+    const searchResult = await qdrantService.globalSearch(requirementEmbeddings , parseInt(k), process.env.QDRANT_COLLECTION_NAME);
+        
+    const matchedCandidates = this.parseCandidateScores(searchResult);
+    console.log("candidates after transforming : ", matchedCandidates);
+    return matchedCandidates;
+  }
 
-  for (const key in data) {
-    if (data.hasOwnProperty(key)) {
-      const sectionData = data[key];
-      const sectionName = sectionData.section;
-      const points = sectionData.result.points;
 
-      for (const point of points) {
-        const candidateId = point.payload?.['candidate-id'];
-        const score = point.score;
+  parseCandidateScores(data: SearchResult[]): CandidateScore[] {
+    
+    const candidatesMap = new Map<string, CandidateScore>();
 
-        // Skip if candidateId is not a string
-        if (!candidateId || typeof candidateId !== 'string') continue;
+    for (const key in data) {
+      if (data.hasOwnProperty(key)) {
+        const sectionData = data[key];
+        const sectionName = sectionData.section;
+        const points = sectionData.result.points;
 
-        // If the candidate isn't in our map, add them with default null scores.
-        if (!candidatesMap.has(candidateId)) {
-          candidatesMap.set(candidateId, {
-            'candidate-id': candidateId,
-            candidateName: point.payload?.['candidate-name'],
-            skills: null,
-            education: null,
-            experience: null,
-            projects: null,
-          });
-        }
+        for (const point of points) {
+          const candidateId = point.payload?.['candidate-id'];
+          const score = point.score;
 
-        // Get the candidate's score object from the map.
-        const candidateScore = candidatesMap.get(candidateId)!;
+          // Skip if candidateId is not a string
+          if (!candidateId || typeof candidateId !== 'string') continue;
 
-        // Assign the score to the correct section, rounding to two decimal places.
-        switch (sectionName) {
-          case 'skills':
-            candidateScore.skills = parseFloat(score.toFixed(2));
-            break;
-          case 'education':
-            candidateScore.education = parseFloat(score.toFixed(2));
-            break;
-          case 'experience':
-            candidateScore.experience = parseFloat(score.toFixed(2));
-            break;
-          case 'projects':
-            candidateScore.projects = parseFloat(score.toFixed(2));
-            break;
+          // If the candidate isn't in our map, add them with default null scores.
+          if (!candidatesMap.has(candidateId)) {
+            candidatesMap.set(candidateId, {
+              'candidate-id': candidateId,
+              candidateName: point.payload?.['candidate-name'],
+              skills: null,
+              education: null,
+              experience: null,
+              projects: null,
+            });
+          }
+
+          // Get the candidate's score object from the map.
+          const candidateScore = candidatesMap.get(candidateId)!;
+
+          // Assign the score to the correct section, rounding to two decimal places.
+          switch (sectionName) {
+            case 'skills':
+              candidateScore.skills = parseFloat(score.toFixed(2));
+              break;
+            case 'education':
+              candidateScore.education = parseFloat(score.toFixed(2));
+              break;
+            case 'experience':
+              candidateScore.experience = parseFloat(score.toFixed(2));
+              break;
+            case 'projects':
+              candidateScore.projects = parseFloat(score.toFixed(2));
+              break;
+          }
         }
       }
     }
-  }
 
-  return Array.from(candidatesMap.values());
-}
+    return Array.from(candidatesMap.values());
+  }
 
 
 

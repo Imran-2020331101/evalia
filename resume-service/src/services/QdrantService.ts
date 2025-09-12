@@ -145,22 +145,27 @@ export class QdrantService {
   /**
    * Perform global search without filters
    */
-  async globalSearch(query: number[], limit: number = 10, collection?: string): Promise<any> {
-    try {
-      const targetCollection = collection || this.defaultCollection;
-      
-      const result = await this.client.query(targetCollection, {
-        query,
-        limit,
-        with_payload: true,
-      });
+  async globalSearch(embeddedSections : JobEmbeddingResult[], limit: number = 10, collection?: string): Promise<any> {
 
-      logger.info(`Global search completed, found ${result.points.length} results`);
-      return result.points;
-    } catch (error) {
-      logger.error('Error performing global search:', error);
-      throw error;
-    }
+      const targetCollection = collection || this.defaultCollection;
+      const searchResult : SearchResult[] = [];
+      
+      for( const sections of embeddedSections){
+        
+        const result = await this.client.query(targetCollection, {
+          query: sections.embedding,
+          limit: limit,      
+          with_payload: true,      
+          },
+    
+        );
+        searchResult.push({
+          section: sections.section,
+          result,
+        })
+      }
+
+      return searchResult;
   }
 
   /**
