@@ -73,6 +73,14 @@ public class JobController {
                 .body(response.getBody());
     }
 
+    @PostMapping("generate/interview-questions")
+    public ResponseEntity<String> generateInterviewQuestions(@RequestBody InterviewQuestionsGenerateRequest request,
+                                                            Principal principal) {
+        logger.info("Received generate interview questions request from "+ request.requirements());
+        ResponseEntity<String> response = jobProxy.generateInterviewQuestions(request);
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
+    }
 
     @PostMapping("/organization/{OrganizationId}")
     public ResponseEntity<String> createJob(@PathVariable ("OrganizationId") String OrganizationId,
@@ -208,5 +216,7 @@ public class JobController {
         return ResponseEntity.status(response.getStatusCode())
                 .body(response.getBody());
     }
+
+
 
 }

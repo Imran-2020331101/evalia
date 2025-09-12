@@ -209,8 +209,9 @@ const [generatedQuestions, setGeneratedQuestions] = useState<interviewQAStateTyp
  const handleFetchQuestions = async (data: any) => {
   try {
     const response = await axios.post(
-      "http://localhost:7000/api/jobs/generate/interview-questions",
-      data
+      "http://localhost:8080/api/job/generate/interview-questions",
+      data,
+      {withCredentials: true}
     );
     console.log(response.data);
     setLoadingGenQuestions("idle");
@@ -243,7 +244,7 @@ const handleGenerateQuestions = async () => {
     return;
   }
 
-  const data = { jobDescription, requirement, responsibilities, skills };
+  const data = { jobDescription, requirements:requirement, responsibilities, skills };
 
   setLoadingGenQuestions("pending");
 
