@@ -31,8 +31,8 @@ public interface JobProxy {
 
 
 //    TODO:
-    @PostMapping(value = '')
-    ResponseEntity<String> generateInterviewQuestions();
+//    @PostMapping(value = '')
+//    ResponseEntity<String> generateInterviewQuestions();
 
     @PostMapping   (value = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<String> createJob     ( @RequestBody   JobCreationRequest jobCreationRequest);

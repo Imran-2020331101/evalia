@@ -234,26 +234,26 @@ const CreateOrganizationForm = ({setIsCreateNewOrg}:propType) => {
             />
             </div>
 
-            {/* Logo */}
-            <div>
-            <label className="block text-sm text-gray-400 mb-1">
-                Org. logo
-            </label>
-            <input
-                ref={orgLogoRef}
-                name="logo"
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={handleUploadOrgLogo}
-                className="w-full p-2 rounded bg-gray-800 text-white text-sm focus:ring-2 focus:ring-blue-500"
-            />
-            <button type="button" onClick={()=>orgLogoRef.current?.click()} className="text-[12px] text-gray-400 bg-gray-800 border border-gray-700 items-center p-2 rounded-md w-full flex justify-start">
-                {
-                    orgLogo?`Selected : ${orgLogo.name}`:'Please upload a organization logo '
-                }
-            </button>
-            </div>
+            {/* Logo
+            // <div>
+            // <label className="block text-sm text-gray-400 mb-1">
+            //     Org. logo
+            // </label>
+            // <input
+            //     ref={orgLogoRef}
+            //     name="logo"
+            //     type="file"
+            //     accept="image/*"
+            //     hidden
+            //     onChange={handleUploadOrgLogo}
+            //     className="w-full p-2 rounded bg-gray-800 text-white text-sm focus:ring-2 focus:ring-blue-500"
+            // />
+            // <button type="button" onClick={()=>orgLogoRef.current?.click()} className="text-[12px] text-gray-400 bg-gray-800 border border-gray-700 items-center p-2 rounded-md w-full flex justify-start">
+            //     {
+            //         orgLogo?`Selected : ${orgLogo.name}`:'Please upload a organization logo '
+            //     }
+            // </button>
+            // </div> */}
 
             {/* Description */}
             <div>
