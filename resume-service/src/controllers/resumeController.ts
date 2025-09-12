@@ -108,7 +108,7 @@ class ResumeController {
       throw new MissingRequiredFieldError('resumeData');
     }
     
-    const savedResume = await resumeService.updateResume(resumeData);
+    const savedResume = await resumeService.updateResume(resumeData, userId);
     if(!savedResume) {
       throw new ResumeNotFoundError("Failed to save resume.");
     }
@@ -123,7 +123,7 @@ class ResumeController {
     
     try {
       const resumeEmbeddings = await openAIService.createResumeEmbeddings(savedResume);
-      const qdrantUploadResult  = await qdrantService.uploadResumeToQdrant(resumeEmbeddings,{
+      await qdrantService.uploadResumeToQdrant(resumeEmbeddings,{
         id: userId,
         name: userName,
         email: userEmail,
@@ -135,7 +135,8 @@ class ResumeController {
       logger.error('Error processing resume vectors:', {
         error: error.message,
         resumeId: savedResume._id,
-        userEmail: userId,
+        userEmail: userEmail,
+        userId: userId,
         stack: error.stack
       });
       throw new VectorDbError('insert', error.message);
@@ -250,6 +251,8 @@ class ResumeController {
   generateAutomatedShortlist = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { jobId, k } = req.params;
 
+    console.log('k : ', k);
+
     if (!jobId) {
       throw new MissingRequiredFieldError('jobId');
     }
@@ -260,25 +263,36 @@ class ResumeController {
 
       const candidates : string[] = job.applications.map((app)=> app.candidateId);
       
-      const requirement: JobDescriptionResult = await resumeService.extractDetailsFromJobDescription(
-        [
-          job.jobDescription,
-          ...job.requirements.map((req) => req.description),
-          ...job.responsibilities.map((res) => res.description),
-          ...job.skills.map((skill) => skill.description),
-        ].join(" ")
-      );
+      console.log('aplied candidates : ',candidates);
+
+      const requirement: JobDescriptionResult = {
+          industry: 'STEM & Technical',
+          skills: 'Go, PostgreSQL, microservices architecture, REST API development, Redis, Docker, DevOps, unit testing, integration testing, Git, AWS, GCP, Azure, event-driven architecture, message queues, CI/CD, monitoring tools',
+          experience: '5-7 years in backend development, 3 years hands-on with Go',
+          projects: 'developing microservices infrastructure, optimizing RESTful APIs, implementing PostgreSQL solutions, maintaining caching strategies with Redis',
+          education: "Bachelor's degree in Computer Science, Engineering, or related field"
+        }
+      // await resumeService.extractDetailsFromJobDescription(
+      // [
+      //   job.jobDescription,
+      //   ...job.requirements.map((req) => req.description),
+      //   ...job.responsibilities.map((res) => res.description),
+      //     ...job.skills.map((skill) => skill.description),
+      //   ].join(" ")
+      // );
 
 
-      console.log("requirements after description parsing ",requirement);
 
+      
       const requirementEmbeddings : JobEmbeddingResult[] = await  openAIService.createJobEmbedding(requirement.skills, requirement.experience, requirement.projects, requirement.education);
       const searchResult = await qdrantService.filteredSearch(requirementEmbeddings,
-                                                                    candidates,
-                                                                    parseInt(k),
-                                                                    process.env.QDRANT_COLLECTION_NAME);
-      
-      const matchedCandidates = resumeService.transformResults(searchResult);
+        candidates,
+        parseInt(k),
+        process.env.QDRANT_COLLECTION_NAME);
+        
+      const matchedCandidates = resumeService.parseCandidateScores(searchResult);
+      console.log("candidates after transforming : ", matchedCandidates);
+
 
       res.status(200).json({
         success: true,
