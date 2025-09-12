@@ -12,16 +12,18 @@ const openai = new OpenAI({
 async function ResumeBot(message: string): Promise<string> {
   const completion = await openai.chat.completions.create({
     //takes an average time of 3 min to process resume
-    // model: "deepseek/deepseek-r1-0528-qwen3-8b:free",
+    model: "deepseek/deepseek-r1-0528-qwen3-8b:free",
 
     //takes an average time of 15 sec to process resume
-    model: 'openai/gpt-4o-mini-2024-07-18',
+    // model: 'openai/gpt-4o-mini-2024-07-18',
     messages: [
       {
         role: 'user',
         content: message,
       },
     ],
+    max_tokens: 4000,
+    temperature: 0.1, 
   });
 
   const response = completion.choices[0].message;

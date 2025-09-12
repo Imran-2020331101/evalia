@@ -1,87 +1,21 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-
-// Type definitions for resume data
-type IndustryType = 
-  | 'STEM & Technical'
-  | 'Business, Finance & Administration'
-  | 'Creative, Media & Communication'
-  | 'Education, Social & Legal Services'
-  | 'Skilled Trades, Labor & Services'
-  | 'Others';
-
-type ResumeStatus = 'processing' | 'completed' | 'failed';
-
-interface Metadata {
-  pages?: number;
-  info?: any;
-  version?: string;
-}
-
-interface Analysis {
-  wordCount?: number;
-  characterCount?: number;
-  hasEmail?: boolean;
-  hasPhone?: boolean;
-  sections?: string[];
-  keywords?: string[];
-}
-
-interface Skills {
-  technical?: string[];
-  soft?: string[];
-  languages?: string[];
-  tools?: string[];
-  other?: string[];
-}
-
-interface Experience {
-  job_title?: string;
-  company?: string;
-  duration?: string;
-  description?: string[];
-  achievements?: string[];
-}
-
-interface Education {
-  degree?: string;
-  institution?: string;
-  year?: string;
-  gpa?: string;
-}
-
-interface Project {
-  title?: string;
-  description?: string;
-  technologies?: string[];
-  url?: string;
-}
-
-interface Certification {
-  title?: string;
-  provider?: string;
-  date?: string;
-  link?: string;
-}
-
-interface Award {
-  title?: string;
-  organization?: string;
-  year?: string;
-  description?: string;
-}
-
-interface Contact {
-  email?: string;
-  phone?: string;
-  linkedin?: string;
-  github?: string;
-  location?: string;
-}
+import {
+  IndustryType,
+  ResumeStatus,
+  Metadata,
+  Analysis,
+  Skills,
+  Experience,
+  Education,
+  Project,
+  Certification,
+  Award,
+  Contact,
+} from '../types/resume.types';
 
 // Main Resume interface extending MongoDB Document
 export interface IResume extends Document {
   filename: string;
-  originalName?: string;
   fileLink: string;
   metadata?: Metadata;
   industry?: IndustryType;
@@ -109,10 +43,6 @@ const resumeSchema = new Schema<IResume>(
     filename: {
       type: String,
       required: true,
-    },
-    originalName: {
-      type: String,
-      // required: true,
     },
     fileLink: {
       type: String,
@@ -245,16 +175,3 @@ resumeSchema.index({ 'contact.emails': 1 });
 const Resume: Model<IResume> = mongoose.model<IResume>('Resume', resumeSchema);
 
 export default Resume;
-export {
-  IndustryType,
-  ResumeStatus,
-  Metadata,
-  Analysis,
-  Skills,
-  Experience,
-  Education,
-  Project,
-  Certification,
-  Award,
-  Contact,
-};
