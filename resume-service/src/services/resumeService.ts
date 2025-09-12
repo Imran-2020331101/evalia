@@ -13,7 +13,7 @@ import { IndustryType, Skills, Education, Experience,
 import { asyncHandler } from "../middleware/errorHandler";
 import { ExtractedResume } from "../models/ExtractedText";
 import { Document } from "mongoose";
-import { SearchResult } from "./QdrantService";
+import { qdrantService, SearchResult } from "./QdrantService";
 
 
 // Type definitions
@@ -30,14 +30,14 @@ interface ExtractedText {
   metadata: Metadata;
 }
 
-export   interface CandidateMatch {
-  candidateId: string | number;
-  matches: {
-    section: string;
-    score: number;
-  }[];
+export interface CandidateScore {
+  'candidate-id': string;
+  candidateName : any;
+  skills: number | null;
+  education: number | null;
+  experience: number | null;
+  projects: number | null;
 }
-
 
 
 // Type definitions for resume parsing
@@ -193,7 +193,7 @@ class ResumeService {
 
 
 
-  async updateResume(resume : ResumeData ): Promise<IResume> {
+  async updateResume(resume : ResumeData, candidateId: string ): Promise<IResume> {
   
     // Ensure One resume per email
     const existingResume = await Resume.findOne({
@@ -203,8 +203,8 @@ class ResumeService {
     if (existingResume) {
 
       Object.assign(existingResume, resume);
+      await qdrantService.deletePointsByUserId(candidateId);
       return await existingResume.save();
-
     } else {
 
       const newResume = new Resume(resume);
@@ -233,7 +233,6 @@ class ResumeService {
           .replace(/```$/, "") // Remove ending ```
           .trim();
 
-        console.log("extracted job description ", cleaned);
         return JSON.parse(cleaned) as JobDescriptionResult;
       }
 
@@ -241,27 +240,63 @@ class ResumeService {
 
   }
 
+ parseCandidateScores(data: SearchResult[]): CandidateScore[] {
+  
+      console.log('candidates before transforming : ', data[0].result.points);
+  const candidatesMap = new Map<string, CandidateScore>();
 
-transformResults(searchResults: SearchResult[]): CandidateMatch[] {
-  const candidateMap: Record<string, CandidateMatch> = {};
+  for (const key in data) {
+    if (data.hasOwnProperty(key)) {
+      const sectionData = data[key];
+      const sectionName = sectionData.section;
+      const points = sectionData.result.points;
 
-  for (const { section, result } of searchResults) {
-    for (const point of result.points) {
-      const candidateId = String(point.id);
+      for (const point of points) {
+        const candidateId = point.payload?.['candidate-id'];
+        const score = point.score;
 
-      if (!candidateMap[candidateId]) {
-        candidateMap[candidateId] = { candidateId, matches: [] };
+        // Skip if candidateId is not a string
+        if (!candidateId || typeof candidateId !== 'string') continue;
+
+        // If the candidate isn't in our map, add them with default null scores.
+        if (!candidatesMap.has(candidateId)) {
+          candidatesMap.set(candidateId, {
+            'candidate-id': candidateId,
+            candidateName: point.payload?.['candidate-name'],
+            skills: null,
+            education: null,
+            experience: null,
+            projects: null,
+          });
+        }
+
+        // Get the candidate's score object from the map.
+        const candidateScore = candidatesMap.get(candidateId)!;
+
+        // Assign the score to the correct section, rounding to two decimal places.
+        switch (sectionName) {
+          case 'skills':
+            candidateScore.skills = parseFloat(score.toFixed(2));
+            break;
+          case 'education':
+            candidateScore.education = parseFloat(score.toFixed(2));
+            break;
+          case 'experience':
+            candidateScore.experience = parseFloat(score.toFixed(2));
+            break;
+          case 'projects':
+            candidateScore.projects = parseFloat(score.toFixed(2));
+            break;
+        }
       }
-
-      candidateMap[candidateId].matches.push({
-        section,
-        score: point.score,
-      });
     }
   }
 
-  return Object.values(candidateMap);
+  return Array.from(candidatesMap.values());
 }
+
+
+
 
 }
 
