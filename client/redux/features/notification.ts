@@ -65,7 +65,7 @@ const notificationsSlice = createSlice({
 });
 
 export default notificationsSlice.reducer;
-export const {  } = notificationsSlice.actions;
+export const {addNotification} = notificationsSlice.actions;
 export const  allNotifications = (state: RootState) => state.notifications.allNotifications;
 export const  unreadNOtifications = (state: RootState) => state.notifications.unreadNOtifications;
  

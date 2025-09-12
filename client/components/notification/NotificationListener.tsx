@@ -2,13 +2,14 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useDispatch, useSelector } from "react-redux";
-import {  } from "../../redux/features/notification";
+import { addNotification } from "../../redux/features/notification";
 import { isSignedIn, user } from "@/redux/features/auth";
+import { useAppDispatch } from "@/redux/lib/hooks";
 
 
 export default function NotificationListener() {
   const [isMounted, setIsMounted]=useState<boolean>(false);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch()
   // const notifications = useSelector(selectNotifications);
   const currentUser = useSelector(user)
 
@@ -26,7 +27,7 @@ export default function NotificationListener() {
     
     socket.on("notification", (notif) => {
       console.log("New notification received:", notif);
-      // dispatch(addNotification(notif));
+      dispatch(addNotification(notif));
     });
     
     socket.on("interview",(notif)=>{
@@ -41,7 +42,7 @@ export default function NotificationListener() {
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [currentUser?.user?.email]);
 
   return null; 
 }

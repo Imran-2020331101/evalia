@@ -1,6 +1,6 @@
 'use client'
 
-import { Bell, CheckCircle2, Info, AlertTriangle, Link as LinkIcon } from "lucide-react"
+import { Bell, CheckCircle2, Info, AlertTriangle, Link as LinkIcon, TimerIcon } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
@@ -12,21 +12,22 @@ const typeIcons: Record<string, React.JSX.Element> = {
   success: <CheckCircle2 className="text-green-500 size-5" />,
   info: <Info className="text-blue-500 size-5" />,
   warning: <AlertTriangle className="text-yellow-500 size-5" />,
+  interview_scheduled:<TimerIcon className="text-blue-500 size-5"/>,
   default: <Bell className="text-gray-400 size-5" />,
 }
 
+
+
 const NotificationCard = ({ notification }: NotificationCardProps) => {
   const icon = typeIcons[notification.type] || typeIcons.default
-  notification={
-    id: "1",
-    userId: "u101",
-    title: "Welcome to Evalia 🎉",
-    message: "Thanks for signing up! Start exploring your dashboard now.",
-    type: "success",
-    link: "/dashboard",
-    isRead: true,
-    createdAt: new Date("2025-09-01T09:15:00"),
+  const typeLink :Record<string, string|null> = {
+    success:'',
+    info: '',
+    warning:'',
+    interview_scheduled:`/workspace/interviews/on-going/${notification?.data?.interviewId}`,
+    default: null,
   }
+  const link = typeLink[notification.type] || typeLink.default
   return (
     <div
       className={cn(
@@ -50,9 +51,9 @@ const NotificationCard = ({ notification }: NotificationCardProps) => {
         </div>
         <div className="flex flex-col self-end">
           {/* Optional link */}
-          {notification.link && (
+          {link && (
             <Link
-              href={notification.link}
+              href={link}
               className="mt-2 inline-flex items-center gap-1 text-sm text-blue-500 hover:underline"
             >
               <LinkIcon className="size-4" />

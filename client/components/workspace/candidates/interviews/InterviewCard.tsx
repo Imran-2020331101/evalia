@@ -5,7 +5,7 @@ import Image from 'next/image'
 import completedLogo from '../../../../public/completed-green.svg'
 import pendingLogo from '../../../../public/pending-blue.svg'
 import expiredLogo from '../../../../public/ban-red.svg'
-import { Dot } from 'lucide-react'
+import { Trash2, Dot, ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
 
 interface interviewCardType {
@@ -32,9 +32,9 @@ const InterviewCard = ({item, detailsCardId, setDetailsCardId}:interviewCardType
           </div>
         </section>
         <section className='h-full flex items-end pb-3 pr-8 gap-3'>
-          <button  className='px-6 py-1 shrink-0 rounded-sm bg-red-700 hover:bg-red-600 text-gray-50 text-xs'>Delete</button>
+          <button  className='px-6 py-1 shrink-0 rounded-sm border border-red-500 hover:bg-red-600 text-gray-50 text-xs flex gap-1 f'> <Trash2 className='size-4'/> Delete</button>
           {
-            interviewStatus==='SCHEDULED'&& <Link href={`/workspace/interviews/on-going/${id}`} className='px-3 py-1 shrink-0 rounded-sm bg-blue-700 hover:bg-blue-600 text-gray-50 text-xs'>Join Interview</Link>
+            interviewStatus==='SCHEDULED'&& <Link href={`/workspace/interviews/on-going/${id}`} className='px-3 py-1 shrink-0 rounded-sm bg-blue-700 hover:bg-blue-600 text-gray-50 text-xs flex gap-1'> <ArrowUpRight className='size-4'/> Join Interview</Link>
           }
         </section>
     </div>

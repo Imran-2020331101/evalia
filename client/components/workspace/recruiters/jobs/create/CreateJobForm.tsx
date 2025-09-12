@@ -5,10 +5,11 @@ import { ChevronDown } from "lucide-react";
 import { JOB_TYPE, WORKPLACE_TYPE, IMPORTANCE_OPTIONS,EMPLOYMENT_LEVEL } from "@/Data/create-job";
 import { toast } from "sonner";
 import { domainType, interviewQAStateType, basicStateType } from "@/types/create-job";
-import { createJob, createJobStatus, selectedOrgId, setCreateJobStatus } from "@/redux/features/job";
+import { createJob, createJobStatus, selectedOrg, selectedOrgId, setCreateJobStatus } from "@/redux/features/job";
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks";
 import axios from "axios";
 import { ClipLoader } from "react-spinners";
+import { useRouter } from "next/navigation";
 interface propType{
   requirement:domainType[],
   responsibilities:domainType[],
@@ -25,8 +26,10 @@ interface propType{
 const CreateJobForm = ({requirement, responsibilities, skills, basicState, setRequirement, setResponsibilities, setSkills, setBasicState, setInterviewQA, interviewQA}:propType) => {
 
   const dispatch = useAppDispatch()
+  const router = useRouter()
   const currentCreateJobStatus = useAppSelector(createJobStatus)
   const currentSelectedOrgId:string = useAppSelector(selectedOrgId) as string
+  const currentSelectedOrg = useAppSelector(selectedOrg);
 
   const [tabIndex, setTabIndex] = useState(1)
   const [isChecked, setIsChecked] = useState(false)
@@ -282,7 +285,7 @@ const handleGenerateQuestions = async () => {
   useEffect(()=>console.log(basicState, 'basics'))
   useEffect(()=>{
     if(currentCreateJobStatus==='error') {toast.error('something went wrong! please try again later..'); dispatch(setCreateJobStatus('idle'))}
-    else if (currentCreateJobStatus==='success') {toast.success('Job successfully created !'); dispatch(setCreateJobStatus('idle'))}    
+    else if (currentCreateJobStatus==='success') {toast.success('Job successfully created !'); dispatch(setCreateJobStatus('idle')); router.push(`/workspace/jobs/${currentSelectedOrg?.organizationName}/my-jobs`)}    
   },[currentCreateJobStatus])
    return (
     <div className='w-full h-full  flex justify-center items-center '>
@@ -437,7 +440,7 @@ const handleGenerateQuestions = async () => {
                   value={requirementState.category}
                   name="requirement-category" 
                   id="requirement-category" 
-                  className='w-full flex-1 shrink-0 rounded-sm p-2 pt-3 bg-slate-800/30 shadow-md scroll-container shadow-slate-800 focus:border-[1px] border-gray-500 outline-none'>
+                  className='w-full h-[45px] shrink-0 rounded-sm p-2 pt-3 bg-slate-800/30 shadow-md scroll-container shadow-slate-800 focus:border-[1px] border-gray-500 outline-none'>
                   </textarea>
                 </div>
                 <div className="w-[40%] h-full self-end flex flex-col justify-start items-start gap-2">
@@ -491,7 +494,7 @@ const handleGenerateQuestions = async () => {
                   value={responsibilityState.category}
                   name="Responsibilities-category" 
                   id="Responsibilities-category" 
-                  className='w-full flex-1 shrink-0 rounded-sm p-2 pt-3 bg-slate-800/30 shadow-md scroll-container shadow-slate-800 focus:border-[1px] border-gray-500 outline-none'>
+                  className='w-full h-[45px] shrink-0 rounded-sm p-2 pt-3 bg-slate-800/30 shadow-md scroll-container shadow-slate-800 focus:border-[1px] border-gray-500 outline-none'>
                   </textarea>
                 </div>
                 <div className="w-[40%] h-full self-end flex flex-col justify-start items-start gap-2">
@@ -543,7 +546,7 @@ const handleGenerateQuestions = async () => {
                     value={skillState.category}
                     name="Skills-category" 
                     id="Skills-category" 
-                    className='w-full flex-1 shrink-0 rounded-sm p-2 pt-3 bg-slate-800/30 shadow-md scroll-container shadow-slate-800 focus:border-[1px] border-gray-500 outline-none'>
+                    className='w-full h-[45px] shrink-0 rounded-sm p-2 pt-3 bg-slate-800/30 shadow-md scroll-container shadow-slate-800 focus:border-[1px] border-gray-500 outline-none'>
                     </textarea>
                   </div>
                   <div className="w-[40%] h-full self-end flex flex-col justify-start items-start gap-2">

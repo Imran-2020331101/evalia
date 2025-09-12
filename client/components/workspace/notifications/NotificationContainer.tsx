@@ -15,16 +15,9 @@ const NotificationContainer = () => {
   return (
     <div className="w-full h-full flex justify-center items-center">
         <div className="h-[96%] w-[60%] flex flex-col overflow-y-scroll scrollbar-hidden gap-3">
-            <NotificationCard notification={{}}/>
-            <NotificationCard notification={{}}/>
-            <NotificationCard notification={{}}/>
-            <NotificationCard notification={{}}/>
-            <NotificationCard notification={{}}/>
-            <NotificationCard notification={{}}/>
-            <NotificationCard notification={{}}/>
-            <NotificationCard notification={{}}/>
-            <NotificationCard notification={{}}/>
-            <NotificationCard notification={{}}/>
+           {
+            currentAllNotifications?.map((item:any, index:number)=> <NotificationCard key={index} notification={item}/>)
+           }
         </div>
     </div>
   )

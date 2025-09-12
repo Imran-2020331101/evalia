@@ -74,8 +74,9 @@ const CandidatesProfileResumePanel = ({isPreview}:{isPreview:boolean}) => {
 
 
     const handleSaveChanges = ()=>{
-      const resumeData = { experience:editExperience, education:editEducation, skills:editSkills, projects:editedProjects,awards:editedAwards,certifications:certs};
-      dispatch(updateUserData(resumeData))
+      const resumeData = {...currentUser.resumeData, experience:editExperience, education:editEducation, skills:editSkills, projects:editedProjects,awards:editedAwards,certifications:certs};
+      console.log(resumeData, 'resumeData')
+      dispatch(saveAnalyzedResume(resumeData))
     }
 
 
