@@ -15,10 +15,10 @@ const ExpiredInterviewsContainer = () => {
   const dispatch = useAppDispatch();
 
   useEffect(()=>{
-    if(!currentAllInterviews.length) {dispatch(getallInterviews());return;}
+    if(!currentAllInterviews.length) {dispatch(getallInterviews());setIsMounted(true);return;}
     const expiredInterviews = currentAllInterviews?.filter((item:any)=>item.interviewStatus==='CANCELLED')||[];
     setInterviews(expiredInterviews);
-    setIsMounted(true);
+    
   },[currentAllInterviews.length])
   if(currentGetAllInterviewsStatus==='pending' || !isMounted) return <div className="w-full h-full flex justify-center items-center">
     <ScaleLoader barCount={4} color='white'/>

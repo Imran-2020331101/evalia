@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Upload, FileText, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 import { useAppDispatch } from '@/redux/lib/hooks'
@@ -13,7 +13,8 @@ interface UploadState {
   error: string | null
 }
 
-const UploadResume=() =>{
+const UploadResume=({onSignUp}:{onSignUp?:boolean}) =>{
+  const [isUploadedResume, setIsUploadedResume]=useState<boolean>(false);
   const [uploadState, setUploadState] = useState<UploadState>({
     file: null,
     isUploading: false,
@@ -80,14 +81,12 @@ const UploadResume=() =>{
 
     try {
       const result = await uploadToBackend(file)
+      setIsUploadedResume(true);
       toast.success('Resume uploaded successfully ')
       console.log(result)
       // Store the result in sessionStorage for the preview page
       // sessionStorage.setItem('resumeData', JSON.stringify(result))
 
-      router.push('/auth/login')
-      
-      
       // Redirect to preview page
     //   router.push('/resume/preview')
     } catch (error) {
@@ -144,6 +143,11 @@ const UploadResume=() =>{
     const i = Math.floor(Math.log(bytes) / Math.log(k))
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
   }
+
+  useEffect(()=>{
+    console.log(isUploadedResume,'isUploadedResume')
+    if(isUploadedResume) router.push('/auth/login');
+  },[isUploadedResume])
 
   return (
     <div className="min-h-full w-full py-6 px-4 text-[12px]">

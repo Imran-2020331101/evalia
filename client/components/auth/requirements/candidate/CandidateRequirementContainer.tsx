@@ -13,7 +13,7 @@ const CandidateRequirementContainer = () => {
   return (
     <div style={{transform: `scaleX(${visible ? 1 : 0})`,opacity: visible ? 1 : 0.6,transformOrigin: 'right',transition: 'transform 0.5s ease, opacity 0.3s ease',}} 
     className={`w-screen  h-full overflow-y-scroll scroll-container `}>
-      <UploadResume/>
+      <UploadResume onSignUp={true}/>
     </div>
   )
 }

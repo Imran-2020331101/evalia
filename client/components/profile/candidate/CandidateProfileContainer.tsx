@@ -9,14 +9,15 @@ import { useRef, useState , useEffect} from "react"
 import CandidatesProfileResumePanel from "./Resume/CandidatesProfileResumePanel"
 import UploadResume from "./UploadResume"
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
-import { userCoverPhotoUpdateStatus, userProfilePhotoUpdateStatus, userBasicInfoUpdateStatus , updateUserCoverPhoto, updateUserProfilePhoto, updateUserData, setUserBasicInfoUpdateStatus, analyzedUserResume} from "@/redux/features/auth"
+import { userCoverPhotoUpdateStatus, userProfilePhotoUpdateStatus, userBasicInfoUpdateStatus , updateUserCoverPhoto, updateUserProfilePhoto, updateUserData, setUserBasicInfoUpdateStatus, analyzedUserResume, user} from "@/redux/features/auth"
 import AnalyzeResumeSection from "./Resume/AnalyzeResumeSection"
+
 
 interface propType {
   user:any
 }
 
-const CandidateProfileContainer = ({user}:propType) => {
+const CandidateProfileContainer = () => {
   const coverPhotoRef = useRef<null|HTMLInputElement>(null)
   const profilePhotoRef = useRef<null|HTMLInputElement>(null)
   const resumeContainerRef = useRef<null | HTMLDivElement>(null)
@@ -26,12 +27,14 @@ const CandidateProfileContainer = ({user}:propType) => {
   const [isUploadResume, setIsUploadResume] = useState<boolean>(false);
   const [isShowResume, setIsShowResume] = useState<boolean>(false);
   const [isEditBasicInfo, setIsEditBasicInfo]= useState<boolean>(false);
-  
+
+  const currentUser = useAppSelector(user)
+
   const [form, setForm] = useState({
-    name: user?.user?.name||'',
-    bio: user?.user?.bio || '',
-    location:user?.user?.location||'',
-    aboutMe:user?.user?.aboutMe||''
+    name: currentUser?.user?.name||'',
+    bio: currentUser?.user?.bio || '',
+    location:currentUser?.user?.location||'',
+    aboutMe:currentUser?.user?.aboutMe||''
   });
   
     const dispatch = useAppDispatch()
@@ -97,6 +100,7 @@ const CandidateProfileContainer = ({user}:propType) => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isUploadResume, isShowResume]);
+  useEffect(()=>console.log(currentUser,'current user'))
   return (
       <div className="w-full h-full bg-gray-950/80 flex items-start justify-center py-[10px] ">
       <div className="w-[85%] ml-[5%] h-full rounded-lg flex justify-center items-center p-[6px] gap-[13px]">
@@ -109,8 +113,8 @@ const CandidateProfileContainer = ({user}:propType) => {
                     </div>:null
                   }
                     {
-                      user?.user?.coverPictureUrl?
-                        <Image src={user.user.coverPictureUrl } alt="profile-photo" width={1000} height={500} className=" w-full h-full object-cover rounded-t-xl"/>
+                      currentUser?.user?.coverPictureUrl?
+                        <Image src={currentUser.user.coverPictureUrl } alt="profile-photo" width={1000} height={500} className=" w-full h-full object-cover rounded-t-xl"/>
                       :
                       <div className="w-full h-full bg-slate-900 rounded-t-xl border-b border-gray-500 flex justify-center items-center">
                         <ImagePlus className=" w-[60px] h-[60px] text-gray-500"/>
@@ -125,8 +129,8 @@ const CandidateProfileContainer = ({user}:propType) => {
                             </div>:null
                           }
                           {
-                            user?.user?.profilePictureUrl?
-                              <Image src={user.user.profilePictureUrl } alt="profile-photo" width={100} height={100} className=" w-full h-full rounded-full object-cover"/>
+                            currentUser?.user?.profilePictureUrl?
+                              <Image src={currentUser.user.profilePictureUrl } alt="profile-photo" width={100} height={100} className=" w-full h-full rounded-full object-cover"/>
                             :
                             <div className="w-full h-full bg-slate-900 rounded-full border border-gray-500 flex justify-center items-center">
                               <User className=" w-[40px] h-[40px] text-gray-500"/>
@@ -145,22 +149,22 @@ const CandidateProfileContainer = ({user}:propType) => {
                 {
                   !isEditBasicInfo?
                   <div className="flex-1 w-full pt-[7%] pl-[7%] flex flex-col">
-                    <p className="text-xl font-semibold text-gray-200 flex items-center">{user?.user?.name} <button onClick={()=>setIsEditBasicInfo(true)}><Edit3 className="size-4 ml-2"/></button></p>
+                    <p className="text-xl font-semibold text-gray-200 flex items-center">{currentUser?.user?.name} <button onClick={()=>setIsEditBasicInfo(true)}><Edit3 className="size-4 ml-2"/></button></p>
                     <div className="w-full min-h-[80px] flex justify-between items-start">
                       <div className="w-[60%] h-auto">
-                          <p className="w-full max-h-[40px] text-[13px] flex justify-start items-start overflow-hidden text-gray-400">{user?.user?.bio?user.user.bio:'No bio found, make a short bio'}</p>
-                          <p className="w-full max-h-[40px] text-[13px] flex justify-start  overflow-hidden text-gray-400 items-center"><span> {user?.user?.location?`${user.user.location}`:'No location found, set you location'}</span> <span className="text-2xl font-bold m-1 mt-[-8px]">.</span> <span>{user?.user?.email}</span></p>
+                          <p className="w-full max-h-[40px] text-[13px] flex justify-start items-start overflow-hidden text-gray-400">{currentUser?.user?.bio?currentUser.user.bio:'No bio found, make a short bio'}</p>
+                          <p className="w-full max-h-[40px] text-[13px] flex justify-start  overflow-hidden text-gray-400 items-center"><span> {currentUser?.user?.location?`${currentUser.user.location}`:'No location found, set you location'}</span> <span className="text-2xl font-bold m-1 mt-[-8px]">.</span> <span>{currentUser?.user?.email}</span></p>
                       </div>
                       <div className="w-auto  h-full flex flex-col justify-start items-end gap-2 pr-[20px]">
                         {
                           isShowResume && <div className="fixed top-0 left-0 right-0 bottom-0 backdrop-blur-sm z-[150] flex justify-center items-center">
                               <div ref={resumePreviewContainerRef} className="w-[60%] h-[95%] bg-gray-200 rounded-lg overflow-y-scroll scroll-container">
-                                <iframe src={user?.user?.resumeUrl || ''} width="100%" height="auto" className="w-full h-full object-contain"></iframe>
+                                <iframe src={currentUser?.user?.resumeUrl || ''} width="100%" height="auto" className="w-full h-full object-contain"></iframe>
                               </div>
                         </div>
                         }
                         {
-                          user?.user?.resumeUrl && <div className="flex gap-1 items-center">
+                          currentUser?.user?.resumeUrl && <div className="flex gap-1 items-center">
                           <File className="text-green-700 size-6"/>
                           <button onClick={()=>setIsShowResume(true)} className="flex flex-col text-[11px] text-gray-400">
                             <p className="">Resume.pdf</p>
@@ -281,13 +285,13 @@ const CandidateProfileContainer = ({user}:propType) => {
                     <Edit3 className="size-4"/>
                   </button>
                 </div>
-                <p className="text-[13px] text-gray-300">{user?.user?.aboutMe?user.user.aboutMe:'You haven’t added an About section yet. Use this space to introduce yourself, share your background, interests, or anything you’d like others to know about you.'}
+                <p className="text-[13px] text-gray-300">{currentUser?.user?.aboutMe?currentUser.user.aboutMe:'You haven’t added an About section yet. Use this space to introduce yourself, share your background, interests, or anything you’d like others to know about you.'}
                   </p>
             </section>
             }
             <section className="w-full h-auto bg-slate-900 rounded-xl pb-[40px] ">
               {
-                user?.resumeData?<CandidatesProfileResumePanel isPreview={false}/>:currentAnalyzedUserResume?<CandidatesProfileResumePanel isPreview={true}/>: <AnalyzeResumeSection user={user} setIsUploadResume={setIsUploadResume}/>
+                currentUser?.resumeData?<CandidatesProfileResumePanel isPreview={false}/>:currentAnalyzedUserResume?<CandidatesProfileResumePanel isPreview={true}/>: <AnalyzeResumeSection user={currentUser} setIsUploadResume={setIsUploadResume}/>
               }
             </section>
         </div>

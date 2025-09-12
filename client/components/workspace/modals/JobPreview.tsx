@@ -85,8 +85,8 @@ const JobPreview = () => {
         <button onClick={handleExit} className="fixed top-3 right-3 z-10 cursor-pointer">
             <Image src={exitLogo} alt="exit" className="w-[18px]"/>
         </button>
-      <div className="w-full h-full backdrop-blur-2xl z-10 flex justify-center overflow-hidden ">
-        <section className="w-[60%] h-full bg-slate-900/40 flex flex-col justify-start py-[40px] px-[2%]  overflow-y-scroll scrollbar-hidden relative ">
+      <div className="w-full h-full backdrop-blur-xl z-10 flex justify-center overflow-hidden ">
+        <section className="w-[60%] h-full bg-slate-900 flex flex-col justify-start py-[40px] px-[2%]  overflow-y-scroll scrollbar-hidden relative ">
             <div className="absolute w-[250px] h-[80px] rounded-l-full top-[40px] right-0">
                 <div className={`w-full h-full rounded-l-full bg-slate-800 flex items-center justify-start pl-2 gap-2 transition-transform duration-500 ${isShowApplyButton?'translate-x-0':' translate-x-[210px]'}`}>
                     <button onClick={()=>setIsShowApplyButton((prev)=>!prev)} className="p-2 rounded-full cursor-pointer">

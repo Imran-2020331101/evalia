@@ -108,7 +108,7 @@ const CandidatesProfileResumePanel = ({isPreview}:{isPreview:boolean}) => {
   return (
     <div className={`w-full h-auto overflow-y-scroll scroll-container relative pl-[7%] bg-slate-900 text-gray-100 p-6 space-y-8`}>
       {
-        !isPreview?
+        !isPreview || currentUser?.resumeData?
         <div className=" flex gap-1 absolute top-2 right-2 ">
           <button onClick={handleSaveChanges} disabled={currentSaveUserResumeStatus==='pending'?true:false} className="flex justify-center">
             {
@@ -140,7 +140,7 @@ const CandidatesProfileResumePanel = ({isPreview}:{isPreview:boolean}) => {
       <Awards editedAwards={editedAwards} setAwards={setAwards}/>
       {/* Skills */}
       <Skills editSkills={editSkills} setSkills={setSkills}/>
-      {currentAnalyzedUserResume ? <div className="w-full flex gap-1">
+      {currentAnalyzedUserResume && !currentUser?.resumeData ? <div className="w-full flex gap-1">
           <button onClick={handleSaveResumeToProfile} disabled={currentSaveUserResumeStatus==='pending'?true:false} className="flex-1 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-md text-white flex justify-center">
             {
               currentSaveUserResumeStatus==='pending'?
