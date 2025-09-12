@@ -133,6 +133,7 @@ interface initialStateType {
     previewedShortListedCandidate:any,
     shortListedCandidate:any,
     selectedOrgId:string|null,
+    selectedOrg:any,
     recruitersSelectedJob:any,
 }
 
@@ -152,6 +153,7 @@ const initialState :initialStateType = {
     applyJobStatus:'idle',
     saveJobStatus:'idle',
     selectedOrgId:null,
+    selectedOrg:null,
     recruitersSelectedJob:null
 }
 
@@ -161,6 +163,9 @@ const jobSlice = createSlice({
     reducers:{
         setSelectedOrgId(state,action){
             state.selectedOrgId=action.payload;
+        },
+        setSelectedOrg(state,action){
+            state.selectedOrg=action.payload;
         },
         setApplyJobStatus(state,action){
             state.applyJobStatus=action.payload;
@@ -237,7 +242,7 @@ const jobSlice = createSlice({
             state.applyJobId=null
         })
         .addCase(applyJob.fulfilled,(state,action)=>{
-            state.appliedJobs.push(action.payload.data.job)
+            state.appliedJobs.push(action.payload.data)
             console.log(action.payload, 'inside apply  job...'); 
             console.log(state.appliedJobs)
             state.applyJobStatus='success'
@@ -339,7 +344,7 @@ const jobSlice = createSlice({
 })
 
 export default jobSlice.reducer;
-export const {setPreviewedShortListedCandidate, setSelectedOrgId, setApplyJobStatus, setGetAllJobStatus, setApplyJobId, setSaveJobId, setRecruiterSelectedJob, setCreateJobStatus,setMarkShortListedStatus, setShortListedCandidate}=jobSlice.actions;
+export const {setPreviewedShortListedCandidate, setSelectedOrgId, setSelectedOrg, setApplyJobStatus, setGetAllJobStatus, setApplyJobId, setSaveJobId, setRecruiterSelectedJob, setCreateJobStatus,setMarkShortListedStatus, setShortListedCandidate}=jobSlice.actions;
 export const exploreJobs = (state:RootState)=>state.job.exploreJobs;
 export const appliedJobs = (state:RootState)=>state.job.appliedJobs;
 export const savedJobs = (state:RootState)=>state.job.savedJobs;
@@ -353,6 +358,7 @@ export const applyJobStatus = (state:RootState)=>state.job.applyJobStatus;
 export const markShortlistedStatus = (state:RootState)=>state.job.markShortlistedStatus;
 export const saveJobStatus = (state:RootState)=>state.job.saveJobStatus;
 export const selectedOrgId = (state:RootState)=>state.job.selectedOrgId;
+export const selectedOrg = (state:RootState)=>state.job.selectedOrg;
 export const recruitersSelectedJob = (state:RootState)=>state.job.recruitersSelectedJob;
 export const shortListedCandidate = (state:RootState)=>state.job.shortListedCandidate;
 export const previewedShortListedCandidate = (state:RootState)=>state.job.previewedShortListedCandidate;

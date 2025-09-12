@@ -6,23 +6,32 @@ import Image from "next/image";
 import Link from "next/link";
 import { Plus, Grid2X2,ChevronDown, ChevronUp, Dot, Frown, Bell } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks";
-import { selectedOrgId, setSelectedOrgId } from "@/redux/features/job";
+import { selectedOrg, selectedOrgId, setSelectedOrg, setSelectedOrgId } from "@/redux/features/job";
 import { organizations, user } from "@/redux/features/auth";
+import { useDeepCompareEffect } from "@/custom-hooks/useDeepCompareEffect";
+import { allNotifications } from "@/redux/features/notification";
 
 const majorMono = Major_Mono_Display({ weight: '400', subsets: ['latin'] });
 
 
 const RecruitersWorkSpaceMenu = () => {
     const [organizationToOpen, setOrganizationToOpen]=useState<string|null>(null)
+    const [unreadNotificationCount, setUnreadNotificationCount]=useState<number>(0)
     const currentOrganizations = useAppSelector(organizations)
     const currentUser = useAppSelector(user)
 
-    const currentNotifications = [1, 2];
+    const currentNotifications = useAppSelector(allNotifications);
 
     const dispatch = useAppDispatch()
     const currentSelectedOrgId = useAppSelector(selectedOrgId)
+    const currentSelectedOrg = useAppSelector(selectedOrg)
+  useDeepCompareEffect(()=>{
+    let count =0 ;
+    currentNotifications?.map((item:any)=>{if(!item.isRead)count+=1;})
+    if(count!==unreadNotificationCount) setUnreadNotificationCount(count);
+  },[currentNotifications])
   useEffect(()=>{
-    if(!currentSelectedOrgId && currentOrganizations.length) dispatch(setSelectedOrgId(currentOrganizations[0].id))
+    if(!currentSelectedOrgId && currentOrganizations.length) {dispatch(setSelectedOrgId(currentOrganizations[0].id)); dispatch(setSelectedOrg(currentOrganizations[0]));}
   },[currentOrganizations.length])
   return (
     <div className='w-full h-full flex flex-col relative justify-between px-[10px] py-[6%]'>
@@ -33,20 +42,20 @@ const RecruitersWorkSpaceMenu = () => {
             <Bell className="text-gray-100 size-6" />
 
             {/* Badge */}
-            {currentNotifications.length > 0 && (
+            {unreadNotificationCount > 0 && (
               <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
-                {currentNotifications.length}
+                {unreadNotificationCount}
               </span>
             )}
           </Link>
       </div>
-      <div className="w-full h-auto flex flex-col justify-start pt-[70px] pl-[20px] gap-2 text-gray-400">
+      <div className="w-full h-auto flex flex-col justify-start pt-[70px] pl-[] gap-2 text-gray-400">
         {
           currentOrganizations.length?
           <>
             {
-              currentOrganizations.map((item:any)=><div  key={item.id} className="w-full h-auto flex flex-col gap-2 ml-[5px]">
-                <button onClick={()=>dispatch(setSelectedOrgId(item.id))} className="text-sm text-gray-200 flex font-semibold  group"><Dot className="group-hover:text-blue-500 size-6"/> {item.organizationName} </button>
+              currentOrganizations.map((item:any)=><div  key={item.id} className="w-full h-auto flex flex-col gap-2 ">
+                <button onClick={()=>{dispatch(setSelectedOrgId(item.id));dispatch(setSelectedOrg(item))}} className="text-sm text-gray-200 flex font-semibold  group"><Dot className="group-hover:text-blue-500 size-6"/> {item.organizationName} </button>
                 {
                   currentSelectedOrgId===item.id?
                     <div className="w-full flex flex-col gap-1 ml-[20px]">
@@ -75,7 +84,7 @@ const RecruitersWorkSpaceMenu = () => {
       <div className="w-full h-auto flex justify-start items-end ">
         <Link href={'/profile'} className="flex items-center gap-2 cursor-pointer">
           <p className="px-2 py-1 rounded-sm bg-gray-600 text-sm uppercase">{currentUser?.user?.name.slice(0,2)}</p>
-          <p className="text-gray-300 lowercase">{currentUser?.user?.name}</p>
+          <p className="text-gray-300 lowercase">{currentUser?.user?.name.split(' ')[0]}</p>
         </Link>
       </div>
     </div>

@@ -8,6 +8,7 @@ import { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks'
 import { fetchUserData, getAllOrganizations, organizations, user } from '@/redux/features/auth'
 import { appliedJobs, getAllAppliedJobs, getAllSavedJobs, savedJobs } from '@/redux/features/job'
+import { allNotifications, getAllNotifications } from '@/redux/features/notification'
 
 gsap.registerPlugin(SplitText)
 
@@ -19,6 +20,7 @@ const workSpacePage = () => {
   const currentOrganizations = useAppSelector(organizations)
   const currentAppliedJobs = useAppSelector(appliedJobs)
   const currentSavedJobs = useAppSelector(savedJobs);
+  const currentAllNotifications = useAppSelector(allNotifications) || []
 
   useGSAP(()=>{
     const logo = document.getElementById('logo');
@@ -31,9 +33,10 @@ const workSpacePage = () => {
 
   useEffect(()=>{
     if(!currentUser) dispatch(fetchUserData())
-    if(!currentOrganizations.length) dispatch(getAllOrganizations())
-    if(!currentAppliedJobs.length) dispatch(getAllAppliedJobs())
-    if(!currentSavedJobs.length) dispatch(getAllSavedJobs())
+    if(!currentOrganizations?.length) dispatch(getAllOrganizations())
+    if(!currentAppliedJobs?.length) dispatch(getAllAppliedJobs())
+    if(!currentSavedJobs?.length) dispatch(getAllSavedJobs())
+    if(!currentAllNotifications?.length)dispatch(getAllNotifications())
   },[])
 
   return (
