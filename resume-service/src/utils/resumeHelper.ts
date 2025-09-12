@@ -1,51 +1,14 @@
-// Import ResumeDTO - using ES6 import
-import ResumeDTO from "../dto/resumeDTO";
-
-// Type definitions for Resume data structures
-interface Skills {
-  technical?: string[];
-  soft?: string[];
-  languages?: string[];
-  tools?: string[];
-  other?: string[];
-}
-
-interface Experience {
-  job_title?: string;
-  company?: string;
-  duration?: string;
-  description?: string[];
-  achievements?: string[];
-}
-
-interface Education {
-  degree?: string;
-  institution?: string;
-  year?: string;
-  gpa?: number;
-}
-
-interface Project {
-  title?: string;
-  description?: string;
-  technologies?: string[];
-  url?: string | null;
-}
-
-interface Contact {
-  email?: string;
-  phone?: string;
-  linkedin?: string;
-  github?: string;
-  location?: string;
-}
-
-interface Certification {
-  title?: string;
-  provider?: string;
-  date?: string;
-  link?: string;
-}
+// Import from consolidated types
+import { 
+  ResumeDTO, 
+  Skills, 
+  Experience, 
+  Education, 
+  Project, 
+  Contact, 
+  Certification, 
+  Award 
+} from "../types/resume.types";
 
 // Search result interfaces
 interface SearchResult {
@@ -248,7 +211,6 @@ function aggregateResultsByCandidate(searchResults: SearchResult[]): AggregatedC
 function mapToResumeDTO(source: ResumeSource): any {
   return new ResumeDTO({
     filename: source.filename,
-    originalName: source.originalName,
     fileLink: source.fileLink,
     industry: (source.industry as any) || "Others",
     skills: {

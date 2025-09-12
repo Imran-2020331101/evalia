@@ -10,6 +10,7 @@ import com.example.server.security.models.userEntity;
 import com.example.server.security.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.types.ObjectId;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -104,12 +105,12 @@ public class UserService {
             return new Profile(null, toUserDTO(user));
         }
         try {
-            String jsonResponse = resumeJsonProxy.getResumeByEmail(user.getEmail());
+            ResponseEntity<String> jsonResponse = resumeJsonProxy.getResumeByEmail(user.getEmail());
 
             logger.info("returned response from resume server " + jsonResponse);
 
             ObjectMapper mapper = new ObjectMapper();
-            ResumeFetchResponse resumeResponse = mapper.readValue(jsonResponse, ResumeFetchResponse.class);
+            ResumeFetchResponse resumeResponse = mapper.readValue(jsonResponse.getBody(), ResumeFetchResponse.class);
 
             if (!resumeResponse.isSuccess()) {
                 return new Profile(null, toUserDTO(user));
