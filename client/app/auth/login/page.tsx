@@ -6,12 +6,14 @@ import github from '../../../public/github.svg'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Eye, EyeClosed } from 'lucide-react'
 
 const LoginPage = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [isShowPassword, setIsShowPassword]=useState(false);
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -73,18 +75,21 @@ const LoginPage = () => {
         </div>
         <div className="w-full min-[1200px]:h-[35px] min-[1600px]:h-[40px] relative border-[1px] border-gray-700 rounded-lg">
           <label 
-          className='absolute rounded-md top-[-12px] bg-gray-900 px-1 cursor-pointer left-3 min-[1200px]:text-[12px] min-[1600px]:text-[14px] font-semibold tracking-wider' htmlFor="password"
+          className='absolute z-10 rounded-md top-[-12px] bg-gray-900 px-1 cursor-pointer left-3 min-[1200px]:text-[12px] min-[1600px]:text-[14px] font-semibold tracking-wider' htmlFor="password"
           >Password
           </label>
-          <input 
-          className='w-full h-full px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600' 
-          id='password' 
-          type="password" 
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          disabled={isLoading}
-          />
+          <div className="w-full h-full flex items-center relative">
+            <input 
+              className='w-full h-full px-3 rounded-lg outline-none bg-gray-900 ' 
+              id='password' 
+              type={!isShowPassword?"password":"text"} 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={isLoading}
+              />
+            <button className='absolute top-2 right-3' onClick={()=>setIsShowPassword((prev)=>!prev)}>{!isShowPassword ?<EyeClosed className='size-4'/> :<Eye className='size-4'/>}</button>
+          </div>
         </div>
         <div className="w-full h-[30px] flex justify-end items-center">
           <button type="button">

@@ -46,7 +46,7 @@ const NotificationCard = ({ notification }: NotificationCardProps) => {
     <div
       className={cn(
         "w-full rounded-2xl border bg-gray-900/60 shadow-md transition hover:shadow-lg  border-transparent",
-        !notification.isRead && " border-l-4 border-blue-500"
+        !notification.isRead && " bg-slate-900"
       )}
     >
       <div className="p-4 flex gap-3 items-start">
