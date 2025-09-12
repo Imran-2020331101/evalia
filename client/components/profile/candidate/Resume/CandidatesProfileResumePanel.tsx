@@ -74,8 +74,9 @@ const CandidatesProfileResumePanel = ({isPreview}:{isPreview:boolean}) => {
 
 
     const handleSaveChanges = ()=>{
-      const resumeData = { experience:editExperience, education:editEducation, skills:editSkills, projects:editedProjects,awards:editedAwards,certifications:certs};
-      dispatch(updateUserData(resumeData))
+      const resumeData = {...currentUser.resumeData, experience:editExperience, education:editEducation, skills:editSkills, projects:editedProjects,awards:editedAwards,certifications:certs};
+      console.log(resumeData, 'resumeData')
+      dispatch(saveAnalyzedResume(resumeData))
     }
 
 
@@ -109,9 +110,9 @@ const CandidatesProfileResumePanel = ({isPreview}:{isPreview:boolean}) => {
       {
         !isPreview?
         <div className=" flex gap-1 absolute top-2 right-2 ">
-          <button onClick={handleSaveChanges} disabled={currentUserDataUpdateStatus==='pending'?true:false} className="flex justify-center">
+          <button onClick={handleSaveChanges} disabled={currentSaveUserResumeStatus==='pending'?true:false} className="flex justify-center">
             {
-              currentUserDataUpdateStatus==='pending'?
+              currentSaveUserResumeStatus==='pending'?
                 <div className="flex items-center gap-2">
                   <ClipLoader size={17} color="white"/> Saving..
                 </div>

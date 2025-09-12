@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks';
 import { allInterviews, getallInterviews, getAllInterviewStatus } from '@/redux/features/interview';
 import { CalendarX } from 'lucide-react';
 import { ScaleLoader } from 'react-spinners';
+import axios from 'axios';
 
 const AllInterviewsContainer = () => {
   const [interviews, setInterviews]=useState<any>(null);

@@ -12,7 +12,7 @@ interface propType{
     setIsCreateNewOrg:React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const CreateOrganizationForm = () => {
+const CreateOrganizationForm = ({onSignUp}:{onSignUp?:boolean}) => {
   const orgLogoRef = useRef<HTMLInputElement|null>(null)
   const [orgLogo, setOrgLogo] = useState<File|null>(null)
   const [errors, setErrors] = useState<{[key:string]:string}>({})

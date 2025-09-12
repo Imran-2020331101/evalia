@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from "react"
 import RecruiterForm from "./RecruiterForm"
+import CreateOrganizationForm from "./RecruiterForm"
 
 const RecruiterRequirementContainer = () => {
   const [visible, setVisible] = useState(false)
@@ -13,7 +14,8 @@ const RecruiterRequirementContainer = () => {
     return (
       <div style={{transform: `scaleX(${visible ? 1 : 0})`,opacity: visible ? 1 : 0.6,transformOrigin: 'right',transition: 'transform 0.5s ease, opacity 0.3s ease',}} 
       className={`w-screen h-full overflow-y-scroll scroll-container `}>
-        <RecruiterForm/>
+        {/* <RecruiterForm/> */}
+        <CreateOrganizationForm onSignUp={true}/>
       </div>
     )
 }
