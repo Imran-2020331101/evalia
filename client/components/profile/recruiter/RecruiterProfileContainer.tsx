@@ -1,5 +1,5 @@
 'use client'
-import { Edit, Edit3, File, Save , Plus} from "lucide-react"
+import { Edit, Edit3, File, Save , Plus, ImagePlus, User} from "lucide-react"
 import Image from "next/image"
 import { useRef, useState, useEffect } from "react"
 import OrganizationCard from "./OrganizationCard"
@@ -107,7 +107,14 @@ const RecruiterProfileContainer = ({user}:propType) => {
                       <ClipLoader size={30} color="white"/>
                     </div>:null
                   }
-                    <Image src={user?.user?.coverPictureUrl} alt="cover-photo" width={700} height={300} className="w-full h-full rounded-t-xl object-cover"/>
+                    {
+                      user?.user?.coverPictureUrl?
+                        <Image src={user.user.coverPictureUrl } alt="profile-photo" width={1000} height={500} className=" w-full h-full object-cover rounded-t-xl"/>
+                      :
+                      <div className="w-full h-full bg-slate-900 rounded-t-xl border-b border-gray-500 flex justify-center items-center">
+                        <ImagePlus className=" w-[60px] h-[60px] text-gray-500"/>
+                      </div>
+                    }
                     <div className="absolute bottom-[-25%] left-[5%] w-[150px] h-[150px] rounded-full">
                         <input ref={profilePhotoRef} type="file" accept="image" hidden onChange={handleUploadProfilePhoto} />
                         <button className="cursor-pointer rounded-full relative w-full h-full" onClick={()=>profilePhotoRef.current?.click()} >
@@ -116,7 +123,14 @@ const RecruiterProfileContainer = ({user}:propType) => {
                               <ClipLoader size={30} color="white"/>
                             </div>:null
                           }
-                            <Image src={user?.user?.profilePictureUrl || 'https://i.pinimg.com/736x/ce/f7/42/cef74289dbaa3b4199ccf640714cc17e.jpg'} alt="profile-photo" width={100} height={100} className=" w-full h-full rounded-full object-cover"/>
+                           {
+                              user?.user?.profilePictureUrl?
+                                <Image src={user.user.profilePictureUrl } alt="profile-photo" width={100} height={100} className=" w-full h-full rounded-full object-cover"/>
+                              :
+                              <div className="w-full h-full bg-slate-900 rounded-full border border-gray-500 flex justify-center items-center">
+                                <User className=" w-[40px] h-[40px] text-gray-500"/>
+                              </div>
+                            }
                         </button>
                     </div>
                     <div className="absolute top-3 right-4 ">

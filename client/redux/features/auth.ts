@@ -87,7 +87,7 @@ export const analyzeResume = createAsyncThunk('auth/analyzeResume', async(_, thu
 export const saveAnalyzedResume = createAsyncThunk('auth/saveAnalyzedResume',async(resumeData:any,thunkAPI)=>{
     try {
         const response = await axios.post('http://localhost:8080/api/resume/save', resumeData,{withCredentials:true})
-        return response.data;
+        return resumeData
     } catch (error:any) {
         return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed analyzing user resume' })
     }
@@ -293,7 +293,7 @@ const authSlice = createSlice({
         })
         .addCase(saveAnalyzedResume.fulfilled,(state,action)=>{
             console.log(action.payload,'upload resume data ')
-            // state.user.resumeData=action.payload.data;
+            state.user.resumeData=action.payload;
             state.saveUserResumeStatus='success'
         })
     }

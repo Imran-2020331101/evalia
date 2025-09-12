@@ -4,7 +4,7 @@ import { Major_Mono_Display } from "next/font/google"
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Plus, Grid2X2,ChevronDown, ChevronUp, Dot, Frown, Bell } from "lucide-react";
+import { Plus, Grid2X2,ChevronDown, ChevronUp, Dot, Frown, Bell, Search } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks";
 import { selectedOrg, selectedOrgId, setSelectedOrg, setSelectedOrgId } from "@/redux/features/job";
 import { organizations, user } from "@/redux/features/auth";
@@ -50,6 +50,7 @@ const RecruitersWorkSpaceMenu = () => {
           </Link>
       </div>
       <div className="w-full h-auto flex flex-col justify-start pt-[70px] pl-[] gap-2 text-gray-400">
+        <Link href={'/workspace/search-candidate'} className="text-md font-semibold flex gap-1 text-gray-200 items-center ml-[5px]"> <Search className="size-4 text-gray-200"/> Search candidate </Link>
         {
           currentOrganizations.length?
           <>

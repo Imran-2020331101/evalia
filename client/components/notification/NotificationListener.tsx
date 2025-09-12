@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addNotification } from "../../redux/features/notification";
 import { isSignedIn, user } from "@/redux/features/auth";
 import { useAppDispatch } from "@/redux/lib/hooks";
+import { toast } from "sonner";
 
 
 export default function NotificationListener() {
@@ -27,10 +28,12 @@ export default function NotificationListener() {
     
     socket.on("notification", (notif) => {
       console.log("New notification received:", notif);
+      toast.success(`${notif.title}`);
       dispatch(addNotification(notif));
     });
     
     socket.on("interview",(notif)=>{
+      toast.success(`${notif.title}`);
       console.log("new interview notification",notif);
     })
 
