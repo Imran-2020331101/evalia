@@ -16,6 +16,20 @@ export const getAllNotifications = createAsyncThunk('notifications/getAllNotific
     }
 })
 
+export const markAsRead = createAsyncThunk('notifications/markAsRead', async(notificationId,thunkAPI)=>{
+  try {
+    const response = await axios.put(`http://localhost:8080/api/notifications/${notificationId}/read`,null,{
+                withCredentials: true,
+            })
+        console.log(response.data, 'mark as read notification');
+        return notificationId;
+  } catch (error:any) {
+    console.log(error)
+        return thunkAPI.rejectWithValue(
+            error.response? { message: error.response.data } : { message: 'failed marked as read notification' })
+  }
+})
+
 export interface Notification {
   id: string;
   userId: string;
@@ -60,6 +74,13 @@ const notificationsSlice = createSlice({
         console.log(action.payload, 'all notifications')
         state.allNotifications=action.payload.data;
         state.getAllNotificationStatus='success'
+    })
+    .addCase(markAsRead.fulfilled,(state,action)=>{
+      const notification = state.allNotifications.find((item:any)=>item.id===action.payload);
+      notification.isRead=true;
+      const newNotifications = state.allNotifications.filter((item:any)=>item.id!==action.payload);
+      newNotifications.push(notification);
+      state.allNotifications=newNotifications;
     })
   }
 });

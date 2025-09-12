@@ -3,6 +3,9 @@
 import { Bell, CheckCircle2, Info, AlertTriangle, Link as LinkIcon, TimerIcon } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { useAppDispatch } from "@/redux/lib/hooks"
+import { markAsRead } from "@/redux/features/notification"
+import { useRouter } from "next/navigation"
 
 interface NotificationCardProps {
   notification: any
@@ -28,6 +31,17 @@ const NotificationCard = ({ notification }: NotificationCardProps) => {
     default: null,
   }
   const link = typeLink[notification.type] || typeLink.default
+
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+
+
+  const handleViewDetails = ()=>{
+    // console.log(notification)
+    dispatch(markAsRead(notification._id));
+    router.push(link as string);
+  }
+
   return (
     <div
       className={cn(
@@ -52,13 +66,13 @@ const NotificationCard = ({ notification }: NotificationCardProps) => {
         <div className="flex flex-col self-end">
           {/* Optional link */}
           {link && (
-            <Link
-              href={link}
+            <button
+              onClick={handleViewDetails}
               className="mt-2 inline-flex items-center gap-1 text-sm text-blue-500 hover:underline"
             >
               <LinkIcon className="size-4" />
               View details
-            </Link>
+            </button>
           )}
 
         </div>
