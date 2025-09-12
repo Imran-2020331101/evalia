@@ -1,9 +1,6 @@
 package com.example.server.job.Proxy;
 
-import com.example.server.job.DTO.JobApplicationRequest;
-import com.example.server.job.DTO.JobCreationRequest;
-import com.example.server.job.DTO.ShortlistForwardWrapper;
-import com.example.server.job.DTO.ShortlistRequest;
+import com.example.server.job.DTO.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,10 +26,8 @@ public interface JobProxy {
     @PostMapping(value = "/user/saved")
     ResponseEntity<String> getAllJobsSavedByUser(@RequestBody List<String> jobIds);
 
-
-//    TODO:
-    @PostMapping(value = '')
-    ResponseEntity<String> generateInterviewQuestions();
+    @PostMapping(value = "/generate/interview-questions")
+    ResponseEntity<String> generateInterviewQuestions(@RequestBody InterviewQuestionsGenerateRequest request);
 
     @PostMapping   (value = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<String> createJob     ( @RequestBody   JobCreationRequest jobCreationRequest);
@@ -43,7 +38,6 @@ public interface JobProxy {
     @DeleteMapping (value = "/{jobId}")
     ResponseEntity<String> deleteJobById ( @PathVariable ("jobId") String jobId,
                            @RequestParam ("email") String email);
-
 
 
     @DeleteMapping (value = "/organization/{OrganizationId}")
