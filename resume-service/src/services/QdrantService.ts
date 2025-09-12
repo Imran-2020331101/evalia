@@ -1,6 +1,6 @@
 import { QdrantClient } from "@qdrant/js-client-rest";
 import logger from '../utils/logger';
-import { EmbeddingResult } from "./OpenAIService";
+import { EmbeddingResult, JobEmbeddingResult } from "./OpenAIService";
 import { randomUUID } from "crypto";
 
 export interface QdrantPoint {
@@ -17,20 +17,44 @@ export interface QdrantPoint {
   };
 }
 
-export interface QdrantSearchFilter {
-  must?: Array<{
-    key: string;
-    match: { value: any };
-  }>;
-  should?: Array<{
-    key: string;
-    match: { value: any };
-  }>;
-  must_not?: Array<{
-    key: string;
-    match: { value: any };
-  }>;
+export interface SearchResult {
+  section : string,
+  result  : {
+    points: {
+        id: string | number;
+        version: number;
+        score: number;
+        payload?: Record<string, unknown> | {
+            [key: string]: unknown;
+        } | null | undefined;
+        vector?: Record<string, unknown> | number[] | number[][] | {
+            [key: string]: number[] | number[][] | {
+                indices: number[];
+                values: number[];
+            } | undefined;
+        } | null | undefined;
+        shard_key?: string | number | Record<string, unknown> | null | undefined;
+        order_value?: number | Record<string, unknown> | null | undefined;
+    }[];
+  }
 }
+
+  // export interface globalSearchResult : {
+  //       id: string | number;
+  //       version: number;
+  //       score: number;
+  //       payload?: Record<string, unknown> | {
+  //           [key: string]: unknown;
+  //       } | null | undefined;
+  //       vector?: Record<string, unknown> | number[] | number[][] | {
+  //           [key: string]: number[] | number[][] | {
+  //               indices: number[];
+  //               values: number[];
+  //           } | undefined;
+  //       } | null | undefined;
+  //       shard_key?: string | number | Record<string, unknown> | null | undefined;
+  //       order_value?: number | Record<string, unknown> | null | undefined;
+  //   }[];
  
 // Helper interface for schema-compliant search filters
 export interface QdrantSchemaFilter {
@@ -42,14 +66,7 @@ export interface QdrantSchemaFilter {
   'candidate-id'?: string;
 }
 
-export interface QdrantSearchOptions {
-  query: number[];
-  filter?: QdrantSearchFilter;
-  with_payload?: boolean;
-  with_vector?: boolean;
-  limit?: number;
-  offset?: number;
-}
+
 
 export class QdrantService {
   private client: QdrantClient;
@@ -63,9 +80,7 @@ export class QdrantService {
     this.defaultCollection = collection;
   }
 
-  /**
-   * Transform payload to match Qdrant schema requirements
-   */
+ 
   async uploadResumeToQdrant(vectors : EmbeddingResult[], user: {
     id : string;
     email: string;
@@ -97,60 +112,90 @@ export class QdrantService {
    */
   async uploadPoints(transformedPoints: QdrantPoint[], collection?: string ): Promise<any> {
     try {
-
       const targetCollection = collection || this.defaultCollection;
+      
+      logger.info(`Uploading ${transformedPoints.length} points to collection: ${targetCollection}`, {
+        candidateEmails: [...new Set(transformedPoints.map(p => p.payload?.['candidate-email']).filter(Boolean))],
+        sections: [...new Set(transformedPoints.map(p => p.payload?.section).filter(Boolean))]
+      });
+      
       const operationInfo = await this.client.upsert(targetCollection, {
-        wait: true,
+        wait: true, // ✅ Ensure operation completes before returning
         points: transformedPoints,
+      });
+
+      logger.info('Successfully uploaded points to Qdrant:', {
+        status: operationInfo.status,
+        operation_id: operationInfo.operation_id,
+        points_count: transformedPoints.length
       });
 
       return operationInfo;
     } catch (error) {
-      logger.error('Error uploading points to Qdrant:', error);
+      logger.error('Error uploading points to Qdrant:', {
+        error: error instanceof Error ? error.message : error,
+        points_count: transformedPoints.length,
+        collection: collection || this.defaultCollection
+      });
       throw new Error("Failed to upload to Qdrant...");
     }
   }
 
+
   /**
    * Perform global search without filters
    */
-  async globalSearch(query: number[], limit: number = 10, collection?: string): Promise<any> {
-    try {
-      const targetCollection = collection || this.defaultCollection;
-      
-      const searchResult = await this.client.query(targetCollection, {
-        query,
-        limit,
-        with_payload: true,
-      });
+  async globalSearch(embeddedSections : JobEmbeddingResult[], limit: number = 10, collection?: string): Promise<any> {
 
-      logger.info(`Global search completed, found ${searchResult.points.length} results`);
-      return searchResult.points;
-    } catch (error) {
-      logger.error('Error performing global search:', error);
-      throw error;
-    }
+      const targetCollection = collection || this.defaultCollection;
+      const searchResult : SearchResult[] = [];
+      
+      for( const sections of embeddedSections){
+        
+        const result = await this.client.query(targetCollection, {
+          query: sections.embedding,
+          limit: limit,      
+          with_payload: true,      
+          },
+    
+        );
+        searchResult.push({
+          section: sections.section,
+          result,
+        })
+      }
+
+      return searchResult;
   }
 
   /**
    * Perform filtered search with specific criteria
    */
-  async filteredSearch(options: QdrantSearchOptions, collection?: string): Promise<any> {
+  async filteredSearch(embeddedSections : JobEmbeddingResult[], candidates : string[], k : number,  collection?: string): Promise<SearchResult[]> {
     try {
       const targetCollection = collection || this.defaultCollection;
-      
-      const searchOptions = {
-        query: options.query,
-        filter: options.filter,
-        with_payload: options.with_payload ?? true,
-        with_vector: options.with_vector ?? false,
-        limit: options.limit ?? 10,
-        offset: options.offset ?? 0,
-      };
 
-      const searchResult = await this.client.query(targetCollection, searchOptions);
+      const searchResult : SearchResult[] = [];
       
-      logger.info(`Filtered search completed, found ${searchResult.points.length} results`);
+      for( const sections of embeddedSections){
+        
+        const result = await this.client.query(targetCollection, {
+          query: sections.embedding,
+          filter : {
+            must:[
+              { key: "candidate-id", match: { "any": candidates } }
+            ]},
+          limit: k,      
+          with_payload: true,      
+          },
+    
+        );
+
+        searchResult.push({
+          section: sections.section,
+          result,
+        })
+      }
       return searchResult;
     } catch (error) {
       logger.error('Error performing filtered search:', error);
@@ -161,77 +206,38 @@ export class QdrantService {
   /**
    * Delete points by IDs
    */
-  async deletePoints(ids: (number | string)[], collection?: string): Promise<any> {
-    try {
-      const targetCollection = collection || this.defaultCollection;
-      
-      const deleteResult = await this.client.delete(targetCollection, {
-        points: ids,
-      });
-      
-      logger.info(`Successfully deleted ${ids.length} points from collection: ${targetCollection}`);
-      return deleteResult;
-    } catch (error) {
-      logger.error('Error deleting points from Qdrant:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Delete points by filter
-   */
-  async deleteByFilter(filter: QdrantSearchFilter, collection?: string): Promise<any> {
-    try {
-      const targetCollection = collection || this.defaultCollection;
-      
-      const deleteResult = await this.client.delete(targetCollection, {
-        filter,
-      });
-      
-      logger.info(`Successfully deleted points matching filter from collection: ${targetCollection}`);
-      return deleteResult;
-    } catch (error) {
-      logger.error('Error deleting points by filter:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Create a new collection
-   */
-  async createCollection(
-    collectionName: string, 
-    vectorSize: number, 
-    distance: 'Cosine' | 'Euclid' | 'Dot' = 'Cosine'
-  ): Promise<any> {
-    try {
-      const createResult = await this.client.createCollection(collectionName, {
-        vectors: {
-          size: vectorSize,
-          distance: distance,
-        },
-      });
-      
-      logger.info(`Successfully created collection: ${collectionName}`);
-      return createResult;
-    } catch (error) {
-      logger.error(`Error creating collection ${collectionName}:`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get collection info
-   */
-  async getCollectionInfo(collection?: string): Promise<any> {
-    try {
-      const targetCollection = collection || this.defaultCollection;
-      const info = await this.client.getCollection(targetCollection);
-      return info;
-    } catch (error) {
-      logger.error(`Error getting collection info for ${collection}:`, error);
-      throw error;
-    }
+  async deletePointsByUserId( candidateId: string,  collection?: string): Promise<any> {
+      try {
+        const targetCollection = collection || this.defaultCollection;
+        
+        // First check if points exist
+        const existingPoints = await this.client.query(targetCollection, {
+          query: Array(1536).fill(0), // Dummy vector for existence check
+          filter: { must: { key: "candidate-id", match: candidateId } },
+          limit: 1,
+          with_payload: true,
+        });
+        
+        if (existingPoints.points.length === 0) {
+          logger.info(`No existing points found for candidate: ${candidateId}`);
+          return { status: 'ok', operation_id: null };
+        }
+        
+        const deleteResult = await this.client.delete(targetCollection, {
+          filter : { must: { key: "candidate-id", match: candidateId } },
+          wait: true
+        });
+        
+        logger.info(`Delete operation completed for candidate ${candidateId}:`, {
+          status: deleteResult.status,
+          operation_id: deleteResult.operation_id
+        });
+        
+        return deleteResult;
+      } catch (error) {
+        logger.error(`Error deleting points for candidate ${candidateId}:`, error);
+        throw new Error(`Failed to delete vector entries for candidate: ${candidateId}`);
+      }
   }
 
   /**
@@ -252,140 +258,7 @@ export class QdrantService {
     }
   }
 
-  /**
-   * Helper method to create schema-compliant search filters
-   */
-  createSchemaFilter(filters: QdrantSchemaFilter): QdrantSearchFilter {
-    const must: Array<{ key: string; match: { value: any } }> = [];
 
-    if (filters.industry) {
-      must.push({ key: 'industry', match: { value: filters.industry.toLowerCase() } });
-    }
-
-    if (filters['candidate-email']) {
-      must.push({ key: 'candidate-email', match: { value: filters['candidate-email'] } });
-    }
-
-    if (filters['candidate-id']) {
-      must.push({ key: 'candidate-id', match: { value: filters['candidate-id'] } });
-    }
-
-    if (filters['candidate-name']) {
-      must.push({ key: 'candidate-name', match: { value: filters['candidate-name'] } });
-    }
-
-    if (filters['document-id']) {
-      must.push({ key: 'document-id', match: { value: filters['document-id'] } });
-    }
-
-    if (filters.is_active !== undefined) {
-      must.push({ key: 'is_active', match: { value: filters.is_active } });
-    }
-
-    return { must };
-  }
-
-  /**
-   * Search for active candidates by industry
-   */
-  async searchActiveCandidatesByIndustry(
-    query: number[], 
-    industry: string, 
-    limit: number = 10,
-    collection?: string
-  ): Promise<any> {
-    const filter = this.createSchemaFilter({
-      industry: industry,
-      is_active: true
-    });
-
-    return this.filteredSearch({
-      query,
-      filter,
-      limit,
-      with_payload: true
-    }, collection);
-  }
-
-  /**
-   * Search for specific candidate's documents
-   */
-  async searchCandidateDocuments(
-    candidateEmail: string,
-    collection?: string
-  ): Promise<any> {
-    const filter = this.createSchemaFilter({
-      'candidate-email': candidateEmail,
-      is_active: true
-    });
-
-    return this.filteredSearch({
-      query: [], // Empty query for filter-only search
-      filter,
-      limit: 100,
-      with_payload: true
-    }, collection);
-  }
-
-  /**
-   * Deactivate candidate documents (soft delete)
-   */
-  async deactivateCandidateDocuments(candidateEmail: string, collection?: string): Promise<any> {
-    try {
-      const targetCollection = collection || this.defaultCollection;
-      
-      // First, find all documents for this candidate
-      const candidateDocuments = await this.searchCandidateDocuments(candidateEmail, collection);
-      
-      if (candidateDocuments.length === 0) {
-        logger.warn(`No documents found for candidate: ${candidateEmail}`);
-        return { deactivated: 0 };
-      }
-
-      // Update each document to set is_active = false
-      const updatePromises = candidateDocuments.map((doc: any) => 
-        this.client.setPayload(targetCollection, {
-          points: [doc.id],
-          payload: {
-            ...doc.payload,
-            is_active: false
-          }
-        })
-      );
-
-      await Promise.all(updatePromises);
-      
-      logger.info(`Deactivated ${candidateDocuments.length} documents for candidate: ${candidateEmail}`);
-      return { deactivated: candidateDocuments.length };
-    } catch (error) {
-      logger.error(`Error deactivating documents for candidate ${candidateEmail}:`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * Update collection alias
-   */
-  async updateCollectionAlias(collectionName: string, aliasName: string): Promise<any> {
-    try {
-      const result = await this.client.updateCollectionAliases({
-        actions: [
-          {
-            create_alias: {
-              collection_name: collectionName,
-              alias_name: aliasName,
-            },
-          },
-        ],
-      });
-      
-      logger.info(`Successfully updated alias ${aliasName} for collection: ${collectionName}`);
-      return result;
-    } catch (error) {
-      logger.error(`Error updating collection alias:`, error);
-      throw error;
-    }
-  }
 }
 
 

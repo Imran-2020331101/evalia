@@ -35,13 +35,13 @@ class jobService{
         return savedJob;
     }
 
-    async findJobById(jobId: string): Promise<IJobDetailsDocument | null> {
+    async findJobById(jobId: string): Promise<IJobDetailsDocument> {
 
       const job = await JobDetailsModel.findById(jobId).orFail();
       
       // Best-effort view increment (don't fail the whole request if this fails)
       JobDetailsModel.findByIdAndUpdate(jobId, { $inc: { views: 1 } })
-        .catch((e) => logger.warn("Failed to increment job views", { jobId, error: e.message }));
+        .orFail();
       
         logger.info("Job details retrieved", {
         jobId: job?._id?.toString(),

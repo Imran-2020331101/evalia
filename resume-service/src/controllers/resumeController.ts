@@ -11,12 +11,6 @@ import {
 
 } from '../types/resume.types';
 import { mapToResumeDTO } from '../utils/resumeHelper';
-import {
-  addToVectordb,
-  naturalLanguageSearch,
-  advancedSearch,
-  weightedSearch,
-} from '../services/vectorDbService';
 import { asyncHandler } from '../utils/asyncHandler';
 import {
   BadRequestError,
@@ -30,9 +24,11 @@ import {
   CandidateSearchError,
   ShortlistGenerationError,
 } from '../errors';
-import OpenAIService, { openAIService ,EmbeddingResult } from '../services/OpenAIService';
+import OpenAIService, { openAIService ,EmbeddingResult, JobEmbeddingResult } from '../services/OpenAIService';
 import { qdrantService } from '../services/QdrantService';
 import { ExtractedResume, IExtractedResume } from '../models/ExtractedText';
+import { JobDescriptionResult } from '@/prompts/parseJobDescriptionprompt';
+import { IJobDetailsDocument } from '@/types/job.types';
 
 // Additional request interfaces not yet in types file
 interface AutomatedShortlistRequest extends Request {
@@ -106,7 +102,7 @@ class ResumeController {
       throw new MissingRequiredFieldError('resumeData');
     }
     
-    const savedResume = await resumeService.updateResume(resumeData);
+    const savedResume = await resumeService.updateResume(resumeData, userId);
     if(!savedResume) {
       throw new ResumeNotFoundError("Failed to save resume.");
     }
@@ -121,7 +117,7 @@ class ResumeController {
     
     try {
       const resumeEmbeddings = await openAIService.createResumeEmbeddings(savedResume);
-      const qdrantUploadResult  = await qdrantService.uploadResumeToQdrant(resumeEmbeddings,{
+      await qdrantService.uploadResumeToQdrant(resumeEmbeddings,{
         id: userId,
         name: userName,
         email: userEmail,
@@ -133,7 +129,8 @@ class ResumeController {
       logger.error('Error processing resume vectors:', {
         error: error.message,
         resumeId: savedResume._id,
-        userEmail: userId,
+        userEmail: userEmail,
+        userId: userId,
         stack: error.stack
       });
       throw new VectorDbError('insert', error.message);
@@ -223,63 +220,79 @@ class ResumeController {
   })
 
   searchCandidatesUsingNLP = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const { job_description } = req.body;
+    const { job_description} = req.body;
+    const {k} = req.params;
 
     if (!job_description) {
       throw new MissingRequiredFieldError('job_description');
     }
 
-    try {
-      const requirement = await resumeService.extractDetailsFromJobDescription(
+      const requirements = await resumeService.extractDetailsFromJobDescription(
         job_description
       );
 
-      console.log('job_description parsed ', requirement.industry);
+      console.log('job_description parsed ', requirements.industry);
 
-      const Candidates = await naturalLanguageSearch(requirement, 10);
+      const matchedCandidates = await resumeService.globalResumeSearch(requirements, k);
 
-      console.log('Candidates from search:', Candidates);
-      console.log('Is Candidates an array?', Array.isArray(Candidates));
-
-      res.status(200).json({
-        success: true,
-        message: 'Vector search completed successfully',
-        data: Candidates,
-      });
-    } catch (error: any) {
-      throw new CandidateSearchError('NLP search', error.message);
-    }
-  })
-
-  generateAutomatedShortlist = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const { jobId, k } = req.params;
-
-    if (!jobId) {
-      throw new MissingRequiredFieldError('jobId');
-    }
-
-    try {
-      const response = await axios.get(`${process.env.JOB_SERVICE_URL}/api/jobs/${jobId}`);
-      const job = response.data.data;
-
-      const requirement = await resumeService.extractDetailsFromJobDescription(
-        job.jobDescription + job.requirements.description + job.responsibilities.description + job.skills.description
-      );
-
-      const Candidates = await naturalLanguageSearch(requirement, parseInt(k) || 10);
-      const appliedCandidates = job.applications.map((application: any) => application.candidateId);
-
-      const matchedCandidates = Candidates.filter((c: any) => appliedCandidates.includes(c.id));
-      console.log('finalized Candidate List ', matchedCandidates);
 
       res.status(200).json({
         success: true,
         message: 'Vector search completed successfully',
         data: matchedCandidates,
       });
-    } catch (error: any) {
-      throw new ShortlistGenerationError(jobId, error.message);
+  })
+
+  generateAutomatedShortlist = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { jobId, k } = req.params;
+
+    console.log('k : ', k);
+
+    if (!jobId) {
+      throw new MissingRequiredFieldError('jobId');
     }
+    
+
+      const response = await axios.get(`${process.env.JOB_SERVICE_URL}/api/jobs/${jobId}`);
+      const job : IJobDetailsDocument = response.data.data;
+
+      const candidates : string[] = job.applications.map((app)=> app.candidateId);
+      
+
+      const requirement: JobDescriptionResult = {
+          industry: 'STEM & Technical',
+          skills: 'Go, PostgreSQL, microservices architecture, REST API development, Redis, Docker, DevOps, unit testing, integration testing, Git, AWS, GCP, Azure, event-driven architecture, message queues, CI/CD, monitoring tools',
+          experience: '5-7 years in backend development, 3 years hands-on with Go',
+          projects: 'developing microservices infrastructure, optimizing RESTful APIs, implementing PostgreSQL solutions, maintaining caching strategies with Redis',
+          education: "Bachelor's degree in Computer Science, Engineering, or related field"
+        }
+      // await resumeService.extractDetailsFromJobDescription(
+      // [
+      //   job.jobDescription,
+      //   ...job.requirements.map((req) => req.description),
+      //   ...job.responsibilities.map((res) => res.description),
+      //     ...job.skills.map((skill) => skill.description),
+      //   ].join(" ")
+      // );
+
+
+
+      
+      const requirementEmbeddings : JobEmbeddingResult[] = await  openAIService.createJobEmbedding(requirement.skills, requirement.experience, requirement.projects, requirement.education);
+      const searchResult = await qdrantService.filteredSearch(requirementEmbeddings,
+        candidates,
+        parseInt(k),
+        process.env.QDRANT_COLLECTION_NAME);
+        
+      const matchedCandidates = resumeService.parseCandidateScores(searchResult);
+      console.log("candidates after transforming : ", matchedCandidates);
+
+
+      res.status(200).json({
+        success: true,
+        message: 'Vector search completed successfully',
+        data: matchedCandidates,
+      });
   })
 
 }

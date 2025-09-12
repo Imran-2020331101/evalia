@@ -1,10 +1,7 @@
 package com.example.server.resume.Controller;
 
 import com.example.server.UserProfile.Service.UserService;
-import com.example.server.resume.DTO.BasicSearchRequest;
-import com.example.server.resume.DTO.BasicSearchResponse;
-import com.example.server.resume.DTO.ResumeDataRequest;
-import com.example.server.resume.DTO.ResumeForwardWrapper;
+import com.example.server.resume.DTO.*;
 import com.example.server.resume.Proxy.ResumeJsonProxy;
 import com.example.server.resume.Proxy.ResumeProxy;
 import com.example.server.resume.exception.ResumeNotFoundException;
@@ -18,8 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
 
 @CrossOrigin
@@ -143,6 +138,14 @@ public class ResumeController {
         logger.info("Received request to get top " + k + " resumes for job ID: " + jobId + " from user: " + principal.getName());
 
         ResponseEntity<String> response = resumeJsonProxy.getTopKResumesForJob(jobId, k);
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
+    }
+
+    @PostMapping("/shortlist/{k}")
+    public ResponseEntity<String> globalResumeSearch(@PathVariable("k") int k,
+                                                     @RequestBody GlobalSearchRequest globalSearchRequest) {
+        ResponseEntity<String> response = resumeJsonProxy.globalResumeSearch(k, globalSearchRequest);
         return ResponseEntity.status(response.getStatusCode())
                 .body(response.getBody());
     }
