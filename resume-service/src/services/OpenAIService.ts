@@ -17,7 +17,10 @@ import {z} from 'zod';
 
   export type EmbeddingResult = z.infer<typeof EmbeddingResponse>[number];
 
-
+  export interface JobEmbeddingResult {
+    section : string;
+    embedding : number[];
+  }
 
   export class OpenAIService {
     private openai: OpenAI;
@@ -33,16 +36,14 @@ import {z} from 'zod';
   /**
    * Create embedding from a single text string
    */
-  async createEmbedding(
-    text: string
-  ): Promise<number[]> {
+  async createEmbedding( text: string ): Promise<number[]> {
     try {
       if (!text || text.trim().length === 0) {
         throw new Error('Text input cannot be empty');
       }
 
       const response = await this.openai.embeddings.create({
-        model: this.defaultModel,
+        model: this.defaultModel || 'text-embedding-3-small',
         input: text.trim(),
         encoding_format: "float",
       });
@@ -151,12 +152,31 @@ async createBatchEmbeddings( inputs: BatchEmbeddingInput[] ): Promise<EmbeddingR
       
   }
 
+
+
   /**
    * Create embedding for job descriptions 
    */
-  async createJobDescriptionEmbedding(jobDescription: string): Promise<number[]> {
+  async createJobEmbedding(skills : string, experience: string, projects: string, education: string): Promise<JobEmbeddingResult[]> {
     try {
-      return await this.createEmbedding(jobDescription)
+      const inputs = [
+      { section: "skills",      value: skills },
+      { section: "experience",  value: experience },
+      { section: "projects",    value: projects },
+      { section: "education",   value: education },
+    ].filter(item => item.value && item.value.trim().length > 0); // skip empty fields
+
+    const embeddings: JobEmbeddingResult[] = [];
+
+    for (const input of inputs) {
+      const embedding = await this.createEmbedding(input.value);
+      embeddings.push({
+        section: input.section,
+        embedding,
+      });
+    }
+
+    return embeddings;
     } catch (error) {
       logger.error('Error creating job description embedding:', error);
       throw error;

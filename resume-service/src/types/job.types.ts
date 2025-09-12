@@ -1,3 +1,4 @@
+import mongoose, { Document } from 'mongoose';
 import { z } from 'zod';
 
 // Importance levels for job requirements, responsibilities, and skills
@@ -51,7 +52,7 @@ export type Company = z.infer<typeof CompanySchema>;
 
 // Application schema
 export const ApplicationSchema = z.object({
-  candidateId    : z.string().optional(),
+  candidateId    : z.string(),
   candidateName  : z.string(),
   candidateEmail : z.string().min(1, 'Candidate ID is required'),
   appliedAt      : z.date().optional(),
@@ -165,3 +166,18 @@ export const PaginationSchema = z.object({
   limit: z.number()
 });
 export type Pagination = z.infer<typeof PaginationSchema>;
+
+
+// Document type from Zod type
+export interface IJobDetailsDocument extends JobDetails, Document {
+  _id: mongoose.Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+  daysUntilDeadline: number | null;
+  applicationCount: number;
+  salaryRange: string | null;
+
+  isActive(): boolean;
+  getRequirementsByImportance(importance: ImportanceLevel): DomainItem[];
+  getSkillsByImportance(importance: ImportanceLevel): DomainItem[];
+}
