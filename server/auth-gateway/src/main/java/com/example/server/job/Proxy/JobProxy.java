@@ -29,6 +29,11 @@ public interface JobProxy {
     @PostMapping(value = "/user/saved")
     ResponseEntity<String> getAllJobsSavedByUser(@RequestBody List<String> jobIds);
 
+
+//    TODO:
+    @PostMapping(value = '')
+    ResponseEntity<String> generateInterviewQuestions();
+
     @PostMapping   (value = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<String> createJob     ( @RequestBody   JobCreationRequest jobCreationRequest);
 
