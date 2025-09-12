@@ -2,6 +2,7 @@
 
 import { Major_Mono_Display } from "next/font/google"
 import { useState } from "react";
+import { useDeepCompareEffect } from "@/custom-hooks/useDeepCompareEffect";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -17,6 +18,7 @@ import expiredLogo from '../../../public/ban.svg'
 import { useAppSelector } from "@/redux/lib/hooks";
 import { user } from "@/redux/features/auth";
 import { Bell } from "lucide-react";
+import { allNotifications } from "@/redux/features/notification";
 
 const majorMono = Major_Mono_Display({ weight: '400', subsets: ['latin'] });
 
@@ -24,11 +26,17 @@ const CandidatesWorkSpaceMenu = () => {
   const [isShowCourseCategory, setIsShowCourseCategory]=useState(true);
   const [isShowJobCategory, setIsShowJobCategory]=useState(true);
   const [isShowInterviewCategory, setIsShowInterviewCategory]=useState(true);
+  const [unreadNotificationCount, setUnreadNotificationCount]=useState<number>(0)
 
-  const currentNotifications=[1,2];
+  const currentNotifications=useAppSelector(allNotifications);
 
   const currentUser = useAppSelector(user);
 
+  useDeepCompareEffect(()=>{
+      let count =0 ;
+      currentNotifications?.map((item:any)=>{if(!item.isRead)count+=1;})
+      if(count!==unreadNotificationCount) setUnreadNotificationCount(count);
+    },[currentNotifications])
   return (
     <div className='w-full h-full flex flex-col justify-between px-[10px] py-[6%] relative pt-[60px]'>
       <div className="flex justify-between items-end px-4 absolute top-4 left-0 w-full">
@@ -38,9 +46,9 @@ const CandidatesWorkSpaceMenu = () => {
               <Bell className="text-gray-100 size-6" />
 
               {/* Badge */}
-              {currentNotifications.length > 0 && (
+              {unreadNotificationCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
-                  {currentNotifications.length}
+                  {unreadNotificationCount}
                 </span>
               )}
             </Link>
