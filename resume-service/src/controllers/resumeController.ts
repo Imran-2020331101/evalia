@@ -85,24 +85,30 @@ class ResumeController {
       extractedResume.fileLink = resumeURL;
       extractedResume.filename = `resume_${userId}`;
       extractedResume.contact.email = userEmail;
+      extractedResume.uploadedBy = userEmail;
+      
       logger.info("Resume DTO ", extractedResume);
 
       res.status(200).json({
         success : true,
-        data    : extractedResume
+        data    : extractedResume,
       });
   })
 
   saveResume = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const { resumeData, userId, userName, userEmail } = req.body;
+    const { resumeData , userId, userName, userEmail } :{
+      resumeData : ResumeDTO , userId: string, userName: string, userEmail: string
+    } = req.body;
+
+    resumeData.uploadedBy = userEmail;
 
     if (!resumeData) {
       throw new MissingRequiredFieldError('resumeData');
     }
-
+    
     const savedResume = await resumeService.updateResume(resumeData);
     if(!savedResume) {
-      throw new ResumeNotFoundError("Faile to save resume.");
+      throw new ResumeNotFoundError("Failed to save resume.");
     }
 
     logger.info('Resume Controller :: Resume saved to MongoDB', {
@@ -120,7 +126,7 @@ class ResumeController {
         name: userName,
         email: userEmail,
         industry: savedResume.industry || "Others",
-        resumeId: savedResume._id || userId,
+        resumeId: savedResume._id?.toString() || userId,
       });
 
     } catch (error: any) {

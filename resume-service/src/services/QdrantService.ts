@@ -1,6 +1,7 @@
 import { QdrantClient } from "@qdrant/js-client-rest";
 import logger from '../utils/logger';
 import { EmbeddingResult } from "./OpenAIService";
+import { randomUUID } from "crypto";
 
 export interface QdrantPoint {
   id: number | string;
@@ -75,7 +76,7 @@ export class QdrantService {
     
     const transformedPayload : QdrantPoint[] = vectors.map((em)=>{
       return {
-        id: user.resumeId,
+        id: randomUUID(),
         vector: em.embedding,
         payload: {
           industry: user.industry,
