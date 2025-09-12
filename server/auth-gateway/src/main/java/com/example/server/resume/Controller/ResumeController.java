@@ -90,15 +90,16 @@ public class ResumeController {
             throw new ResumeNotFoundException("No resume found for user: " + principal.getName());
         }
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(
-                    resumeJsonProxy.extractDetailsFromResume(new ResumeForwardWrapper(
-                            null,
-                            user.getResumeUrl(),
-                            user.getId(),
-                            user.getUsername(),
-                            principal.getName()
-        )));
+        ResponseEntity<String> response =  resumeJsonProxy.extractDetailsFromResume(new ResumeForwardWrapper(
+                null,
+                user.getResumeUrl(),
+                user.getId(),
+                user.getUsername(),
+                principal.getName()
+        ));
+
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
     }
 
     @PostMapping("/save")
@@ -111,6 +112,7 @@ public class ResumeController {
                 user.getUsername(),
                 principal.getName()
         ));
+
         return ResponseEntity.status(response.getStatusCode())
                 .body(response.getBody());
     }
