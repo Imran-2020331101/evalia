@@ -4,10 +4,17 @@ import openRouter from "../config/OpenRouter";
 import streamifier from "streamifier";
 import cloudinary from "../config/Cloudinary";
 import parseResumePrompt from "../prompts/parseResumePrompt";
-import parseJobDescriptionPrompt from "../prompts/parseJobDescriptionprompt";
+import parseJobDescriptionPrompt, { JobDescriptionResult } from "../prompts/parseJobDescriptionprompt";
 import { ResumeData } from "../types/resume.types";
 import Resume, { IResume } from "../models/Resume";
 import { Metadata } from "../types/resume.types";
+import { IndustryType, Skills, Education, Experience, 
+  Certification, Project, Award } from "../types/resume.types";
+import { asyncHandler } from "../middleware/errorHandler";
+import { ExtractedResume } from "../models/ExtractedText";
+import { Document } from "mongoose";
+import { SearchResult } from "./QdrantService";
+
 
 // Type definitions
 interface CloudinaryResult {
@@ -23,13 +30,18 @@ interface ExtractedText {
   metadata: Metadata;
 }
 
+export   interface CandidateMatch {
+  candidateId: string | number;
+  matches: {
+    section: string;
+    score: number;
+  }[];
+}
+
+
 
 // Type definitions for resume parsing
-import { IndustryType, Skills, Education, Experience, 
-  Certification, Project, Award } from "../types/resume.types";
-import { asyncHandler } from "../middleware/errorHandler";
-import { ExtractedResume } from "../models/ExtractedText";
-import { Document } from "mongoose";
+
 
 
 interface ParsedResumeResult {
@@ -59,9 +71,7 @@ interface ResumeAnalysis extends ParsedResumeResult {
   hasPhone: boolean;
 }
 
-interface JobDescriptionDetails {
-  [key: string]: any;
-}
+
 
 class ResumeService {
   /**
@@ -210,11 +220,9 @@ class ResumeService {
    */
   async extractDetailsFromJobDescription(
     jobDescription: string
-  ): Promise<JobDescriptionDetails> {
+  ): Promise<JobDescriptionResult> {
     const prompt = parseJobDescriptionPrompt(jobDescription);
 
-    try {
-      logger.info("Starting job description parse....");
       const res = await openRouter(prompt);
 
       const toParse = `${res}`;
@@ -226,15 +234,35 @@ class ResumeService {
           .trim();
 
         console.log("extracted job description ", cleaned);
-        return JSON.parse(cleaned) as JobDescriptionDetails;
+        return JSON.parse(cleaned) as JobDescriptionResult;
       }
 
-      return res as unknown as JobDescriptionDetails;
-    } catch (error) {
-      logger.error("Job description Failed", error);
-      throw new Error("Failed to parse job description through AI");
+      return res as unknown as JobDescriptionResult;
+
+  }
+
+
+transformResults(searchResults: SearchResult[]): CandidateMatch[] {
+  const candidateMap: Record<string, CandidateMatch> = {};
+
+  for (const { section, result } of searchResults) {
+    for (const point of result.points) {
+      const candidateId = String(point.id);
+
+      if (!candidateMap[candidateId]) {
+        candidateMap[candidateId] = { candidateId, matches: [] };
+      }
+
+      candidateMap[candidateId].matches.push({
+        section,
+        score: point.score,
+      });
     }
   }
+
+  return Object.values(candidateMap);
+}
+
 }
 
 export default new ResumeService();
