@@ -63,7 +63,7 @@ router.get('/status', resumeController.getUploadStatus);
  * @desc    Search the best matching candidates using Natural Language
  * @access  Public
  */
-router.post('/basic-search', resumeController.searchCandidatesUsingNLP);
+router.post('/shortlist/:k', resumeController.searchCandidatesUsingNLP);
 
 /**
  * @route   GET /api/resume/:id

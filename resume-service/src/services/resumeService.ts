@@ -4,10 +4,18 @@ import openRouter from "../config/OpenRouter";
 import streamifier from "streamifier";
 import cloudinary from "../config/Cloudinary";
 import parseResumePrompt from "../prompts/parseResumePrompt";
-import parseJobDescriptionPrompt from "../prompts/parseJobDescriptionprompt";
+import parseJobDescriptionPrompt, { JobDescriptionResult } from "../prompts/parseJobDescriptionprompt";
 import { ResumeData } from "../types/resume.types";
 import Resume, { IResume } from "../models/Resume";
 import { Metadata } from "../types/resume.types";
+import { IndustryType, Skills, Education, Experience, 
+  Certification, Project, Award } from "../types/resume.types";
+import { asyncHandler } from "../middleware/errorHandler";
+import { ExtractedResume } from "../models/ExtractedText";
+import { Document } from "mongoose";
+import { qdrantService, SearchResult } from "./QdrantService";
+import { JobEmbeddingResult, openAIService } from "./OpenAIService";
+
 
 // Type definitions
 interface CloudinaryResult {
@@ -23,13 +31,18 @@ interface ExtractedText {
   metadata: Metadata;
 }
 
+export interface CandidateScore {
+  'candidate-id': string;
+  candidateName : any;
+  skills: number | null;
+  education: number | null;
+  experience: number | null;
+  projects: number | null;
+}
+
 
 // Type definitions for resume parsing
-import { IndustryType, Skills, Education, Experience, 
-  Certification, Project, Award } from "../types/resume.types";
-import { asyncHandler } from "../middleware/errorHandler";
-import { ExtractedResume } from "../models/ExtractedText";
-import { Document } from "mongoose";
+
 
 
 interface ParsedResumeResult {
@@ -59,9 +72,7 @@ interface ResumeAnalysis extends ParsedResumeResult {
   hasPhone: boolean;
 }
 
-interface JobDescriptionDetails {
-  [key: string]: any;
-}
+
 
 class ResumeService {
   /**
@@ -183,7 +194,7 @@ class ResumeService {
 
 
 
-  async updateResume(resume : ResumeData ): Promise<IResume> {
+  async updateResume(resume : ResumeData, candidateId: string ): Promise<IResume> {
   
     // Ensure One resume per email
     const existingResume = await Resume.findOne({
@@ -193,8 +204,8 @@ class ResumeService {
     if (existingResume) {
 
       Object.assign(existingResume, resume);
+      await qdrantService.deletePointsByUserId(candidateId);
       return await existingResume.save();
-
     } else {
 
       const newResume = new Resume(resume);
@@ -210,11 +221,9 @@ class ResumeService {
    */
   async extractDetailsFromJobDescription(
     jobDescription: string
-  ): Promise<JobDescriptionDetails> {
+  ): Promise<JobDescriptionResult> {
     const prompt = parseJobDescriptionPrompt(jobDescription);
 
-    try {
-      logger.info("Starting job description parse....");
       const res = await openRouter(prompt);
 
       const toParse = `${res}`;
@@ -225,16 +234,81 @@ class ResumeService {
           .replace(/```$/, "") // Remove ending ```
           .trim();
 
-        console.log("extracted job description ", cleaned);
-        return JSON.parse(cleaned) as JobDescriptionDetails;
+        return JSON.parse(cleaned) as JobDescriptionResult;
       }
 
-      return res as unknown as JobDescriptionDetails;
-    } catch (error) {
-      logger.error("Job description Failed", error);
-      throw new Error("Failed to parse job description through AI");
-    }
+      return res as unknown as JobDescriptionResult;
+
   }
+
+  async globalResumeSearch(requirement : JobDescriptionResult, k : string) : Promise<CandidateScore[]>{
+    
+    const requirementEmbeddings : JobEmbeddingResult[] = await  openAIService.createJobEmbedding(requirement.skills, requirement.experience, requirement.projects, requirement.education);
+    const searchResult = await qdrantService.globalSearch(requirementEmbeddings , parseInt(k), process.env.QDRANT_COLLECTION_NAME);
+        
+    const matchedCandidates = this.parseCandidateScores(searchResult);
+    console.log("candidates after transforming : ", matchedCandidates);
+    return matchedCandidates;
+  }
+
+
+  parseCandidateScores(data: SearchResult[]): CandidateScore[] {
+    
+    const candidatesMap = new Map<string, CandidateScore>();
+
+    for (const key in data) {
+      if (data.hasOwnProperty(key)) {
+        const sectionData = data[key];
+        const sectionName = sectionData.section;
+        const points = sectionData.result.points;
+
+        for (const point of points) {
+          const candidateId = point.payload?.['candidate-id'];
+          const score = point.score;
+
+          // Skip if candidateId is not a string
+          if (!candidateId || typeof candidateId !== 'string') continue;
+
+          // If the candidate isn't in our map, add them with default null scores.
+          if (!candidatesMap.has(candidateId)) {
+            candidatesMap.set(candidateId, {
+              'candidate-id': candidateId,
+              candidateName: point.payload?.['candidate-name'],
+              skills: null,
+              education: null,
+              experience: null,
+              projects: null,
+            });
+          }
+
+          // Get the candidate's score object from the map.
+          const candidateScore = candidatesMap.get(candidateId)!;
+
+          // Assign the score to the correct section, rounding to two decimal places.
+          switch (sectionName) {
+            case 'skills':
+              candidateScore.skills = parseFloat(score.toFixed(2));
+              break;
+            case 'education':
+              candidateScore.education = parseFloat(score.toFixed(2));
+              break;
+            case 'experience':
+              candidateScore.experience = parseFloat(score.toFixed(2));
+              break;
+            case 'projects':
+              candidateScore.projects = parseFloat(score.toFixed(2));
+              break;
+          }
+        }
+      }
+    }
+
+    return Array.from(candidatesMap.values());
+  }
+
+
+
+
 }
 
 export default new ResumeService();

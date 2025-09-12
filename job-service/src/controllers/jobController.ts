@@ -318,16 +318,18 @@ export class JobController {
   });
 
   generateInterviewQuestions = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    console.log("Interview Generation Request recieved ", req.body);
     const validationResult = InterviewQuestionsGenerateSchema.safeParse(req.body);
-
+    
     if (!validationResult.success) {
-        const errors = validationResult.error.errors.map(err => `${err.path.join('.')}: ${err.message}`);
-        res.status(400).json({
-          success: false,
-          error: "Validation failed",
-          details: errors
-        } as ApiResponse);
-        return;
+      const errors = validationResult.error.errors.map(err => `${err.path.join('.')}: ${err.message}`);
+      logger.error(errors);
+      res.status(400).json({
+        success: false,
+        error: "Validation failed",
+        details: errors
+      } as ApiResponse);
+      return;
     }
     const {jobDescription, responsibilities, requirements, skills} = validationResult.data;
 
