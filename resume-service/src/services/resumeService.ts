@@ -5,6 +5,9 @@ import streamifier from "streamifier";
 import cloudinary from "../config/Cloudinary";
 import parseResumePrompt from "../prompts/parseResumePrompt";
 import parseJobDescriptionPrompt from "../prompts/parseJobDescriptionprompt";
+import { ResumeData } from "../types/resume.types";
+import Resume, { IResume } from "../models/Resume";
+import { Metadata } from "../types/resume.types";
 
 // Type definitions
 interface CloudinaryResult {
@@ -14,30 +17,46 @@ interface CloudinaryResult {
   [key: string]: any;
 }
 
-interface PDFMetadata {
-  pages: number;
-  info: any;
-  version: string | null;
-}
 
 interface ExtractedText {
   text: string;
-  metadata: PDFMetadata;
+  metadata: Metadata;
 }
 
-interface BasicMetrics {
+
+// Type definitions for resume parsing
+import { IndustryType, Skills, Education, Experience, 
+  Certification, Project, Award } from "../types/resume.types";
+import { asyncHandler } from "../middleware/errorHandler";
+import { ExtractedResume } from "../models/ExtractedText";
+import { Document } from "mongoose";
+
+
+interface ParsedResumeResult {
+  name: string;
+  email: string;
+  phone: string;
+  linkedin: string;
+  github: string;
+  location: string;
+  industry: IndustryType;
+  skills: Skills;
+  education: Education[];
+  experience: Experience[];
+  certifications: Certification[];
+  projects: Project[];
+  languages: string[];
+  awards: Award[];
+  volunteer: string[];
+  interests: string[];
+  keywords: string[];
+}
+
+interface ResumeAnalysis extends ParsedResumeResult {
   wordCount: number;
   characterCount: number;
   hasEmail: boolean;
   hasPhone: boolean;
-}
-
-interface AIAnalysisResult {
-  [key: string]: any;
-}
-
-interface ResumeAnalysis extends BasicMetrics {
-  [key: string]: any;
 }
 
 interface JobDescriptionDetails {
@@ -52,11 +71,7 @@ class ResumeService {
    * @param userId - User identifier for the file
    * @returns Promise<CloudinaryResult> - Upload result from Cloudinary
    */
-  async uploadToCloudinary(
-    buffer: Buffer,
-    folderName: string,
-    userId: string
-  ): Promise<CloudinaryResult> {
+  async uploadToCloudinary( buffer: Buffer,  folderName: string,  userId: string  ): Promise<CloudinaryResult> {
     return new Promise((resolve, reject) => {
       const publicId = `${userId}.pdf`;
       const stream = cloudinary.uploader.upload_stream(
@@ -88,28 +103,31 @@ class ResumeService {
    * @returns Promise<ExtractedText> - Extracted text and metadata
    */
   async extractText(pdfBuffer: Buffer): Promise<ExtractedText> {
-    try {
-      logger.info("Starting PDF text extraction");
+    const result = await pdfParse(pdfBuffer);
 
-      const result = await pdfParse(pdfBuffer);
+    return {
+      text: result.text,
+      metadata: {
+      pages: result.numpages,
+      info: result.info,
+      version: result.version,
+    }};
+  }
 
-      logger.info("PDF text extraction completed", {
-        pages: result.numpages,
-        textLength: result.text.length,
-      });
-
-      return {
-        text: result.text,
-        metadata: {
-          pages: result.numpages,
-          info: result.info,
-          version: result.version,
-        },
-      };
-    } catch (error) {
-      logger.error("PDF text extraction failed:", error);
-      throw new Error("Failed to extract text from PDF");
-    }
+   async asynchronusTextProcesing( userId:string, userEmail:string, pdfBuffer: Buffer): Promise<void>{
+    const extractedData = await this.extractText(pdfBuffer);
+          const newExtrctedResume = new ExtractedResume({
+            ...extractedData,
+            userEmail: userEmail,
+            userId: userId 
+          });
+          await newExtrctedResume.save();
+          
+          logger.info('Extracted resume data saved successfully in background:', {
+            userEmail,
+            userId,
+            extractedDataKeys: Object.keys(extractedData)
+          });
   }
 
   /**
@@ -118,11 +136,9 @@ class ResumeService {
    * @returns Promise<ResumeAnalysis> - Analyzed resume data from AI
    */
   async analyzeResume(text: string): Promise<ResumeAnalysis> {
-    try {
-      logger.info("Starting AI-based resume analysis");
 
       // Basic text metrics
-      const basicMetrics: BasicMetrics = {
+      const basicMetrics  = {
         wordCount: text.split(/\s+/).length,
         characterCount: text.length,
         hasEmail: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/.test(
@@ -136,55 +152,54 @@ class ResumeService {
 
       const aiAnalysis = await this._parseResumeThroughAI(text);
 
-      const analysis: ResumeAnalysis = {
-        ...basicMetrics,
+      return {
         ...aiAnalysis,
+        ...basicMetrics
       };
 
-      logger.info("AI resume analysis completed", {
-        wordCount: analysis.wordCount,
-        hasStructuredData: !!aiAnalysis,
-      });
-
-      return analysis;
-    } catch (error) {
-      logger.error("Resume analysis failed:", error);
-      throw new Error("Failed to analyze resume content");
-    }
   }
 
   /**
    * Parse resume content through AI
    * @param content - Resume text content
-   * @returns Promise<AIAnalysisResult> - AI analysis result
-   * @private
+   * @returns Promise<ParsedResuemResult> 
    */
-  private async _parseResumeThroughAI(content: string): Promise<AIAnalysisResult> {
+  private async _parseResumeThroughAI(content: string): Promise<ParsedResumeResult> {
     const prompt = parseResumePrompt(content);
 
-    try {
       const res = await openRouter(prompt);
-
-      console.log(res);
-
       if (typeof res === "string") {
         const cleaned = res
-          .replace(/^```json\s*/i, "") // Remove starting ```json
-          .replace(/^```\s*/i, "") // Or just ``` if not tagged
-          .replace(/```$/, "") // Remove ending ```
+          .replace(/^```json\s*/i, "") 
+          .replace(/^```\s*/i, "") 
+          .replace(/```$/, "") 
           .trim();
 
         return JSON.parse(cleaned);
       }
 
-      logger.info(
-        "resume service :: line 163 :: Successfully cleaned response :" + res
-      );
+      return res as ParsedResumeResult;
+  }
 
-      return res as AIAnalysisResult;
-    } catch (error) {
-      logger.error("AI resume parsing failed:", error);
-      throw new Error("Failed to parse resume through AI");
+
+
+  async updateResume(resume : ResumeData ): Promise<IResume> {
+  
+    // Ensure One resume per email
+    const existingResume = await Resume.findOne({
+      uploadedBy: resume.uploadedBy,
+    });
+
+    if (existingResume) {
+
+      Object.assign(existingResume, resume);
+      return await existingResume.save();
+
+    } else {
+
+      const newResume = new Resume(resume);
+      return await newResume.save();
+
     }
   }
 
