@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks'
 import { currentFormData, setFormData } from '@/redux/features/auth'
 import { toggleIsShowAuthRole } from '@/redux/features/utils'
+import { Eye, EyeClosed } from 'lucide-react'
 
 interface FormDataType {
   name: string
@@ -19,6 +20,8 @@ const RegisterPage = () => {
   const dispatch = useAppDispatch()
   const formData = useAppSelector(currentFormData);
 
+  const [password, setPassword]=useState('');
+  const [isShowPassword, setIsShowPassword]=useState(false);
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
@@ -121,20 +124,21 @@ const RegisterPage = () => {
 
         <div className="w-full min-[1200px]:h-[35px] min-[1600px]:h-[40px] relative border-[1px] border-gray-700 rounded-lg">
           <label 
-            className='absolute rounded-md top-[-12px] bg-gray-900 px-1 cursor-pointer left-3 min-[1200px]:text-[12px] min-[1600px]:text-[14px] font-semibold tracking-wider' 
-            htmlFor="password"
-          >
-            Password
+          className='absolute z-10 rounded-md top-[-12px] bg-gray-900 px-1 cursor-pointer left-3 min-[1200px]:text-[12px] min-[1600px]:text-[14px] font-semibold tracking-wider' htmlFor="password"
+          >Password
           </label>
-          <input 
-            className='w-full h-full px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 bg-transparent text-white' 
-            id='password' 
-            name='password'
-            type="password"
-            value={formData.password}
-            onChange={handleChange}
-            disabled={loading}
-          />
+          <div className="w-full h-full flex items-center  relative">
+            <input 
+              className='w-full h-full px-3 rounded-lg outline-none ' 
+              id='password' 
+              name='password'
+              type={!isShowPassword?"password":"text"} 
+              value={formData.password}
+              onChange={handleChange}
+              disabled={loading}
+              />
+            <button className='absolute top-2 right-3' onClick={()=>setIsShowPassword((prev)=>!prev)}>{!isShowPassword ?<EyeClosed className='size-4'/> :<Eye className='size-4'/>}</button>
+          </div>
         </div>
 
         <button 

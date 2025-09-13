@@ -124,6 +124,7 @@ interface initialStateType {
     applyJobStatus: statusType,
     saveJobStatus: statusType,
     markShortlistedStatus: statusType,
+    markShortlistedByAiStatus:statusType,
     applyJobId:string|null,
     saveJobId:string|null,
     savedJobs:any,
@@ -147,6 +148,7 @@ const initialState :initialStateType = {
     previewedShortListedCandidate:[],
     shortListedCandidate:[],
     markShortlistedStatus:'idle',
+    markShortlistedByAiStatus:'idle',
     createJobStatus:'idle',
     fetchJobStatus:'idle',
     getAllJobsStatus:'idle',
@@ -161,6 +163,9 @@ const jobSlice = createSlice({
     name:'job',
     initialState,
     reducers:{
+        setMarkShortListedByAiStatus(state,action){
+            state.markShortlistedByAiStatus=action.payload;
+        },
         setSelectedOrgId(state,action){
             state.selectedOrgId=action.payload;
         },
@@ -267,8 +272,8 @@ const jobSlice = createSlice({
             state.saveJobId=null
         })
         .addCase(saveJob.fulfilled,(state,action)=>{
-            state.savedJobs.push(action.payload.data);
-            console.log(action.payload, 'inside save jobs...'); 
+            state.savedJobs.push(action.payload?.data);
+            console.log(action.payload.data, 'inside save jobs...'); 
             state.saveJobStatus='success'
             state.saveJobId=null
         })
@@ -300,9 +305,11 @@ const jobSlice = createSlice({
         })
         .addCase(markAsShortListed.pending,(state)=>{
             state.markShortlistedStatus='pending'
+            state.markShortlistedByAiStatus='pending'
         })
         .addCase(markAsShortListed.rejected,(state)=>{
             state.markShortlistedStatus='error'
+            state.markShortlistedByAiStatus='error'
         })
         .addCase(markAsShortListed.fulfilled,(state,action)=>{
             // const {candidateEmail} = action.payload.data;
@@ -318,6 +325,7 @@ const jobSlice = createSlice({
 
             console.log(action.payload, 'inside markShortlisted thunk'); 
             state.markShortlistedStatus='success'
+            state.markShortlistedByAiStatus='success'
         })
         .addCase(markAsShortListedByAI.pending,(state)=>{
             state.markShortlistedStatus='pending'
@@ -344,7 +352,7 @@ const jobSlice = createSlice({
 })
 
 export default jobSlice.reducer;
-export const {setPreviewedShortListedCandidate, setSelectedOrgId, setSelectedOrg, setApplyJobStatus, setGetAllJobStatus, setApplyJobId, setSaveJobId, setRecruiterSelectedJob, setCreateJobStatus,setMarkShortListedStatus, setShortListedCandidate}=jobSlice.actions;
+export const {setMarkShortListedByAiStatus,setPreviewedShortListedCandidate, setSelectedOrgId, setSelectedOrg, setApplyJobStatus, setGetAllJobStatus, setApplyJobId, setSaveJobId, setRecruiterSelectedJob, setCreateJobStatus,setMarkShortListedStatus, setShortListedCandidate}=jobSlice.actions;
 export const exploreJobs = (state:RootState)=>state.job.exploreJobs;
 export const appliedJobs = (state:RootState)=>state.job.appliedJobs;
 export const savedJobs = (state:RootState)=>state.job.savedJobs;
@@ -362,3 +370,4 @@ export const selectedOrg = (state:RootState)=>state.job.selectedOrg;
 export const recruitersSelectedJob = (state:RootState)=>state.job.recruitersSelectedJob;
 export const shortListedCandidate = (state:RootState)=>state.job.shortListedCandidate;
 export const previewedShortListedCandidate = (state:RootState)=>state.job.previewedShortListedCandidate;
+export const markShortlistedByAiStatus = (state:RootState)=>state.job.markShortlistedByAiStatus;
