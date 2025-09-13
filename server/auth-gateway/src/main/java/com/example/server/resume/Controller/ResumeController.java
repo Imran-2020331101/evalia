@@ -104,7 +104,7 @@ public class ResumeController {
                 resumeData,
                 null,
                 user.getId(),
-                user.getUsername(),
+                user.getDisplayName(),
                 principal.getName()
         ));
 

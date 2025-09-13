@@ -3,6 +3,7 @@ package com.example.server.job.Controller;
 import com.example.server.UserProfile.Service.UserService;
 import com.example.server.job.DTO.*;
 import com.example.server.job.Proxy.JobProxy;
+import com.example.server.resume.exception.ResumeNotFoundException;
 import com.example.server.security.models.userEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -213,6 +214,18 @@ public class JobController {
     @GetMapping("/{jobId}/questions")
     public ResponseEntity<String> getInterviewQuestionsOfAJob(@PathVariable("jobId") String jobId, Principal principal) {
         ResponseEntity<String> response = jobProxy.getInterviewQuestionsOfAJob(jobId);
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
+    }
+
+
+    @GetMapping("/suggestions")
+    public ResponseEntity<String> getJobSuggestionsForCandidate(Principal principal) {
+        userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
+        if (!user.isHasResume()) {
+           throw new ResumeNotFoundException("Complete profile by uploading resume to get suggestions");
+        }
+        ResponseEntity<String> response = jobProxy.getJobSuggestionsForCandidate(user.getId().toString());
         return ResponseEntity.status(response.getStatusCode())
                 .body(response.getBody());
     }

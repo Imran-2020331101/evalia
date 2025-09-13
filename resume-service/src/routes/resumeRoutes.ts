@@ -66,11 +66,13 @@ router.get('/status', resumeController.getUploadStatus);
 router.post('/shortlist/:k', resumeController.searchCandidatesUsingNLP);
 
 /**
- * @route   GET /api/resume/:id
+ * @route   GET /api/resume/:resumeId
  * @desc    Get specific resume by ID
  * @access  Public
  */
 router.get('/:resumeId', resumeController.getResumeById);
 router.get('/:jobId/shortlist/:k', resumeController.generateAutomatedShortlist);
+
+router.get('/:candidateId/vector', resumeController.getResumePointById);
 
 export default router;

@@ -6,11 +6,6 @@ import {
   CreateJobRequest
 } from '../types/job.types';
 // Status enum for job applications
-enum ApplicationStatus {
-  Pending = 'PENDING',
-  Shortlisted = 'SHORTLISTED',
-  Rejected = 'REJECTED',
-}
 import { JobDetailsModel, IJobDetailsDocument } from '../models/JobDetails';
 import { Document, Types, UpdateResult } from 'mongoose';
 import { logger } from '../config/logger';
@@ -18,6 +13,28 @@ import { sendNotification } from '../utils/notify';
 import { mapJobData } from '../utils/jobMapper';
 import { ApplicationCompatibilityService } from './ApplicationCompatibilityService';
 import { EventTypes } from '../types/notifications.types';
+import parseJobDescriptionPrompt, { JobDescriptionResult } from '../prompts/parseJobDescriptionprompt';
+import upskillBot from '../config/OpenRouter';
+import { JobEmbeddingResult, openAIService } from './OpenAIService';
+import { qdrantService, SearchResult } from './QdrantService';
+
+
+enum ApplicationStatus {
+  Pending = 'PENDING',
+  Shortlisted = 'SHORTLISTED',
+  Rejected = 'REJECTED',
+}
+
+export interface JobMatchingScore {
+  jobId : any;
+  industry : any;
+  isActive  : any;
+  skills: number | null;
+  education: number | null;
+  experience: number | null;
+  projects: number | null;
+}
+
 
 class jobService{
   
@@ -245,6 +262,77 @@ class jobService{
       return job?.jobDescription;
     }
     
+    async uploadJobToVectorDB(job : IJobDetailsDocument) : Promise<void> {
+      const prompt : string = parseJobDescriptionPrompt([
+              job.jobDescription,
+              ...job.requirements.map((req) => req.description),
+              ...job.responsibilities.map((res) => res.description),
+                ...job.skills.map((skill) => skill.description),
+              ].join(" ")
+            );
+      const res    : string = await upskillBot(prompt);
+
+      const requirement           : JobDescriptionResult = JSON.parse(res);
+      const requirementEmbeddings : JobEmbeddingResult[] = await  openAIService.createJobEmbedding(requirement.skills, requirement.experience, requirement.projects, requirement.education);
+      
+      await qdrantService.uploadJobToQdrant(requirementEmbeddings, {
+        id: job._id.toString(),
+        industry: requirement.industry,
+        organizationId: job.company.OrganizationId,
+      });
+
+    }
+
+  parseJobScores(data: SearchResult[]): JobMatchingScore[] {
+    const jobsMap = new Map<string, JobMatchingScore>();
+
+    for (const sectionData of data) {
+      const sectionName = sectionData.section;
+      const points = sectionData.result.points;
+
+      for (const point of points) {
+        const jobId = point.payload?.["document-id"];
+        const score = point.score;
+
+        // Skip if jobId is missing or invalid
+        if (!jobId || typeof jobId !== "string") continue;
+
+        // If job doesn't exist yet, initialize with defaults
+        if (!jobsMap.has(jobId)) {
+          jobsMap.set(jobId, {
+            jobId: jobId,
+            skills: null,
+            education: null,
+            experience: null,
+            projects: null,
+            industry: point.payload?.industry ?? null,
+            isActive: point.payload?.is_active ?? null,
+          });
+        }
+
+        // Retrieve job
+        const jobScore = jobsMap.get(jobId)!;
+
+        // Assign score based on section
+        switch (sectionName) {
+          case "skills":
+            jobScore.skills = parseFloat(score.toFixed(2));
+            break;
+          case "education":
+            jobScore.education = parseFloat(score.toFixed(2));
+            break;
+          case "experience":
+            jobScore.experience = parseFloat(score.toFixed(2));
+            break;
+          case "projects":
+            jobScore.projects = parseFloat(score.toFixed(2));
+            break;
+        }
+      }
+    }
+
+    return Array.from(jobsMap.values());
+  }
 }
 
 export const JobService = new jobService();

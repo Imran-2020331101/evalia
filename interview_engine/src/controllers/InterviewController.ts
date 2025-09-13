@@ -10,7 +10,7 @@ import {
   IJobResponse,
   IQuestionAnswer,
   ScheduleInterviewRequest
-} from '../types/interview';
+} from '../types/interview.types';
 import { EventTypes, InterviewCreatedNotification } from '../types/notification.types';
 
 export class InterviewController {

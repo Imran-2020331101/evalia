@@ -1,5 +1,13 @@
 import { ObjectId } from "mongoose";
 
+export interface ResumePoint {
+    experience?: { vector: number[], payload: any },
+    skills?: { vector: number[], payload: any },
+    projects?: { vector: number[], payload: any },
+    education?: { vector: number[], payload: any }
+  } 
+
+
 export type ResumeDTO = {
   filename: string;
   originalName: string;
