@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { IJobResponse } from '../types/interview';
+import { IJobResponse } from '../types/interview.types';
 
 export class JobService {
   private readonly baseUrl: string;

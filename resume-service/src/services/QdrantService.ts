@@ -17,44 +17,31 @@ export interface QdrantPoint {
   };
 }
 
+export interface ResumePoint {
+    experience?: { vector: number[], payload: any },
+    skills?: { vector: number[], payload: any },
+    projects?: { vector: number[], payload: any },
+    education?: { vector: number[], payload: any }
+  } 
+
 export interface SearchResult {
-  section : string,
-  result  : {
-    points: {
-        id: string | number;
-        version: number;
-        score: number;
-        payload?: Record<string, unknown> | {
-            [key: string]: unknown;
-        } | null | undefined;
-        vector?: Record<string, unknown> | number[] | number[][] | {
-            [key: string]: number[] | number[][] | {
-                indices: number[];
-                values: number[];
-            } | undefined;
-        } | null | undefined;
-        shard_key?: string | number | Record<string, unknown> | null | undefined;
-        order_value?: number | Record<string, unknown> | null | undefined;
-    }[];
-  }
+  section: string;
+  result: {
+    points: QdrantSearchPoint[];
+  };
 }
 
-  // export interface globalSearchResult : {
-  //       id: string | number;
-  //       version: number;
-  //       score: number;
-  //       payload?: Record<string, unknown> | {
-  //           [key: string]: unknown;
-  //       } | null | undefined;
-  //       vector?: Record<string, unknown> | number[] | number[][] | {
-  //           [key: string]: number[] | number[][] | {
-  //               indices: number[];
-  //               values: number[];
-  //           } | undefined;
-  //       } | null | undefined;
-  //       shard_key?: string | number | Record<string, unknown> | null | undefined;
-  //       order_value?: number | Record<string, unknown> | null | undefined;
-  //   }[];
+export interface QdrantSearchPoint {
+  id: string | number;
+  version: number;
+  score: number;
+  payload?: Record<string, unknown> | null | undefined;
+  vector?: Record<string, unknown> | number[] | number[][] | null | undefined;
+  shard_key?: string | number | Record<string, unknown> | null | undefined;
+  order_value?: number | Record<string, unknown> | null | undefined;
+}
+
+
  
 // Helper interface for schema-compliant search filters
 export interface QdrantSchemaFilter {
@@ -241,19 +228,54 @@ export class QdrantService {
   }
 
   /**
-   * Get point by ID
+   * Get resume data organized by sections with vectors
    */
-  async getPointById(id: number | string, collection?: string): Promise<any> {
+  async getPointByResumeId(candidateId: string, collection?: string): Promise< ResumePoint | null> {
     try {
       const targetCollection = collection || this.defaultCollection;
-      const point = await this.client.retrieve(targetCollection, {
-        ids: [id],
+      const result = await this.client.scroll(targetCollection, {
+        filter: {
+          must: [{
+              key: "candidate-id",
+              match: {
+                value: candidateId,
+              },
+            }],
+        },
+        limit: 4,
         with_payload: true,
-        with_vector: true,
+        with_vector: true, 
       });
-      return point;
+      
+      if (result.points.length === 0) {
+        logger.info(`No point found for resume id: ${candidateId}`);
+        return null;
+      }
+      
+      // convert to ResumePoint
+      const resumeData: {
+        experience?: { vector: number[], payload: any },
+        skills?: { vector: number[], payload: any },
+        projects?: { vector: number[], payload: any },
+        education?: { vector: number[], payload: any }
+      } = {};
+      
+      result.points.forEach(point => {
+        const section = point.payload?.section as string;
+        const vector = Array.isArray(point.vector) ? point.vector as number[] : [];
+        
+        if (section && ['experience', 'skills', 'projects', 'education'].includes(section)) {
+          resumeData[section as keyof typeof resumeData] = {
+            vector,
+            payload: point.payload
+          };
+        }
+      });
+      
+      logger.info(`Retrieved resume data for ${candidateId} with sections:`, Object.keys(resumeData));
+      return resumeData;
     } catch (error) {
-      logger.error(`Error retrieving point ${id}:`, error);
+      logger.error(`Error retrieving point by resume id: ${candidateId}:`, error);
       throw error;
     }
   }

@@ -22,17 +22,29 @@ export async function upskillBot(message: string): Promise<string> {
     ],
   });
 
-  const content = completion.choices?.[0]?.message?.content as unknown;
+  return processLLMResponse(completion.choices?.[0]?.message?.content as unknown);
+}
 
-  if (typeof content === "string") return content;
+
+
+export function processLLMResponse(content: any): string{
+  
   if (Array.isArray(content)) {
     // Content parts (for multi-part responses in some providers)
-    return content
+    content =  content
       .map((part: any) => (typeof part === "string" ? part : (part?.text ?? "")))
       .filter(Boolean)
       .join("\n");
   }
-  return "";
+
+  return typeof content === "string"
+      ? content
+          .replace(/^```json\s*/i, "")
+          .replace(/^```\s*/i, "")
+          .replace(/```$/, "")
+          .trim()
+      : "";
+
 }
 
 export default upskillBot;

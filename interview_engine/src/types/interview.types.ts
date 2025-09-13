@@ -159,7 +159,7 @@ export interface IVideoFrameData {
   frame: string;
 }
 
-export interface IPythonMetrics {
+export interface IntegrityMetrics {
   faceCount: number;
   eyeContact: number;
   speaking: number;
@@ -168,7 +168,7 @@ export interface IPythonMetrics {
 
 export interface IPythonMetricsResult {
   interviewId: string;
-  metrics: IPythonMetrics;
+  metrics: IntegrityMetrics;
 }
 
 // Static methods interface for the model
