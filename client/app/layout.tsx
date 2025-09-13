@@ -6,6 +6,7 @@ import HamburgerMenu from "@/components/modal/HamburgerMenu";
 import {Toaster} from 'sonner'
 import NotificationListener from "@/components/notification/NotificationListener";
 import ProgressBar from "@/components/utils/ProgressBar";
+import JobPreview from "@/components/workspace/modals/JobPreview";
 
 export const metadata: Metadata = {
   title: "EVALIA",
@@ -25,6 +26,7 @@ export default function RootLayout({
               <NavBar/>
               <ProgressBar/>
               <HamburgerMenu/>
+              <JobPreview/>
               <Toaster richColors expand={false} visibleToasts={3} position='bottom-center'/>
               <NotificationListener />
               {children}
