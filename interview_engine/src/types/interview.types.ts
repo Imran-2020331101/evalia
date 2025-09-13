@@ -34,6 +34,7 @@ export interface IInterviewTranscript extends Document {
   deadline: Date;
   startedAt?: Date;
   completedAt?: Date;
+  allowedDuration?: number;
   totalDuration: number;
 
   // Questions and answers
@@ -134,6 +135,7 @@ export const ScheduleInterviewRequest = z.object({
         id    : z.string(),
     }),
     deadline: z.string(),
+    allowedDuration: z.number().optional(), // duration setted by the recruiter. default = 15 min
 }).loose();
 
 export type IScheduleInterviewRequest = z.infer<typeof ScheduleInterviewRequest>;
@@ -176,4 +178,49 @@ export interface IInterviewTranscriptStatics {
   findByCandidate(candidateId: Types.ObjectId): Promise<IInterviewTranscript[]>;
   findByJob(jobId: Types.ObjectId): Promise<IInterviewTranscript[]>;
   findByStatus(status: IInterviewTranscript['interviewStatus']): Promise<IInterviewTranscript[]>;
+}
+
+export type IntegrityUpdateResponse = {
+  interviewId: string;
+  instantScore: number;
+  aggregateScore: number;   // time-averaged score with penalties
+  smoothedScore: number;    // EWMA-based combined score
+  sampleCount: number;
+  violations: {
+    multipleFaces: boolean;
+    absent: boolean;
+    lowEyeContact: boolean;
+  };
+};
+
+export interface InterviewIntegrityState {
+  startedAt: number;
+  lastUpdatedAt: number;
+  sampleCount: number;
+
+  // running sums for simple average
+  sumFaceScore: number;
+  sumGazeScore: number;
+  sumSpeakScore: number;
+  sumBlinkScore: number;
+
+  // EWMA (smoothed) values for each sub-score
+  ewmaFace: number;
+  ewmaGaze: number;
+  ewmaSpeak: number;
+  ewmaBlink: number;
+
+  // extremes & events
+  minInstantScore: number;
+  maxInstantScore: number;
+
+  // sustained violation counters (seconds)
+  multipleFaceSeconds: number;
+  absentSeconds: number;
+  lowEyeContactSeconds: number;
+
+  // flags
+  violatedMultipleFaces: boolean;
+  violatedAbsent: boolean;
+  violatedLowEyeContact: boolean;
 }

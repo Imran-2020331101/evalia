@@ -4,44 +4,17 @@ import {
   IInterviewTranscript, 
   IInterviewTranscriptStatics 
 } from '../types/interview.types';
-import { required } from 'zod/v4/core/util.cjs';
 
 // Individual question-answer pair schema
 const QuestionAnswerSchema = new Schema<IQuestionAnswer>(
   {
-    question: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    candidateAnswer: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    referenceAnswer: {
-      type: String,
-      required: false,
-      trim: true,
-    },
-    score: {
-      type: Number,
-      min: 0,
-      max: 10,
-      default: null,
-    },
-    feedback: {
-      type: String,
-      trim: true,
-    },
-    duration: {
-      type: Number,
-      default: 0,
-    },
-    answeredAt: {
-      type: Date,
-      default: Date.now,
-    },
+    question: { type: String, required: true, trim: true },
+    candidateAnswer: { type: String, required: true, trim: true },
+    referenceAnswer: { type: String, required: false, trim: true },
+    score: { type: Number, min: 0, max: 10, default: null },
+    feedback: { type: String, trim: true },
+    duration: { type: Number, default: 0 },
+    answeredAt: { type: Date, default: Date.now },
   },
   { _id: true }
 );
@@ -50,137 +23,49 @@ const QuestionAnswerSchema = new Schema<IQuestionAnswer>(
 const InterviewTranscriptSchema = new Schema<IInterviewTranscript>(
   {
     // Candidate information
-    candidateId: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-      index: true,
-    },
-    candidateEmail: {
-      type: String,
-      required: true,
-      trim: true,
-      lowercase: true,
-      index: true,
-    },
-    candidateName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+    candidateId: { type: mongoose.Schema.Types.ObjectId, required: true, index: true },
+    candidateEmail: { type: String, required: true, trim: true, lowercase: true, index: true },
+    candidateName: { type: String, required: true, trim: true },
 
     // Job info
-    jobId: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-      index: true,
-    },
-    jobTitle: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+    jobId: { type: mongoose.Schema.Types.ObjectId, required: true, index: true },
+    jobTitle: { type: String, required: true, trim: true },
 
     //Organization info
-    organizationId: {
-      type     : mongoose.Schema.Types.ObjectId, 
-      required : false,
-      index    : true,
-    },
+    organizationId: { type: mongoose.Schema.Types.ObjectId, required: false, index: true },
 
     // Interview details
-    interviewType: {
-      type: String,
-      enum: ["TECHNICAL", "BEHAVIORAL", "MIXED", "SCREENING"],
-      default: "TECHNICAL",
-    },
-
-    interviewStatus: {
-      type: String,
-      enum: ["SCHEDULED", "IN_PROGRESS", "COMPLETED", "CANCELLED", "NO_SHOW"],
-      default: "SCHEDULED",
-    },
-
-    deadline: {
-      type: Date,
-      required: true,
-    },
-    startedAt: {
-      type: Date,
-      default: null,
-    },
-    completedAt: {
-      type: Date,
-      default: null,
-    },
-    totalDuration: {
-      type: Number, // in seconds
-      default: 0,
-    },
+    interviewType: { type: String, enum: ["TECHNICAL", "BEHAVIORAL", "MIXED", "SCREENING"], default: "TECHNICAL" },
+    interviewStatus: { type: String, enum: ["SCHEDULED", "IN_PROGRESS", "COMPLETED", "CANCELLED", "NO_SHOW"], default: "SCHEDULED" },
+    deadline: { type: Date, required: true },
+    startedAt: { type: Date, default: null },
+    completedAt: { type: Date, default: null },
+    allowedDuration: { type: Number, default: 15}, // setted time for the interview (in minuets)
+    totalDuration: { type: Number, default: 0 }, // in minuets
 
     // Transcript the audio of the interview
-    questionsAnswers: {
-      type: [QuestionAnswerSchema],
-      default: [],
-    },
+    questionsAnswers: { type: [QuestionAnswerSchema], default: [] },
 
     // Overall assessment
-    summary : {
-      type: String,
-      default: "",
-    },
-    overallScore: {
-      type: Number,
-      min: 0,
-      max: 10,
-      default: null,
-    },
-    overallFeedback: {
-      type: String,
-      trim: true,
-      default: null,
-    },
-    recommendation: {
-      type: String,
-      enum: ["STRONG_HIRE", "HIRE", "NO_HIRE", "STRONG_NO_HIRE", "PENDING"],
-      default: "PENDING",
-    },
+    summary: { type: String, default: "" },
+    overallScore: { type: Number, min: 0, max: 10, default: null },
+    overallFeedback: { type: String, trim: true, default: null },
+    recommendation: { type: String, enum: ["STRONG_HIRE", "HIRE", "NO_HIRE", "STRONG_NO_HIRE", "PENDING"], default: "PENDING" },
 
     // Technical metadata
-    recordingUrl: {
-      type: String,
-      trim: true,
-      default: null,
-    },
+    recordingUrl: { type: String, trim: true, default: null },
     transcriptMetadata: {
-      language: {
-        type: String,
-        default: "en-US",
-      },
-      integrity: {
-        type: Number,
-        min: 0,
-        max: 1,
-      },
-      processingTime: {
-        type: Number, // in milliseconds
-      },
+      language: { type: String, default: "en-US" },
+      integrity: { type: Number, min: 0, max: 1 },
+      processingTime: { type: Number }, // in milliseconds
     },
 
     // Audit fields
-    createdBy: {
-      type: String,
-      default: "SYSTEM",
-    },
-    updatedBy: {
-      type: String,
-      default: "SYSTEM",
-    },
+    createdBy: { type: String, default: "SYSTEM" },
+    updatedBy: { type: String, default: "SYSTEM" },
 
     // Additional notes
-    notes: {
-      type: String,
-      trim: true,
-    },
+    notes: { type: String, trim: true },
   },
   {
     timestamps: true,
