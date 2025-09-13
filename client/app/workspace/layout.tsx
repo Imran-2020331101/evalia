@@ -10,7 +10,6 @@ import PreviewedShortListModal from "@/components/workspace/recruiters/jobs/my-j
 const WorkSpaceLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   return (
     <div className="fixed inset-0 z-[100] bg-neutral-950 h-screen">
-      <JobPreview/>
       <OrganizationPreviewModal/>
       <CandidateProfilePreview/>
       <PreviewedShortListModal/>

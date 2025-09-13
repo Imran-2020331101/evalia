@@ -2,8 +2,8 @@
 import CourseCard from "@/components/profile/candidate/suggested/CourseCard"
 import JobCard from "@/components/profile/candidate/suggested/JobCard"
 import CandidatesResumePanel from "@/components/utils/CandidatesResumePanel"
-import { Edit, Edit3, File, ImagePlus, Save, X , User} from "lucide-react"
-import { ClipLoader } from "react-spinners"
+import { Edit, Edit3, File, ImagePlus, Save, X , User, Search} from "lucide-react"
+import { ClipLoader, ScaleLoader } from "react-spinners"
 import Image from "next/image"
 import { useRef, useState , useEffect} from "react"
 import CandidatesProfileResumePanel from "./Resume/CandidatesProfileResumePanel"
@@ -91,6 +91,7 @@ const CandidateProfileContainer = () => {
         setIsLoadingFetchJobs(true);
         const response = await axios.get('http://localhost:8080/api/job/suggestions',{withCredentials:true})
         console.log(response.data, 'suggested jobs')
+        setSuggestedJobs(response.data.data);
       } catch (error:any) {
         console.log(error)
       }
@@ -124,7 +125,7 @@ const CandidateProfileContainer = () => {
   useEffect(()=>console.log(currentUser,'current user'))
   return (
       <div className="w-full h-full bg-gray-950/80 flex items-start justify-center py-[10px] ">
-      <div className="w-[85%] ml-[5%] h-full rounded-lg flex justify-center items-center p-[6px] gap-[13px]">
+      <div className="w-[95%] min-[1600px]:w-[85%]  h-full rounded-lg flex justify-center items-center p-[6px] gap-[13px]">
         <div className="w-[60%] h-full flex flex-col gap-[14px] overflow-y-scroll scrollbar-hidden ">
             <section className='w-full h-auto bg-slate-900 rounded-xl'>
                 <div className="w-full h-[200px] relative rounded-t-xl">
@@ -317,20 +318,36 @@ const CandidateProfileContainer = () => {
             </section>
         </div>
         <div className="w-[40%] h-full   gap-[14px] ">
-          <section className="w-full h-full bg-slate-900 rounded-xl flex flex-col overflow-y-scroll scrollbar-hidden p-[16px]">
+          <section className="w-full h-full bg-slate-900 rounded-xl flex flex-col overflow-y-scroll scrollbar-hidden gap-3 p-[16px]">
               <section className="w-full h-1/2 shrink-0 flex flex-col gap-3">
-                <p className="text-[14px] text-gray-300 font-semibold pb-2 border-b-[1px] border-gray-700">Suggested Jobs : </p>
-                <div className="w-full flex-1 flex flex-col overflow-y-scroll scroll-container">
-                  <JobCard/>
-                  <JobCard/>
-                  <JobCard/>
-                  <JobCard/>
-                  <JobCard/>
-                  <JobCard/>
+                <p className="text-lg text-gray-300 font-semibold pb-2 border-b-[1px] border-gray-700">Suggested Jobs : </p>
+                <div className="w-full flex-1 gap-2 flex flex-col overflow-y-scroll scroll-container">
+                  {
+                    isLoadingFetchJobs?
+                    <div className="w-full h-full flex justify-center items-center">
+                      <ScaleLoader barCount={4} color="white"/>
+                    </div>:
+                    suggestedJobs.length?
+                      suggestedJobs.map((item:any)=><JobCard key={item.jobId} jobItem={item}/>)
+                    :
+                    <section className="flex flex-col w-full h-full items-center justify-center text-center px-4">
+                      <div className="flex flex-col items-center">
+                        <div className="p-4 rounded-full bg-gray-100 mb-4">
+                          <Search className="w-8 h-8 text-gray-500" />
+                        </div>
+                        <h2 className="text-2xl font-semibold text-gray-300">
+                          No Jobs Available
+                        </h2>
+                        <p className="mt-2 text-gray-400 max-w-md">
+                          Currently, there are no suggested jobs available for you. Please check back later for new opportunities.
+                        </p>
+                      </div>
+                    </section>
+                  }
                 </div>
               </section>
               <section className="w-full h-1/2 shrink-0 flex flex-col gap-3">
-                <p className="text-[14px] text-gray-300 font-semibold pb-2 border-b-[1px] border-gray-700">Suggested Courses : </p>
+                <p className="text-lg text-gray-300 font-semibold pb-2 border-b-[1px] border-gray-700">Suggested Courses : </p>
                 <div className="w-full flex-1 flex flex-col overflow-y-scroll scroll-container">
                   <CourseCard/>
                   <CourseCard/>
