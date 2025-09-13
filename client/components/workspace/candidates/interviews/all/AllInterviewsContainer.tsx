@@ -16,9 +16,8 @@ const AllInterviewsContainer = () => {
   const dispatch = useAppDispatch();
 
   useEffect(()=>{
-    if(!currentAllInterviews.length){dispatch(getallInterviews());return;}
+    if(!currentAllInterviews.length){dispatch(getallInterviews()); setIsMounted(true);return;}
     setInterviews(currentAllInterviews);
-    setIsMounted(true);
   },[currentAllInterviews.length])
   if(currentGetAllInterviewsStatus==='pending' || !isMounted) return <div className="w-full h-full flex justify-center items-center">
     <ScaleLoader barCount={4} color='white'/>

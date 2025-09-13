@@ -193,6 +193,18 @@ const [generatedQuestions, setGeneratedQuestions] = useState<interviewQAStateTyp
       toast.error('Please provide a employmentLevelType')
       return false; 
     }
+    if(!requirement.length){
+      toast.error('You must provide at least one requirement.')
+      return false; 
+    }
+    if(!skills.length){
+      toast.error('you must provide at least one skill')
+      return false;
+    }
+    if(!responsibilities.length){
+      toast.error('you must provide at least one responsibility')
+      return false;
+    }
     return true;
   }
   const handleAddInterviewQA = ()=>{
@@ -221,12 +233,12 @@ const [generatedQuestions, setGeneratedQuestions] = useState<interviewQAStateTyp
 
     let questions;
 
-    if (typeof response.data.data === "string") {
+    if (typeof response.data.data.questions === "string") {
       // backend sent JSON string → parse it
-      questions = await JSON.parse(response.data.data);
+      questions = await JSON.parse(response.data.data.questions);
     } else {
       // backend already sent parsed object
-      questions = response.data.data;
+      questions = response.data.data.questions;
     }
 
     return questions || []; // always return an array fallback

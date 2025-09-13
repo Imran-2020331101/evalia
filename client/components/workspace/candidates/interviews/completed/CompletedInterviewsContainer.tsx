@@ -16,10 +16,10 @@ const CompletedInterviewsContainer = () => {
 
 
   useEffect(()=>{
-    if(!currentAllInterviews.length) {dispatch(getallInterviews());return;}
+    if(!currentAllInterviews.length) {dispatch(getallInterviews());setIsMounted(true);return;}
     const completedInterviews = currentAllInterviews?.filter((item:any)=>item.interviewStatus==='COMPLETED')||[];
     setInterviews(completedInterviews);
-    setIsMounted(true);
+    
   },[currentAllInterviews.length])
   if(currentGetAllInterviewsStatus==='pending' || !isMounted) return <div className="w-full h-full flex justify-center items-center">
     <ScaleLoader barCount={4} color='white'/>

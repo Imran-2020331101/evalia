@@ -58,7 +58,6 @@ const PreviewCreatedJob = ({requirement, responsibilities, skills, basicState, i
                         <p className="text-[13px]">{workPlaceType}</p>
                     </div>
                     <div className="w-full overflow-hidden flex justify-start items-center gap-2 text-gray-300">
-                        <p className="text-[13px]">{`Posted : ${'...'} `}</p><p>{` . `}</p>
                         <p className="text-[13px]">{`Application Deadline : `}<span className="text-red-500">{ deadline?deadline:''}</span></p>
                     </div>
                 </section>
