@@ -4,21 +4,27 @@ import { Search } from "lucide-react"
 import CandidateCard from "./CandidateCard"
 import { useState } from "react"
 import axios from "axios"
+import { ClipLoader } from "react-spinners"
 
 const SearchCandidateContainer = () => {
   const [jobDesc, setJobDesc]=useState('');
+  const [loading, setLoading]=useState(false);
   const [candidates, setCandidates]=useState<any>([]);
 
   const handleFindCandidate = async(e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
+        const k:number=10;
         try {
-            const response = await axios.post('',null,{withCredentials:true});
+            setLoading(true)
+            const response = await axios.post(` http://localhost:8080/api/resume/shortlist/${k}`,{job_description:jobDesc},{withCredentials:true});
             console.log(response.data, 'matched candidates');
             setCandidates(response.data.data);
         } catch (error:any) {
             console.log(error);
         }
-        console.log(jobDesc)
+        finally{
+            setLoading(false)
+        }
         }
 
   return (
@@ -44,16 +50,16 @@ const SearchCandidateContainer = () => {
       </section>
       <div className="w-[1px] h-[70%] bg-gray-700 self-center mx-3"></div>
       <section className="flex-1 h-full ">
-        <div className="w-full h-full flex flex-col justify-start items-center pt-[15%]">
-            <div className="w-[70%] h-[40px] rounded-sm border border-gray-600 flex items-center px-2">
+        <div className="w-full h-full flex flex-col justify-start items-center pt-[12%] gap-3 pb-[20px]">
+            <div className="w-[70%] h-[60px] rounded-sm border border-gray-600 flex items-center px-2">
                 <form onSubmit={handleFindCandidate} className="w-full h-auto justify-center items-center rounded-md shrink-0  flex">
-                    <input placeholder="Enter your job description here..." onChange={(e)=>setJobDesc(e.target.value)} value={jobDesc} type="text" className="flex-1 outline-none" />
-                    <button type="submit"><Search className="size-5 text-gray-50"/></button>
+                    <textarea placeholder="Write your job description here..." onChange={(e)=>setJobDesc(e.target.value)} value={jobDesc} className="flex-1 outline-none" />
+                    <button type="submit" className="ml-1 cursor-pointer">{loading?<ClipLoader size={18} color="white"/>:<Search className="size-5 text-gray-50"/>}</button>
                 </form>
             </div>
-            <div className="flex-1 w-[75%] shrink-0 p-[20px] flex flex-col gap-3">
+            <div className="flex-1 w-[75%] shrink-0 p-[20px] flex flex-col gap-3 overflow-y-scroll scrollbar-hidden">
                 {
-                    candidates.map((item:any)=><CandidateCard candidate={item}/>)
+                    candidates.map((item:any,index:number)=><CandidateCard key={index} candidate={item}/>)
                 }
             </div>
         </div>

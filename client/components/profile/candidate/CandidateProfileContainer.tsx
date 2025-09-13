@@ -11,6 +11,7 @@ import UploadResume from "./UploadResume"
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
 import { userCoverPhotoUpdateStatus, userProfilePhotoUpdateStatus, userBasicInfoUpdateStatus , updateUserCoverPhoto, updateUserProfilePhoto, updateUserData, setUserBasicInfoUpdateStatus, analyzedUserResume, user} from "@/redux/features/auth"
 import AnalyzeResumeSection from "./Resume/AnalyzeResumeSection"
+import axios from "axios"
 
 
 interface propType {
@@ -27,6 +28,9 @@ const CandidateProfileContainer = () => {
   const [isUploadResume, setIsUploadResume] = useState<boolean>(false);
   const [isShowResume, setIsShowResume] = useState<boolean>(false);
   const [isEditBasicInfo, setIsEditBasicInfo]= useState<boolean>(false);
+  const [isLoadingFetchJobs, setIsLoadingFetchJobs]=useState<boolean>(false);
+
+  const [suggestedJobs, setSuggestedJobs]=useState<any>([]);
 
   const currentUser = useAppSelector(user)
 
@@ -80,6 +84,23 @@ const CandidateProfileContainer = () => {
     // logic goes here 
     setIsAboutEdit((prev)=>!prev)
   }
+
+  useEffect(()=>{
+    const fetchSuggestedJobs = async()=>{
+      try {
+        setIsLoadingFetchJobs(true);
+        const response = await axios.get('http://localhost:8080/api/job/suggestions',{withCredentials:true})
+        console.log(response.data, 'suggested jobs')
+      } catch (error:any) {
+        console.log(error)
+      }
+      finally{
+        setIsLoadingFetchJobs(false);
+      }
+    }
+    if(!suggestedJobs.length)fetchSuggestedJobs();
+  },[])
+
   useEffect(()=>{
       if(currentUserBasicInfoUpdateStatus==='success') {
         setIsEditBasicInfo(false); setIsAboutEdit(false); dispatch(setUserBasicInfoUpdateStatus('idle'));

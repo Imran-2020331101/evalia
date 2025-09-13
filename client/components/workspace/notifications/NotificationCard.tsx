@@ -1,6 +1,6 @@
 'use client'
 
-import { Bell, CheckCircle2, Info, AlertTriangle, Link as LinkIcon, TimerIcon } from "lucide-react"
+import { Bell, CheckCircle2, Info, AlertTriangle, Link as LinkIcon, TimerIcon, Send } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { useAppDispatch } from "@/redux/lib/hooks"
@@ -15,6 +15,7 @@ const typeIcons: Record<string, React.JSX.Element> = {
   success: <CheckCircle2 className="text-green-500 size-5" />,
   info: <Info className="text-blue-500 size-5" />,
   warning: <AlertTriangle className="text-yellow-500 size-5" />,
+  'new.job.application':<Send className="text-green-500 size-5"/>,
   interview_scheduled:<TimerIcon className="text-blue-500 size-5"/>,
   default: <Bell className="text-gray-400 size-5" />,
 }
@@ -28,6 +29,7 @@ const NotificationCard = ({ notification }: NotificationCardProps) => {
     info: '',
     warning:'',
     interview_scheduled:`/workspace/interviews/on-going/${notification?.data?.interviewId}`,
+    'new.job.application':`/workspace`,
     default: null,
   }
   const link = typeLink[notification.type] || typeLink.default

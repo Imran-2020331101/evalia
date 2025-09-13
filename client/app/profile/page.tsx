@@ -31,7 +31,7 @@ const ProfilePage = () => {
       currentUser?.user?.roles[0]==='RECRUITER'?
         <RecruiterProfileContainer user={currentUser}/>
       :
-       <CandidateProfileContainer user={currentUser}/> 
+       <CandidateProfileContainer/> 
     }
       
     </>

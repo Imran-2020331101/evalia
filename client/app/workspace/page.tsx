@@ -9,12 +9,14 @@ import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks'
 import { fetchUserData, getAllOrganizations, organizations, user } from '@/redux/features/auth'
 import { appliedJobs, getAllAppliedJobs, getAllSavedJobs, savedJobs } from '@/redux/features/job'
 import { allNotifications, getAllNotifications } from '@/redux/features/notification'
+import { useRouter } from 'next/navigation'
 
 gsap.registerPlugin(SplitText)
 
 const workSpacePage = () => {
 
   const dispatch = useAppDispatch()
+  const router = useRouter()
 
   const currentUser = useAppSelector(user)
   const currentOrganizations = useAppSelector(organizations)
@@ -39,6 +41,8 @@ const workSpacePage = () => {
     if(!currentAllNotifications?.length)dispatch(getAllNotifications())
   },[])
 
+
+  
   return (
     <div className='w-full h-full flex flex-col justify-center items-center gap-3'>
         <Image id='logo' src={workspace} alt="workspace" className='w-[130px] h-auto' />
