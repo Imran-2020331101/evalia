@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { Request, Response } from 'express';
-import { z } from 'zod';
 import resumeService from '../services/resumeService';
 import logger from '../utils/logger';
 import Resume, { IResume } from '../models/Resume';
@@ -24,11 +23,11 @@ import {
   CandidateSearchError,
   ShortlistGenerationError,
 } from '../errors';
-import OpenAIService, { openAIService ,EmbeddingResult, JobEmbeddingResult } from '../services/OpenAIService';
+import { openAIService ,EmbeddingResult, JobEmbeddingResult } from '../services/OpenAIService';
 import { qdrantService } from '../services/QdrantService';
 import { ExtractedResume, IExtractedResume } from '../models/ExtractedText';
-import { JobDescriptionResult } from '@/prompts/parseJobDescriptionprompt';
-import { IJobDetailsDocument } from '@/types/job.types';
+import { JobDescriptionResult } from '../prompts/parseJobDescriptionprompt';
+import { IJobDetailsDocument } from '../types/job.types';
 
 // Additional request interfaces not yet in types file
 interface AutomatedShortlistRequest extends Request {
@@ -158,7 +157,7 @@ class ResumeController {
         throw new MissingRequiredFieldError('resumeId');
       }
 
-      const resume = await Resume.findById(resumeId);
+      const resume : IResume = await Resume.findById(resumeId).orFail();
       
       if (!resume) {
         throw new ResumeNotFoundError(resumeId);
@@ -293,6 +292,17 @@ class ResumeController {
         message: 'Vector search completed successfully',
         data: matchedCandidates,
       });
+  })
+
+  getResumePointById = asyncHandler(async(req: Request, res: Response)=> {
+
+    const {candidateId} = req.params;
+    const resumeEmbeddings = await qdrantService.getPointByResumeId(candidateId);
+
+    res.status(200).json({
+      success: true,
+      data  : resumeEmbeddings
+    })
   })
 
 }

@@ -55,4 +55,7 @@ public interface JobProxy {
 
     @GetMapping(value = "/{jobId}/interview-questions")
     ResponseEntity<String> getInterviewQuestionsOfAJob(@PathVariable("jobId") String jobId);
+
+    @GetMapping(value = "/candidates/{candidateId}/suggestions")
+    public ResponseEntity<String> getJobSuggestionsForCandidate(@PathVariable("candidateId") String candidateId);
 }

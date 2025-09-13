@@ -3,7 +3,7 @@ import {
   IQuestionAnswer, 
   IInterviewTranscript, 
   IInterviewTranscriptStatics 
-} from '../types/interview';
+} from '../types/interview.types';
 import { required } from 'zod/v4/core/util.cjs';
 
 // Individual question-answer pair schema

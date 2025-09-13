@@ -35,4 +35,7 @@ router.post("/apply", applicationController.applyToJob.bind(applicationControlle
 router.post("/:jobId/withdraw", applicationController.withDrawApplicationFromAJob.bind(applicationController));
 router.post("/reject", applicationController.rejectRemainingCandidates.bind(applicationController));
 
+// Suggestions:
+router.get("/candidates/:candidateId/suggestions", jobController.getJobSuggestions.bind(jobController));
+
 export default router;

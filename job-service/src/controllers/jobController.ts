@@ -12,7 +12,10 @@ import { JobService } from '../services/jobService';
 import { z } from 'zod';
 import questionGenerationPrompt from '../prompts/QuestionGenerationPromt';
 import upskillBot from '../config/OpenRouter';
-import { asyncHandler } from '../utils';
+import { ApiError, asyncHandler } from '../utils';
+import axios from 'axios';
+import { ResumePoint, ResumeDTO } from '../types/resume.types';
+import { qdrantService } from '../services/QdrantService';
 
 export class JobController {
 
@@ -21,7 +24,6 @@ export class JobController {
    * @route POST /api/jobs
    */
   createJob = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    console.log(req.body)
 
     const validationResult = CreateJobRequestSchema.safeParse(req.body);
     
@@ -39,6 +41,8 @@ export class JobController {
     }
 
     const result = await JobService.createJob(validationResult.data);
+
+    await JobService.uploadJobToVectorDB(result);
     
 
     res.status(200).json({
@@ -333,19 +337,10 @@ export class JobController {
     }
     const {jobDescription, responsibilities, requirements, skills} = validationResult.data;
 
-    const prompt = questionGenerationPrompt( jobDescription , responsibilities, requirements, skills);
+    const prompt    : string = questionGenerationPrompt( jobDescription , responsibilities, requirements, skills);
+    const questions : string = await upskillBot(prompt);
 
-    const Questions : string = await upskillBot(prompt);
-    
-    let cleaned = typeof Questions === "string"
-      ? Questions
-          .replace(/^```json\s*/i, "")
-          .replace(/^```\s*/i, "")
-          .replace(/```$/, "")
-          .trim()
-      : Questions;
-
-    let parsedQuestions = JSON.parse(cleaned);
+    let parsedQuestions = JSON.parse(questions);
 
     logger.info("Generated Questions : ", { parsedQuestions });
 
@@ -354,6 +349,28 @@ export class JobController {
       data: parsedQuestions
     });
   });
+
+  getJobSuggestions = asyncHandler(async(req: Request, res: Response ): Promise<void> => {
+    const {candidateId} = req.params;
+
+    const response = await axios.get(`${process.env.RESUME_SERVICE_URL}/api/resume/${candidateId}/vector`);
+    const candidateDetails : ResumePoint | null = response.data.data;
+    console.log("fetched vector from resume-service : ",candidateDetails);
+    if(!candidateDetails){
+        throw new ApiError(400,"Failed to fetch resume-vector from resume-service");
+      }
+
+    const matchedJobs = await qdrantService.globalJobSearchUsingResume(candidateDetails, 10, process.env.QDRANT_JOB_COLLECTION_NAME);
+    logger.info("result before mapping : ",matchedJobs);
+    const mappedResult = JobService.parseJobScores(matchedJobs);
+    logger.info("result after mapping : ",mappedResult);
+
+    res.status(200).json({
+      success: true,
+      data : mappedResult,
+    })
+  });
+  
 }
 
 export const jobController = new JobController();

@@ -9,8 +9,9 @@ import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import { errorHandlerMiddleware } from './middlewares/ErrorHandler';
 import { interviewRouter } from './routes/interview';
-import { IVideoFrameData, IPythonMetricsResult } from './types/interview';
+import { IVideoFrameData, IPythonMetricsResult } from './types/interview.types';
 import { connectDatabase } from './config/database';
+import { interviewService } from './services/InterviewService';
 
 
 
@@ -38,7 +39,8 @@ py.stdout?.on('data', (data: Buffer) => {
   try {
     const result: IPythonMetricsResult = JSON.parse(data.toString());
     const { interviewId, metrics } = result;
-    io.to(interviewId).emit('metrics', metrics);
+    const integrityScore = interviewService.calculateIntegrityScore(result.metrics);
+    io.to(interviewId).emit('metrics', integrityScore);
   } catch (err) {
     console.error('Error parsing Python output:', err);
   }
@@ -50,6 +52,7 @@ py.stderr?.on('data', (data: Buffer) => {
     console.error(`Python error: ${msg}`);
   } else {
     console.log(`Python log: ${msg}`);
+
   }
 });
 

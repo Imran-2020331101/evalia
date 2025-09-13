@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import logger from '../utils/logger';
-import { ResumeData } from "@/types/resume.types";
+import { ResumeData } from "../types/resume.types";
 import {z} from 'zod';
 
   export interface BatchEmbeddingInput {
