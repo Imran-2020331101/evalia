@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Vapi from '@vapi-ai/web';
 import ConfidenceAnalysis from './ConfidenceAnalysis';
+import axios from 'axios';
+import { usePathname } from 'next/navigation';
 
 
 const Questions = [
@@ -32,8 +34,14 @@ const apiKey : string = process.env.NEXT_PUBLIC_VAPI_KEY || "";
 
 const InterviewAgent = ({setTranscript, setIsSpeaking, setOverallPerformance}:interviewAgentType) => {
 
+  const pathname = usePathname();
+  const interviewSplit = pathname.split('/');
+  const interviewId = interviewSplit[interviewSplit.length-1];
+
   const [vapi, setVapi] = useState<any>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [questions, setQuestions]=useState<any>([]);
+  
 
   useEffect(() => {
     const handleTabLeave = () => {
@@ -142,8 +150,24 @@ const InterviewAgent = ({setTranscript, setIsSpeaking, setOverallPerformance}:in
   }
   useEffect(()=>{
     console.log(apiKey)
-    startInterview()
+    if(vapi && questions.length) {
+      startInterview();
+    }
   },[vapi])
+  useEffect(()=>{
+    console.log(pathname, interviewId,'interviewId test')
+    const fetchQuestions = async()=>{
+    const jobId=4;
+    try {
+      const interviewResponse = await axios.get(``,{withCredentials:true});
+      const questionResponse = await axios.get(`http://localhost:8080/api/job/${jobId}/questions`,{withCredentials:true})
+      console.log(questionResponse.data, 'interview questions')
+      } catch (error:any) {
+        console.log(error);      
+      }
+    }
+    // fetchQuestions();
+  },[])
   return (
     <div className='w-full h-full absolute'>
       <ConfidenceAnalysis setOverallPerformance={setOverallPerformance}/>
