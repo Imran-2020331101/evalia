@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect , useRef} from 'react';
 import Vapi from '@vapi-ai/web';
 import ConfidenceAnalysis from './ConfidenceAnalysis';
 import axios from 'axios';
@@ -36,7 +36,7 @@ setOverallPerformance:React.Dispatch<React.SetStateAction<number>>
 }
 const apiKey : string = process.env.NEXT_PUBLIC_VAPI_KEY || "";
 
-const InterviewAgent = ({transcript,setTranscript, setIsSpeaking, setOverallPerformance}:interviewAgentType) => {
+const InterviewAgent = ({setIsSpeaking, transcript, setTranscript, setOverallPerformance}:interviewAgentType) => {
 
   const pathname = usePathname();
   const interviewSplit = pathname.split('/');
@@ -44,38 +44,47 @@ const InterviewAgent = ({transcript,setTranscript, setIsSpeaking, setOverallPerf
 
   const currentUser = useAppSelector(user);
 
+  const transcriptRef = useRef<{role:string; text:string}[]>([]);
   const [vapi, setVapi] = useState<any>(null);
   const [isStarted, setIsStarted]=useState<boolean>(false);
   const [isConnected, setIsConnected] = useState(false);
   const [interviewDetails, setInterviewDetails]=useState<any>(null);
+  // const [transcript, setTranscript]=useState<any>([]);
   const [isEndEvaluation, setIsEndEvaluation]=useState<boolean>(false);
 
-  const onCallEnd = ()=>{
-    console.log(transcript, 'transcript')
+  const onCallEnd = async()=>{
+    // console.log(transcript, 'transcript')
+    try {
+      console.log('transcript at call end:', transcriptRef.current);
+      const transcriptResponse = await axios.post(`http://localhost:8080/api/interviews/${interviewId}/transcript`,{transcript:transcriptRef.current},{withCredentials:true})
+      console.log(transcriptResponse.data,'transcriptResponse')
+    } catch (error:any) {
+      console.log(error);
+    }
     setIsEndEvaluation(true);
   }
 
-  useEffect(() => {
-    const handleTabLeave = () => {
-      if (document.hidden) {
-        console.warn("User left the tab (visibilitychange). Ending interview...");
-        vapi.stop();
-      }
-    };
+  // useEffect(() => {
+  //   const handleTabLeave = () => {
+  //     if (document.hidden) {
+  //       console.warn("User left the tab (visibilitychange). Ending interview...");
+  //       vapi.stop();
+  //     }
+  //   };
 
-    const handleBlur = () => {
-      console.warn("Window lost focus (blur). Ending interview...");
-      vapi.stop();
-    };
+  //   const handleBlur = () => {
+  //     console.warn("Window lost focus (blur). Ending interview...");
+  //     vapi.stop();
+  //   };
 
-    document.addEventListener("visibilitychange", handleTabLeave);
-    window.addEventListener("blur", handleBlur);
+  //   document.addEventListener("visibilitychange", handleTabLeave);
+  //   window.addEventListener("blur", handleBlur);
 
-    return () => {
-      document.removeEventListener("visibilitychange", handleTabLeave);
-      window.removeEventListener("blur", handleBlur);
-    };
-  }, [vapi]);
+  //   return () => {
+  //     document.removeEventListener("visibilitychange", handleTabLeave);
+  //     window.removeEventListener("blur", handleBlur);
+  //   };
+  // }, [vapi]);
 
 
   useEffect(()=>{
@@ -102,10 +111,14 @@ const InterviewAgent = ({transcript,setTranscript, setIsSpeaking, setOverallPerf
     });
     vapiInstance.on('message', (message : any) => {
       if (message.type === 'transcript') {
-        setTranscript(prev => [...prev, {
-          role: message.role,
-          text: message.transcript
-        }]);
+        const text = message.transcript ?? message.text ?? message.payload ?? '';
+        // push new transcript item and log the new array
+        setTranscript((prev:any) => {
+          const next = [...prev, { role: message.role || 'assistant', text }];
+          transcriptRef.current = next; // keep ref updated immediately
+          console.log('updated transcript (next):', next);
+          return next;
+        });
       }
     });
     vapiInstance.on('error', (error : any) => {

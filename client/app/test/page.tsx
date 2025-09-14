@@ -1,267 +1,363 @@
 'use client'
-import axios from "axios";
-import React, { useEffect } from "react";
 
-// InterviewSummaryPreview.tsx
-// - TypeScript + React (default export)
-// - Tailwind CSS classes (dark slate theme)
-// - No external UI libraries or animations
-// - Sections: core metadata, evaluation (transcript), evaluation (video metrics), full transcript, summarized description
+import React, { useState } from 'react'
+import {
+  CheckCircle,
+  AlertTriangle,
+  Download,
+  Clock,
+  User,
+  FileText,
+  Play,
+  Tag
+} from 'lucide-react'
+import CircularProgress from '@mui/material/CircularProgress'
+import LinearProgress from '@mui/material/LinearProgress'
+import Button from '@mui/material/Button'
+import Chip from '@mui/material/Chip'
+import Box from '@mui/material/Box'
+import { BarChart } from '@mui/x-charts/BarChart';
+import Typography from '@mui/material/Typography'
 
-interface Candidate { id: string; name: string; resumeRef?: string }
-interface Job { id: string; title: string; postedAt?: string }
-interface Snippet { text: string; start?: string }
-interface Question {
-  id: string;
-  text: string;
-  askedAt?: string;
-  answerStart?: string;
-  answerEnd?: string;
-  answerDurationSec?: number;
-  score?: number;
-  snippets?: Snippet[];
-  followUps?: string[];
-}
-interface VideoMetrics { faceCount: number; eyeContact: number; speaking: number; blinkRate: number }
-interface InterviewData {
-  interviewId: string;
-  candidate: Candidate;
-  job: Job;
-  timestamps: { start: string; end: string; durationSec?: number };
-  consent: { recording: boolean; videoAnalysis: boolean };
-  questions: Question[];
-  transcript: string;
-  videoMetrics: VideoMetrics;
-  provenance: { summarizer: string };
+// Minimal types matching your schema (subset)
+type QuestionEval = {
+  questionIndex: number
+  contentScore: number
+  communicationScore: number
+  finalScore: number
+  similarity?: number
+  keywordsMatched?: string[]
+  keywordCoverage?: number
+  responseLatency?: number
+  fillerRate?: number
 }
 
-const defaultData: InterviewData = {
-  interviewId: "intv_12345",
-  candidate: { id: "cand_01", name: "Afsana Rahman", resumeRef: "s3://resumes/afsana.pdf" },
-  job: { id: "job_007", title: "Backend Engineer", postedAt: "2025-09-01T12:00:00Z" },
-  timestamps: { start: "2025-09-08T10:00:00Z", end: "2025-09-08T10:25:00Z", durationSec: 1500 },
-  consent: { recording: true, videoAnalysis: true },
-  questions: [
+export type InterviewEvaluationPreview = {
+  _id?: string
+  interviewId: string
+  overallScore: number // 0..100
+  contentAggregate: number
+  commAggregate: number
+  integrityAggregate: number
+  responsivenessAggregate: number
+  perQuestion: QuestionEval[]
+  flags?: string[]
+  decision: 'advance' | 'reject' | 'review' | 'pending'
+  modelVersion?: string
+  reviewerId?: string
+  summaryText?: string
+  publishedAt?: string
+}
+
+// dummy-evaluation.ts
+export const dummyEvaluation = {
+  _id: '6512f3e9a8b4c6d7e8f90123',
+  interviewId: '650f9b2c4d3a2b1c0e9f1234',
+  overallScore: 78,                // 0..100
+  contentAggregate: 80,            // 0..100
+  commAggregate: 75,
+  integrityAggregate: 72,
+  responsivenessAggregate: 82,
+  perQuestion: [
     {
-      id: "q1",
-      text: "Describe cache invalidation strategies.",
-      askedAt: "2025-09-08T10:02:00Z",
-      answerStart: "2025-09-08T10:02:10Z",
-      answerEnd: "2025-09-08T10:03:00Z",
-      answerDurationSec: 50,
-      score: 82,
-      snippets: [{ text: "We use TTL and versioned keys", start: "2025-09-08T10:02:40Z" }],
-      followUps: ["How would you measure cache hit ratio?"],
+      questionIndex: 0,
+      contentScore: 85,
+      communicationScore: 80,
+      finalScore: 83,
+      similarity: 0.72,
+      keywordsMatched: ['react', 'hooks', 'useEffect'],
+      keywordCoverage: 0.6,
+      responseLatency: 1.2,   // seconds
+      fillerRate: 0.03
     },
     {
-      id: "q2",
-      text: "Explain a time you improved system performance.",
-      askedAt: "2025-09-08T10:05:00Z",
-      answerStart: "2025-09-08T10:05:05Z",
-      answerEnd: "2025-09-08T10:07:20Z",
-      answerDurationSec: 135,
-      score: 74,
-      snippets: [{ text: "We migrated from sync to async workers", start: "2025-09-08T10:06:00Z" }],
-      followUps: ["How did you measure latency improvements?"],
+      questionIndex: 1,
+      contentScore: 78,
+      communicationScore: 70,
+      finalScore: 74,
+      similarity: 0.66,
+      keywordsMatched: ['state', 'lifecycle'],
+      keywordCoverage: 0.5,
+      responseLatency: 2.1,
+      fillerRate: 0.07
+    },
+    {
+      questionIndex: 2,
+      contentScore: 72,
+      communicationScore: 68,
+      finalScore: 70,
+      similarity: 0.58,
+      keywordsMatched: ['props', 'composition'],
+      keywordCoverage: 0.45,
+      responseLatency: 1.8,
+      fillerRate: 0.09
+    },
+    {
+      questionIndex: 3,
+      contentScore: 88,
+      communicationScore: 85,
+      finalScore: 87,
+      similarity: 0.80,
+      keywordsMatched: ['performance', 'memoization', 'useMemo'],
+      keywordCoverage: 0.75,
+      responseLatency: 1.0,
+      fillerRate: 0.02
+    },
+    {
+      questionIndex: 4,
+      contentScore: 60,
+      communicationScore: 62,
+      finalScore: 61,
+      similarity: 0.40,
+      keywordsMatched: [],
+      keywordCoverage: 0,
+      responseLatency: 4.5,
+      fillerRate: 0.15
     }
   ],
-  transcript:
-    `Agent: Hello, welcome to the interview.
-Candidate: Thank you.
-Agent: Describe cache invalidation strategies.
-Candidate: We use TTL and versioned keys. We prefer versioning when rolling updates happen.
-Agent: Explain a time you improved system performance.
-Candidate: We migrated from sync to async workers which reduced latency by 40%.
-Agent: Thank you, that's all.`,
-  videoMetrics: { faceCount: 1, eyeContact: 82, speaking: 90, blinkRate: 12 },
-  provenance: { summarizer: "LLM-v2" },
-};
+  flags: ['low_eye_contact', 'high_filler_rate'],
+  decision: 'review',             // 'advance' | 'reject' | 'review' | 'pending'
+  modelVersion: '1.3.0',
+  reviewerId: '62d7b3f9e4a1b2c3d4e5f678',
+  summaryText:
+    'Candidate shows solid React knowledge and good performance-awareness. Communication is fine but one answer was short and needs follow-up. Recommend manual review.',
+  publishedAt: '2025-09-13T10:15:00Z'
+}
 
-function timeSince(startIso: string, endIso: string): string {
-  try {
-    const s = new Date(startIso);
-    const e = new Date(endIso);
-    const diff = Math.max(0, Math.floor((e.getTime() - s.getTime()) / 1000));
-    const mins = Math.floor(diff / 60);
-    const secs = diff % 60;
-    return `${mins}m ${secs}s`;
-  } catch (e) {
-    return "-";
+
+
+export default function InterviewSummaryPreview({
+  // evaluation,
+  className = ''
+}: {
+  // evaluation: InterviewEvaluationPreview
+  className?: string
+}) {
+
+  const evaluation:any = dummyEvaluation;
+  
+  const [openQuestions, setOpenQuestions] = useState<Record<number, boolean>>({})
+
+  function toggleQuestion(i: number) {
+    setOpenQuestions((s) => ({ ...s, [i]: !s[i] }))
   }
-}
 
-function CircularScore({ value = 0, size = 88, stroke = 8 }: { value?: number; size?: number; stroke?: number }) {
-  const radius = (size - stroke) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const pct = Math.max(0, Math.min(100, Math.round(value || 0)));
-  const offset = circumference * (1 - pct / 100);
-
-
-  useEffect(()=>{
-    const fetch = async()=>{
-      try {
-        const response = await axios.get('https://www.googleapis.com/youtube/v3/search?part=snippet&q=react&type=video&maxResults=5&key=AIzaSyC1EZtkXFSSo7n1ao6dDhfwWTpUuWRvTb0')
-        console.log(response.data);
-      } catch (error) {
-        console.log(error)
-      }
+  function formatDecision(dec: InterviewEvaluationPreview['decision']) {
+    switch (dec) {
+      case 'advance':
+        return { label: 'Advance', tone: 'bg-green-700', icon: <CheckCircle size={16} /> }
+      case 'review':
+        return { label: 'Review', tone: 'bg-amber-700', icon: <AlertTriangle size={16} /> }
+      case 'reject':
+        return { label: 'Reject', tone: 'bg-red-700', icon: <AlertTriangle size={16} /> }
+      default:
+        return { label: 'Pending', tone: 'bg-slate-600', icon: <Clock size={16} /> }
     }
-    fetch();
-  },[])
+  }
+
+  const decisionMeta = formatDecision(evaluation?.decision)
+
+  function downloadSummary() {
+    // implement export endpoint client call; left intentionally empty per request
+  }
+
+  function playSnippet(question: QuestionEval) {
+    // open player at timestamp or snippet. left empty for you to implement
+  }
 
   return (
-    <svg width={size} height={size} className="block">
-      <g transform={`translate(${size / 2}, ${size / 2})`}>
-        <circle r={radius} fill="none" stroke="#1f2937" strokeWidth={stroke} />
-        <circle
-          r={radius}
-          fill="none"
-          stroke="#60a5fa"
-          strokeWidth={stroke}
-          strokeLinecap="round"
-          strokeDasharray={`${circumference} ${circumference}`}
-          strokeDashoffset={offset}
-          transform="rotate(-90)"
-        />
-        <text x={0} y={6} textAnchor="middle" fontSize={16} fontWeight={700} fill="#e2e8f0">
-          {pct}%
-        </text>
-      </g>
-    </svg>
-  );
-}
+    <article
+      className={`bg-gray-900/60 border border-gray-800 rounded-2xl p-4 shadow-sm pt-[100px] ${className}`}
+      aria-label="Interview summary"
+    >
+      <header className="flex items-start justify-between gap-4">
+        <div>
+          <h3 className="text-sm font-semibold text-slate-100">Interview Summary</h3>
+          <p className="mt-1 text-xs text-slate-400 max-w-xl">Quick evaluation overview and per-question breakdown.</p>
 
-function SmallStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col">
-      <div className="text-xs text-slate-400">{label}</div>
-      <div className="text-md font-semibold text-slate-100">{value}</div>
-    </div>
-  );
-}
-
-function MetricBar({ label, value }: { label: string; value: number }) {
-  const val = Math.max(0, Math.min(100, Math.round(value)));
-  const fillerStyle: React.CSSProperties = { width: `${val}%`, height: '100%', background: 'linear-gradient(90deg,#0ea5e9,#6366f1)' };
-  return (
-    <div className="space-y-1">
-      <div className="flex justify-between text-xs text-slate-400">
-        <div>{label}</div>
-        <div className="font-medium text-slate-100">{val}</div>
-      </div>
-      <div className="w-full h-2 bg-slate-800 rounded overflow-hidden">
-        <div style={fillerStyle} className="rounded" />
-      </div>
-    </div>
-  );
-}
-
-export default function InterviewSummaryPreview({ data }: { data?: InterviewData }): JSX.Element {
-  const d: InterviewData = { ...(defaultData as InterviewData), ...(data || {}) };
-  const duration = timeSince(d.timestamps.start, d.timestamps.end);
-
-  const transcriptScores = d.questions && d.questions.length ? d.questions.map((q) => q.score || 0) : [];
-  const transcriptAvg = transcriptScores.length ? Math.round(transcriptScores.reduce((a, b) => a + b, 0) / transcriptScores.length) : 0;
-
-  const composite = Math.round((transcriptAvg + (d.videoMetrics?.speaking ?? 0)) / 2);
-
-  return (
-    <div className="min-h-screen p-6 bg-slate-900 text-slate-100">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <div className="text-xs text-slate-400">Interview · {d.job.title}</div>
-            <h1 className="text-2xl font-semibold mt-1">{d.candidate.name}</h1>
-            <div className="text-sm text-slate-400 mt-1">Interview ID: <span className="font-mono text-slate-300">{d.interviewId}</span></div>
-            <div className="text-sm text-slate-400">{new Date(d.timestamps.start).toLocaleString()} · Duration: {duration}</div>
-            <div className="text-sm text-slate-400 mt-1">Consent: Recording {d.consent.recording ? '✔' : '✖'} · Video Analysis {d.consent.videoAnalysis ? '✔' : '✖'}</div>
-          </div>
-
-          <div className="flex items-center gap-6">
-            <div className="flex flex-col items-center">
-              <div className="text-xs text-slate-400">Composite</div>
-              <CircularScore value={composite} />
+          <div className="mt-3 flex items-center gap-2 text-xs">
+            <div className={`inline-flex items-center gap-2 px-2 py-1 rounded ${decisionMeta.tone} text-white text-[11px]`}>
+              {decisionMeta.icon}
+              <span>{decisionMeta.label}</span>
             </div>
 
-            <div className="flex flex-col gap-2">
-              <SmallStat label="Transcript Avg" value={`${transcriptAvg}%`} />
-              <SmallStat label="Video Speaking" value={`${d.videoMetrics.speaking}%`} />
+            <div className="inline-flex items-center gap-1 px-2 py-1 rounded bg-slate-800 text-slate-300 text-[11px]">
+              <FileText size={12} />
+              <span>{evaluation?.perQuestion?.length} questions</span>
             </div>
+
+            {evaluation?.modelVersion && (
+              <div className="inline-flex items-center gap-1 px-2 py-1 rounded bg-slate-800 text-slate-300 text-[11px]">
+                <Tag size={12} />
+                <span>v{evaluation?.modelVersion}</span>
+              </div>
+            )}
+
+            {evaluation?.reviewerId && (
+              <div className="inline-flex items-center gap-1 px-2 py-1 rounded bg-slate-800 text-slate-300 text-[11px]">
+                <User size={12} />
+                <span>Reviewed</span>
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-3 gap-6">
-          <div className="col-span-1 bg-slate-800 rounded-lg p-4 border border-slate-700">
-            <h2 className="text-sm font-semibold text-slate-100">Evaluation — Transcript</h2>
-            <div className="mt-3 space-y-3">
-              <MetricBar label="Transcript-derived score" value={transcriptAvg} />
-              <div className="text-xs text-slate-400">Questions evaluated: {d.questions.length}</div>
+        <div className="w-36 h-36 flex-shrink-0 flex items-center justify-center">
+          <Box className="relative flex items-center justify-center w-28 h-28">
+            <CircularProgress
+              variant="determinate"
+              value={Math.max(0, Math.min(100, Math.round(evaluation?.overallScore)))}
+              size={112}
+              thickness={6}
+              sx={{ color: '#6366F1' }}
+            />
 
-              <div className="mt-3">
-                <div className="text-xs text-slate-400">Top highlights</div>
-                <ul className="list-disc list-inside mt-2 text-sm text-slate-200">
-                  {d.questions.slice(0, 3).map((q) => (
-                    <li key={q.id} className="mt-1">
-                      {q.text} — <span className="text-slate-300">score {q.score}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            <div className="absolute text-center -mt-1">
+              <div className="text-xs text-slate-400">Overall</div>
+              <div className="text-lg font-semibold text-slate-100">{Math.round(evaluation?.overallScore)}%</div>
             </div>
+          </Box>
+        </div>
+      </header>
 
-            <div className="mt-4 border-t border-slate-700 pt-3">
-              <div className="text-xs text-slate-400">Recommendation</div>
-              <div className="text-sm font-medium text-slate-100 mt-1">{composite >= 75 ? 'Proceed' : composite >= 60 ? 'Human review' : 'Reject'}</div>
-            </div>
-          </div>
-
-          <div className="col-span-2 bg-slate-800 rounded-lg p-4 border border-slate-700 flex flex-col">
-            <h2 className="text-sm font-semibold text-slate-100">Full Transcript</h2>
-            <div className="mt-3 overflow-auto max-h-64 p-3 bg-slate-900 rounded text-sm text-slate-200 font-mono whitespace-pre-wrap">{d.transcript}</div>
-
+      <section className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 space-y-3">
+          <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-3">
+            <h4 className="text-xs text-slate-300 font-medium">Aggregates</h4>
             <div className="mt-4">
-              <h3 className="text-xs text-slate-400">Question-by-question (transcript aligned)</h3>
-              <div className="mt-2 space-y-2">
-                {d.questions.map((q) => (
-                  <div key={q.id} className="p-3 bg-slate-900 rounded border border-slate-700">
-                    <div className="flex justify-between items-start">
-                      <div className="text-sm font-medium text-slate-100">{q.text}</div>
-                      <div className="text-xs text-slate-400">{Math.round(q.answerDurationSec || 0)}s</div>
+              <BarChart
+                xAxis={[
+                        {
+                          scaleType: 'band',
+                          data: ['Content', 'Communication', 'Integrity', 'Responsiveness'],
+                          labelStyle: { fill: '#facc15', fontSize: 12 }, // Tailwind yellow-400
+                        },
+                      ]}
+                      
+                series={[
+                  {
+                    data: [
+                      evaluation?.contentAggregate || 0,
+                      evaluation?.commAggregate || 0,
+                      evaluation?.integrityAggregate || 0,
+                      evaluation?.responsivenessAggregate || 0,
+                    ],
+                    label: 'Score',
+                    color: '#38bdf8', // Tailwind sky-400
+                  },
+                ]}
+                height={220}
+                margin={{ top: 20, bottom: 30, left: 40, right: 10 }}
+                slotProps={{
+                    axisTickLabel: {
+                      style: {
+                        fill: '#e2e8f0', // Tailwind slate-200
+                        fontSize: 12,
+                        fontWeight: 500,
+                      },
+                    }
+                  }}
+              />
+            </div>
+          </div>
+          {/* per-question list */}
+          <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-3 space-y-2">
+            <h4 className="text-xs text-slate-300 font-medium">Per-question details</h4>
+
+            <div className="mt-2 space-y-2">
+              {evaluation?.perQuestion.map((q) => (
+                <div key={q?.questionIndex} className="rounded-md border border-gray-800 p-2">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs text-slate-300">Q{q?.questionIndex + 1}</div>
+                      <div className="min-w-0">
+                        <div className="text-xs font-medium text-slate-100">Answer summary</div>
+                        <div className="text-xs text-slate-400 truncate max-w-xl">{(q?.keywordsMatched || []).slice(0,3).join(', ') || '—'}</div>
+                      </div>
                     </div>
-                    <div className="mt-2 text-sm text-slate-200">Top snippet: <span className="text-slate-300">{q.snippets && q.snippets.length ? q.snippets[0].text : '—'}</span></div>
-                    <div className="mt-2 text-xs text-slate-400">Score: <span className="font-medium text-slate-100">{q.score}</span> · Follow-ups: {q.followUps ? q.followUps.join(' · ') : '—'}</div>
+
+                    <div className="flex items-center gap-2">
+                      <div className="text-xs text-slate-400">Score</div>
+                      <div className="text-sm font-semibold text-slate-100">{Math.round(q?.finalScore)}%</div>
+
+                      <button
+                        type="button"
+                        onClick={() => toggleQuestion(q?.questionIndex)}
+                        className="text-xs text-indigo-400 px-2 py-1 rounded hover:bg-slate-800/50"
+                      >
+                        {openQuestions[q?.questionIndex] ? 'Hide' : 'Details'}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => playSnippet(q)}
+                        className="inline-flex items-center gap-1 text-xs text-slate-300 px-2 py-1 rounded hover:bg-slate-800/50"
+                      >
+                        <Play size={12} /> Play
+                      </button>
+                    </div>
                   </div>
-                ))}
-              </div>
+
+                  {openQuestions[q?.questionIndex] && (
+                    <div className="mt-2 grid grid-cols-1 md:grid-cols-3 gap-2 text-xs text-slate-400">
+                      <div>
+                        <div className="text-[11px] text-slate-500">Content</div>
+                        <div className="font-medium text-slate-100">{q?.contentScore}%</div>
+                        <LinearProgress variant="determinate" value={q?.contentScore} sx={{ height: 6, borderRadius: 6, mt: 1 }} />
+                      </div>
+                      <div>
+                        <div className="text-[11px] text-slate-500">Communication</div>
+                        <div className="font-medium text-slate-100">{q?.communicationScore}%</div>
+                        <LinearProgress variant="determinate" value={q?.communicationScore} sx={{ height: 6, borderRadius: 6, mt: 1 }} />
+                      </div>
+                      <div>
+                        <div className="text-[11px] text-slate-500">Filler rate</div>
+                        <div className="font-medium text-slate-100">{q?.fillerRate ?? '—'}</div>
+                      </div>
+
+                      <div className="md:col-span-3 text-[11px] text-slate-500 mt-1">Keywords: <span className="text-slate-200">{(q?.keywordsMatched || []).join(', ') || '—'}</span></div>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-3 gap-6">
-          <div className="col-span-1 bg-slate-800 rounded-lg p-4 border border-slate-700">
-            <h3 className="text-sm font-semibold text-slate-100">Evaluation — Video Metrics</h3>
-            <div className="mt-3 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="text-xs text-slate-400">Face count</div>
-                <div className="text-sm font-medium text-slate-100">{d.videoMetrics.faceCount}</div>
+        <aside className="space-y-3">
+          <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-3 text-xs text-slate-400">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FileText size={14} />
+                <div>
+                  <div className="text-xs text-slate-300">Summary</div>
+                  <div className="text-sm text-slate-100 mt-1 truncate">{evaluation?.summaryText || 'No summary available.'}</div>
+                </div>
               </div>
-              <MetricBar label="Eye contact (%)" value={d.videoMetrics.eyeContact} />
-              <MetricBar label="Speaking (%)" value={d.videoMetrics.speaking} />
-              <MetricBar label="Blink rate (per min scaled)" value={Math.min(100, Math.round((d.videoMetrics.blinkRate / 30) * 100))} />
+            </div>
 
-              <div className="mt-3 text-xs text-slate-400">Notes</div>
-              <div className="mt-1 text-sm text-slate-200">{d.videoMetrics.faceCount > 1 ? 'Multiple faces detected — verify identity' : 'Single face detected'}</div>
+            <div className="mt-3 flex flex-col gap-2">
+              <Button variant="contained" size="small" onClick={downloadSummary} sx={{ backgroundColor: '#6366F1' }}>
+                <Download size={14} />
+                <span className="ml-2">Download summary</span>
+              </Button>
+
+              <div className="pt-2 border-t border-gray-800 mt-2 text-xs text-slate-500">
+                <div>Published: {evaluation?.publishedAt ? new Date(evaluation?.publishedAt).toLocaleString() : '—'}</div>
+                <div className="mt-1">Flags: {(evaluation?.flags || []).join(', ') || 'None'}</div>
+              </div>
             </div>
           </div>
 
-          <div className="col-span-2 bg-slate-800 rounded-lg p-4 border border-slate-700">
-            <h3 className="text-sm font-semibold text-slate-100">Summarized Description</h3>
-            <p className="mt-2 text-sm text-slate-200">{`Candidate: ${d.candidate.name}. Interview focused on ${d.job.title.toLowerCase()} fundamentals and performance optimisation. Transcript-derived score indicates domain competence (${transcriptAvg}%). Video signals: speaking ${d.videoMetrics.speaking}%, eye contact ${d.videoMetrics.eyeContact}%. Recommendation: ${composite >= 75 ? 'Proceed to technical round' : composite >= 60 ? 'Human review & targeted task' : 'Request further evidence or decline'}.`}</p>
-
-            <div className="mt-4 text-xs text-slate-400">Provenance: {d.provenance.summarizer}</div>
+          <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-3 text-xs text-slate-400">
+            <h4 className="text-xs text-slate-300">Actions</h4>
+            <div className="mt-2 flex flex-col gap-2">
+              <button className="text-left px-3 py-2 rounded hover:bg-slate-800/50 text-slate-200 text-sm">Open full evaluation</button>
+              <button className="text-left px-3 py-2 rounded hover:bg-slate-800/50 text-slate-200 text-sm">Add reviewer note</button>
+            </div>
           </div>
-        </div>
-      </div>
-    </div>
-  );
+        </aside>
+      </section>
+    </article>
+  )
 }
