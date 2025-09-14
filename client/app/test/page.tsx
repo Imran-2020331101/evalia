@@ -1,4 +1,6 @@
-import React from "react";
+'use client'
+import axios from "axios";
+import React, { useEffect } from "react";
 
 // InterviewSummaryPreview.tsx
 // - TypeScript + React (default export)
@@ -93,6 +95,20 @@ function CircularScore({ value = 0, size = 88, stroke = 8 }: { value?: number; s
   const circumference = 2 * Math.PI * radius;
   const pct = Math.max(0, Math.min(100, Math.round(value || 0)));
   const offset = circumference * (1 - pct / 100);
+
+
+  useEffect(()=>{
+    const fetch = async()=>{
+      try {
+        const response = await axios.get('https://www.googleapis.com/youtube/v3/search?part=snippet&q=react&type=video&maxResults=5&key=AIzaSyC1EZtkXFSSo7n1ao6dDhfwWTpUuWRvTb0')
+        console.log(response.data);
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    fetch();
+  },[])
+
   return (
     <svg width={size} height={size} className="block">
       <g transform={`translate(${size / 2}, ${size / 2})`}>

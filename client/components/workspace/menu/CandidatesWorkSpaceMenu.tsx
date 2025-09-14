@@ -79,14 +79,14 @@ const CandidatesWorkSpaceMenu = () => {
             <p className="hover:text-gray-100 text-gray-200">Courses</p>
           </button>
           <ul className={`pl-4 ${isShowCourseCategory?'flex flex-col':'hidden'} gap-1`}>
-            <li className="flex justify-start items-center gap-1 hover:text-gray-300">
+            <Link href={'/workspace/courses/saved'} className="flex justify-start items-center gap-1 hover:text-gray-300">
               <Image src={bookMarkLogo} alt="saved" className="h-[13px] w-auto"/>
               <p className="text-sm  cursor-pointer">Saved</p>
-            </li>
-            <li className="flex justify-start items-center gap-1 hover:text-gray-300">
+            </Link>
+            <Link href={'/workspace/courses/explore'} className="flex justify-start items-center gap-1 hover:text-gray-300">
               <Image src={exploreLogo} alt="explore" className="h-[13px] w-auto"/>
               <p className="text-sm  cursor-pointer">Explore</p>
-            </li>
+            </Link>
           </ul>
           <button className="flex justify-start items-center gap-1 mt-2" onClick={()=>setIsShowInterviewCategory((prev)=>!prev)}>
             <Image src={interviewLogo} alt="coursesLogo" className="h-[15px] w-auto"/>
