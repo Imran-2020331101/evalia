@@ -35,7 +35,7 @@ export interface IInterview extends Document {
   startedAt?: Date;
   completedAt?: Date;
   allowedDuration?: number;
-  totalDuration: number;
+  totalDuration?: number;
 
   // Questions and answers
   questionsAnswers: IQuestionAnswer[];
@@ -65,11 +65,6 @@ export interface IInterview extends Document {
   calculatedDuration: number;
   totalQuestions: number;
   answeredQuestions: number;
-
-  // Instance methods
-  addQuestionAnswer(question: string, candidateAnswer: string, referenceAnswer?: string): Promise<IInterview>;
-  updateStatus(status: IInterview['interviewStatus']): Promise<IInterview>;
-  calculateOverallScore(): number | null;
 }
 
 // Job service response interface

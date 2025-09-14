@@ -13,6 +13,8 @@ import java.util.List;
 @Builder
 public class JobCreationRequest {
 
+    private String createdBy;
+
     @Valid
     private CompanyInfo companyInfo;
 
@@ -42,6 +44,7 @@ public class JobCreationRequest {
     public static class CompanyInfo {
         private String organizationId;
         private String organizationEmail;
+        private String organizationName;
     }
 
     @Data

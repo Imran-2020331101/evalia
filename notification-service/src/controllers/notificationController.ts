@@ -7,7 +7,7 @@ class NotificationController{
   fetchNotificationsOfAUser = asyncHandler(async (req, res) => {
     const { userId } = req.params;
 
-    logger.info("Notification fetched for id : ", userId);
+    logger.info(`Notification fetched for id : ${userId}`);
     
     if (!userId) {
       throw new ApiError(400, "User ID is required");
