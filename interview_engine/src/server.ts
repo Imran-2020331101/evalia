@@ -39,7 +39,7 @@ py.stdout?.on('data', (data: Buffer) => {
   try {
     const result: IPythonMetricsResult = JSON.parse(data.toString());
     const { interviewId, metrics } = result;
-    const integrityScore = interviewService.calculateIntegrityScore(result.metrics);
+    const integrityScore = interviewService.updateIntegrity(interviewId, metrics);
     io.to(interviewId).emit('metrics', integrityScore);
   } catch (err) {
     console.error('Error parsing Python output:', err);
@@ -70,6 +70,10 @@ io.on('connection', (socket: Socket) => {
     }
   });
 });
+
+io.on('disconnection',(Socket:Socket) =>{
+  console.log("Disconnected from the interview");
+})
 
 const startApp = async (): Promise<void> => {
   try {
