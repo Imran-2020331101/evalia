@@ -14,8 +14,8 @@ export interface IQuestionAnswer {
   answeredAt?: Date;
 }
 
-// Main interview transcript interface
-export interface IInterviewTranscript extends Document {
+// Main interview Object interface
+export interface IInterview extends Document {
   // Candidate information
   candidateId: Types.ObjectId;
   candidateEmail: string;
@@ -67,8 +67,8 @@ export interface IInterviewTranscript extends Document {
   answeredQuestions: number;
 
   // Instance methods
-  addQuestionAnswer(question: string, candidateAnswer: string, referenceAnswer?: string): Promise<IInterviewTranscript>;
-  updateStatus(status: IInterviewTranscript['interviewStatus']): Promise<IInterviewTranscript>;
+  addQuestionAnswer(question: string, candidateAnswer: string, referenceAnswer?: string): Promise<IInterview>;
+  updateStatus(status: IInterview['interviewStatus']): Promise<IInterview>;
   calculateOverallScore(): number | null;
 }
 
@@ -175,9 +175,9 @@ export interface IPythonMetricsResult {
 
 // Static methods interface for the model
 export interface IInterviewTranscriptStatics {
-  findByCandidate(candidateId: Types.ObjectId): Promise<IInterviewTranscript[]>;
-  findByJob(jobId: Types.ObjectId): Promise<IInterviewTranscript[]>;
-  findByStatus(status: IInterviewTranscript['interviewStatus']): Promise<IInterviewTranscript[]>;
+  findByCandidate(candidateId: Types.ObjectId): Promise<IInterview[]>;
+  findByJob(jobId: Types.ObjectId): Promise<IInterview[]>;
+  findByStatus(status: IInterview['interviewStatus']): Promise<IInterview[]>;
 }
 
 export type IntegrityUpdateResponse = {
