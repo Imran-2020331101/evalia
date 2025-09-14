@@ -40,8 +40,8 @@ class jobService{
   
     async createJob(payload: CreateJobRequest): Promise<IJobDetailsDocument> {    
 
-        const jobData  = mapJobData(payload);
-        const savedJob = await new JobDetailsModel(jobData).save();
+        const jobData    = mapJobData(payload);
+        const savedJob   = await new JobDetailsModel(jobData).save();
 
         logger.info("New job created successfully", {
           jobId    : savedJob._id.toString(),

@@ -102,6 +102,7 @@ export type InterviewQuestionsRequest = z.infer<typeof InterviewQuestionsGenerat
 
 // Request schemas for API endpoints
 export const CreateJobRequestSchema = z.object({
+  createdBy: z.string(),
   companyInfo: z.object({
     organizationId: z.string().nullable().transform((val) => val || "unknown"),
     organizationEmail: z.string().nullable().transform((val) => val || "unknown@company.com"),  
