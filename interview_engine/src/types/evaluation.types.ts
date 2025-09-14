@@ -1,12 +1,3 @@
-// types.ts
-export type QAPair = {
-  question: string;
-  candidateAnswer: string;
-  referenceAnswer?: string;
-  importance?: number; // 1 default, >1 more important
-  askedAt?: number;    // optional timestamp
-  answeredAt?: number; // optional timestamp
-};
 
 export type PerQuestionEvaluation = {
   questionIndex: number;
@@ -21,7 +12,7 @@ export type PerQuestionEvaluation = {
   notes?: string[];           // auto feedback bullets
 };
 
-export type InterviewEvaluation = {
+export type IInterviewEvaluation = {
   overallScore: number;   // 0..1
   contentAggregate: number;
   commAggregate: number;
@@ -31,3 +22,10 @@ export type InterviewEvaluation = {
   flags: string[];        // e.g., ['multiple_faces', 'absent_10s']
   decision?: 'advance' | 'maybe' | 'reject';
 };
+
+
+export type TranscriptMessage = {
+  role: "assistant" | "user";
+  text: string;
+};
+
