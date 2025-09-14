@@ -43,8 +43,8 @@ class ApplicationService{
 
         if(updatedJob){
           const notification : INotification = {
-            recieverEmail : updatedJob.postedBy,
-            recieverId    : updatedJob.company.OrganizationId,
+            recieverEmail : updatedJob.company.OrganizationEmail,
+            recieverId    : updatedJob.postedBy,
             type          : EventTypes.NEW_JOB_APPLICATION,
             title         : "New Job Application Recieved",
             message       : `${candidateName} applied for the position of ${updatedJob.title}`,

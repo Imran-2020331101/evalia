@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(name = "interviewClient",
-             url  = "http://localhost:4000/api/interview")
+             url  = "${interview.service.url}/api/interview")
 public interface InterviewProxy {
     @GetMapping(value = "/user/{userId}")
     ResponseEntity<String> getAllInterviewsOfAUser(@PathVariable("userId") String userId);

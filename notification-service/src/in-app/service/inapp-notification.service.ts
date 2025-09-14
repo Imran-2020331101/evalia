@@ -18,9 +18,9 @@ class InAppNotificationService {
     return Notification.findByIdAndUpdate(id, { isRead: true }, { new: true }).orFail();
   };
 
-  markAllAsRead = async (recieverEmail: string) => {
+  markAllAsRead = async (recieverId: string) => {
     return Notification.updateMany(
-      { recieverEmail },
+      { recieverId },
       { $set: { isRead: true } }
     ).orFail();
   }

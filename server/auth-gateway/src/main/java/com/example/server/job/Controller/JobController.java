@@ -1,6 +1,8 @@
 package com.example.server.job.Controller;
 
+import com.example.server.UserProfile.Service.OrganizationService;
 import com.example.server.UserProfile.Service.UserService;
+import com.example.server.UserProfile.models.OrganizationEntity;
 import com.example.server.job.DTO.*;
 import com.example.server.job.Proxy.JobProxy;
 import com.example.server.resume.exception.ResumeNotFoundException;
@@ -22,14 +24,18 @@ public class JobController {
     private        final JobProxy           jobProxy;
     private        final UserDetailsService userDetailsService;
     private final UserService userService;
+    private final OrganizationService organizationService;
 
 
-    public JobController(JobProxy           jobProxy,
-                         UserDetailsService userDetailsService, UserService userService) {
+    public JobController(JobProxy            jobProxy,
+                         UserDetailsService  userDetailsService,
+                         UserService         userService,
+                         OrganizationService organizationService) {
 
         this.userDetailsService = userDetailsService;
         this.jobProxy           = jobProxy;
         this.userService = userService;
+        this.organizationService = organizationService;
     }
 
     @GetMapping("/active-jobs")
@@ -88,16 +94,19 @@ public class JobController {
                                             @RequestBody   JobCreationRequest jobCreationRequest,
                                                            Principal principal ) {
 
-            jobCreationRequest.setCompanyInfo(
-                    new JobCreationRequest.CompanyInfo(OrganizationId, principal.getName()));
+        OrganizationEntity org = organizationService.getOrganizationById(OrganizationId);
+        userEntity user        = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
 
+        jobCreationRequest.setCompanyInfo(
+                new JobCreationRequest.CompanyInfo(OrganizationId, principal.getName(), org.getOrganizationName()));
+        jobCreationRequest.setCreatedBy(user.getId().toString());
 
-            logger.info(" Job creation request received from user: " + principal.getName() +
-                             " For the Organization: " + jobCreationRequest.getCompanyInfo());
+        logger.info(" Job creation request received from user: " + principal.getName() +
+                " For the Organization: " + jobCreationRequest.getCompanyInfo());
 
-            ResponseEntity<String> response = jobProxy.createJob(jobCreationRequest);
+        ResponseEntity<String> response = jobProxy.createJob(jobCreationRequest);
 
-            return ResponseEntity.status(response.getStatusCode())
+        return ResponseEntity.status(response.getStatusCode())
                 .body(response.getBody());
     }
 

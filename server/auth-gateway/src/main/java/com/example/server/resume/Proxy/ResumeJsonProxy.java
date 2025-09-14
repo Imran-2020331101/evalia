@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @FeignClient(name = "resumeJsonClient",
-        url = "http://localhost:5000/api/resume")
+        url = "${resume.service.url}/api/resume")
 public interface ResumeJsonProxy {
     @PostMapping(value = "/extract", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<String> extractDetailsFromResume(@RequestBody ResumeForwardWrapper resumeForwardWrapper);
