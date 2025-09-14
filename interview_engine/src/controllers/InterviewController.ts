@@ -17,6 +17,8 @@ export class InterviewController {
 
   scheduleInterview = asyncHandler(async (req: Request, res: Response): Promise<void> => {
 
+    console.log(req.body.job.interviewQA[0]);
+
     const validationResult = ScheduleInterviewRequest.safeParse(req.body);
     if(!validationResult.success){
       throw new BadRequestError(`Validation failed: ${validationResult.error.issues.map(issue => issue.message).join(', ')}`);
