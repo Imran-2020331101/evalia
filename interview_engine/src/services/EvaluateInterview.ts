@@ -1,13 +1,6 @@
-// evaluateInterview.ts
-
-import { InterviewEvaluation, PerQuestionEvaluation, QAPair } from "../types/evaluation.types";
-
-// NOTE: replace semanticSimilarity with your embeddings-based implementation
-async function semanticSimilarity(a: string, b: string): Promise<number> {
-  // placeholder: return in 0..1
-  // implement via embeddings + cosine similarity
-  return 0.7; // stub
-}
+import { IInterviewEvaluation, PerQuestionEvaluation } from "../types/evaluation.types";
+import { IQuestionAnswer } from "../types/interview.types";
+import { matchingService } from "./semantic-scikitjs";
 
 function countKeywords(answer: string, keywords: string[]): { matched: string[]; coverage: number } {
   const text = answer.toLowerCase();
@@ -30,15 +23,15 @@ function countFillerWords(answer: string) {
 }
 
 export async function evaluateInterview(
-  qaPairs: QAPair[],
+  qaPairs: IQuestionAnswer[],
   integrityAggregate: number, // 0..1 from interviewService.finalizeIntegrity
   config?: {
-    questionKeywords?: Record<number, string[]>; // optional mapping
+    questionKeywords?: Record<number, string[]>; 
     maxLatencySeconds?: number;
     maxPauseSeconds?: number;
     weights?: { content?: number; comm?: number; integrity?: number; resp?: number; }
   }
-): Promise<InterviewEvaluation> {
+): Promise<IInterviewEvaluation> {
   const defaults = {
     maxLatencySeconds: 8,
     maxPauseSeconds: 4,
@@ -52,14 +45,14 @@ export async function evaluateInterview(
 
   for (let i = 0; i < qaPairs.length; i++) {
     const q = qaPairs[i];
-    const importance = (q.importance || 1);
+    const importance = 1;
     totalImportance += importance;
 
     // content components
-    const sim = q.referenceAnswer ? await semanticSimilarity(q.candidateAnswer, q.referenceAnswer) : 0.5;
+    const sim = q.referenceAnswer ? await matchingService.semanticSimilarity(q.candidateAnswer || " ", q.referenceAnswer) : 0.5;
     // keywords (if provided)
     const keywords = (config?.questionKeywords && config.questionKeywords[i]) || [];
-    const { matched, coverage } = countKeywords(q.candidateAnswer, keywords);
+    const { matched, coverage } = countKeywords(q.candidateAnswer || "", keywords);
 
     const candidateWords = q.candidateAnswer ? q.candidateAnswer.split(/\s+/).length : 0;
     const refWords = q.referenceAnswer ? q.referenceAnswer.split(/\s+/).length : Math.max(1, candidateWords);
@@ -71,10 +64,6 @@ export async function evaluateInterview(
     const { fillers, totalWords, fillerRate } = countFillerWords(q.candidateAnswer || '');
     // latency (if timestamps provided)
     let latencyScore = 1;
-    if (q.askedAt && q.answeredAt) {
-      const latency = Math.max(0, (q.answeredAt - q.askedAt) / 1000); // sec
-      latencyScore = 1 - Math.min(1, latency / cfg.maxLatencySeconds);
-    }
 
     // pause penalty naive (if we had timestamps of word level we'd compute long pauses)
     const pausePenalty = 1; // placeholder
@@ -96,7 +85,7 @@ export async function evaluateInterview(
       similarity: Number(sim.toFixed(3)),
       keywordsMatched: matched,
       keywordCoverage: Number(coverage.toFixed(3)),
-      responseLatency: q.askedAt && q.answeredAt ? (q.answeredAt - q.askedAt) / 1000 : undefined,
+      responseLatency: undefined,
       fillerRate: Number(fillerRate.toFixed(3)),
       notes: [] // generate simple feedback later
     });
@@ -114,7 +103,7 @@ export async function evaluateInterview(
     (w.resp ?? 0.1) * respAggregate;
 
   // Decide decision rule:
-  let decision: InterviewEvaluation['decision'] = 'maybe';
+  let decision: IInterviewEvaluation['decision'] = 'maybe';
   const overallPct = overall * 100;
   if (integrityAggregate < 0.3) decision = 'reject';
   else if (overallPct >= 75 && integrityAggregate >= 0.6) decision = 'advance';

@@ -1,8 +1,9 @@
+import { TranscriptMessage } from "../types/evaluation.types";
 import { IQuestionAnswer } from "../types/interview.types";
 
-export function generateInterviewSummaryPrompt(qaArray: IQuestionAnswer[]): string {
+export function generateInterviewSummaryPrompt(transcript: TranscriptMessage[]): string {
 
-  const qaJson = JSON.stringify(qaArray, null, 2);
+  const qaJson = JSON.stringify(transcript, null, 2);
 
   return `
         You are an expert interviewer and evaluator. You are given an interview transcript in structured JSON format:

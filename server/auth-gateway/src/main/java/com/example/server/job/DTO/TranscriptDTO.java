@@ -7,4 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 public class TranscriptDTO {
+    private String role;
+    private String text;
 }

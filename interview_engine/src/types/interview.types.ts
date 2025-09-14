@@ -41,6 +41,7 @@ export interface IInterview extends Document {
   questionsAnswers: IQuestionAnswer[];
 
   // Overall assessment
+  integrityScore: number;
   summary : string;
   overallScore?: number;
   overallFeedback?: string;
@@ -220,4 +221,8 @@ export interface InterviewIntegrityState {
   violatedMultipleFaces: boolean;
   violatedAbsent: boolean;
   violatedLowEyeContact: boolean;
+}
+
+export interface Questions{
+  question : string
 }
