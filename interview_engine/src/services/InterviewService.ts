@@ -90,8 +90,9 @@ class InterviewService{
 
     async generateInterviewEvaluation (InterviewQA : IQuestionAnswer[], integrityScore: number){
       const evaluation : IInterviewEvaluation = await evaluateInterview(InterviewQA, integrityScore);
-      const evale = new InterviewEvaluation(evaluation);
-      await evale.save();
+      console.log("generated evaluation of the Interview : ", evaluation);
+      const interviewEvaluation = new InterviewEvaluation(evaluation);
+      await interviewEvaluation.save();
     }
     
 
