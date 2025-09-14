@@ -20,7 +20,7 @@ const InterviewOngoingPage = () => {
   return (
     <div className="w-full h-full flex gap-[10px]">
       <section className="h-full flex-6/8 relative rounded-2xl">
-        {isStarted ? <ConsentPage setIsStarted={setIsStarted} /> : <InterviewAgent setOverallPerformance={setOverallPerf}  setIsSpeaking={setIsSpeaking} setTranscript={setTranscript}/>}
+        {isStarted ? <ConsentPage setIsStarted={setIsStarted} /> : <InterviewAgent setOverallPerformance={setOverallPerf}  setIsSpeaking={setIsSpeaking} transcript={transcript} setTranscript={setTranscript}/>}
         {/* <MediaHandler/> */}
         
         <div className="absolute w-full h-full flex flex-col p-[10px] pb-2 justify-end">

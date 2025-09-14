@@ -91,7 +91,7 @@ export class InterviewController {
 
     res.status(200).json({
       success: true,
-      date   : interview
+      data   : interview
     })
   })
 
