@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 @CrossOrigin
 @RestController
 @RequestMapping("/api/interviews")
-public class InterviewController {
+public class InterviewController {   
 
     private static final Logger logger = Logger.getLogger(InterviewController.class.getName());
     private final InterviewProxy interviewProxy;
