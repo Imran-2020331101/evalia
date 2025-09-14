@@ -15,7 +15,7 @@ export function mapJobData(data: CreateJobRequest) {
       workPlaceType,
       employmentLevelType,
     },
-    requirements, responsibilities, skills, interviewQA } = data;
+    requirements, responsibilities, skills, interviewQA, createdBy } = data;
 
   return {
     title,
@@ -29,7 +29,7 @@ export function mapJobData(data: CreateJobRequest) {
     requirements: requirements,
     responsibilities: responsibilities,
     skills: skills,
-    postedBy: companyInfo.organizationEmail || "unknown@company.com",
+    postedBy: createdBy, // User Id of the creator of the job
     company: {
       OrganizationId    : companyInfo.organizationId || "unknown",
       OrganizationEmail : companyInfo.organizationEmail || "unknown@company.com",

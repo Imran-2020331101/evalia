@@ -35,7 +35,7 @@ export interface IInterview extends Document {
   startedAt?: Date;
   completedAt?: Date;
   allowedDuration?: number;
-  totalDuration: number;
+  totalDuration?: number;
 
   // Questions and answers
   questionsAnswers: IQuestionAnswer[];

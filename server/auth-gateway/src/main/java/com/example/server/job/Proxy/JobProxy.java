@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.util.List;
 
 @FeignClient(name = "jobClient",
-             url  = "http://localhost:7000/api/jobs")
+        url  = "${job.service.url}/api/jobs")
 public interface JobProxy {
 
     @GetMapping(value = "/")
