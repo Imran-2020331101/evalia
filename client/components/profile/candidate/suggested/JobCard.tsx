@@ -103,7 +103,7 @@ const JobCard = ({jobItem}:{jobItem:any}) => {
   const totalScore = metrics.length>0 ? metrics.reduce((a,b)=>a+b,0)/metrics.length : 0
 
   return (
-    <div className="w-full h-auto border-b-[1px] border-transparent bg-gray-900/40 px-1  transition-colors duration-300 py-2 rounded-lg hover:border-blue-400  flex flex-col justify-between shrink-0">
+    <div className="w-full h-auto border-b-[1px] border-transparent bg-gray-900/80 px-1  transition-colors duration-300 py-2 rounded-lg hover:border-blue-400  flex flex-col justify-between shrink-0">
       <div className="h-full w-auto flex justify-start items-center gap-4">
         <button onClick={()=>dispatch(setPreviewOrganization(organization))} className="w-[55px] h-[50px] self-start rounded-sm">
           <Image src={organization?.organizationProfileImageUrl||'https://i.pinimg.com/736x/cf/41/82/cf4182b20a5c74ceac60149066a52841.jpg'}
