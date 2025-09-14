@@ -332,13 +332,13 @@ const CandidateProfileContainer = () => {
                     :
                     <section className="flex flex-col w-full h-full items-center justify-center text-center px-4">
                       <div className="flex flex-col items-center">
-                        <div className="p-4 rounded-full bg-gray-100 mb-4">
-                          <Search className="w-8 h-8 text-gray-500" />
+                        <div className="p-2 rounded-full bg-gray-100 mb-4">
+                          <Search className="w-6 h-6 text-gray-500" />
                         </div>
-                        <h2 className="text-2xl font-semibold text-gray-300">
-                          No Jobs Available
+                        <h2 className="text-lg font-semibold text-gray-300">
+                          No Suggested Jobs Available
                         </h2>
-                        <p className="mt-2 text-gray-400 max-w-md">
+                        <p className="mt-2 text-sm text-gray-400 max-w-md">
                           Currently, there are no suggested jobs available for you. Please check back later for new opportunities.
                         </p>
                       </div>
