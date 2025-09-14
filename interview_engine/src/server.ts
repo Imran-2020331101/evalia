@@ -70,6 +70,7 @@ io.on('connection', (socket: Socket) => {
     }
   });
   socket.on('disconnection',(interviewId: string) =>{
+    console.log('disconnecting interview evaluation');
     interviewService.finalizeIntegrity(interviewId);
     interviewService.markInterviewAsCompleted(interviewId);
   })

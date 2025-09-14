@@ -25,6 +25,7 @@ const Questions = [
 
 
 interface interviewAgentType{
+  transcript:{ role: string; text: string }[],
   setTranscript:React.Dispatch<React.SetStateAction<{
     role: string;
     text: string;
@@ -35,7 +36,7 @@ setOverallPerformance:React.Dispatch<React.SetStateAction<number>>
 }
 const apiKey : string = process.env.NEXT_PUBLIC_VAPI_KEY || "";
 
-const InterviewAgent = ({setTranscript, setIsSpeaking, setOverallPerformance}:interviewAgentType) => {
+const InterviewAgent = ({transcript,setTranscript, setIsSpeaking, setOverallPerformance}:interviewAgentType) => {
 
   const pathname = usePathname();
   const interviewSplit = pathname.split('/');
@@ -46,8 +47,13 @@ const InterviewAgent = ({setTranscript, setIsSpeaking, setOverallPerformance}:in
   const [vapi, setVapi] = useState<any>(null);
   const [isStarted, setIsStarted]=useState<boolean>(false);
   const [isConnected, setIsConnected] = useState(false);
-  const [interviewDetails, setInterviewDetails]=useState<any>({});
-  
+  const [interviewDetails, setInterviewDetails]=useState<any>(null);
+  const [isEndEvaluation, setIsEndEvaluation]=useState<boolean>(false);
+
+  const onCallEnd = ()=>{
+    console.log(transcript, 'transcript')
+    setIsEndEvaluation(true);
+  }
 
   useEffect(() => {
     const handleTabLeave = () => {
@@ -84,6 +90,7 @@ const InterviewAgent = ({setTranscript, setIsSpeaking, setOverallPerformance}:in
       console.log('Call ended');
       setIsConnected(false);
       setIsSpeaking(false);
+      onCallEnd();
     });
     vapiInstance.on('speech-start', () => {
       console.log('Assistant started speaking');
@@ -155,18 +162,18 @@ const InterviewAgent = ({setTranscript, setIsSpeaking, setOverallPerformance}:in
 
   }
   useDeepCompareEffect(()=>{
-    console.log(apiKey)
-    if(vapi && interviewDetails?.questionsAnswers?.length && !isStarted) {
-      setIsStarted(true);
+    if(vapi && interviewDetails?.questionsAnswers?.length && isStarted) {
+      console.log('starting interview')
+      setIsStarted(false);
       startInterview();
     }
-  },[vapi, interviewDetails])
+  },[vapi, interviewDetails, isStarted])
   useEffect(()=>{
     const fetchQuestions = async()=>{
     try {
       const interviewResponse = await axios.get(`http://localhost:8080/api/interviews/${interviewId}`,{withCredentials:true});
       setInterviewDetails(interviewResponse.data.data)
-      // setQuestions(interviewResponse.data.questionsAnswers);
+      setIsStarted(true);
       console.log(interviewResponse.data, 'interviewResponse');
       } catch (error:any) {
         console.log(error);      
@@ -176,7 +183,7 @@ const InterviewAgent = ({setTranscript, setIsSpeaking, setOverallPerformance}:in
   },[])
   return (
     <div className='w-full h-full absolute'>
-      <ConfidenceAnalysis setOverallPerformance={setOverallPerformance}/>
+      <ConfidenceAnalysis isEndEvaluation={isEndEvaluation} setOverallPerformance={setOverallPerformance}/>
     </div>
   )
 }
