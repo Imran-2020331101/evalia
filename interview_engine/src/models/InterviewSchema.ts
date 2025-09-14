@@ -1,7 +1,7 @@
 import mongoose, { Schema, Model } from 'mongoose';
 import { 
   IQuestionAnswer, 
-  IInterviewTranscript, 
+  IInterview, 
   IInterviewTranscriptStatics 
 } from '../types/interview.types';
 
@@ -19,8 +19,16 @@ const QuestionAnswerSchema = new Schema<IQuestionAnswer>(
   { _id: true }
 );
 
+export enum InterviewStatus {
+  SCHEDULED = "SCHEDULED",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED",
+  NO_SHOW = "NO_SHOW",
+}
+
 // Main interview transcript schema
-const InterviewTranscriptSchema = new Schema<IInterviewTranscript>(
+const InterviewTranscriptSchema = new Schema<IInterview>(
   {
     // Candidate information
     candidateId: { type: mongoose.Schema.Types.ObjectId, required: true, index: true },
@@ -80,7 +88,7 @@ InterviewTranscriptSchema.index({ interviewStatus: 1, scheduledAt: -1 });
 InterviewTranscriptSchema.index({ createdAt: -1 });
 
 // Virtual for calculated interview duration
-InterviewTranscriptSchema.virtual("calculatedDuration").get(function(this: IInterviewTranscript) {
+InterviewTranscriptSchema.virtual("calculatedDuration").get(function(this: IInterview) {
   if (this.startedAt && this.completedAt) {
     return Math.floor((this.completedAt.getTime() - this.startedAt.getTime()) / 1000); // in seconds
   }
@@ -88,24 +96,19 @@ InterviewTranscriptSchema.virtual("calculatedDuration").get(function(this: IInte
 });
 
 // Virtual for total questions count
-InterviewTranscriptSchema.virtual("totalQuestions").get(function(this: IInterviewTranscript) {
+InterviewTranscriptSchema.virtual("totalQuestions").get(function(this: IInterview) {
   return this.questionsAnswers.length;
 });
 
-// Virtual for answered questions count
-InterviewTranscriptSchema.virtual("answeredQuestions").get(function(this: IInterviewTranscript) {
-  return this.questionsAnswers.filter(
-    (qa) => qa.candidateAnswer && qa.candidateAnswer.trim() !== ""
-  ).length;
-});
+
 
 // Instance methods
 InterviewTranscriptSchema.methods.addQuestionAnswer = function(
-  this: IInterviewTranscript,
+  this: IInterview,
   question: string,
   candidateAnswer: string,
   referenceAnswer?: string
-): Promise<IInterviewTranscript> {
+): Promise<IInterview> {
   this.questionsAnswers.push({
     question,
     candidateAnswer,
@@ -116,9 +119,9 @@ InterviewTranscriptSchema.methods.addQuestionAnswer = function(
 };
 
 InterviewTranscriptSchema.methods.updateStatus = function(
-  this: IInterviewTranscript,
-  status: IInterviewTranscript['interviewStatus']
-): Promise<IInterviewTranscript> {
+  this: IInterview,
+  status: IInterview['interviewStatus']
+): Promise<IInterview> {
   this.interviewStatus = status;
   this.updatedBy = "SYSTEM";
 
@@ -132,42 +135,29 @@ InterviewTranscriptSchema.methods.updateStatus = function(
   return this.save();
 };
 
-InterviewTranscriptSchema.methods.calculateOverallScore = function(this: IInterviewTranscript): number | null {
-  const scoredQuestions = this.questionsAnswers.filter(
-    (qa) => qa.score !== null && qa.score !== undefined
-  );
 
-  if (scoredQuestions.length === 0) {
-    return null;
-  }
-
-  const totalScore = scoredQuestions.reduce((sum, qa) => sum + (qa.score || 0), 0);
-  this.overallScore = Math.round((totalScore / scoredQuestions.length) * 100) / 100;
-
-  return this.overallScore;
-};
 
 // Static methods
 InterviewTranscriptSchema.statics.findByCandidate = function(
   candidateId: mongoose.Types.ObjectId
-): Promise<IInterviewTranscript[]> {
+): Promise<IInterview[]> {
   return this.find({ candidateId }).sort({ createdAt: -1 });
 };
 
 InterviewTranscriptSchema.statics.findByJob = function(
   jobId: mongoose.Types.ObjectId
-): Promise<IInterviewTranscript[]> {
+): Promise<IInterview[]> {
   return this.find({ jobId }).sort({ scheduledAt: -1 });
 };
 
 InterviewTranscriptSchema.statics.findByStatus = function(
-  status: IInterviewTranscript['interviewStatus']
-): Promise<IInterviewTranscript[]> {
+  status: IInterview['interviewStatus']
+): Promise<IInterview[]> {
   return this.find({ interviewStatus: status }).sort({ scheduledAt: -1 });
 };
 
 // Pre-save middleware
-InterviewTranscriptSchema.pre('save', function(this: IInterviewTranscript, next) {
+InterviewTranscriptSchema.pre('save', function(this: IInterview, next) {
   // Auto-update totalDuration if interview is completed
   if (this.interviewStatus === "COMPLETED" && this.startedAt && this.completedAt) {
     this.totalDuration = Math.floor((this.completedAt.getTime() - this.startedAt.getTime()) / 1000);
@@ -182,10 +172,10 @@ InterviewTranscriptSchema.pre('save', function(this: IInterviewTranscript, next)
 });
 
 // Create models with static methods interface
-type InterviewTranscriptModel = Model<IInterviewTranscript> & IInterviewTranscriptStatics;
+type InterviewTranscriptModel = Model<IInterview> & IInterviewTranscriptStatics;
 
 // Export the models
-export const Interview = mongoose.model<IInterviewTranscript, InterviewTranscriptModel>(
+export const Interview = mongoose.model<IInterview, InterviewTranscriptModel>(
   "InterviewTranscript",
   InterviewTranscriptSchema
 );

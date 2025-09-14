@@ -6,7 +6,7 @@ import { id } from 'zod/v4/locales/index.cjs';
 export interface IQuestionAnswer {
   _id?: Types.ObjectId;
   question: string;
-  candidateAnswer: string;
+  candidateAnswer: string | null;
   referenceAnswer?: string;
   score?: number;
   feedback?: string;
