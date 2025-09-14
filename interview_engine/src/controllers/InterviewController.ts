@@ -12,6 +12,7 @@ import {
   ScheduleInterviewRequest
 } from '../types/interview.types';
 import { EventTypes, InterviewCreatedNotification } from '../types/notification.types';
+import { TranscriptQA } from '../prompts/transcript.mapper.prompt';
 
 export class InterviewController {
 
@@ -52,21 +53,31 @@ export class InterviewController {
     const { transcript } = req.body;
     const { interviewId } = req.params;
 
-    const updatedUser = await Interview.findByIdAndUpdate(
-      interviewId,
-      { $set: {questionsAnswers: transcript} }, 
-      { new: true, runValidators: true } 
-    ).orFail();
+    const interview = await Interview.findById(interviewId).orFail();
+    
+    const transcriptQA : TranscriptQA[] = await interviewService.mapTranscriptToQA(transcript, interview.questionsAnswers);
 
-    const interviewSummary : string = await interviewService.generateSummaryUsingLLM(updatedUser.questionsAnswers);
+    const updatedQA = interview.questionsAnswers.map((qa, index) => {
+      const matchingTranscriptQA = transcriptQA.find(tqa => tqa.question === qa.question);
+      return {
+        question: qa.question,
+        candidateAnswer: matchingTranscriptQA?.candidateAnswer || qa.candidateAnswer,
+        referenceAnswer: qa.referenceAnswer,
+        score: qa.score,
+        feedback: qa.feedback,
+        duration: qa.duration,
+        answeredAt: matchingTranscriptQA?.candidateAnswer ? new Date() : qa.answeredAt
+      };
+    });
 
+    // Update the interview in the database
     const updatedInterview = await Interview.findByIdAndUpdate(
       interviewId,
-      { $set: {summary : interviewSummary}},
+      { questionsAnswers: updatedQA },
       { new: true }
-    );
+    ).orFail();
 
-    console.log(updatedInterview);
+    interviewService.generateInterviewEvaluation(updatedQA, interview.integrityScore)
 
     res.status(200).json({
         success : true,
@@ -103,6 +114,11 @@ export class InterviewController {
       success: true,
       date   : summary
     })
+  })
+
+  getEvaluationByInterviewId = asyncHandler(async(req: Request, res: Response) =>{
+    const { interviewId } = req.body;
+    interviewService.fetchEvaluationByInterviewId( interviewId );
   })
 
 }

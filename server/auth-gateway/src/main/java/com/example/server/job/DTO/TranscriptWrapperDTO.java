@@ -4,9 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
-public class TranscriptDTO {
-    private String role;
-    private String text;
+@NoArgsConstructor
+public class TranscriptWrapperDTO {
+    private List<TranscriptDTO> transcript;
 }

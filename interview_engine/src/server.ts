@@ -12,6 +12,8 @@ import { interviewRouter } from './routes/interview';
 import { IVideoFrameData, IPythonMetricsResult } from './types/interview.types';
 import { connectDatabase } from './config/database';
 import { interviewService } from './services/InterviewService';
+import { intergrityService } from './services/IntegrityService';
+import { Interview } from './models/InterviewSchema';
 
 
 
@@ -39,7 +41,7 @@ py.stdout?.on('data', (data: Buffer) => {
   try {
     const result: IPythonMetricsResult = JSON.parse(data.toString());
     const { interviewId, metrics } = result;
-    const integrityScore = interviewService.updateIntegrity(interviewId, metrics);
+    const integrityScore = intergrityService.updateIntegrity(interviewId, metrics);
     io.to(interviewId).emit('metrics', integrityScore);
   } catch (err) {
     console.error('Error parsing Python output:', err);
@@ -71,7 +73,10 @@ io.on('connection', (socket: Socket) => {
   });
   socket.on('disconnection',(interviewId: string) =>{
     console.log('disconnecting interview evaluation');
-    interviewService.finalizeIntegrity(interviewId);
+    const { finalScore, details } = intergrityService.finalizeIntegrity(interviewId);
+    Interview.findByIdAndUpdate(interviewId,{
+      $set: {integrityScore : finalScore}
+    })
     //  interviewService.markInterviewAsCompleted(interviewId);
   })
 });

@@ -4,6 +4,7 @@ import {
   IInterview, 
   IInterviewTranscriptStatics 
 } from '../types/interview.types';
+import { number } from 'zod';
 
 // Individual question-answer pair schema
 const QuestionAnswerSchema = new Schema<IQuestionAnswer>(
@@ -52,9 +53,10 @@ const InterviewTranscriptSchema = new Schema<IInterview>(
     totalDuration: { type: Number, default: 0 }, // in minuets
 
     // Transcript the audio of the interview
-    questionsAnswers: { type: [QuestionAnswerSchema], default: [] },
+    questionsAnswers: { type: [QuestionAnswerSchema],required: true, default: [] },
 
     // Overall assessment
+    integrityScore: {type: Number, default: 0},
     summary: { type: String, default: "" },
     overallScore: { type: Number, min: 0, max: 10, default: null },
     overallFeedback: { type: String, trim: true, default: null },

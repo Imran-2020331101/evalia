@@ -12,4 +12,6 @@ router.get('/:interviewId',interviewController.getInterviewDetails);
 router.patch('/:interviewId/transcript', interviewController.addTranscriptToInterview);
 router.get('/:interviewId/summary', interviewController.getSummaryOfAnInterview);
 
+router.get('/:interviewId/evaluation', interviewController.getEvaluationByInterviewId);
+
 export { router as interviewRouter };
