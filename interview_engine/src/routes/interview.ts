@@ -8,6 +8,7 @@ const router = Router();
 router.post('/',interviewController.scheduleInterview);
 router.get('/user/:userId',interviewController.getAllInterviewsOfAUser);
 
+router.get('/:interviewId',interviewController.getInterviewDetails);
 router.patch('/:interviewId/transcript', interviewController.addTranscriptToInterview);
 router.get('/:interviewId/summary', interviewController.getSummaryOfAnInterview);
 

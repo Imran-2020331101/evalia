@@ -14,8 +14,8 @@ export interface IQuestionAnswer {
   answeredAt?: Date;
 }
 
-// Main interview transcript interface
-export interface IInterviewTranscript extends Document {
+// Main interview Object interface
+export interface IInterview extends Document {
   // Candidate information
   candidateId: Types.ObjectId;
   candidateEmail: string;
@@ -34,6 +34,7 @@ export interface IInterviewTranscript extends Document {
   deadline: Date;
   startedAt?: Date;
   completedAt?: Date;
+  allowedDuration?: number;
   totalDuration: number;
 
   // Questions and answers
@@ -66,8 +67,8 @@ export interface IInterviewTranscript extends Document {
   answeredQuestions: number;
 
   // Instance methods
-  addQuestionAnswer(question: string, candidateAnswer: string, referenceAnswer?: string): Promise<IInterviewTranscript>;
-  updateStatus(status: IInterviewTranscript['interviewStatus']): Promise<IInterviewTranscript>;
+  addQuestionAnswer(question: string, candidateAnswer: string, referenceAnswer?: string): Promise<IInterview>;
+  updateStatus(status: IInterview['interviewStatus']): Promise<IInterview>;
   calculateOverallScore(): number | null;
 }
 
@@ -134,6 +135,7 @@ export const ScheduleInterviewRequest = z.object({
         id    : z.string(),
     }),
     deadline: z.string(),
+    allowedDuration: z.number().optional(), // duration setted by the recruiter. default = 15 min
 }).loose();
 
 export type IScheduleInterviewRequest = z.infer<typeof ScheduleInterviewRequest>;
@@ -173,7 +175,52 @@ export interface IPythonMetricsResult {
 
 // Static methods interface for the model
 export interface IInterviewTranscriptStatics {
-  findByCandidate(candidateId: Types.ObjectId): Promise<IInterviewTranscript[]>;
-  findByJob(jobId: Types.ObjectId): Promise<IInterviewTranscript[]>;
-  findByStatus(status: IInterviewTranscript['interviewStatus']): Promise<IInterviewTranscript[]>;
+  findByCandidate(candidateId: Types.ObjectId): Promise<IInterview[]>;
+  findByJob(jobId: Types.ObjectId): Promise<IInterview[]>;
+  findByStatus(status: IInterview['interviewStatus']): Promise<IInterview[]>;
+}
+
+export type IntegrityUpdateResponse = {
+  interviewId: string;
+  instantScore: number;
+  aggregateScore: number;   // time-averaged score with penalties
+  smoothedScore: number;    // EWMA-based combined score
+  sampleCount: number;
+  violations: {
+    multipleFaces: boolean;
+    absent: boolean;
+    lowEyeContact: boolean;
+  };
+};
+
+export interface InterviewIntegrityState {
+  startedAt: number;
+  lastUpdatedAt: number;
+  sampleCount: number;
+
+  // running sums for simple average
+  sumFaceScore: number;
+  sumGazeScore: number;
+  sumSpeakScore: number;
+  sumBlinkScore: number;
+
+  // EWMA (smoothed) values for each sub-score
+  ewmaFace: number;
+  ewmaGaze: number;
+  ewmaSpeak: number;
+  ewmaBlink: number;
+
+  // extremes & events
+  minInstantScore: number;
+  maxInstantScore: number;
+
+  // sustained violation counters (seconds)
+  multipleFaceSeconds: number;
+  absentSeconds: number;
+  lowEyeContactSeconds: number;
+
+  // flags
+  violatedMultipleFaces: boolean;
+  violatedAbsent: boolean;
+  violatedLowEyeContact: boolean;
 }
