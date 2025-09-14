@@ -15,7 +15,7 @@ interface IQuestionEvaluation {
 
 // Main evaluation interface
 export interface IInterviewEvaluation extends Document {
-  interviewId: mongoose.Types.ObjectId;
+  interviewId: string;
   overallScore: number;
   contentAggregate: number;
   commAggregate: number;
@@ -49,6 +49,7 @@ const InterviewEvaluationSchema = new Schema({
   responsivenessAggregate: { type: Number, required: true },
   perQuestion: [QuestionEvaluationSchema],
   flags: [{ type: String }],
+  decision: { type: String, enum: ['advance', 'maybe', 'reject'] },
 }, { timestamps: true });
 
 export const InterviewEvaluation = mongoose.model<IInterviewEvaluation>('InterviewEvaluation', InterviewEvaluationSchema);

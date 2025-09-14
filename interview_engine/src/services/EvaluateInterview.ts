@@ -1,6 +1,6 @@
+import { similarityAPINinjas } from "../config/ApiNinja";
 import { IInterviewEvaluation, PerQuestionEvaluation } from "../types/evaluation.types";
 import { IQuestionAnswer } from "../types/interview.types";
-import { matchingService } from "./semantic-scikitjs";
 
 function countKeywords(answer: string, keywords: string[]): { matched: string[]; coverage: number } {
   const text = answer.toLowerCase();
@@ -49,7 +49,7 @@ export async function evaluateInterview(
     totalImportance += importance;
 
     // content components
-    const sim = q.referenceAnswer ? await matchingService.semanticSimilarity(q.candidateAnswer || " ", q.referenceAnswer) : 0.5;
+    const sim = q.referenceAnswer ? await similarityAPINinjas(q.candidateAnswer || " ", q.referenceAnswer) : 0.5;
     // keywords (if provided)
     const keywords = (config?.questionKeywords && config.questionKeywords[i]) || [];
     const { matched, coverage } = countKeywords(q.candidateAnswer || "", keywords);
@@ -85,7 +85,7 @@ export async function evaluateInterview(
       similarity: Number(sim.toFixed(3)),
       keywordsMatched: matched,
       keywordCoverage: Number(coverage.toFixed(3)),
-      responseLatency: undefined,
+      responseLatency: 0, // Default to 0 instead of undefined
       fillerRate: Number(fillerRate.toFixed(3)),
       notes: [] // generate simple feedback later
     });
