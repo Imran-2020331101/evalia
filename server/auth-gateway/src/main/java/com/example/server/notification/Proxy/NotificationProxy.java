@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @FeignClient(name = "notificationClient",
-        url = "http://localhost:6000/api/notifications")
+        url = "${notification.service.url}/api/notifications")
 public interface NotificationProxy {
 
     @GetMapping(value = "/{userId}")
