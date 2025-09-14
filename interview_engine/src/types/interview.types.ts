@@ -129,6 +129,8 @@ export const ScheduleInterviewRequest = z.object({
         interviewQA : z.array(z.object({
           question: z.string(),
           referenceAnswer: z.string().optional(),
+          id: z.string().optional(),
+          _id: z.string().optional(),
         }).loose())
     }),
     organization : z.object({

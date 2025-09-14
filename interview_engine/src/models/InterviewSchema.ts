@@ -9,7 +9,7 @@ import {
 const QuestionAnswerSchema = new Schema<IQuestionAnswer>(
   {
     question: { type: String, required: true, trim: true },
-    candidateAnswer: { type: String, required: true, trim: true },
+    candidateAnswer: { type: String, required: false, trim: true },
     referenceAnswer: { type: String, required: false, trim: true },
     score: { type: Number, min: 0, max: 10, default: null },
     feedback: { type: String, trim: true },
