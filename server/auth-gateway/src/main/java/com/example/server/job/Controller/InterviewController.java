@@ -1,5 +1,7 @@
 package com.example.server.job.Controller;
 
+import com.example.server.job.DTO.TranscriptDTO;
+import com.example.server.job.DTO.TranscriptWrapperDTO;
 import com.example.server.job.Proxy.InterviewProxy;
 import com.example.server.job.Proxy.JobProxy;
 import com.example.server.security.models.userEntity;
@@ -9,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.logging.Logger;
 
 @CrossOrigin
@@ -42,11 +45,19 @@ public class InterviewController {
                 .body(response.getBody());
     }
 
-//    // TODO: complete the function
-//    @PostMapping("/{interviewId}/transcript")
-//    private ResponseEntity<String> addTranscriptToInterview(@PathVariable("interviewId") String interviewId){
-//        ResponseEntity<String> response = interviewProxy.getAllInterviewsOfAUser(user.getId().toString());
-//        return ResponseEntity.status(response.getStatusCode())
-//                .body(response.getBody());
-//    }
+    @PostMapping("/{interviewId}/transcript")
+    private ResponseEntity<String> addTranscriptToInterview(@PathVariable("interviewId") String interviewId,
+                                                            @RequestBody TranscriptWrapperDTO transcript) {
+
+        ResponseEntity<String> response = interviewProxy.addTranscriptToInterview(interviewId, transcript);
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
+    }
+
+    @GetMapping("/{interviewId}/evaluation")
+    private ResponseEntity<String> getEvaluationOfAnInterview(@PathVariable("interviewId") String interviewId) {
+        ResponseEntity<String> response = interviewProxy.getEvaluationOfAnInterview(interviewId);
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
+    }
 }
