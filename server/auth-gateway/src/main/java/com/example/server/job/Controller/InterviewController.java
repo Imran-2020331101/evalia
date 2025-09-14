@@ -48,7 +48,7 @@ public class InterviewController {
     @PostMapping("/{interviewId}/transcript")
     private ResponseEntity<String> addTranscriptToInterview(@PathVariable("interviewId") String interviewId,
                                                             @RequestBody TranscriptWrapperDTO transcript) {
-
+        logger.info("Received transcript for interview ID: " + transcript.getTranscript().get(0));
         ResponseEntity<String> response = interviewProxy.addTranscriptToInterview(interviewId, transcript);
         return ResponseEntity.status(response.getStatusCode())
                 .body(response.getBody());

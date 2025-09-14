@@ -52,10 +52,13 @@ export class InterviewController {
   addTranscriptToInterview = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { transcript } = req.body;
     const { interviewId } = req.params;
-
+    console.log(req.body);
     const interview = await Interview.findById(interviewId).orFail();
     
     const transcriptQA : TranscriptQA[] = await interviewService.mapTranscriptToQA(transcript, interview.questionsAnswers);
+
+    console.log("LLM Response of the QA : ", transcriptQA);
+    
 
     const updatedQA = interview.questionsAnswers.map((qa, index) => {
       const matchingTranscriptQA = transcriptQA.find(tqa => tqa.question === qa.question);
