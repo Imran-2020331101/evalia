@@ -2,57 +2,64 @@
 import { useState, useEffect , useRef } from "react"
 import { io, Socket } from "socket.io-client";
 import { DefaultEventsMap } from "@socket.io/component-emitter";
-
+import { usePathname } from "next/navigation";
 
 const PORT = 'http://localhost:4000'
 
 interface propType {
     setOverallPerformance:React.Dispatch<React.SetStateAction<number>>
+    isEndEvaluation:boolean
 }
 
-const ConfidenceAnalysis = ({setOverallPerformance}:propType) => {
+const ConfidenceAnalysis = ({setOverallPerformance,isEndEvaluation}:propType) => {
     const localVideoRef = useRef<HTMLVideoElement|null>(null)
     const canvasRef = useRef<HTMLCanvasElement | null>(null)
     const socketRef = useRef<Socket<DefaultEventsMap, DefaultEventsMap>|null>(null)
+    const streamRef = useRef<MediaStream|null>(null)   // ✅ store stream here
+    const intervalRef = useRef<NodeJS.Timeout|null>(null) // ✅ store interval id
 
-    const interviewId = 1; //will be fetched later
+    
+    const pathname = usePathname();
+    const interviewSplit = pathname.split('/');
+    const interviewId = interviewSplit[interviewSplit.length-1];
 
     const prevEyeRef = useRef(1);
     const prevFaceRef = useRef(1);
     const prevBlinkRef = useRef(1);
 
     const updatePerformance = (metrics: any) => {
-    const { faceCount, eyeContact, blinkRate } = metrics;
+        const { faceCount, eyeContact, blinkRate } = metrics;
 
-    let faceInstant = (faceCount === 1) ? 1 : Math.max(0, 1 - Math.abs(faceCount - 1) * 0.5);
-    let eyeInstant = Math.min(Math.max(eyeContact, 0), 1);
-    const maxBlink = 30;
-    let blinkInstant = Math.max(0, 1 - blinkRate / maxBlink);
+        let faceInstant = (faceCount === 1) ? 1 : Math.max(0, 1 - Math.abs(faceCount - 1) * 0.5);
+        let eyeInstant = Math.min(Math.max(eyeContact, 0), 1);
+        const maxBlink = 30;
+        let blinkInstant = Math.max(0, 1 - blinkRate / maxBlink);
 
-    const alpha = 0.2;
-    prevFaceRef.current = prevFaceRef.current * (1 - alpha) + faceInstant * alpha;
-    prevEyeRef.current = prevEyeRef.current * (1 - alpha) + eyeInstant * alpha;
-    prevBlinkRef.current = prevBlinkRef.current * (1 - alpha) + blinkInstant * alpha;
+        const alpha = 0.2;
+        prevFaceRef.current = prevFaceRef.current * (1 - alpha) + faceInstant * alpha;
+        prevEyeRef.current = prevEyeRef.current * (1 - alpha) + eyeInstant * alpha;
+        prevBlinkRef.current = prevBlinkRef.current * (1 - alpha) + blinkInstant * alpha;
 
-    const overallPerf =
-        prevFaceRef.current * 0.4 +
-        prevEyeRef.current * 0.4 +
-        prevBlinkRef.current * 0.2;
+        const overallPerf =
+            prevFaceRef.current * 0.4 +
+            prevEyeRef.current * 0.4 +
+            prevBlinkRef.current * 0.2;
 
-    setOverallPerformance(overallPerf);
+        setOverallPerformance(overallPerf);
     };
-
-
 
     useEffect(()=>{
         socketRef.current = io(PORT,{query:{interviewId}});
         socketRef.current.emit('join-room',interviewId);
+
         navigator.mediaDevices.getUserMedia({video:true, audio:true})
         .then(stream =>{
+            streamRef.current = stream; // ✅ save reference
             if (localVideoRef.current && canvasRef.current) {
                 localVideoRef.current.srcObject = stream
                 const ctx = canvasRef.current?.getContext('2d')
-                const senFrames = ()=>{
+
+                const sendFrames = ()=>{
                     if(ctx && localVideoRef.current && canvasRef.current){
                         ctx.drawImage(localVideoRef.current,0,0,canvasRef.current?.width, canvasRef.current?.height)
                     }
@@ -62,7 +69,8 @@ const ConfidenceAnalysis = ({setOverallPerformance}:propType) => {
                         frame:formData
                     })
                 }
-                setInterval(senFrames,2000)
+
+                intervalRef.current = setInterval(sendFrames,2000) // ✅ save interval id
             }
         })
         .catch(err => console.error("Error accessing media devices.", err))
@@ -72,16 +80,42 @@ const ConfidenceAnalysis = ({setOverallPerformance}:propType) => {
             console.log("Performance metrics:", data);
         });
 
+        // cleanup on unmount
         return () => {
             if(socketRef.current) socketRef.current.disconnect();
+            if(intervalRef.current) clearInterval(intervalRef.current);
+            if(streamRef.current){
+                streamRef.current.getTracks().forEach(track => track.stop()); // ✅ stop cam/mic
+            }
         }
     },[interviewId])
-  return (
-    <div className='w-full h-full'>
-      <video ref={localVideoRef} playsInline muted autoPlay width="320" height="240" className="w-full h-full object-cover rounded-2xl"/>
-      <canvas ref={canvasRef} width="320" height="240" className=" hidden" />
-    </div>
-  )
+
+    useEffect(()=>{
+        if(isEndEvaluation){
+            socketRef.current?.emit('disconnection',interviewId)
+            if(socketRef.current) socketRef.current.disconnect();
+            if(intervalRef.current) clearInterval(intervalRef.current);
+            if(streamRef.current){
+                streamRef.current.getTracks().forEach(track => track.stop()); // ✅ release
+                streamRef.current = null;
+            }
+        }
+    },[isEndEvaluation])
+
+    return (
+        <div className='w-full h-full'>
+            <video 
+              ref={localVideoRef} 
+              playsInline 
+              muted 
+              autoPlay 
+              width="320" 
+              height="240" 
+              className="w-full h-full object-cover rounded-2xl"
+            />
+            <canvas ref={canvasRef} width="320" height="240" className=" hidden" />
+        </div>
+    )
 }
 
 export default ConfidenceAnalysis
