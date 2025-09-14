@@ -189,7 +189,7 @@ const InterviewAgent = ({setIsSpeaking, transcript, setTranscript, setOverallPer
       setIsStarted(true);
       console.log(interviewResponse.data, 'interviewResponse');
       } catch (error:any) {
-        console.log(error);      
+        console.log(error, 'interview responseError');      
       }
     }
     fetchQuestions();

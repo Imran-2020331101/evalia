@@ -11,10 +11,10 @@ type Props = {
 
 export default function CourseCardCompact({ course, className = '' }: Props) {
   const thumb =
-    course.thumbnails?.medium?.url || course.thumbnails?.high?.url || course.thumbnails?.default?.url || ''
+    course?.thumbnails?.medium?.url || course?.thumbnails?.high?.url || course?.thumbnails?.default?.url || ''
 
-  const videoUrl = `https://www.youtube.com/watch?v=${course.videoId}`
-  const channelUrl = course.channelId ? `https://www.youtube.com/channel/${course.channelId}` : undefined
+  const videoUrl = `https://www.youtube.com/watch?v=${course?.videoId}`
+  const channelUrl = course?.channelId ? `https://www.youtube.com/channel/${course?.channelId}` : undefined
 
   const [saved, setSaved] = useState<boolean>(false)
 
@@ -35,7 +35,7 @@ export default function CourseCardCompact({ course, className = '' }: Props) {
   return (
     <article
       className={`bg-gray-900/70 border border-gray-800 rounded-xl overflow-hidden shadow-sm flex flex-col gap-2 p-3 ${className}`}
-      aria-label={`Course: ${course.title}`}
+      aria-label={`Course: ${course?.title}`}
     >
       {/* Thumbnail */}
       <a
@@ -47,7 +47,7 @@ export default function CourseCardCompact({ course, className = '' }: Props) {
         {thumb ? (
           <img
             src={thumb}
-            alt={`${course.title} thumbnail`}
+            alt={`${course?.title} thumbnail`}
             className="w-full h-full object-cover"
             loading="lazy"
           />
@@ -69,12 +69,12 @@ export default function CourseCardCompact({ course, className = '' }: Props) {
       <div className="flex-1 min-w-0 flex flex-col">
         <a href={videoUrl} target="_blank" rel="noopener noreferrer" className="group">
           <h3 className="text-sm font-medium text-slate-100 line-clamp-2 group-hover:text-indigo-400">
-            {course.title}
+            {course?.title}
           </h3>
         </a>
 
         <p className="mt-1 text-xs text-slate-400 line-clamp-2">
-          {course.description || 'No description available.'}
+          {course?.description || 'No description available.'}
         </p>
 
         <div className="mt-2 flex items-center justify-between">
@@ -84,16 +84,16 @@ export default function CourseCardCompact({ course, className = '' }: Props) {
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1 hover:text-indigo-400"
-              aria-label={`Open channel ${course.channelTitle || 'channel'}`}
+              aria-label={`Open channel ${course?.channelTitle || 'channel'}`}
             >
               <User size={12} />
-              <span className="truncate max-w-[6rem]">{course.channelTitle || 'Unknown'}</span>
+              <span className="truncate max-w-[6rem]">{course?.channelTitle || 'Unknown'}</span>
               {channelUrl && <ExternalLink size={11} className="ml-0.5" />}
             </a>
             <span className="flex items-center gap-0.5">
               <Calendar size={11} />
-              <time className="text-[11px] text-slate-500" dateTime={course.publishedAt || ''}>
-                {formatDate(course.publishedAt)}
+              <time className="text-[11px] text-slate-500" dateTime={course?.publishedAt || ''}>
+                {formatDate(course?.publishedAt)}
               </time>
             </span>
           </div>
