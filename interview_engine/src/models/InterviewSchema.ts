@@ -156,20 +156,20 @@ InterviewTranscriptSchema.statics.findByStatus = function(
   return this.find({ interviewStatus: status }).sort({ scheduledAt: -1 });
 };
 
-// Pre-save middleware
-InterviewTranscriptSchema.pre('save', function(this: IInterview, next) {
-  // Auto-update totalDuration if interview is completed
-  if (this.interviewStatus === "COMPLETED" && this.startedAt && this.completedAt) {
-    this.totalDuration = Math.floor((this.completedAt.getTime() - this.startedAt.getTime()) / 1000);
-  }
+// // Pre-save middleware
+// InterviewTranscriptSchema.pre('save', function(this: IInterview, next) {
+//   // Auto-update totalDuration if interview is completed
+//   if (this.interviewStatus === "COMPLETED" && this.startedAt && this.completedAt) {
+//     this.totalDuration = Math.floor((this.completedAt.getTime() - this.startedAt.getTime()) / 1000);
+//   }
 
-  // Auto-calculate overall score if not set
-  if (this.questionsAnswers.length > 0 && this.overallScore === null) {
-    this.calculateOverallScore();
-  }
+//   // Auto-calculate overall score if not set
+//   if (this.questionsAnswers.length > 0 && this.overallScore === null) {
+//     this.calculateOverallScore();
+//   }
 
-  next();
-});
+//   next();
+// });
 
 // Create models with static methods interface
 type InterviewTranscriptModel = Model<IInterview> & IInterviewTranscriptStatics;
