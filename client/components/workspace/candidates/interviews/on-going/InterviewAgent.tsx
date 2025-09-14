@@ -183,7 +183,7 @@ const InterviewAgent = ({transcript,setTranscript, setIsSpeaking, setOverallPerf
   },[])
   return (
     <div className='w-full h-full absolute'>
-      <ConfidenceAnalysis isEndEvaluation={isEndEvaluation} setOverallPerformance={setOverallPerformance}/>
+      {/* <ConfidenceAnalysis isEndEvaluation={isEndEvaluation} setOverallPerformance={setOverallPerformance}/> */}
     </div>
   )
 }

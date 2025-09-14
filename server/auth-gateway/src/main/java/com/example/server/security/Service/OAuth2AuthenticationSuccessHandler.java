@@ -4,6 +4,7 @@ import com.example.server.security.JWT.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,9 @@ import java.io.IOException;
 
 @Component
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+
+    @Value("${FRONTEND_URL}")
+    private String frontendUrl;
 
     private final JwtService jwtService;
 
@@ -39,10 +43,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication, String token) {
-        // This should be your frontend URL where you want to redirect after successful
-        // authentication
-        String redirectUri = "http://localhost:3000/auth/callback"; // Changed to Next.js default port and callback
-                                                                    // route
+        // redirect to frontend application with the token as a query parameter
+        String redirectUri = frontendUrl + "/auth/callback";
+
 
         return UriComponentsBuilder.fromUriString(redirectUri)
                 .queryParam("token", token)

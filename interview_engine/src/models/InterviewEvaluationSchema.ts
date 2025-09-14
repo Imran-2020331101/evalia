@@ -41,11 +41,7 @@ const QuestionEvaluationSchema = new Schema({
 
 // Main evaluation schema
 const InterviewEvaluationSchema = new Schema({
-  interviewId: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'InterviewTranscript',
-    required: true 
-  },
+  interviewId: { type: String, required: true },
   overallScore: { type: Number, required: true },
   contentAggregate: { type: Number, required: true },
   commAggregate: { type: Number, required: true },
@@ -53,11 +49,6 @@ const InterviewEvaluationSchema = new Schema({
   responsivenessAggregate: { type: Number, required: true },
   perQuestion: [QuestionEvaluationSchema],
   flags: [{ type: String }],
-  decision: { 
-    type: String, 
-    enum: ['advance', 'reject', 'review', 'pending'],
-    required: true 
-  }
 }, { timestamps: true });
 
 export const InterviewEvaluation = mongoose.model<IInterviewEvaluation>('InterviewEvaluation', InterviewEvaluationSchema);

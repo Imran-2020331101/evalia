@@ -21,7 +21,7 @@ export enum EventTypes{
 
 export const NotificationZodSchema = z.object({
   recieverId: z.string(),
-  recieverEmail: z.string().email(),
+  recieverEmail: z.string().email().optional(),
   title: z.string(),
   message: z.string(),
   type: z.string(),
