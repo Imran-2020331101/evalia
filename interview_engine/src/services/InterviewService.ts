@@ -1,8 +1,9 @@
-import { Types } from "mongoose";
-import { Interview } from "../models/InterviewSchema";
+import { Types, UpdateResult } from "mongoose";
+import { Interview, InterviewStatus } from "../models/InterviewSchema";
 import { IScheduleInterviewRequest, IQuestionAnswer, IntegrityMetrics, InterviewIntegrityState, IntegrityUpdateResponse } from "../types/interview.types";
 import sendToLLM from "../config/OpenRouter";
 import logger from "../utils/logger";
+import { generateInterviewSummaryPrompt } from "../prompts/InterviewSummary.prompt";
 
 class InterviewService{
 
@@ -13,7 +14,7 @@ class InterviewService{
         const QAwithRef: IQuestionAnswer[] =
             job.interviewQA?.map((QA: any) => ({
                 question: QA.question,
-                candidateAnswer: "I",
+                candidateAnswer: null,
                 referenceAnswer: QA.referenceAnswer,
             })) || [];
 
@@ -26,6 +27,7 @@ class InterviewService{
             organizationId : organization.id, 
             deadline: deadline,
             interviewStatus: "SCHEDULED",
+            questionsAnswers: QAwithRef,
             
         });
 
@@ -56,6 +58,13 @@ class InterviewService{
     
     async fetchSummaryById ( interviewId: string ){
         return await Interview.findById(interviewId, 'summary');
+    }
+    
+    async markInterviewAsCompleted(interviewId: string) : Promise<UpdateResult> {
+      return await Interview.updateMany(
+        {_id: interviewId},
+        {$set : { interviewStatus: InterviewStatus.COMPLETED }}
+      )
     }
 
     async generateSummaryUsingLLM (InterviewQA : IQuestionAnswer[]){
@@ -365,6 +374,8 @@ class InterviewService{
       // Clamp to [0,1]
       return Math.max(0, Math.min(weightedScore, 1));
     }
+
+
 
 }
 
