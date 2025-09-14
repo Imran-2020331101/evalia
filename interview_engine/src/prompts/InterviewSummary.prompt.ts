@@ -1,14 +1,6 @@
-interface IQuestionAnswer {
-  question: string;
-  candidateAnswer: string;
-  referenceAnswer?: string;
-  score?: number | null;
-  feedback?: string;
-  duration?: number;
-  answeredAt?: Date;
-}
+import { IQuestionAnswer } from "../types/interview.types";
 
-function generateInterviewSummaryPrompt(qaArray: IQuestionAnswer[]): string {
+export function generateInterviewSummaryPrompt(qaArray: IQuestionAnswer[]): string {
 
   const qaJson = JSON.stringify(qaArray, null, 2);
 

@@ -69,11 +69,12 @@ io.on('connection', (socket: Socket) => {
       py.stdin.write(JSON.stringify(data) + '\n');
     }
   });
+  socket.on('disconnection',(interviewId: string) =>{
+    interviewService.finalizeIntegrity(interviewId);
+    interviewService.markInterviewAsCompleted(interviewId);
+  })
 });
 
-io.on('disconnection',(Socket:Socket) =>{
-  console.log("Disconnected from the interview");
-})
 
 const startApp = async (): Promise<void> => {
   try {
