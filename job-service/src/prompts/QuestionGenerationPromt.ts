@@ -3,12 +3,12 @@ export const questionGenerationPrompt = (
   responsibilities: any,
   requirements: any,
   skills: any
-): string => `You are a helpful assistant. Based on the given job information, generate interview-style 10 questions and respond ONLY in valid JSON that matches this schema:
+): string => `You are a helpful assistant. Based on the given job information, generate interview-style 10 questions in Bengali and respond ONLY in valid JSON that matches this schema:
 
 {
- "questions" : [
+ "questions" : [
     "question": string, // Role-specific technical knowledge, tools, and problem-solving or Soft skills, teamwork, leadership, adaptability or Hypothetical scenarios relevant to responsibilities and challenges
-    "referenceAnswer": string // A probable to the question that has the main points which should be present in the answer
+    "referenceAnswer": string // A probable answer to the question that has the main points which should be present in the answer
   ]
 }
 

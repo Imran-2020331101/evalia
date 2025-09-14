@@ -3,6 +3,7 @@ package com.example.server.job.Proxy;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(name = "interviewClient",
@@ -13,5 +14,11 @@ public interface InterviewProxy {
 
     @GetMapping(value = "/")
     ResponseEntity<String> getAllInterviews();
+
+    @GetMapping(value = "/{interviewId}")
+    ResponseEntity<String> getInterviewById(@PathVariable("interviewId") String interviewId);
+
+    @PatchMapping(value = "/{interviewId}/transcript")
+    ResponseEntity<String> getAllInterviewsOfATranscript(@PathVariable("interviewId") String interviewId);
 
 }

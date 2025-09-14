@@ -6,10 +6,7 @@ import com.example.server.security.models.userEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.logging.Logger;
@@ -37,4 +34,19 @@ public class InterviewController {
         return ResponseEntity.status(response.getStatusCode())
                 .body(response.getBody());
     }
+
+    @GetMapping("/{interviewId}")
+    private ResponseEntity<String> getInterviewById(@PathVariable("interviewId") String interviewId) {
+        ResponseEntity<String> response = interviewProxy.getInterviewById(interviewId);
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
+    }
+
+//    // TODO: complete the function
+//    @PostMapping("/{interviewId}/transcript")
+//    private ResponseEntity<String> addTranscriptToInterview(@PathVariable("interviewId") String interviewId){
+//        ResponseEntity<String> response = interviewProxy.getAllInterviewsOfAUser(user.getId().toString());
+//        return ResponseEntity.status(response.getStatusCode())
+//                .body(response.getBody());
+//    }
 }

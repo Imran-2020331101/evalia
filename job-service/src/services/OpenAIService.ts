@@ -26,7 +26,7 @@ import {z} from 'zod';
         apiKey: process.env.OPENAI_API_KEY,
       });
       this.defaultModel = 'text-embedding-3-small';
-  }
+    }
 
   /**
    * Create embedding from a single text string
