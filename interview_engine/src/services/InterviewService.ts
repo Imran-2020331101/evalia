@@ -88,11 +88,24 @@ class InterviewService{
       return parsedSummary;
     }
 
-    async generateInterviewEvaluation (InterviewQA : IQuestionAnswer[], integrityScore: number){
+    async generateInterviewEvaluation (InterviewQA : IQuestionAnswer[], integrityScore: number, interviewId : string){
       const evaluation : IInterviewEvaluation = await evaluateInterview(InterviewQA, integrityScore);
       console.log("generated evaluation of the Interview : ", evaluation);
-      const interviewEvaluation = new InterviewEvaluation(evaluation);
-      await interviewEvaluation.save();
+      
+      // Ensure all required fields are present
+      const evaluationData = {
+        ...evaluation,
+        interviewId: interviewId,
+        perQuestion: evaluation.perQuestion.map(q => ({
+          ...q,
+
+          responseLatency: q.responseLatency ?? 0, // Default to 0 if undefined
+          notes: q.notes ?? [] // Ensure notes array exists
+        }))
+      };
+      
+      const interviewEvaluation = new InterviewEvaluation(evaluationData);
+      return await interviewEvaluation.save();
     }
     
 
@@ -104,6 +117,7 @@ class InterviewService{
       })
       const prompt   : string = generateMappingPrompt(transcript, questions);
       const response : string = await sendToLLM(prompt);
+      console.log(response);
       return JSON.parse(response);
     }
 
