@@ -5,6 +5,9 @@ import Vapi from '@vapi-ai/web';
 import ConfidenceAnalysis from './ConfidenceAnalysis';
 import axios from 'axios';
 import { usePathname } from 'next/navigation';
+import { useAppSelector } from '@/redux/lib/hooks';
+import { user } from '@/redux/features/auth';
+import { useDeepCompareEffect } from '@/custom-hooks/useDeepCompareEffect';
 
 
 const Questions = [
@@ -38,9 +41,12 @@ const InterviewAgent = ({setTranscript, setIsSpeaking, setOverallPerformance}:in
   const interviewSplit = pathname.split('/');
   const interviewId = interviewSplit[interviewSplit.length-1];
 
+  const currentUser = useAppSelector(user);
+
   const [vapi, setVapi] = useState<any>(null);
+  const [isStarted, setIsStarted]=useState<boolean>(false);
   const [isConnected, setIsConnected] = useState(false);
-  const [questions, setQuestions]=useState<any>([]);
+  const [interviewDetails, setInterviewDetails]=useState<any>({});
   
 
   useEffect(() => {
@@ -106,10 +112,10 @@ const InterviewAgent = ({setTranscript, setIsSpeaking, setOverallPerformance}:in
 
   const startInterview = async()=>{
     let questionList = "";
-    Questions.forEach((item)=>questionList+=(item+','))
+    interviewDetails?.questionsAnswers?.forEach((item:any)=>questionList+=(item.question+','))
     const assistantOptions = {
       name:"Monke",
-      firstMessage:"হাই আজওয়াদ, কেমন আছ? তুমি কি ইনটারভিওটির জন্য প্রস্তুত ?",
+      firstMessage:`হাই ${currentUser?.user.name}, কেমন আছ? তুমি কি ইনটারভিওটির জন্য প্রস্তুত ?`,
       transcriber: {
         provider: "11labs",
         language: "bn",
@@ -126,8 +132,8 @@ const InterviewAgent = ({setTranscript, setIsSpeaking, setOverallPerformance}:in
           {
             role:"system",
             content:`তুমি একজন এ.আই ভয়েজ সহায়ক যে কিনা সাক্ষাৎকার পরিচালনা করে । তোমার কাজ হচ্ছে প্রার্থীকে প্রদত্ত প্রশ্নগুলো করা এবং তাদের উত্তর মূল্যায়ন করা । বন্ধুত্বপূর্ণ ভূমিকা দিয়ে কথোপকথন শুরু করুন, একটি স্বাচ্ছন্দ্যময় কিন্তু পেশাদার সুরে। উদাহরণ: 
-            "হেই! রিঅ্যাক্ট ডেভেলপার সাক্ষাৎকারে আপনাকে স্বাগতম। আসুন কয়েকটি প্রশ্ন দিয়ে শুরু করি!" একবারে একটি প্রশ্ন জিজ্ঞাসা করুন এবং পরবরতি প্রশ্নে যাওয়ার আগে প্রার্থীর উত্তরের জন্য অপেক্ষা করুন। নীচে প্রশ্নগুলো দেওয়া হলঃ 
-             ${questionList} যদি প্রার্থীর সমস্যা হয়, তাহলে উত্তর না দিয়েই ইঙ্গিত দিন অথবা প্রশ্নটি পুনরায় লিখুন। উদাহরণ: " আমি কি কিছু ইঙ্গিত দেব? রিঅ্যাক্ট কম্পোনেন্ট আপডেটগুলি কীভাবে ট্র্যাক করে তা ভেবে দেখুন"
+            "${interviewDetails?.jobTitle} সাক্ষাৎকারে আপনাকে স্বাগতম। আসুন কয়েকটি প্রশ্ন দিয়ে শুরু করি!" একবারে একটি প্রশ্ন জিজ্ঞাসা করুন এবং পরবরতি প্রশ্নে যাওয়ার আগে প্রার্থীর উত্তরের জন্য অপেক্ষা করুন। নীচে প্রশ্নগুলো দেওয়া হলঃ 
+             ${questionList} | যদি প্রার্থীর সমস্যা হয়, তাহলে উত্তর না দিয়েই ইঙ্গিত দিন অথবা প্রশ্নটি পুনরায় জিজ্ঞাসা করুন। উদাহরণ: " আমি কি কিছু ইঙ্গিত দেব? রিঅ্যাক্ট কম্পোনেন্ট আপডেটগুলি কীভাবে ট্র্যাক করে তা ভেবে দেখুন"
              প্রতিটি উত্তরের পরে সংক্ষিপ্ত, উৎসাহব্যঞ্জক প্রতিক্রিয়া প্রদান করুন, উদাহরণস্বরূপ: "চমৎকার! এটা একটা সঠিক উত্তর।" "হুম, পুরপুরি সঠিক নয়! আবারও চেষ্টা করতে চান? কথোপকথনটি স্বাভাবিক এবং আকর্ষণীয় রাখুন -
               "ঠিক আছে, পরবর্তীতে.." অথবা "এখন একটা জটিল কিছু চেষ্টা করে দেখা যাক!" এর মতো সাধারণ বাক্যাংশ ব্যবহার করতে পারেন। ধারাবাহিকভাবে সকল প্রশ্ন করুন, সাক্ষাৎকারটি সুচারুভাবে শেষ করুন। উদাহরণস্বরূপ: "দারুন ছিল! আপনি কিছু কঠিন প্রশ্ন ভালোভাবে পরিচালনা করেছেন।
                আপনার দক্ষতা আরও তীক্ষ্ণ করে চলুন!" শেষটা একটা ইতিবাচক সুরে, যেমনঃ "আড্ডার জন্য ধন্যবাদ! আশা করি আপনি প্রকল্পগুলো সফলভাবে সম্পন্ন করবেন!"
@@ -148,25 +154,25 @@ const InterviewAgent = ({setTranscript, setIsSpeaking, setOverallPerformance}:in
   }
 
   }
-  useEffect(()=>{
+  useDeepCompareEffect(()=>{
     console.log(apiKey)
-    if(vapi && questions.length) {
+    if(vapi && interviewDetails?.questionsAnswers?.length && !isStarted) {
+      setIsStarted(true);
       startInterview();
     }
-  },[vapi])
+  },[vapi, interviewDetails])
   useEffect(()=>{
-    console.log(pathname, interviewId,'interviewId test')
     const fetchQuestions = async()=>{
-    const jobId=4;
     try {
-      const interviewResponse = await axios.get(``,{withCredentials:true});
-      const questionResponse = await axios.get(`http://localhost:8080/api/job/${jobId}/questions`,{withCredentials:true})
-      console.log(questionResponse.data, 'interview questions')
+      const interviewResponse = await axios.get(`http://localhost:8080/api/interviews/${interviewId}`,{withCredentials:true});
+      setInterviewDetails(interviewResponse.data.data)
+      // setQuestions(interviewResponse.data.questionsAnswers);
+      console.log(interviewResponse.data, 'interviewResponse');
       } catch (error:any) {
         console.log(error);      
       }
     }
-    // fetchQuestions();
+    fetchQuestions();
   },[])
   return (
     <div className='w-full h-full absolute'>
