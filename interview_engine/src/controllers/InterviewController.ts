@@ -61,7 +61,7 @@ export class InterviewController {
     
 
     const updatedQA = interview.questionsAnswers.map((qa, index) => {
-      const matchingTranscriptQA = transcriptQA.find(tqa => tqa.question === qa.question);
+    const matchingTranscriptQA = transcriptQA.find(tqa => tqa.question === qa.question);
       return {
         question: qa.question,
         candidateAnswer: matchingTranscriptQA?.candidateAnswer || qa.candidateAnswer,
@@ -73,10 +73,15 @@ export class InterviewController {
       };
     });
 
+    const summary : string  = await interviewService.generateSummaryUsingLLM(transcript);
+
     // Update the interview in the database
     const updatedInterview = await Interview.findByIdAndUpdate(
       interviewId,
-      { questionsAnswers: updatedQA },
+      { questionsAnswers: updatedQA ,
+        summary : summary,
+      },
+      
       { new: true }
     ).orFail();
 
