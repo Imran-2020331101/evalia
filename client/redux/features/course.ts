@@ -34,6 +34,17 @@ export const saveCourse = createAsyncThunk('course/saveCourse',async({data}:{dat
     }
 })
 
+export const unsaveCourse = createAsyncThunk('course/unsaveCourse',async({videoId}:{videoId:any},thunkAPI)=>{
+    try {
+        console.log('unsaving course')
+        const response = await axios.delete(`http://localhost:8080/api/course/delete/${videoId}`, {withCredentials:true});
+        return response.data;
+    } catch (error:any) {
+        console.log(error);
+        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed deleting course' })
+    }
+})
+
 
 
 
@@ -45,6 +56,7 @@ interface initialStateType{
     allCourseStatus:statusType,
     saveCourseStatus:statusType,
     getAllSaveCourseStatus:statusType,
+    unsaveCourseStatus:statusType,
 }
 const initialState:initialStateType ={
     allCourses:[],
@@ -52,13 +64,16 @@ const initialState:initialStateType ={
     allCourseStatus:'idle',
     saveCourseStatus:'idle',
     getAllSaveCourseStatus:'idle',
+    unsaveCourseStatus:'idle',
 }
 
 const courseSlice = createSlice({
     name:'course',
     initialState,
     reducers:{
-
+        setUnsaveCourseStatus(state, action){
+            state.unsaveCourseStatus=action.payload;
+        },
     },
     extraReducers(builder){
          builder
@@ -95,13 +110,25 @@ const courseSlice = createSlice({
             console.log(action.payload, 'inside save course'); 
             state.getAllSaveCourseStatus='success'
         })
+        .addCase(unsaveCourse.pending,(state)=>{
+            state.unsaveCourseStatus='pending'
+        })
+        .addCase(unsaveCourse.rejected,(state)=>{
+            state.unsaveCourseStatus='error'
+        })
+        .addCase(unsaveCourse.fulfilled,(state,action)=>{
+            state.savedCourses=action.payload.data.savedCourses;
+            console.log(action.payload, 'inside save course'); 
+            state.unsaveCourseStatus='success'
+        })
     }
 })
 
 export default courseSlice.reducer;
-export const {}=courseSlice.actions;
+export const {setUnsaveCourseStatus}=courseSlice.actions;
 export const allCourses = (state:RootState)=>state.course.allCourses;
 export const savedCourses = (state:RootState)=>state.course.savedCourses;
 export const allCourseStatus = (state:RootState)=>state.course.allCourseStatus;
 export const saveCourseStatus = (state:RootState)=>state.course.saveCourseStatus;
 export const getAllSaveCourseStatus = (state:RootState)=>state.course.getAllSaveCourseStatus;
+export const unsaveCourseStatus = (state:RootState)=>state.course.unsaveCourseStatus;

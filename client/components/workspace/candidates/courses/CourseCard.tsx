@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { Play, User, Calendar, ExternalLink, Bookmark } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks'
-import { saveCourse, savedCourses } from '@/redux/features/course'
+import { saveCourse, savedCourses, setUnsaveCourseStatus, unsaveCourse, unsaveCourseStatus } from '@/redux/features/course'
 
 export interface CourseSchema {
   videoId: string
@@ -32,13 +32,21 @@ export default function CourseCard({ course, className = '' }: Props) {
   const channelUrl = course.channelId ? `https://www.youtube.com/channel/${course.channelId}` : undefined
 
   const [saved, setSaved] = useState<boolean>(false) // hardcoded initial state
+  const [isUnsave, setIsUnsave]=useState<boolean>(false)
   const dispatch = useAppDispatch();
 
   const currentSavedCourses = useAppSelector(savedCourses);
+  const currentUnsaveCourseStatus = useAppSelector(unsaveCourseStatus);
 
   function handleSave() {
     // implement saving logic here
     // setSaved((s) => !s)
+    if(saved){
+      setIsUnsave(true);
+      dispatch(unsaveCourse({videoId:course.videoId}))
+      return;
+    }
+
     dispatch(saveCourse({data:course}))
     
   }
@@ -60,6 +68,15 @@ export default function CourseCard({ course, className = '' }: Props) {
     })
   },[currentSavedCourses?.length])
 
+  useEffect(()=>{
+    if(currentUnsaveCourseStatus==='success' && isUnsave){
+      setSaved(false);
+      dispatch(setUnsaveCourseStatus('idle'));
+    }
+    if(currentUnsaveCourseStatus==='error'){
+      setIsUnsave(false);
+    }
+  },[currentUnsaveCourseStatus])
   return (
     <article
       className={`bg-gray-900/70 border border-gray-800 rounded-2xl overflow-hidden shadow-sm transition-shadow hover:shadow-md flex flex-col md:flex-row gap-4 p-4 shrink-0 ${className}`}
@@ -128,7 +145,6 @@ export default function CourseCard({ course, className = '' }: Props) {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              disabled={saved?true:false}
               onClick={handleSave}
               className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] transition-colors ${
                 saved ? 'bg-indigo-600 text-white' : 'bg-slate-700 text-slate-300'
