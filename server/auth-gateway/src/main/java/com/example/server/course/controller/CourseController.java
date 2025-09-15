@@ -39,4 +39,14 @@ public class CourseController {
         return ResponseEntity.status(response.getStatusCode())
                 .body(response.getBody());
     }
+
+    @GetMapping("/saved/all")
+    public ResponseEntity<String> getAllCourse(Principal principal) {
+
+        userEntity user = (userEntity) userService.loadUserByUsername(principal.getName());
+        ResponseEntity<String> response = courseProxy.getAllSavedCourse( user.getId().toString());
+
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
+    }
 }
