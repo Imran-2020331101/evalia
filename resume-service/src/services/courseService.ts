@@ -1,4 +1,4 @@
-import { Course, ICourse, IThumbnails, SearchResult } from "../models/CourseSchema";
+import { Course, ICourse, IThumbnails, SearchResult } from "../models/SavedCourseSchema";
 import axios from "axios";
 
 class CourseService{
