@@ -2,9 +2,9 @@ import Resume, { IResume } from "../models/Resume";
 import { asyncHandler } from "../middleware/errorHandler";
 import { Request, Response } from 'express';
 import { Analysis } from "../types/resume.types";
-import { courseService } from "@/services/courseService";
+import { courseService } from "../services/courseService";
 import { BadRequestError } from "../errors";
-import { SavedCourse } from "@/models/SavedCourseSchema";
+import { SavedCourse } from "../models/SavedCourseSchema";
 
 class CourseController{
     personalizedCourseSuggestion = asyncHandler(async (req: Request, res: Response): Promise<void> => {
@@ -56,22 +56,43 @@ class CourseController{
     }
 
     saveCourse = asyncHandler(async(req: Request, res: Response): Promise<void> => {
-        const { candidateId, videoId } = req.params;
+        const {
+            videoId,
+            title,
+            description,
+            channelId,
+            channelTitle,
+            thumbnails,
+            publishedAt,
+            }  = req.body;
         
+        const { candidateId } = req.params;
+
         if (!candidateId || !videoId) {
             throw new BadRequestError('Candidate ID and Video ID are required');
         }
 
         let savedCourses = await SavedCourse.findOne({ candidateId });
 
+        const courseData = {
+            videoId,
+            title,
+            description,
+            channelId,
+            channelTitle,
+            thumbnails,
+            publishedAt,
+        };
+
         if (!savedCourses) {
             savedCourses = await SavedCourse.create({
                 candidateId,
-                savedCourses: [videoId],
+                savedCourses: [courseData],
             });
         } else {
-            if (!savedCourses.savedCourses.includes(videoId)) {
-                savedCourses.savedCourses.push(videoId);
+            const existingCourse = savedCourses.savedCourses.find(course => course.videoId === videoId);
+            if (!existingCourse) {
+                savedCourses.savedCourses.push(courseData as any);
                 await savedCourses.save();
             }
         }

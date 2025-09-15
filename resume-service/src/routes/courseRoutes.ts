@@ -6,6 +6,6 @@ const router: Router = Router();
 // api/course
 
 router.get('/suggestions',courseController.personalizedCourseSuggestion);
-router.post('/:videoId/candidate/:candidateId', courseController.saveCourse);
+router.post('/candidate/:candidateId/save', courseController.saveCourse);
 
 export default router;
