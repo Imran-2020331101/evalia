@@ -71,21 +71,11 @@ class InterviewService{
       )
     }
 
-    async generateSummaryUsingLLM (transcript : TranscriptMessage[]){
+    async generateSummaryUsingLLM (transcript : TranscriptMessage[]): Promise<string>{
       const prompt  : string  = generateInterviewSummaryPrompt(transcript);
       const summary : string  = await sendToLLM(prompt);
-      let cleaned = typeof summary === "string"
-        ? summary
-            .replace(/^```json\s*/i, "")
-            .replace(/^```\s*/i, "")
-            .replace(/```$/, "")
-            .trim()
-        : summary;
 
-      let parsedSummary = JSON.parse(cleaned);
-
-      logger.info("Summary of the Interview : ", { parsedSummary });
-      return parsedSummary;
+      return JSON.parse(summary);
     }
 
     async generateInterviewEvaluation (InterviewQA : IQuestionAnswer[], integrityScore: number, interviewId : string){
