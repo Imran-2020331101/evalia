@@ -52,7 +52,7 @@ export class InterviewController {
   addTranscriptToInterview = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { transcript } = req.body;
     const { interviewId } = req.params;
-    console.log(req.body);
+
     const interview = await Interview.findById(interviewId).orFail();
     
     const transcriptQA : TranscriptQA[] = await interviewService.mapTranscriptToQA(transcript, interview.questionsAnswers);
@@ -80,7 +80,7 @@ export class InterviewController {
       { new: true }
     ).orFail();
 
-    interviewService.generateInterviewEvaluation(updatedQA, interview.integrityScore)
+    await interviewService.generateInterviewEvaluation(updatedQA, interview.integrityScore, interviewId)
 
     res.status(200).json({
         success : true,
