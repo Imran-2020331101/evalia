@@ -19,4 +19,7 @@ public interface CourseProxy {
     @GetMapping("/candidate/{candidateId}/saved/all")
     ResponseEntity<String> getAllSavedCourse(@PathVariable("candidateId") String candidateId);
 
+    @DeleteMapping("/candidate/{candidateId}/delete/{videoId}")
+    ResponseEntity<String> deleteCourse(@PathVariable("videoId") String videoId,
+                                        @PathVariable("candidateId") String candidateId);
 }
