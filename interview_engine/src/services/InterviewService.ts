@@ -72,10 +72,19 @@ class InterviewService{
     }
 
     async generateSummaryUsingLLM (transcript : TranscriptMessage[]): Promise<string>{
+
+      console.log("summary generation function called : ", transcript);
+
       const prompt  : string  = generateInterviewSummaryPrompt(transcript);
       const summary : string  = await sendToLLM(prompt);
 
-      return JSON.parse(summary);
+      console.log("Raw LLM summary response:", summary);
+
+      // Clean the response - remove any extra whitespace and formatting
+      const cleanedSummary = summary.trim();
+
+      logger.info("Generated Interview Summary : ", { summary: cleanedSummary });
+      return cleanedSummary;
     }
 
     async generateInterviewEvaluation (InterviewQA : IQuestionAnswer[], integrityScore: number, interviewId : string){

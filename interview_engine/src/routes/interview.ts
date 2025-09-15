@@ -6,7 +6,7 @@ const router = Router();
 // route: /api/interview :
 
 router.post('/',interviewController.scheduleInterview);
-router.get('/user/:userId',interviewController.getAllInterviewsOfAUser);
+router.get('/user/:candidateId',interviewController.getAllInterviewsOfAUser);
 
 router.get('/:interviewId',interviewController.getInterviewDetails);
 router.put('/:interviewId/transcript', interviewController.addTranscriptToInterview);
