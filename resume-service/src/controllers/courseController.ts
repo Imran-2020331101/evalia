@@ -2,9 +2,9 @@ import Resume, { IResume } from "../models/Resume";
 import { asyncHandler } from "../middleware/errorHandler";
 import { Request, Response } from 'express';
 import { Analysis } from "../types/resume.types";
-import { courseService } from "@/services/courseService";
+import { courseService } from "../services/courseService";
 import { BadRequestError } from "../errors";
-import { SavedCourse } from "@/models/SavedCourseSchema";
+import { SavedCourse } from "../models/SavedCourseSchema";
 
 class CourseController{
     personalizedCourseSuggestion = asyncHandler(async (req: Request, res: Response): Promise<void> => {
@@ -13,14 +13,18 @@ class CourseController{
         if (!candidateEmail) {
             throw new BadRequestError('Candidate email is required');
         }
-
+        
         const resume = await Resume.findOne({ uploadedBy: candidateEmail }).orFail(
             new Error(`Resume not found for email: ${candidateEmail}`)
         );
 
-        const keywords = this.extractKeywords(resume);
+        console.log(resume);
+
+        const keywords    = this.extractKeywords(resume);
         
         const queryString = keywords.join(' ');
+
+        console.log(queryString);
 
         const suggestions = await courseService.searchYoutube(queryString, 10);
 
