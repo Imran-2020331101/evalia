@@ -6,8 +6,9 @@ import axios from 'axios'
 import completedLogo from '../../../../public/completed-green.svg'
 import pendingLogo from '../../../../public/pending-blue.svg'
 import expiredLogo from '../../../../public/ban-red.svg'
-import { Trash2, Dot, ArrowUpRight } from 'lucide-react'
+import { Trash2, Dot, ArrowUpRight, Clapperboard } from 'lucide-react'
 import Link from 'next/link'
+import { useAppDispatch } from '@/redux/lib/hooks'
 
 interface interviewCardType {
   item:any,
@@ -16,6 +17,9 @@ interface interviewCardType {
 }
 
 const InterviewCard = ({item, detailsCardId, setDetailsCardId}:interviewCardType) => {
+
+    const dispatch = useAppDispatch();
+
     const [org, setOrg]=useState<any>(null);
     const {id, interviewStatus, jobTitle,organizationId} = item;
 
@@ -33,6 +37,7 @@ const InterviewCard = ({item, detailsCardId, setDetailsCardId}:interviewCardType
     if (organizationId) getOrganizationById(organizationId)
   }, [organizationId])
   useEffect(()=>console.log(org,'org'),[org])
+  if(!org) return null;
   return (
     <div className='w-full shrink-0 transition-colors duration-300 py-1 flex justify-between bg-gray-900/40 border-b border-transparent hover:border-blue-400 text-sm rounded-lg'>
         <section className='w-full h-auto flex justify-start py-2 px-2  gap-2 '>
@@ -62,6 +67,9 @@ const InterviewCard = ({item, detailsCardId, setDetailsCardId}:interviewCardType
           <button  className='px-6 py-1 shrink-0 rounded-sm border border-red-500 hover:bg-red-600 text-gray-50 text-xs flex gap-1 f'> <Trash2 className='size-4'/> Delete</button>
           {
             interviewStatus==='SCHEDULED'&& <Link href={`/workspace/interviews/on-going/${id}`} className='px-3 py-1 shrink-0 rounded-sm bg-blue-700 hover:bg-blue-600 text-gray-50 text-xs flex gap-1'> <ArrowUpRight className='size-4'/> Join Interview</Link>
+          }
+          {
+            interviewStatus==='COMPLETED'&& <button  className='px-3 py-1 shrink-0 rounded-sm bg-green-700 hover:bg-green-600 text-gray-50 text-xs flex gap-1'> <Clapperboard className='size-4'/>View Summary</button>
           }
         </section>
     </div>

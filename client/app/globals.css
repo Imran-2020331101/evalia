@@ -11,6 +11,19 @@ input[type='number']::-webkit-outer-spin-button {
     margin: 0;
 }
 
+/* Chrome, Edge, Safari */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    /* makes the default dark icon white */
+    cursor: pointer;
+}
+
+/* Firefox (it shows a spinner+calendar) */
+input[type="date"] {
+    color-scheme: dark;
+    /* makes built-in controls adapt to dark mode */
+}
+
 input[type='number'] {
     -moz-appearance: textfield;
 }
