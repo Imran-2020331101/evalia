@@ -113,11 +113,8 @@ public class ResumeDataRequest {
     public static class Analysis {
         private int wordCount;
         private int characterCount;
-        private boolean hasEmail;
         private boolean hasPhone;
-        private List<String> sections;
         private List<String> keywords;
-
     }
 
 }
