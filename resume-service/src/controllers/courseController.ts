@@ -25,7 +25,7 @@ class CourseController{
 
         console.log(queryString);
 
-        const suggestions = await courseService.searchYoutube(queryString, 10);
+        const suggestions = await courseService.searchYoutube(queryString , 10);
 
         res.status(200).json({
             success: true,
@@ -54,6 +54,8 @@ class CourseController{
         if (keywords.length === 0) {
             keywords.push('professional development');
         }
+
+        keywords.push('tutorial+course');
 
         return keywords.filter(Boolean).slice(0, 8);
     }
