@@ -12,13 +12,15 @@ export function generateInterviewSummaryPrompt(transcript: TranscriptMessage[]):
 
         Each entry contains: question, candidateAnswer, optional referenceAnswer, score (0-10), feedback, duration, and answeredAt.
 
-        Your task is to generate a summary of the interview with the following:
+        Your task is to generate a comprehensive interview summary as a single, well-structured paragraph.
 
-        1. Overall performance summary : Candidate's strengths, weaknesses, and general impression.
-        2. Question-by-question breakdown : Compare the candidate's answer against the reference answer (if available), highlighting correctness, completeness, and clarity.
-        3. Score insights : Mention average score, highest/lowest scoring questions, and patterns (e.g., strong in technical questions, weaker in behavioral ones).
-        4. Final evaluation : A short paragraph summarizing if the candidate seems suitable for the role.
+        Write a professional summary that covers:
+        - Overall candidate performance and impression
+        - Key strengths and areas for improvement observed
+        - Notable responses and technical competency demonstrated
+        - Communication skills and confidence level
+        - Final recommendation on candidate suitability
 
-        Use a concise and professional tone.
+        Write in a clear, professional tone as a single flowing text passage. Do not use bullet points, JSON, or markdown formatting. Keep it concise but informative (3-5 sentences).
         `.trim();
 }
