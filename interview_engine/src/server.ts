@@ -87,7 +87,7 @@ const startApp = async (): Promise<void> => {
     // Connect to database
     await connectDatabase();
     
-    const port = process.env.PORT || 5000;
+    const port = process.env.PORT || 4000;
     server.listen(port, () => {
       console.log(`Interview service is listening on port ${port}`);
     });
