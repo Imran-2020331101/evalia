@@ -10,7 +10,9 @@ import {
   User,
   FileText,
   Play,
-  Tag
+  Tag,
+  MessageCircle,
+  Bot
 } from 'lucide-react'
 import CircularProgress from '@mui/material/CircularProgress'
 import LinearProgress from '@mui/material/LinearProgress'
@@ -141,6 +143,7 @@ const PreviewInterviewSummary = () => {
   const [interviewDetails, setInterviewDetails]=useState<any>(null);
   const [isLoading, setIsLoading]=useState<boolean>(false);
   const [newEval, setNewEval]=useState<any>(null);
+  const [filteredTranscript, setFilteredTranscript]=useState<any>([]);
 
   const currentPreviewedInterviewSummaryId = useAppSelector(previewedInterviewSummaryId)
 
@@ -206,7 +209,15 @@ const PreviewInterviewSummary = () => {
     }
     fetchInterviewById();
   },[currentPreviewedInterviewSummaryId])
-  
+  useEffect(()=>{
+    if(interviewDetails?.questionsAnswers?.length && !filteredTranscript.length){
+      const filtered = interviewDetails?.questionsAnswers?.length?.questionsAnswers?.filter(
+        (q:any) => (q.duration && q.duration > 0) || (q.candidateAnswer && q.candidateAnswer.trim() !== '')
+      )
+      setFilteredTranscript(filtered);
+    }
+  },[interviewDetails?.questionsAnswers?.length])
+  useEffect(()=>console.log(interviewDetails, 'interviewDetails'))
   return (
     <div className={`fixed inset-0 z-[230] ${currentPreviewedInterviewSummaryId?'flex':'hidden'}`}>
       {
@@ -258,7 +269,7 @@ const PreviewInterviewSummary = () => {
                 <Box className="relative flex items-center justify-center w-28 h-28">
                     <CircularProgress
                     variant="determinate"
-                    value={Math.max(0, Math.min(100, Math.round(newEval?.overallScore)))}
+                    value={Math.max(0, Math.min(100, Math.round(newEval?.overallScore*100)))}
                     size={112}
                     thickness={6}
                     sx={{ color: '#6366F1' }}
@@ -266,7 +277,7 @@ const PreviewInterviewSummary = () => {
 
                     <div className="absolute text-center -mt-1">
                     <div className="text-xs text-slate-400">Overall</div>
-                    <div className="text-lg font-semibold text-slate-100">{Math.round(newEval?.overallScore)}%</div>
+                    <div className="text-lg font-semibold text-slate-100">{Math.round(newEval?.overallScore*100)}%</div>
                     </div>
                 </Box>
                 </div>
@@ -340,13 +351,6 @@ const PreviewInterviewSummary = () => {
                                 {openQuestions[q?.questionIndex] ? 'Hide' : 'Details'}
                             </button>
 
-                            <button
-                                type="button"
-                                onClick={() => playSnippet(q)}
-                                className="inline-flex items-center gap-1 text-xs text-slate-300 px-2 py-1 rounded hover:bg-slate-800/50"
-                            >
-                                <Play size={12} /> Play
-                            </button>
                             </div>
                         </div>
 
@@ -407,6 +411,59 @@ const PreviewInterviewSummary = () => {
                     <button className="text-left px-3 py-2 rounded hover:bg-slate-800/50 text-slate-200 text-sm">Open full evaluation</button>
                     <button className="text-left px-3 py-2 rounded hover:bg-slate-800/50 text-slate-200 text-sm">Add reviewer note</button>
                     </div>
+                </div>
+                <div className="w-full h-auto">
+                  {
+                    !filteredTranscript?.length?
+                      <div className="bg-gray-900/40 border border-gray-800 rounded-lg p-4 text-center text-slate-400 text-sm">
+                        No transcript available.
+                      </div>
+                    :
+                    <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 space-y-4 max-h-[500px] overflow-y-auto">
+                      <h3 className="text-sm font-semibold text-slate-100 flex items-center gap-2">
+                        <MessageCircle size={16} className="text-indigo-400" />
+                        Transcript Preview
+                      </h3>
+
+                      <div className="space-y-5">
+                        {filteredTranscript?.map((qa:any, idx:any) => (
+                          <div key={idx} className="space-y-2">
+                            {/* Question */}
+                            <div className="flex items-start gap-2">
+                              <div className="w-6 h-6 flex items-center justify-center rounded-full bg-slate-800 text-slate-300">
+                                <Bot size={14} />
+                              </div>
+                              <div className="bg-slate-800/80 border border-slate-700 text-slate-100 text-sm rounded-lg px-3 py-2 max-w-[80%]">
+                                <span className="font-medium text-indigo-300">Q{idx + 1}:</span> {qa.question}
+                              </div>
+                            </div>
+
+                            {/* Candidate Answer */}
+                            {qa.candidateAnswer && (
+                              <div className="flex items-start gap-2 justify-end">
+                                <div className="bg-indigo-600/90 text-white text-sm rounded-lg px-3 py-2 max-w-[80%] shadow-md">
+                                  {qa.candidateAnswer}
+                                </div>
+                                <div className="w-6 h-6 flex items-center justify-center rounded-full bg-indigo-700 text-white">
+                                  <User size={14} />
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Reference Answer */}
+                            <div className="flex items-start gap-2">
+                              <div className="w-6 h-6 flex items-center justify-center rounded-full bg-slate-700 text-slate-200">
+                                <Bot size={14} />
+                              </div>
+                              <div className="bg-slate-800 text-slate-300 text-sm rounded-lg px-3 py-2 max-w-[80%] italic">
+                                <span className="text-slate-400 font-medium">Reference:</span> {qa.referenceAnswer}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  }
                 </div>
                 </aside>
             </section>
