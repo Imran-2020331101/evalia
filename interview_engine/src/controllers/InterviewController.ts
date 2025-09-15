@@ -120,8 +120,16 @@ export class InterviewController {
   })
 
   getEvaluationByInterviewId = asyncHandler(async(req: Request, res: Response) =>{
-    const { interviewId } = req.body;
-    interviewService.fetchEvaluationByInterviewId( interviewId );
+    
+    const { interviewId } = req.params;
+    console.log("interview Id : ", interviewId);
+    const interviewEvaluation = await interviewService.fetchEvaluationByInterviewId( interviewId );
+    console.log(interviewEvaluation);
+
+    res.status(200).json({
+      success: true,
+      data: interviewEvaluation
+    })
   })
 
 }
