@@ -16,7 +16,7 @@ export const getAllCourses = createAsyncThunk('course/getAllCourses',async(_,thu
 
 export const getAllSavedCourses = createAsyncThunk('course/getAllSavedCourses',async(_,thunkAPI)=>{
     try {
-        const response = await axios.get(`http://localhost:8080/api/course/suggestions/saved`, {withCredentials:true});
+        const response = await axios.get(`http://localhost:8080/api/course/saved/all`, {withCredentials:true});
         return response.data;
     } catch (error:any) {
         console.log(error);
@@ -83,6 +83,17 @@ const courseSlice = createSlice({
             state.savedCourses=action.payload.data.savedCourses;
             console.log(action.payload, 'inside save course'); 
             state.saveCourseStatus='success'
+        })
+        .addCase(getAllSavedCourses.pending,(state)=>{
+            state.getAllSaveCourseStatus='pending'
+        })
+        .addCase(getAllSavedCourses.rejected,(state)=>{
+            state.getAllSaveCourseStatus='error'
+        })
+        .addCase(getAllSavedCourses.fulfilled,(state,action)=>{
+            state.savedCourses=action.payload.data[0].savedCourses;
+            console.log(action.payload, 'inside save course'); 
+            state.getAllSaveCourseStatus='success'
         })
     }
 })
