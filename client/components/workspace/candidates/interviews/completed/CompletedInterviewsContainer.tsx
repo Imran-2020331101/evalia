@@ -16,13 +16,12 @@ const CompletedInterviewsContainer = () => {
 
 
   useEffect(()=>{
-    if(!currentAllInterviews.length) {dispatch(getallInterviews());return;}
+    if(!currentAllInterviews.length && !isMounted) {dispatch(getallInterviews());setIsMounted(true);return;}
     const completedInterviews = currentAllInterviews?.filter((item:any)=>item.interviewStatus==='COMPLETED')||[];
-    setIsMounted(true);
     setInterviews(completedInterviews);
     
   },[currentAllInterviews.length])
-  if(currentGetAllInterviewsStatus==='pending' || !isMounted) return <div className="w-full h-full flex justify-center items-center">
+  if(currentGetAllInterviewsStatus==='pending') return <div className="w-full h-full flex justify-center items-center">
     <ScaleLoader barCount={4} color='white'/>
   </div>;
   return (
