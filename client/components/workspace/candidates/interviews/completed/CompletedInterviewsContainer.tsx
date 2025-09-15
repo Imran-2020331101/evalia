@@ -16,8 +16,9 @@ const CompletedInterviewsContainer = () => {
 
 
   useEffect(()=>{
-    if(!currentAllInterviews.length) {dispatch(getallInterviews());setIsMounted(true);return;}
+    if(!currentAllInterviews.length) {dispatch(getallInterviews());return;}
     const completedInterviews = currentAllInterviews?.filter((item:any)=>item.interviewStatus==='COMPLETED')||[];
+    setIsMounted(true);
     setInterviews(completedInterviews);
     
   },[currentAllInterviews.length])

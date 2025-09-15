@@ -15,8 +15,9 @@ const PendingInterviewsContainer = () => {
   const dispatch = useAppDispatch();
 
   useEffect(()=>{
-    if(!currentAllInterviews.length) {dispatch(getallInterviews());setIsMounted(true);return;}
+    if(!currentAllInterviews.length) {dispatch(getallInterviews());return;}
     const pendingInterviews = currentAllInterviews?.filter((item:any)=>item.interviewStatus==='SCHEDULED')||[];
+    setIsMounted(true);
     setInterviews(pendingInterviews);
     
   },[currentAllInterviews.length])
@@ -35,7 +36,7 @@ const PendingInterviewsContainer = () => {
                 </div>
 
                 {/* Texts */}
-                <h2 className="text-2xl font-semibold text-gray-800">
+                <h2 className="text-2xl font-semibold text-gray-400">
                 No Pending Interviews
                 </h2>
                 <p className="mt-2 text-gray-500 max-w-md">

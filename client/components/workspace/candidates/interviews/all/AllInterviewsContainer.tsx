@@ -10,22 +10,22 @@ import axios from 'axios';
 const AllInterviewsContainer = () => {
   const [interviews, setInterviews]=useState<any>(null);
   const [isMounted, setIsMounted] = useState<boolean>(false);
-  const currentAllInterviews = useAppSelector(allInterviews);
+  const currentAllInterviews = useAppSelector(allInterviews)||[];
   const currentGetAllInterviewsStatus = useAppSelector(getAllInterviewStatus)
 
   const dispatch = useAppDispatch();
 
   useEffect(()=>{
-    if(!currentAllInterviews.length){dispatch(getallInterviews()); setIsMounted(true);return;}
-    setInterviews(currentAllInterviews);
-  },[currentAllInterviews.length])
-  if(currentGetAllInterviewsStatus==='pending' || !isMounted) return <div className="w-full h-full flex justify-center items-center">
+    if(!currentAllInterviews?.length){dispatch(getallInterviews()); setIsMounted(true);return;}
+    // setInterviews(currentAllInterviews);
+  },[currentAllInterviews?.length])
+  if(currentGetAllInterviewsStatus==='pending') return <div className="w-full h-full flex justify-center items-center">
     <ScaleLoader barCount={4} color='white'/>
   </div>;
   return (
     <>
       {
-        interviews?.length?<InterviewContainer interviews={interviews}/>:
+        currentAllInterviews?.length?<InterviewContainer interviews={currentAllInterviews}/>:
          <section className="flex flex-col w-full h-full items-center justify-center text-center px-4">
             <div className="flex flex-col items-center">
                 {/* Icon */}

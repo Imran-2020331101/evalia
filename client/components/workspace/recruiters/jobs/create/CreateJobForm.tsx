@@ -431,7 +431,7 @@ const handleGenerateQuestions = async () => {
               value={basicState.deadline}
               onChange={(e) => updateBasics("deadline", e.target.value)}
               className="w-full flex-1 shrink-0 rounded-sm p-2 bg-slate-800/30 shadow-md shadow-slate-800 
-                        focus:border-[1px] border-gray-500 outline-none text-white text-[13px]"
+             focus:border-[1px] border-gray-500 outline-none text-white text-[13px]"
             />
           </div>
 

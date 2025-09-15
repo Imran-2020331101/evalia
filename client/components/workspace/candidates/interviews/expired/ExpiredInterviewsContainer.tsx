@@ -15,8 +15,9 @@ const ExpiredInterviewsContainer = () => {
   const dispatch = useAppDispatch();
 
   useEffect(()=>{
-    if(!currentAllInterviews.length) {dispatch(getallInterviews());setIsMounted(true);return;}
+    if(!currentAllInterviews.length) {dispatch(getallInterviews());return;}
     const expiredInterviews = currentAllInterviews?.filter((item:any)=>item.interviewStatus==='CANCELLED')||[];
+    setIsMounted(true);
     setInterviews(expiredInterviews);
     
   },[currentAllInterviews.length])
