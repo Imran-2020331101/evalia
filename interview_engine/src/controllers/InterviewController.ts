@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { Interview, QAwithReference } from '../models/InterviewSchema';
 import { asyncHandler } from '../utils/asyncHandler';
 import { BadRequestError, NotFoundError } from '../errors';
+import mongoose from 'mongoose';
 import { interviewService } from '../services/InterviewService';
 import { sendNotification } from '../utils/notify';
 import { 
@@ -15,6 +16,17 @@ import { EventTypes, InterviewCreatedNotification } from '../types/notification.
 import { TranscriptQA } from '../prompts/transcript.mapper.prompt';
 
 export class InterviewController {
+
+  // Helper method to validate ObjectId
+  private validateInterviewId(interviewId: string): void {
+    if (!interviewId || interviewId === 'null' || interviewId === 'undefined') {
+      throw new BadRequestError('Valid interview ID is required');
+    }
+    
+    if (!mongoose.Types.ObjectId.isValid(interviewId)) {
+      throw new BadRequestError('Invalid interview ID format');
+    }
+  }
 
   scheduleInterview = asyncHandler(async (req: Request, res: Response): Promise<void> => {
 
@@ -52,6 +64,9 @@ export class InterviewController {
   addTranscriptToInterview = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { transcript } = req.body;
     const { interviewId } = req.params;
+
+    // Validate interviewId parameter
+    this.validateInterviewId(interviewId);
 
     const interview = await Interview.findById(interviewId).orFail();
     
@@ -94,8 +109,18 @@ export class InterviewController {
   });
 
   getAllInterviewsOfAUser = asyncHandler(async (req: Request, res: Response): Promise<void> =>{
-    const { userId } = req.params;
-    const interviews = await interviewService.getAllInterviewsOfAUser(userId);
+    const { candidateId } = req.params;
+    
+    // Validate candidateId parameter
+    if (!candidateId || candidateId === 'null' || candidateId === 'undefined') {
+      throw new BadRequestError('Valid candidate ID is required');
+    }
+    
+    if (!mongoose.Types.ObjectId.isValid(candidateId)) {
+      throw new BadRequestError('Invalid candidate ID format');
+    }
+
+    const interviews = await interviewService.getAllInterviewsOfAUser(candidateId);
     
     res.status(200).json({
       success : true,
@@ -106,6 +131,10 @@ export class InterviewController {
   
   getInterviewDetails = asyncHandler(async( req: Request, res: Response ) : Promise<void> => {
     const { interviewId } = req.params;
+    
+    // Validate interviewId parameter
+    this.validateInterviewId(interviewId);
+
     const interview = await interviewService.getInterviewById( interviewId );
 
     res.status(200).json({
@@ -116,6 +145,10 @@ export class InterviewController {
 
   getSummaryOfAnInterview = asyncHandler(async( req: Request, res: Response) => {
     const { interviewId } = req.params;
+    
+    // Validate interviewId parameter
+    this.validateInterviewId(interviewId);
+
     const summary = await interviewService.fetchSummaryById( interviewId );
 
     res.status(200).json({
@@ -128,6 +161,10 @@ export class InterviewController {
     
     const { interviewId } = req.params;
     console.log("interview Id : ", interviewId);
+    
+    // Validate interviewId parameter
+    this.validateInterviewId(interviewId);
+
     const interviewEvaluation = await interviewService.fetchEvaluationByInterviewId( interviewId );
     console.log(interviewEvaluation);
 
