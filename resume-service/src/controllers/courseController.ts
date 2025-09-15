@@ -1,7 +1,6 @@
 import Resume, { IResume } from "../models/Resume";
 import { asyncHandler } from "../middleware/errorHandler";
 import { Request, Response } from 'express';
-import { Analysis } from "../types/resume.types";
 import { courseService } from "../services/courseService";
 import { BadRequestError } from "../errors";
 import { SavedCourse } from "../models/SavedCourseSchema";

@@ -80,7 +80,7 @@ const courseSlice = createSlice({
             state.saveCourseStatus='error'
         })
         .addCase(saveCourse.fulfilled,(state,action)=>{
-            state.savedCourses=action.payload.data
+            state.savedCourses=action.payload.data.savedCourses;
             console.log(action.payload, 'inside save course'); 
             state.saveCourseStatus='success'
         })
