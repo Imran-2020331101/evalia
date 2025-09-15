@@ -4,6 +4,7 @@ import notifications from '../features/notification'
 import job from '../features/job'
 import auth from '../features/auth'
 import interview from '../features/interview'
+import course from '../features/course'
 
 export const store = configureStore({
   reducer: {
@@ -11,7 +12,8 @@ export const store = configureStore({
     utils,
     notifications,
     job,
-    interview
+    interview,
+    course
   },
 })
 

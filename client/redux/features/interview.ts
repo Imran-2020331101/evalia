@@ -22,7 +22,7 @@ interface initialStateType{
     pendingInterviews:any,
     expiredInterviews:any,
     completedInterview:any,
-    previewedInterviewSummary:any,
+    previewedInterviewSummaryId:any,
     getAllInterviewStatus:statusType,
     getAllPendingInterviewStatus?:statusType,
     getAllCompletedInterviewStatus?:statusType,
@@ -34,7 +34,7 @@ const initialState:initialStateType={
     pendingInterviews:[],
     expiredInterviews:[],
     completedInterview:[],
-    previewedInterviewSummary:null,
+    previewedInterviewSummaryId:null,
     getAllInterviewStatus:'idle'
 }
 
@@ -42,8 +42,8 @@ const interviewSlice = createSlice({
     name:'interview',
     initialState,
     reducers:{
-        setPreviewedInterviewSummary(state, action){
-            state.previewedInterviewSummary=action.payload;
+        setPreviewedInterviewSummaryId(state, action){
+            state.previewedInterviewSummaryId=action.payload;
         }
     },
     extraReducers(builder){
@@ -63,10 +63,10 @@ const interviewSlice = createSlice({
 })
 
 export default interviewSlice.reducer;
-export const {setPreviewedInterviewSummary}=interviewSlice.actions;
+export const {setPreviewedInterviewSummaryId}=interviewSlice.actions;
 export const allInterviews =(state:RootState)=>state.interview.allInterviews;
 export const pendingInterviews =(state:RootState)=>state.interview.pendingInterviews;
 export const completedInterview =(state:RootState)=>state.interview.completedInterview;
 export const expiredInterviews =(state:RootState)=>state.interview.expiredInterviews;
-export const previewedInterviewSummary =(state:RootState)=>state.interview.previewedInterviewSummary;
+export const previewedInterviewSummaryId =(state:RootState)=>state.interview.previewedInterviewSummaryId;
 export const getAllInterviewStatus =(state:RootState)=>state.interview.getAllInterviewStatus;
