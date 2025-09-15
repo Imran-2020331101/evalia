@@ -3,12 +3,12 @@ import axios from "axios";
 
 class CourseService{
     
-    async searchYoutube(query : string , maxResults : number = 5) : Promise<SearchResult>{
+    async searchYoutube(query : string , maxResults : number = 20) : Promise<SearchResult>{
 
 
         console.log(query);
 
-        const response = await axios.get( `https://www.googleapis.com/youtube/v3/search?key=${process.env.YT_API_KEY}&type=video&part=snippet&q=${query}`);
+        const response = await axios.get( `https://www.googleapis.com/youtube/v3/search?key=${process.env.YT_API_KEY}&type=video&part=snippet&q=${query}&maxResults=${maxResults}`);
 
 
         const courses : ICourse[] = response.data.items.map((item: any) => ({

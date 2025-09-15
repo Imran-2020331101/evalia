@@ -108,8 +108,12 @@ class CourseController{
 
 
     fetchSavedCourses = asyncHandler(async (req: Request,res: Response): Promise<void> =>{
-        const {candidateId } = req.body;
-        const courses = SavedCourse.find({candidateId});
+
+        
+        const {candidateId } = req.params;
+        const rawData = SavedCourse.find({candidateId});
+        const courses = (await rawData).map((doc: { toJSON: () => any; }) => doc.toJSON()); // or use lean() if using Mongoose
+
         res.status(200).json({
                 success : true,
                 data    : courses
