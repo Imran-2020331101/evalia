@@ -3,7 +3,7 @@
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks";
 import CourseCard from "../CourseCard"
 import { useEffect } from "react";
-import { allCourses, getAllCourses, savedCourses } from "@/redux/features/course";
+import { allCourses, getAllCourses, getAllSavedCourses, savedCourses } from "@/redux/features/course";
 
 const sampleCourses = [
   {
@@ -55,7 +55,7 @@ const ExploreContainer = () => {
   useEffect(()=>{
     if(!currentAllCourses?.length) dispatch(getAllCourses());
     if(!currentSavedCourses?.length) {
-
+      dispatch(getAllSavedCourses())
     }
   },[currentAllCourses?.length])
   return (
