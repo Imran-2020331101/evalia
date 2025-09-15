@@ -43,8 +43,6 @@ export interface CandidateScore {
 
 // Type definitions for resume parsing
 
-
-
 interface ParsedResumeResult {
   name: string;
   email: string;
@@ -65,7 +63,7 @@ interface ParsedResumeResult {
   keywords: string[];
 }
 
-interface ResumeAnalysis extends ParsedResumeResult {
+export interface ResumeAnalysis extends ParsedResumeResult {
   wordCount: number;
   characterCount: number;
   hasEmail: boolean;

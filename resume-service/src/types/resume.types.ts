@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { Request } from "express";
+import { ResumeAnalysis } from "@/services/resumeService";
 
 // Industry type enum schema
 export const IndustryTypeSchema = z.enum([
@@ -201,9 +202,10 @@ export class ResumeDTO {
   uploadedBy: string;
   processedAt: Date;  
 
-  constructor(data: Partial<ResumeData> = {}) {
-    this.filename = data.filename || "";
-    this.fileLink = data.fileLink || "";
+
+  constructor(data: ResumeAnalysis) {
+    this.filename = "";
+    this.fileLink = "";
     this.industry = data.industry || 'Others';
     this.skills = {
       technical: data.skills?.technical || [],
@@ -216,21 +218,31 @@ export class ResumeDTO {
     this.education = data.education || [];
     this.projects = data.projects || [];
     this.contact = {
-      email: data.contact?.email || "",
-      phone: data.contact?.phone || "",
-      linkedin: data.contact?.linkedin || "",
-      github: data.contact?.github || "",
-      location: data.contact?.location || "",
+      email: data.email || "",
+      phone: data.phone || "",
+      linkedin: data.linkedin || "",
+      github: data.github || "",
+      location: data.location || "",
     };
     this.certifications = data.certifications || [];
     this.awards = data.awards || [];
     this.volunteer = data.volunteer || [];
     this.interests = data.interests || [];
-    this.status = data.status || "completed";
-    this.metadata = data.metadata;
-    this.analysis = data.analysis;
-    this.uploadedBy = data.uploadedBy || "";
-    this.processedAt = data.processedAt || new Date;
+    this.status = "completed";
+    this.metadata = {
+      pages: 0,
+      info: null,
+      version: "1.0",
+    }
+    this.uploadedBy = "";
+    this.processedAt = new Date;
+
+    this.analysis = {
+      wordCount: data.wordCount,
+      characterCount: data.characterCount,
+      hasPhone: data.hasPhone,
+      keywords: data.keywords,
+    }
   }
 
   /**
