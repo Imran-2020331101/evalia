@@ -8,6 +8,7 @@ import { usePathname } from 'next/navigation';
 import { useAppSelector } from '@/redux/lib/hooks';
 import { user } from '@/redux/features/auth';
 import { useDeepCompareEffect } from '@/custom-hooks/useDeepCompareEffect';
+import { ClipLoader } from 'react-spinners';
 
 
 const Questions = [
@@ -49,19 +50,21 @@ const InterviewAgent = ({setIsSpeaking, transcript, setTranscript, setOverallPer
   const [isStarted, setIsStarted]=useState<boolean>(false);
   const [isConnected, setIsConnected] = useState(false);
   const [interviewDetails, setInterviewDetails]=useState<any>(null);
-  // const [transcript, setTranscript]=useState<any>([]);
   const [isEndEvaluation, setIsEndEvaluation]=useState<boolean>(false);
 
   const onCallEnd = async()=>{
-    // console.log(transcript, 'transcript')
+    setIsEndEvaluation(true);
     try {
       console.log('transcript at call end:', transcriptRef.current);
       const transcriptResponse = await axios.post(`http://localhost:8080/api/interviews/${interviewId}/transcript`,{transcript:transcriptRef.current},{withCredentials:true})
-      console.log(transcriptResponse.data,'transcriptResponse')
+      const evaluationResponse = await axios.get(`http://localhost:8080/api/interview/${interviewId}/evaluation`,{withCredentials:true})
+      console.log(evaluationResponse.data,'transcriptResponse')
     } catch (error:any) {
       console.log(error);
     }
-    setIsEndEvaluation(true);
+    finally{
+      setIsEndEvaluation(false);
+    }
   }
 
   // useEffect(() => {
@@ -165,7 +168,8 @@ const InterviewAgent = ({setIsSpeaking, transcript, setTranscript, setOverallPer
              `.trim(),
           }
         ]
-      }
+      },
+      maxDurationSeconds: 30000,
     }
     try {
     await vapi?.start(assistantOptions);
@@ -189,13 +193,23 @@ const InterviewAgent = ({setIsSpeaking, transcript, setTranscript, setOverallPer
       setIsStarted(true);
       console.log(interviewResponse.data, 'interviewResponse');
       } catch (error:any) {
-        console.log(error);      
+        console.log(error, 'interview responseError');      
       }
     }
     fetchQuestions();
   },[])
   return (
     <div className='w-full h-full absolute'>
+      {
+        isEndEvaluation?
+          <div className="fixed inset-0 w-full h-full backdrop-blur-sm z-50 flex justify-center items-center">
+            <div className="flex flex-col bg-slate-900/80 items-center gap-5 py-[200px] px-[50px] rounded-lg">
+              <ClipLoader size={30} color='white'/>
+              <h1 className='text-3xl font-thin text-center'>Hold tight! <br/> Your interview evaluation is under process ...</h1>
+            </div>
+          </div>
+        :null
+      }
       {/* <ConfidenceAnalysis isEndEvaluation={isEndEvaluation} setOverallPerformance={setOverallPerformance}/> */}
     </div>
   )
