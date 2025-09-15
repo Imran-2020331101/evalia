@@ -1,7 +1,9 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Play, User, Calendar, ExternalLink, Bookmark } from 'lucide-react'
+import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks'
+import { saveCourse, savedCourses } from '@/redux/features/course'
 
 export interface CourseSchema {
   videoId: string
@@ -30,10 +32,15 @@ export default function CourseCard({ course, className = '' }: Props) {
   const channelUrl = course.channelId ? `https://www.youtube.com/channel/${course.channelId}` : undefined
 
   const [saved, setSaved] = useState<boolean>(false) // hardcoded initial state
+  const dispatch = useAppDispatch();
 
-  function toggleSave() {
+  const currentSavedCourses = useAppSelector(savedCourses);
+
+  function handleSave() {
     // implement saving logic here
-    setSaved((s) => !s)
+    // setSaved((s) => !s)
+    dispatch(saveCourse({data:course}))
+    
   }
 
   const formatDate = (iso?: string) => {
@@ -45,6 +52,13 @@ export default function CourseCard({ course, className = '' }: Props) {
       return iso
     }
   }
+  useEffect(()=>{
+    currentSavedCourses?.forEach((item:any)=>{
+     if( item?.videoId===course?.videoId){
+      setSaved(true);
+     }
+    })
+  },[currentSavedCourses?.length])
 
   return (
     <article
@@ -114,7 +128,8 @@ export default function CourseCard({ course, className = '' }: Props) {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={toggleSave}
+              disabled={saved?true:false}
+              onClick={handleSave}
               className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] transition-colors ${
                 saved ? 'bg-indigo-600 text-white' : 'bg-slate-700 text-slate-300'
               }`}

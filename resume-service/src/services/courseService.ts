@@ -1,18 +1,15 @@
-import { ICourse, SearchResult } from "../models/SavedCourseSchema";
+import { Course, ICourse, IThumbnails, SearchResult } from "../models/SavedCourseSchema";
 import axios from "axios";
 
 class CourseService{
     
     async searchYoutube(query : string , maxResults : number = 5) : Promise<SearchResult>{
 
-        const response = await axios.get( "https://www.googleapis.com/youtube/v3/search",{
-            params: {
-                part: "snippet",
-                q: query,
-                type: "video",
-                maxResults,
-                key: process.env.YT_API_KEY,
-            }});
+
+        console.log(query);
+
+        const response = await axios.get( `https://www.googleapis.com/youtube/v3/search?key=${process.env.YT_API_KEY}&type=video&part=snippet&q=${query}`);
+
 
         const courses : ICourse[] = response.data.items.map((item: any) => ({
                 videoId: item.id.videoId,
@@ -23,6 +20,8 @@ class CourseService{
                 thumbnails: item.snippet.thumbnails,
                 publishedAt: item.snippet.publishedAt,
             }));
+
+            console.log(response.data);
 
         return {
             courses,
