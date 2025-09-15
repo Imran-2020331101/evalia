@@ -102,6 +102,17 @@ class CourseController{
             data: savedCourses
         });
     });
+
+
+    fetchSavedCourses = asyncHandler(async (req: Request,res: Response): Promise<void> =>{
+        const {candidateId } = req.body;
+        const courses = SavedCourse.find({candidateId});
+        res.status(200).json({
+                success : true,
+                data    : courses
+            })
+    });
+
 }
 
 export const courseController = new CourseController();
