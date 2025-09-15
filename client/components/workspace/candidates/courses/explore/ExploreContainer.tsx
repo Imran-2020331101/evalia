@@ -3,7 +3,7 @@
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks";
 import CourseCard from "../CourseCard"
 import { useEffect } from "react";
-import { allCourses, getAllCourses } from "@/redux/features/course";
+import { allCourses, getAllCourses, savedCourses } from "@/redux/features/course";
 
 const sampleCourses = [
   {
@@ -51,14 +51,18 @@ const sampleCourses = [
 const ExploreContainer = () => {
   const dispatch = useAppDispatch();
   const currentAllCourses = useAppSelector(allCourses)
+  const currentSavedCourses = useAppSelector(savedCourses);
   useEffect(()=>{
     if(!currentAllCourses?.length) dispatch(getAllCourses());
+    if(!currentSavedCourses?.length) {
+      
+    }
   },[currentAllCourses?.length])
   return (
     <div className="w-full h-full flex justify-center items-center py-[20px]">
       <div className="w-[70%] h-full flex flex-col gap-4">
         {
-            sampleCourses.map((item:any)=><CourseCard key={item.videoId} course={item}/>)
+            currentAllCourses?.map((item:any)=><CourseCard key={item.videoId} course={item}/>)
         }
       </div>
     </div>
