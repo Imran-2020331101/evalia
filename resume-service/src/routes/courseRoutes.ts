@@ -3,6 +3,9 @@ import { Router } from "express";
 
 const router: Router = Router();
 
-router.get('/suggestion/candidate/:candidateId',courseController.personalizedCourseSuggestion);
+// api/course
+
+router.get('/suggestions',courseController.personalizedCourseSuggestion);
+router.post('/:videoId/candidate/:candidateId', courseController.saveCourse);
 
 export default router;
