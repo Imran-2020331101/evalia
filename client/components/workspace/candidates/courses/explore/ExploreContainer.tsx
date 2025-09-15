@@ -58,7 +58,7 @@ const ExploreContainer = () => {
     <div className="w-full h-full flex justify-center items-center py-[20px]">
       <div className="w-[70%] h-full flex flex-col gap-4">
         {
-            sampleCourses.map((item:any)=><CourseCard key={item.videoId} course={item}/>)
+            currentAllCourses?.map((item:any)=><CourseCard key={item.videoId} course={item}/>)
         }
       </div>
     </div>
