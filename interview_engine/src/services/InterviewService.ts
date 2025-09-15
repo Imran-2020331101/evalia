@@ -121,8 +121,10 @@ class InterviewService{
       return JSON.parse(response);
     }
 
-    async fetchEvaluationByInterviewId(interviewId : string){
-      return await InterviewEvaluation.find({interviewId});
+    async fetchEvaluationByInterviewId(interviewId : string) : Promise<IInterviewEvaluation>{
+      const result = await InterviewEvaluation.findOne({interviewId}).orFail();
+      console.log(result);
+      return result as IInterviewEvaluation;
     }
 
 }

@@ -74,7 +74,7 @@ Return the extracted data using **this exact JSON structure** (no deviation):
   ],
   "volunteer": [ "string" ],
   "interests": [ "string" ],
-  "keywords": [ "string" ]
+  "keywords": [ "string" ], // must add some keywords to search relevent videos using them. 
 }
 
 ## RULES:
