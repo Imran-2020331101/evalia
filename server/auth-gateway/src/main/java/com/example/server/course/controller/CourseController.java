@@ -42,6 +42,8 @@ public class CourseController {
 
     @GetMapping("/saved/all")
     public ResponseEntity<String> getAllCourse(Principal principal) {
+        logger.info("Recieved all saved req for : " + principal.getName());
+
 
         userEntity user = (userEntity) userService.loadUserByUsername(principal.getName());
         ResponseEntity<String> response = courseProxy.getAllSavedCourse( user.getId().toString());
