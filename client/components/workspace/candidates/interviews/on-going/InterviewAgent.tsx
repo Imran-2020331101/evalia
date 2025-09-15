@@ -168,7 +168,8 @@ const InterviewAgent = ({setIsSpeaking, transcript, setTranscript, setOverallPer
              `.trim(),
           }
         ]
-      }
+      },
+      maxDurationSeconds: 30000,
     }
     try {
     await vapi?.start(assistantOptions);
