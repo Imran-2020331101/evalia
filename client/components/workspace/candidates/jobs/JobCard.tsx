@@ -103,7 +103,7 @@ const JobCard = ({job}:{job:any}) => {
         </div>
       </div>
       <div className="h-full w-[20%] flex justify-end items-center gap-4">
-        <button  disabled={currentApplyJobStatus==='pending' ?true:false} onClick={!isSaved?handleSaveJob:handleUnsaveJob} className={`w-[80px] py-2 rounded-sm border border-gray-300 ${isSaved?'bg-gray-700 text-gray-100':'hover:border-blue-500 text-white  bg-gray-900'} flex font-semibold justify-center items-center cursor-pointer gap-1`}>
+        <button  disabled={currentApplyJobStatus==='pending' ?true:false} onClick={!isSaved?handleSaveJob:handleUnsaveJob} className={`w-[80px] py-2 rounded-sm border border-gray-300 ${isSaved?'bg-gray-700 text-gray-100 border-transparent':'hover:border-blue-500 text-white  bg-gray-900'} flex font-semibold justify-center items-center cursor-pointer gap-1`}>
           {
             currentSaveJobStatus==='pending' && currentSaveJobId===_id?<ClipLoader size={15} color='white'/>:isSaved?<>
           <Save color='white' size={14}/> 
