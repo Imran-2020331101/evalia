@@ -1,4 +1,4 @@
-# Evalia - AI-Powered Resume Analysis Platform
+# Evalia - Automated Hiring Solution
 
 <div align="center">
   <img src="./client/public/evalia-logo.png" alt="Evalia Logo" width="200"/>
@@ -410,4 +410,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
     <a href="https://github.com/Imran-2020331101/evalia">⭐ Star us on GitHub</a> |
     <a href="mailto:evalia.apostrophe@gmail.com">📧 Contact Support</a>
   </p>
+
 </div>
