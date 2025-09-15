@@ -3,7 +3,7 @@
 import { AlertTriangle } from "lucide-react"
 import Link from "next/link"
 
-export default function ErrorPage() {
+export default function Error() {
   return (
     <div className="flex h-full w-full flex-col items-center justify-center  px-6">
       <div className="text-center">
