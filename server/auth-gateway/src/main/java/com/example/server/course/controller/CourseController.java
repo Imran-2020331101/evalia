@@ -49,4 +49,12 @@ public class CourseController {
         return ResponseEntity.status(response.getStatusCode())
                 .body(response.getBody());
     }
+
+    @DeleteMapping("/delete/{videoId}")
+    public ResponseEntity<String> deleteCourse(@PathVariable("videoId") String videoId, Principal principal) {
+        userEntity user = (userEntity) userService.loadUserByUsername(principal.getName());
+        ResponseEntity<String> response = courseProxy.deleteCourse(videoId, user.getId().toString());
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
+    }
 }

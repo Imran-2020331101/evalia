@@ -3,7 +3,7 @@ import { asyncHandler } from "../middleware/errorHandler";
 import { Request, Response } from 'express';
 import { courseService } from "../services/courseService";
 import { BadRequestError } from "../errors";
-import { SavedCourse } from "../models/SavedCourseSchema";
+import { ICourse, SavedCourse } from "../models/SavedCourseSchema";
 
 class CourseController{
     personalizedCourseSuggestion = asyncHandler(async (req: Request, res: Response): Promise<void> => {
@@ -115,6 +115,28 @@ class CourseController{
                 data    : courses
             })
     });
+
+    removeCourseFromSavedList = asyncHandler(async (req: Request, res: Response): Promise<void> =>{
+        const {candidateId, videoId} = req.params;
+        
+        if (!candidateId || !videoId) {
+            throw new BadRequestError('Candidate ID and Video ID are required');
+        }
+
+        const savedCourses = await SavedCourse.findOne({candidateId}).orFail(
+            new Error(`Saved courses not found for candidate: ${candidateId}`)
+        );
+        
+        const updatedCourseList = savedCourses.savedCourses.filter((video) => video.videoId !== videoId);
+        savedCourses.savedCourses = updatedCourseList;
+        await savedCourses.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Course removed successfully',
+            data: savedCourses
+        });
+    })
 
 }
 
