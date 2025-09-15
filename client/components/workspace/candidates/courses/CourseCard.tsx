@@ -62,7 +62,7 @@ export default function CourseCard({ course, className = '' }: Props) {
 
   return (
     <article
-      className={`bg-gray-900/70 border border-gray-800 rounded-2xl overflow-hidden shadow-sm transition-shadow hover:shadow-md flex flex-col md:flex-row gap-4 p-4 ${className}`}
+      className={`bg-gray-900/70 border border-gray-800 rounded-2xl overflow-hidden shadow-sm transition-shadow hover:shadow-md flex flex-col md:flex-row gap-4 p-4 shrink-0 ${className}`}
       aria-label={`Course: ${course.title}`}
     >
       <a
