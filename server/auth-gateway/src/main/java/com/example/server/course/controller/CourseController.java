@@ -1,8 +1,12 @@
 package com.example.server.course.controller;
 
+import com.example.server.UserProfile.Service.UserService;
+import com.example.server.course.dto.CourseDTO;
 import com.example.server.course.proxy.CourseProxy;
+import com.example.server.security.models.userEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -14,9 +18,11 @@ public class CourseController {
 
     private static Logger logger = Logger.getLogger(CourseController.class.getName());
     private final CourseProxy courseProxy;
+    private final UserDetailsService userService;
 
-    public CourseController(CourseProxy courseProxy) {
+    public CourseController(CourseProxy courseProxy, UserDetailsService userService) {
         this.courseProxy = courseProxy;
+        this.userService = userService;
     }
 
     @GetMapping("/suggestions")
@@ -26,9 +32,10 @@ public class CourseController {
                 .body(response.getBody());
     }
 
-    @PostMapping("/{videoId}/candidate/{candidateId}")
-    public ResponseEntity<String> saveCourse(@PathVariable("videoId") String videoId, @PathVariable("candidateId") String candidateId) {
-        ResponseEntity<String> response = courseProxy.saveCourse(videoId, candidateId);
+    @PostMapping("/save")
+    public ResponseEntity<String> saveCourse(@RequestBody CourseDTO courseDTO, Principal principal) {
+        userEntity user = (userEntity) userService.loadUserByUsername(principal.getName());
+        ResponseEntity<String> response = courseProxy.saveCourse( user.getId().toString(), courseDTO);
         return ResponseEntity.status(response.getStatusCode())
                 .body(response.getBody());
     }
