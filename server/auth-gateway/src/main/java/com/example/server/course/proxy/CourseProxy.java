@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(name = "courseClient",
-             url  = "${course.service.url}/api/course")
+             url  = "${resume.service.url}/api/course")
 public interface CourseProxy {
 
     @GetMapping("/suggestions")
