@@ -19,7 +19,9 @@ import Chip from '@mui/material/Chip'
 import Box from '@mui/material/Box'
 import { BarChart } from '@mui/x-charts/BarChart';
 import Typography from '@mui/material/Typography'
-import { previewedInterviewSummary, setPreviewedInterviewSummary } from '@/redux/features/interview'
+import { previewedInterviewSummaryId, setPreviewedInterviewSummaryId } from '@/redux/features/interview'
+import axios from 'axios'
+import { ScaleLoader } from 'react-spinners'
 
 // Minimal types matching your schema (subset)
 type QuestionEval = {
@@ -133,11 +135,14 @@ const PreviewInterviewSummary = () => {
 
   const dispatch = useAppDispatch()
 
-  const evaluation:any = useAppSelector(previewedInterviewSummary);
+  const evaluation:any = dummyEvaluation;
   
   const [openQuestions, setOpenQuestions] = useState<Record<number, boolean>>({})
+  const [interviewDetails, setInterviewDetails]=useState<any>(null);
+  const [isLoading, setIsLoading]=useState<boolean>(false);
+  const [newEval, setNewEval]=useState<any>(null);
 
-  const currentPreviewedInterviewSummary = useAppSelector(previewedInterviewSummary)
+  const currentPreviewedInterviewSummaryId = useAppSelector(previewedInterviewSummaryId)
 
   function toggleQuestion(i: number) {
     setOpenQuestions((s) => ({ ...s, [i]: !s[i] }))
@@ -171,7 +176,7 @@ const PreviewInterviewSummary = () => {
           modalRef.current &&
           !modalRef.current.contains(event.target as Node)
           ) {
-              dispatch(setPreviewedInterviewSummary(null));
+              dispatch(setPreviewedInterviewSummaryId(null));
           }
       };
 
@@ -180,9 +185,38 @@ const PreviewInterviewSummary = () => {
           document.removeEventListener("mousedown", handleClickOutside);
       };
   }, []);
+
+  useEffect(()=>{
+    
+    const fetchInterviewById = async()=>{
+      const interviewId=currentPreviewedInterviewSummaryId;
+      try {
+        setIsLoading(true);
+        const interviewResponse = await axios.get(`http://localhost:8080/api/interviews/${interviewId}`,{withCredentials:true});
+        setInterviewDetails(interviewResponse.data.data)
+        const evaluationResponse = await axios.get(`http://localhost:8080/api/interviews/${interviewId}/evaluation`,{withCredentials:true})
+        console.log(evaluationResponse,'evaluationResponse')
+        setNewEval(evaluationResponse.data.data);
+      } catch (error:any) {
+        console.log(error, 'error')
+      }
+      finally{
+        setIsLoading(false);
+      }
+    }
+    fetchInterviewById();
+  },[currentPreviewedInterviewSummaryId])
+  
   return (
-    <div className={`fixed inset-0 z-[230] ${currentPreviewedInterviewSummary?'flex':'hidden'}`}>
-      <div className="w-full h-full flex justify-center items-center backdrop-blur-sm">
+    <div className={`fixed inset-0 z-[230] ${currentPreviewedInterviewSummaryId?'flex':'hidden'}`}>
+      {
+        isLoading?
+        <div className="w-full h-full backdrop-blur-2xl flex justify-center items-center">
+          <div  className="w-[70%] h-[90%] overflow-y-scroll scrollbar-hidden bg-gray-900">
+            <ScaleLoader barCount={30} color='white'/>
+          </div>
+        </div>:
+        <div className="w-full h-full flex justify-center items-center backdrop-blur-sm">
         <div ref={modalRef} className="w-[70%] h-[90%] overflow-y-scroll scrollbar-hidden bg-gray-900">
             <article
             className={`bg-gray-900/60 border border-gray-800 rounded-2xl p-4 shadow-sm pt-[20px]`}
@@ -201,17 +235,17 @@ const PreviewInterviewSummary = () => {
 
                     <div className="inline-flex items-center gap-1 px-2 py-1 rounded bg-slate-800 text-slate-300 text-[11px]">
                     <FileText size={12} />
-                    <span>{evaluation?.perQuestion?.length} questions</span>
+                    <span>{newEval?.perQuestion?.length} questions</span>
                     </div>
 
-                    {evaluation?.modelVersion && (
+                    {newEval?.modelVersion && (
                     <div className="inline-flex items-center gap-1 px-2 py-1 rounded bg-slate-800 text-slate-300 text-[11px]">
                         <Tag size={12} />
-                        <span>v{evaluation?.modelVersion}</span>
+                        <span>v{newEval?.modelVersion}</span>
                     </div>
                     )}
 
-                    {evaluation?.reviewerId && (
+                    {newEval?.reviewerId && (
                     <div className="inline-flex items-center gap-1 px-2 py-1 rounded bg-slate-800 text-slate-300 text-[11px]">
                         <User size={12} />
                         <span>Reviewed</span>
@@ -224,7 +258,7 @@ const PreviewInterviewSummary = () => {
                 <Box className="relative flex items-center justify-center w-28 h-28">
                     <CircularProgress
                     variant="determinate"
-                    value={Math.max(0, Math.min(100, Math.round(evaluation?.overallScore)))}
+                    value={Math.max(0, Math.min(100, Math.round(newEval?.overallScore)))}
                     size={112}
                     thickness={6}
                     sx={{ color: '#6366F1' }}
@@ -232,7 +266,7 @@ const PreviewInterviewSummary = () => {
 
                     <div className="absolute text-center -mt-1">
                     <div className="text-xs text-slate-400">Overall</div>
-                    <div className="text-lg font-semibold text-slate-100">{Math.round(evaluation?.overallScore)}%</div>
+                    <div className="text-lg font-semibold text-slate-100">{Math.round(newEval?.overallScore)}%</div>
                     </div>
                 </Box>
                 </div>
@@ -255,10 +289,10 @@ const PreviewInterviewSummary = () => {
                         series={[
                         {
                             data: [
-                            evaluation?.contentAggregate || 0,
-                            evaluation?.commAggregate || 0,
-                            evaluation?.integrityAggregate || 0,
-                            evaluation?.responsivenessAggregate || 0,
+                            newEval?.contentAggregate || 0,
+                            newEval?.commAggregate || 0,
+                            newEval?.integrityAggregate || 0,
+                            newEval?.responsivenessAggregate || 0,
                             ],
                             label: 'Score',
                             color: '#38bdf8', // Tailwind sky-400
@@ -283,7 +317,7 @@ const PreviewInterviewSummary = () => {
                     <h4 className="text-xs text-slate-300 font-medium">Per-question details</h4>
 
                     <div className="mt-2 space-y-2">
-                    {evaluation?.perQuestion.map((q:any) => (
+                    {newEval?.perQuestion.map((q:any) => (
                         <div key={q?.questionIndex} className="rounded-md border border-gray-800 p-2">
                         <div className="flex items-start justify-between gap-3">
                             <div className="flex items-center gap-3">
@@ -349,7 +383,7 @@ const PreviewInterviewSummary = () => {
                         <FileText size={14}  className='self-start mt-1'/>
                         <div className='w-full h-auto'>
                         <div className="text-sm text-slate-200">Summary</div>
-                        <div className="text-xs text-slate-400 mt-1 w-full h-auto">{evaluation?.summaryText || 'No summary available.'}</div>
+                        <div className="text-xs text-slate-400 mt-1 w-full h-auto">{newEval?.summaryText || 'No summary available.'}</div>
                         </div>
                     </div>
                     </div>
@@ -361,8 +395,8 @@ const PreviewInterviewSummary = () => {
                     </Button> */}
 
                     <div className="pt-2 border-t border-gray-800 mt-2 text-xs text-slate-500">
-                        <div>Published: {evaluation?.publishedAt ? new Date(evaluation?.publishedAt).toLocaleString() : '—'}</div>
-                        <div className="mt-1">Flags: {(evaluation?.flags || []).join(', ') || 'None'}</div>
+                        <div>Published: {newEval?.publishedAt ? new Date(newEval?.publishedAt).toLocaleString() : '—'}</div>
+                        <div className="mt-1">Flags: {(newEval?.flags || []).join(', ') || 'None'}</div>
                     </div>
                     </div>
                 </div>
@@ -379,6 +413,7 @@ const PreviewInterviewSummary = () => {
             </article>
         </div>
       </div>
+      }
     </div>
   )
 }

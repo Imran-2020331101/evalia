@@ -7,6 +7,7 @@ import { Didact_Gothic } from 'next/font/google'
 import InterviewAgent from '@/components/workspace/candidates/interviews/on-going/InterviewAgent'
 import {ScaleLoader} from 'react-spinners'
 import { Gauge } from '@mui/x-charts/Gauge';
+import { PhoneOff } from 'lucide-react'
 
 const didact_gothic = Didact_Gothic({ weight: ['400'], subsets: ['latin'] })
 
@@ -14,13 +15,14 @@ const InterviewOngoingPage = () => {
     const [transcript, setTranscript] = useState<{ role: string; text: string }[]>([]);
     const [isStarted , setIsStarted] = useState<boolean>(true)
     const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
-    const [overallPerf, setOverallPerf] =useState<number>(1)
+    const [overallPerf, setOverallPerf] =useState<number>(1);
+    const [vapi, setVapi] = useState<any>(null);
 
 
   return (
     <div className="w-full h-full flex gap-[10px]">
       <section className="h-full flex-6/8 relative rounded-2xl">
-        {isStarted ? <ConsentPage setIsStarted={setIsStarted} /> : <InterviewAgent setOverallPerformance={setOverallPerf}  setIsSpeaking={setIsSpeaking} transcript={transcript} setTranscript={setTranscript}/>}
+        {isStarted ? <ConsentPage setIsStarted={setIsStarted} /> : <InterviewAgent vapi={vapi} setVapi={setVapi} setOverallPerformance={setOverallPerf}  setIsSpeaking={setIsSpeaking} transcript={transcript} setTranscript={setTranscript}/>}
         {/* <MediaHandler/> */}
         
         <div className="absolute w-full h-full flex flex-col p-[10px] pb-2 justify-end">
@@ -45,6 +47,11 @@ const InterviewOngoingPage = () => {
                   {isSpeaking&& <ScaleLoader  color='white' barCount={5} height={25}/>}
                 </div>
               </div>
+            </section>
+            <section className=" w-[120px] h-[100px]  backdrop-blur-xl z-10  self-end flex justify-center items-center rounded-lg group">
+              <button onClick={()=>vapi?.stop()} className=" flex justify-center items-center cursor-pointer w-[70px] h-[70px] rounded-full bg-gray-900 relative">
+                <PhoneOff  className='text-red-500 size-5'/>
+              </button>
             </section>
           </div>
         </div>
