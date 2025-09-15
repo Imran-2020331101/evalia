@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Request, Response } from 'express';
-import resumeService from '../services/resumeService';
+import resumeService, { ResumeAnalysis } from '../services/resumeService';
 import logger from '../utils/logger';
 import Resume, { IResume } from '../models/Resume';
 import { 
@@ -73,9 +73,9 @@ class ResumeController {
     const { resumeURL, userEmail, userId } = ExtractDetailsSchema.parse(req.body);
 
       const extractedData : IExtractedResume  = await ExtractedResume.findOne({userId}).orFail();
-      const analyzedResume = await resumeService.analyzeResume(extractedData.text);
+      const analyzedResume : ResumeAnalysis = await resumeService.analyzeResume(extractedData.text);
 
-      
+     
       const extractedResume = new ResumeDTO(analyzedResume);
       extractedResume.fileLink = resumeURL;
       extractedResume.filename = `resume_${userId}`;
@@ -86,7 +86,7 @@ class ResumeController {
 
       res.status(200).json({
         success : true,
-        data    : extractedResume,
+        data    : extractedResume
       });
   })
 
@@ -95,6 +95,7 @@ class ResumeController {
       resumeData : ResumeDTO , userId: string, userName: string, userEmail: string
     } = req.body;
 
+    console.log("Recieved resume data : ",resumeData);
     resumeData.uploadedBy = userEmail;
 
     if (!resumeData) {
