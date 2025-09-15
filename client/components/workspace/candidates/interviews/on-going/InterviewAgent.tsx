@@ -5,10 +5,11 @@ import Vapi from '@vapi-ai/web';
 import ConfidenceAnalysis from './ConfidenceAnalysis';
 import axios from 'axios';
 import { usePathname } from 'next/navigation';
-import { useAppSelector } from '@/redux/lib/hooks';
+import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks';
 import { user } from '@/redux/features/auth';
 import { useDeepCompareEffect } from '@/custom-hooks/useDeepCompareEffect';
 import { ClipLoader } from 'react-spinners';
+import { setPreviewedInterviewSummaryId } from '@/redux/features/interview';
 
 
 const Questions = [
@@ -26,6 +27,8 @@ const Questions = [
 
 
 interface interviewAgentType{
+  vapi:any,
+  setVapi:React.Dispatch<any>,
   transcript:{ role: string; text: string }[],
   setTranscript:React.Dispatch<React.SetStateAction<{
     role: string;
@@ -37,8 +40,10 @@ setOverallPerformance:React.Dispatch<React.SetStateAction<number>>
 }
 const apiKey : string = process.env.NEXT_PUBLIC_VAPI_KEY || "";
 
-const InterviewAgent = ({setIsSpeaking, transcript, setTranscript, setOverallPerformance}:interviewAgentType) => {
+const InterviewAgent = ({vapi, setVapi,setIsSpeaking, transcript, setTranscript, setOverallPerformance}:interviewAgentType) => {
 
+  const dispatch = useAppDispatch()
+  
   const pathname = usePathname();
   const interviewSplit = pathname.split('/');
   const interviewId = interviewSplit[interviewSplit.length-1];
@@ -46,7 +51,7 @@ const InterviewAgent = ({setIsSpeaking, transcript, setTranscript, setOverallPer
   const currentUser = useAppSelector(user);
 
   const transcriptRef = useRef<{role:string; text:string}[]>([]);
-  const [vapi, setVapi] = useState<any>(null);
+  // const [vapi, setVapi] = useState<any>(null);
   const [isStarted, setIsStarted]=useState<boolean>(false);
   const [isConnected, setIsConnected] = useState(false);
   const [interviewDetails, setInterviewDetails]=useState<any>(null);
@@ -57,13 +62,15 @@ const InterviewAgent = ({setIsSpeaking, transcript, setTranscript, setOverallPer
     try {
       console.log('transcript at call end:', transcriptRef.current);
       const transcriptResponse = await axios.post(`http://localhost:8080/api/interviews/${interviewId}/transcript`,{transcript:transcriptRef.current},{withCredentials:true})
-      const evaluationResponse = await axios.get(`http://localhost:8080/api/interview/${interviewId}/evaluation`,{withCredentials:true})
-      console.log(evaluationResponse.data,'transcriptResponse')
+      // const evaluationResponse = await axios.get(`http://localhost:8080/api/interviews/${interviewId}/evaluation`,{withCredentials:true})
+      setIsEndEvaluation(false);
+      dispatch(setPreviewedInterviewSummaryId(interviewId))
+      console.log(transcriptResponse.data,'transcriptResponse')
     } catch (error:any) {
       console.log(error);
+      setIsEndEvaluation(false);
     }
     finally{
-      setIsEndEvaluation(false);
     }
   }
 
@@ -169,7 +176,7 @@ const InterviewAgent = ({setIsSpeaking, transcript, setTranscript, setOverallPer
           }
         ]
       },
-      maxDurationSeconds: 30000,
+      maxDurationSeconds: 15000,
     }
     try {
     await vapi?.start(assistantOptions);
@@ -210,7 +217,7 @@ const InterviewAgent = ({setIsSpeaking, transcript, setTranscript, setOverallPer
           </div>
         :null
       }
-      {/* <ConfidenceAnalysis isEndEvaluation={isEndEvaluation} setOverallPerformance={setOverallPerformance}/> */}
+      <ConfidenceAnalysis isEndEvaluation={isEndEvaluation} setOverallPerformance={setOverallPerformance}/>
     </div>
   )
 }

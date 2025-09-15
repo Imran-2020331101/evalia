@@ -1,6 +1,9 @@
 'use client'
 
+import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks";
 import CourseCard from "../CourseCard"
+import { useEffect } from "react";
+import { allCourses, getAllCourses } from "@/redux/features/course";
 
 const sampleCourses = [
   {
@@ -46,6 +49,11 @@ const sampleCourses = [
 
 
 const ExploreContainer = () => {
+  const dispatch = useAppDispatch();
+  const currentAllCourses = useAppSelector(allCourses)
+  useEffect(()=>{
+    if(!currentAllCourses?.length) dispatch(getAllCourses());
+  },[currentAllCourses?.length])
   return (
     <div className="w-full h-full flex justify-center items-center py-[20px]">
       <div className="w-[70%] h-full flex flex-col gap-4">
