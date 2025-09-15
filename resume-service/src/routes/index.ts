@@ -1,5 +1,6 @@
 import express, { Router } from 'express';
 import resumeRoutes from './resumeRoutes';
+import courseRoutes from './courseRoutes';
 
 // Type definitions for API responses
 interface HealthCheckResponse {
@@ -30,5 +31,6 @@ router.get("/health", (req, res) => {
 
 // Mount route modules
 router.use("/resume", resumeRoutes);
+router.use("/course", courseRoutes);
 
 export default router;

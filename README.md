@@ -33,16 +33,16 @@ Evalia follows a microservices architecture with clear separation of concerns:
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │   AI Server     │    │ Upskill Engine  │
-│   (Next.js)     │◄──►│   (Node.js)     │◄──►│   (TypeScript)  │
-│   Port: 3000    │    │   Port: 5001    │    │   Port: 7001    │
+│   Frontend      │    │ Resume Service  │    │  Job Service    │
+│   (Next.js)     │◄──►│   (Node.js)     │◄──►│  (TypeScript)   │
+│   Port: 3000    │    │   Port: 5000    │    │   Port: 7000    │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
          │                       │                       │
          ▼                       ▼                       ▼
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Auth Server   │    │ Notification    │    │   External      │
-│  (Spring Boot)  │    │   Service       │    │   Services      │
-│   Port: 8080    │    │   Port: 6000    │    │ (OpenAI, etc.)  │
+│  Auth Gateway   │    │ Notification    │    │ Interview Engine│
+│  (Spring Boot)  │    │   Service       │    │  (TypeScript)   │
+│   Port: 8080    │    │   Port: 6001    │    │   Port: 5000    │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
@@ -51,35 +51,45 @@ Evalia follows a microservices architecture with clear separation of concerns:
 #### Frontend (Client)
 - **Framework**: Next.js 15 with App Router
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS, Material-UI
+- **UI**: React 19, Tailwind CSS 4, Material-UI (MUI)
 - **State Management**: Redux Toolkit
 - **Real-time**: Socket.io Client
-- **Animations**: GSAP
+- **Animations**: GSAP, tw-animate-css
 - **Voice**: Vapi AI Integration
+- **Charts**: MUI X-Charts
+- **Icons**: Lucide React
 
 #### Backend Services
 
-##### AI Server (Node.js)
-- **Runtime**: Node.js with Express
+##### Resume Service (TypeScript)
+- **Runtime**: Node.js with Express + TypeScript
 - **Database**: MongoDB (Resume storage)
 - **Vector DB**: Pinecone (Semantic search)
 - **File Storage**: Cloudinary (PDF management)
-- **AI**: OpenAI GPT models for analysis
+- **AI**: OpenAI/OpenRouter for analysis
+- **Logging**: Winston with structured format
 
-##### Upskill Engine (TypeScript)
+##### Job Service (TypeScript)
 - **Runtime**: Node.js with Express + TypeScript
 - **Purpose**: Job matching and career recommendations
 - **AI**: OpenRouter for resume-job comparison
+- **Features**: Application management, interview questions
 
-##### Auth Server (Spring Boot)
+##### Interview Engine (TypeScript)
+- **Runtime**: Node.js with Express + TypeScript
+- **Real-time**: Socket.IO for video processing
+- **AI Analysis**: Python integration for emotion detection
+- **Purpose**: Interview scheduling and analysis
+
+##### Auth Gateway (Spring Boot)
 - **Framework**: Spring Boot 3.5.3
 - **Language**: Java 17
 - **Authentication**: JWT + OTP verification
 - **Response Format**: Plain text responses
 
-##### Notification Service (Node.js)
+##### Notification Service (TypeScript)
 - **Runtime**: Node.js with Express + TypeScript
-- **Real-time**: Socket.io server
+- **Real-time**: Socket.io server (port 6001)
 - **Message Queue**: RabbitMQ (AMQP)
 - **Database**: MongoDB (Notification persistence)
 
@@ -98,35 +108,50 @@ Create `.env` files in each service directory:
 
 #### Client (`.env.local`)
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:5001
+NEXT_PUBLIC_API_URL=http://localhost:5000
 NEXT_PUBLIC_AUTH_URL=http://localhost:8080
-NEXT_PUBLIC_UPSKILL_URL=http://localhost:7001
-NEXT_PUBLIC_NOTIFICATION_URL=http://localhost:6000
+NEXT_PUBLIC_JOB_SERVICE_URL=http://localhost:7000
+NEXT_PUBLIC_NOTIFICATION_URL=http://localhost:6001
+NEXT_PUBLIC_INTERVIEW_URL=http://localhost:5000
 ```
 
-#### AI Server (`.env`)
+#### Resume Service (`.env`)
 ```env
-PORT=5001
-MONGODB_URI=mongodb://localhost:27017/evalia
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/evalia_ai
 PINECONE_API_KEY=your_pinecone_key
 OPENAI_API_KEY=your_openai_key
+OPENROUTER_API_KEY=your_openrouter_key
 CLOUDINARY_URL=your_cloudinary_url
+LOG_LEVEL=info
+LOG_DIR=./logs
 ```
 
-#### Upskill Engine (`.env`)
+#### Job Service (`.env`)
 ```env
-PORT=7001
+PORT=7000
 MONGODB_URI=mongodb://localhost:27017/evalia
-OPENAI_API_KEY=your_openai_key
-AI_SERVER_URL=http://localhost:5001
+OPEN_ROUTER_API_KEY=your_openrouter_key
+AI_SERVER_URL=http://localhost:5000
+```
+
+#### Interview Engine (`.env`)
+```env
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/evalia
 ```
 
 #### Notification Service (`.env`)
 ```env
-PORT=6000
-MONGODB_URI=mongodb://localhost:27017/evalia
-RABBITMQ_URL=amqp://localhost
+PORT=6001
+MONGO_URI=mongodb://localhost:27017/evalia
+BROKER_URL=amqp://localhost
 JWT_SECRET=your_jwt_secret
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your_email
+SMTP_PASS=your_app_password
+AI_SERVER_URL=http://localhost:5000
 ```
 
 #### Auth Server (`application.properties`)
@@ -153,17 +178,20 @@ npm install
 # Frontend
 cd client && npm install
 
-# AI Server
-cd ../aiServer && npm install
+# Resume Service
+cd ../resume-service && npm install
 
-# Upskill Engine
-cd ../upskill-engine && npm install
+# Job Service
+cd ../job-service && npm install
+
+# Interview Engine
+cd ../interview_engine && npm install
 
 # Notification Service
 cd ../notification-service && npm install
 
-# Auth Server (Maven)
-cd ../server/server && ./mvnw clean install
+# Auth Gateway (Maven)
+cd ../server/auth-gateway && ./mvnw clean install
 ```
 
 3. **Start all services**
@@ -173,56 +201,68 @@ cd ../server/server && ./mvnw clean install
 cd client && npm run dev
 ```
 
-**Terminal 2: AI Server**
+**Terminal 2: Resume Service**
 ```bash
-cd aiServer && npm run dev
+cd resume-service && npm run dev
 ```
 
-**Terminal 3: Upskill Engine**
+**Terminal 3: Job Service**
 ```bash
-cd upskill-engine && npm run dev
+cd job-service && npm run dev
 ```
 
-**Terminal 4: Notification Service**
+**Terminal 4: Interview Engine**
+```bash
+cd interview_engine && npm run dev
+```
+
+**Terminal 5: Notification Service**
 ```bash
 cd notification-service && npm run dev
 ```
 
-**Terminal 5: Auth Server**
+**Terminal 6: Auth Gateway**
 ```bash
-cd server/server && ./mvnw spring-boot:run
+cd server/auth-gateway && ./mvnw spring-boot:run
 ```
 
-4. **Access the application**
+6. **Access the application**
 - Frontend: http://localhost:3000
-- AI Server: http://localhost:5001
-- Upskill Engine: http://localhost:7001
+- Resume Service: http://localhost:5000
+- Job Service: http://localhost:7000
+- Interview Engine: http://localhost:5000
 - Notification Service: http://localhost:6000
-- Auth Server: http://localhost:8080
+- Auth Gateway: http://localhost:8080
 
 ## 📋 API Documentation
 
-### AI Server (Port 5001)
+### Resume Service (Port 5000)
 ```
-GET    /api/health                    # Health check
+GET    /health                        # Health check
 POST   /api/resume/upload             # Upload resume PDF
 GET    /api/resume/:id                # Get resume by ID
-POST   /api/resume/save               # Save resume data
-GET    /api/resume/:id/download       # Download resume PDF
 POST   /api/resume/basic-search       # Search resumes
+GET    /api/courses                   # Get skill development courses
 ```
 
-### Upskill Engine (Port 7001)
+### Job Service (Port 7000)
 ```
-GET    /api/health                    # Health check
 GET    /api/jobs                      # Get all jobs
 POST   /api/jobs                      # Create new job
 GET    /api/jobs/:jobId               # Get job by ID
-GET    /api/jobs/company/:company     # Get jobs by company
-POST   /api/overview                  # Resume vs JD comparison
+POST   /api/jobs/generate/interview-questions  # Generate interview questions
+POST   /api/jobs/:jobId/shortlist     # Shortlist candidates
+GET    /api/jobs/organization/:id     # Get jobs by organization
 ```
 
-### Auth Server (Port 8080)
+### Interview Engine (Port 5000)
+```
+POST   /api/interviews/schedule       # Schedule interview
+PUT    /api/interviews/:id/transcript # Update interview transcript
+WebSocket: Real-time video processing # Video analysis
+```
+
+### Auth Gateway (Port 8080)
 ```
 POST   /api/auth/register             # User registration
 POST   /api/auth/login                # User login
@@ -231,12 +271,11 @@ POST   /api/auth/resend-otp           # Resend OTP
 GET    /api/auth/profile              # Get user profile
 ```
 
-### Notification Service (Port 6000)
+### Notification Service (Port 6001)
 ```
-GET    /api/health                    # Health check
 GET    /api/notifications             # Get user notifications
-POST   /api/notifications/mark-read   # Mark as read
-WebSocket: /socket.io                 # Real-time notifications
+POST   /api/notifications             # Create notification
+WebSocket: /socket.io (Port 6001)     # Real-time notifications
 ```
 
 ## 🗄️ Data Flow
@@ -272,15 +311,18 @@ evalia/
 │   ├── components/      # Reusable components
 │   ├── redux/           # State management
 │   └── types/           # TypeScript definitions
-├── aiServer/            # Resume analysis service
+├── resume-service/      # Resume analysis service
 │   ├── src/
 │   │   ├── controllers/ # Route handlers
 │   │   ├── services/    # Business logic
 │   │   ├── models/      # MongoDB schemas
+│   │   ├── config/      # Configuration
 │   │   └── utils/       # Helper functions
-├── upskill-engine/      # Job matching service
+├── job-service/         # Job matching service
+├── interview_engine/    # Interview analysis service
 ├── notification-service/ # Real-time notifications
-└── server/              # Spring Boot auth
+└── server/
+    └── auth-gateway/    # Spring Boot authentication
 ```
 
 ### Component Architecture
@@ -366,6 +408,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   <p>Made with ❤️ by the Evalia Team</p>
   <p>
     <a href="https://github.com/Imran-2020331101/evalia">⭐ Star us on GitHub</a> |
-    <a href="mailto:support@evalia.com">📧 Contact Support</a>
+    <a href="mailto:evalia.apostrophe@gmail.com">📧 Contact Support</a>
   </p>
 </div>

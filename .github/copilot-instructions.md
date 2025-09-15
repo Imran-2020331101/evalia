@@ -3,21 +3,21 @@
 ## Architecture Overview
 
 Evalia is a comprehensive microservices-based AI platform for interview and recruitment management:
-- **Frontend**: Next.js 15 (React 19, TypeScript, Tailwind CSS, App Router, Redux Toolkit)
+- **Frontend**: Next.js 15 (React 19, TypeScript, Tailwind CSS 4, App Router, Redux Toolkit, Socket.IO Client, Vapi AI Integration)
 - **Resume Service**: Node.js/Express TypeScript (MongoDB, Pinecone vector DB, OpenAI, Cloudinary, Winston logging, Zod validation)
 - **Job Service**: Node.js/Express TypeScript (MongoDB, OpenAI/OpenRouter integration, Zod validation) 
 - **Interview Engine**: Node.js/Express TypeScript (MongoDB, Socket.IO, Python integration for video analysis, Winston logging)
 - **Notification Service**: Node.js/Express TypeScript (MongoDB, Socket.IO, SMTP, RabbitMQ, Winston logging)
-- **Auth Server**: Spring Boot (Java 17, plain text responses, JWT, email verification)
+- **Auth Gateway**: Spring Boot (Java 17, plain text responses, JWT, email verification)
 
 ## Microservices Ports & Integration
 
 ### Service Ports
 - **Client (Next.js)**: http://localhost:3000
-- **Auth Server (Spring Boot)**: http://localhost:8080  
+- **Auth Gateway (Spring Boot)**: http://localhost:8080  
 - **Resume Service (TypeScript)**: http://localhost:5000
-- **Interview Engine (TypeScript)**: http://localhost:4000
-- **Job Service (TypeScript)**: http://localhost:7001 (formerly upskill-engine)
+- **Interview Engine (TypeScript)**: http://localhost:5000
+- **Job Service (TypeScript)**: http://localhost:7000 (formerly upskill-engine)
 - **Notification Service (TypeScript)**: http://localhost:6000
 
 ### Inter-service Communication
@@ -104,7 +104,7 @@ if (contentType?.includes('application/json')) {
 
 ### Resume Service (TypeScript)
 ```bash
-cd resume-service && npm run dev  # ts-node-dev --respawn (PORT 5001)
+cd resume-service && npm run dev  # ts-node-dev --respawn (PORT 5000)
 ```
 
 ### Interview Engine (TypeScript)
@@ -114,7 +114,7 @@ cd interview_engine && npm run dev  # ts-node-dev --respawn (PORT 5000)
 
 ### Job Service (TypeScript)
 ```bash
-cd job-service && npm run dev       # nodemon ts-node (PORT 7001)  
+cd job-service && npm run dev       # nodemon ts-node (PORT 7000)  
 ```
 
 ### Notification Service (TypeScript)
@@ -127,9 +127,9 @@ cd notification-service && npm run dev  # nodemon ts-node (PORT 6001)
 cd client && npm run dev            # Next.js on port 3000
 ```
 
-### Spring Boot Server
+### Spring Boot Auth Gateway
 ```bash
-cd server/server && ./mvnw spring-boot:run  # port 8080
+cd server/auth-gateway && ./mvnw spring-boot:run  # port 8080
 ```
 
 ## Build & Production Commands
@@ -151,8 +151,10 @@ cd notification-service && npm run build && npm start
 
 ### Development Hot Reload
 All TypeScript services use `ts-node-dev` or `nodemon` with TypeScript compilation:
-- Resume Service: `ts-node-dev --respawn --transpile-only`
-- Others: `nodemon --exec ts-node`
+- Resume Service: `ts-node-dev --respawn --transpile-only src/server.ts`
+- Interview Engine: `ts-node-dev --respawn --transpile-only src/server.ts`
+- Job Service: `nodemon --exec ts-node index.ts`
+- Notification Service: `nodemon --exec ts-node ./src/server.ts`
 
 ## Environment Dependencies
 
@@ -166,7 +168,7 @@ All TypeScript services use `ts-node-dev` or `nodemon` with TypeScript compilati
 - `MAX_FILE_SIZE` - File upload limits
 - `CORS_ORIGINS` - Frontend URLs
 - `LOG_LEVEL`, `LOG_DIR` - Enhanced logging configuration
-- `PORT` - Default 5001
+- `PORT` - Default 5000
 
 **Interview Engine (TypeScript)**:
 - `MONGODB_URI` - Interview data storage
@@ -176,7 +178,7 @@ All TypeScript services use `ts-node-dev` or `nodemon` with TypeScript compilati
 - `MONGODB_URI` - Job postings storage
 - `OPEN_ROUTER_API_KEY` - AI analysis
 - `AI_SERVER_URL` - Resume service integration
-- `PORT` - Default 7001
+- `PORT` - Default 7000
 
 **Notification Service (TypeScript)**:
 - `MONGODB_URI` - Notifications storage
@@ -275,27 +277,35 @@ All TypeScript services use `ts-node-dev` or `nodemon` with TypeScript compilati
 
 ## Key Endpoints Summary
 
-### Resume Service (5001)
-- Health: `GET /health`
+### Resume Service (5000)
+- Health: `GET /health` 
 - Resume: `POST /api/resume/upload`, `GET /api/resume/:id`, `POST /api/resume/basic-search`
+- Courses: `GET /api/courses` for skill development recommendations
 - Vector Search: Advanced Pinecone integration with industry-specific namespaces
 
-### Job Service (7001)  
+### Job Service (7000)  
 - Jobs: `GET/POST /api/jobs`, `GET /api/jobs/:jobId`
-- Overview: `POST /api/overview` (resume vs job comparison)
+- Applications: Job application management and candidate shortlisting
+- Interview Questions: `POST /api/jobs/generate/interview-questions`
+- Compatibility: Resume-job compatibility analysis
 
 ### Interview Engine (5000)
 - Interviews: `POST /api/interviews/schedule`, `PUT /api/interviews/:id/transcript`
 - WebSocket: Real-time video processing with Python worker integration
+- AI Analysis: Emotion and engagement detection during interviews
 
 ### Notification Service (6001)
 - Notifications: `GET/POST /api/notifications`  
-- WebSocket: Real-time notification delivery
+- WebSocket: Real-time notification delivery on port 6001
 - Email: SMTP integration with RabbitMQ queuing
 
 ### Client Integration Notes
 - Environment variables use `NEXT_PUBLIC_` prefix for client-side access
 - API routes handle service communication and response formatting
-- Redux for state management across components
+- Redux Toolkit for state management across components
 - React 19 with modern hooks and concurrent features
+- Socket.IO client for real-time communication
+- Vapi AI integration for voice/interview features
+- Material-UI (MUI) components and charts integration
+- Tailwind CSS 4 with enhanced animation support
 - Enhanced TypeScript integration across all services

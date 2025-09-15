@@ -100,6 +100,7 @@ public class ResumeController {
     @PostMapping("/save")
     public ResponseEntity<String> saveResume(@RequestBody ResumeDataRequest resumeData, Principal principal) {
         userEntity user = (userEntity) userDetailsService.loadUserByUsername(principal.getName());
+        logger.info("Received resume request with resume data: " + resumeData.toString());
         ResponseEntity<String> response = resumeJsonProxy.saveResume(new ResumeForwardWrapper(
                 resumeData,
                 null,
@@ -107,7 +108,7 @@ public class ResumeController {
                 user.getDisplayName(),
                 principal.getName()
         ));
-
+        logger.info("Response from saveResume: " + response.getBody());
         return ResponseEntity.status(response.getStatusCode())
                 .body(response.getBody());
     }
