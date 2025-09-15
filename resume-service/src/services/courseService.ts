@@ -1,4 +1,4 @@
-import { Course, ICourse, IThumbnails, SearchResult } from "../models/CourseSchema";
+import { ICourse, SearchResult } from "../models/SavedCourseSchema";
 import axios from "axios";
 
 class CourseService{
@@ -8,7 +8,7 @@ class CourseService{
         const response = await axios.get( "https://www.googleapis.com/youtube/v3/search",{
             params: {
                 part: "snippet",
-                query,
+                q: query,
                 type: "video",
                 maxResults,
                 key: process.env.YT_API_KEY,

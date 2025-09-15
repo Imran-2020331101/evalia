@@ -16,4 +16,7 @@ public interface CourseProxy {
     ResponseEntity<String> saveCourse(@PathVariable("candidateId") String candidateId,
                                       @RequestBody CourseDTO courseDTO);
 
+    @GetMapping("/candidate/{candidateId}/saved/all")
+    ResponseEntity<String> getAllSavedCourse(@PathVariable("candidateId") String candidateId);
+
 }
