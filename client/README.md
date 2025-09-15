@@ -8,12 +8,13 @@ A modern, AI-powered resume analysis and recruitment platform built with Next.js
 
 The Evalia Client is a **Next.js 15 App Router** application following modern React patterns:
 
-- **Framework**: Next.js 15 with TypeScript and App Router
+- **Framework**: Next.js 15.3.5 with TypeScript 5 and App Router
 - **Styling**: Tailwind CSS 4 with custom utilities and animations
 - **State Management**: Redux Toolkit with TypeScript support
 - **Real-time Features**: Socket.IO client for notifications and live updates
 - **Authentication**: Cookie-based JWT authentication with Spring Boot backend
 - **API Communication**: Axios and native fetch with proper error handling
+- **AI Integration**: Vapi AI for voice interviews, OpenRouter for AI analysis
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -71,8 +72,8 @@ The Evalia Client is a **Next.js 15 App Router** application following modern Re
 ## 🛠 Technology Stack
 
 ### **Frontend Framework**
-- **Next.js 15** - Latest React framework with App Router
-- **React 19** - Latest React with concurrent features
+- **Next.js 15.3.5** - Latest React framework with App Router
+- **React 19.0.0** - Latest React with concurrent features
 - **TypeScript 5** - Type-safe development
 - **App Router** - Modern file-based routing system
 
@@ -90,9 +91,14 @@ The Evalia Client is a **Next.js 15 App Router** application following modern Re
 - **Socket.IO Client** - Real-time WebSocket communication
 
 ### **Form Handling & Validation**
-- **Zod** - Schema validation library
-- **React Hook Form** (implied) - Form state management
+- **Zod 3.25.67** - Schema validation library
 - **Class Variance Authority** - Component variant handling
+- **Sonner** - Toast notifications system
+
+### **AI & Advanced Features**
+- **@vapi-ai/web 2.3.8** - Voice AI integration
+- **GSAP 3.13.0** - Professional animations
+- **@mui/x-charts 8.10.0** - Data visualization charts
 
 ### **Development Tools**
 - **ESLint** - Code linting and quality
@@ -209,10 +215,10 @@ The client integrates with multiple backend services:
 | Service | Port | Purpose | Integration |
 |---------|------|---------|-------------|
 | **Spring Boot Auth** | 8080 | Authentication & User Management | Cookie-based JWT |
-| **AI Server** | 5001 | Resume Analysis & Vector Search | RESTful APIs |
-| **Notification Service** | 6001 | Real-time Notifications | Socket.IO |
+| **Resume Service** | 5000 | Resume Analysis & Vector Search | RESTful APIs |
+| **Notification Service** | 6000 | Real-time Notifications | Socket.IO |
 | **Interview Engine** | 5000 | Video Analysis & Metrics | WebSocket |
-| **Upskill Engine** | 7001 | Learning & Development | HTTP APIs |
+| **Job Service** | 7000 | Job Management & Learning | HTTP APIs |
 
 ### **API Routes Structure**
 
@@ -301,7 +307,7 @@ useGSAP(() => {
 
 ```typescript
 // NotificationListener component
-const socket = io('http://localhost:6001', { 
+const socket = io('http://localhost:6000', { 
   query: { userId },
   withCredentials: true,
   auth: { token } // JWT from cookies
@@ -377,6 +383,54 @@ socket.on('metrics', (behaviorMetrics) => {
 
 ---
 
+## 🤖 AI Integration Patterns
+
+### **Vapi AI Voice Integration**
+```typescript
+// Voice interview integration with real-time speech processing
+import { useVapi } from '@vapi-ai/web';
+
+const { start, stop, isLoading } = useVapi({
+  publicKey: process.env.NEXT_PUBLIC_VAPI_KEY,
+  assistant: { voice: 'bengali-friendly-ai' }
+});
+```
+
+### **Resume Intelligence with Vector Search**
+```typescript
+// AI-powered resume search with Pinecone integration
+const searchResults = await fetch('/api/resume/advanced-search', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    query: searchTerm,
+    filters: { skills, experience, education },
+    weights: { skills: 0.4, experience: 0.3, education: 0.3 }
+  })
+});
+```
+
+### **Real-time Notifications**
+```typescript
+// Multi-service notification system
+const NotificationListener = () => {
+  useEffect(() => {
+    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
+      query: { userId: user?.id },
+      withCredentials: true
+    });
+    
+    socket.on('job-match', handleJobMatch);
+    socket.on('interview-reminder', handleInterviewReminder);
+    socket.on('application-update', handleApplicationUpdate);
+    
+    return () => socket.disconnect();
+  }, [user]);
+};
+```
+
+---
+
 ## 🔧 Development Guidelines
 
 ### **Code Style**
@@ -412,10 +466,11 @@ import SearchBar from '@/components/resume/SearchBar'
 
 ```bash
 # .env.local (development)
-NEXT_PUBLIC_API_URL=http://localhost:5001
+NEXT_PUBLIC_API_URL=http://localhost:5000
 NEXT_PUBLIC_AUTH_URL=http://localhost:8080
-NEXT_PUBLIC_SOCKET_URL=http://localhost:6001
+NEXT_PUBLIC_SOCKET_URL=http://localhost:6000
 NEXT_PUBLIC_INTERVIEW_URL=http://localhost:5000
+NEXT_PUBLIC_JOB_SERVICE_URL=http://localhost:7000
 
 # Production URLs (when deployed)
 NEXT_PUBLIC_API_URL=https://api.evalia.com
@@ -516,7 +571,7 @@ npm run type-check
    ```
 
 2. **Socket Connection Issues**
-   - Check notification service is running on port 6001
+   - Check notification service is running on port 6000
    - Verify CORS settings in backend services
 
 3. **Authentication Problems**

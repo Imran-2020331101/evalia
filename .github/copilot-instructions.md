@@ -3,11 +3,11 @@
 ## Architecture Overview
 
 Evalia is a comprehensive microservices-based AI platform for interview and recruitment management:
-- **Frontend**: Next.js 15 (React 19, TypeScript, Tailwind CSS 4, App Router, Redux Toolkit, Socket.IO Client, Vapi AI Integration)
-- **Resume Service**: Node.js/Express TypeScript (MongoDB, Pinecone vector DB, OpenAI, Cloudinary, Winston logging, Zod validation)
-- **Job Service**: Node.js/Express TypeScript (MongoDB, OpenAI/OpenRouter integration, Zod validation) 
-- **Interview Engine**: Node.js/Express TypeScript (MongoDB, Socket.IO, Python integration for video analysis, Winston logging)
-- **Notification Service**: Node.js/Express TypeScript (MongoDB, Socket.IO, SMTP, RabbitMQ, Winston logging)
+- **Frontend**: Next.js 15.3.5 (React 19, TypeScript 5, Tailwind CSS 4, App Router, Redux Toolkit, Socket.IO Client, Vapi AI Integration)
+- **Resume Service**: Node.js/Express TypeScript 5 (MongoDB, Pinecone vector DB, OpenAI/OpenRouter, Cloudinary, Winston logging, Zod validation)
+- **Job Service**: Node.js/Express TypeScript 5 (MongoDB, OpenAI/OpenRouter integration, Zod validation) 
+- **Interview Engine**: Node.js/Express TypeScript 5 (MongoDB, Socket.IO, Python integration for video analysis, Winston logging)
+- **Notification Service**: Node.js/Express TypeScript 5 (MongoDB, Socket.IO, SMTP, RabbitMQ, Winston logging)
 - **Auth Gateway**: Spring Boot (Java 17, plain text responses, JWT, email verification)
 
 ## Microservices Ports & Integration
@@ -16,7 +16,7 @@ Evalia is a comprehensive microservices-based AI platform for interview and recr
 - **Client (Next.js)**: http://localhost:3000
 - **Auth Gateway (Spring Boot)**: http://localhost:8080  
 - **Resume Service (TypeScript)**: http://localhost:5000
-- **Interview Engine (TypeScript)**: http://localhost:5000
+- **Interview Engine (TypeScript)**: http://localhost:4000
 - **Job Service (TypeScript)**: http://localhost:7000 (formerly upskill-engine)
 - **Notification Service (TypeScript)**: http://localhost:6000
 
@@ -25,6 +25,15 @@ Evalia is a comprehensive microservices-based AI platform for interview and recr
 - **Interview Engine** ↔ **Job Service**: Fetches job details for interview scheduling
 - **Notification Service** ↔ All services: Real-time notifications and email alerts
 - **Client** ↔ All services: API integration through Next.js API routes
+
+### Service Integration URLs
+```typescript
+// Environment variables for service communication
+AI_SERVER_URL=http://localhost:5000         // Resume Service
+UPSKILL_ENGINE_URL=http://localhost:7000    // Job Service
+NOTIFICATION_URL=http://localhost:6000      // Notification Service
+AUTH_URL=http://localhost:8080              // Spring Boot Auth Gateway
+```
 
 ## Key Data Flow Patterns
 
@@ -119,7 +128,7 @@ cd job-service && npm run dev       # nodemon ts-node (PORT 7000)
 
 ### Notification Service (TypeScript)
 ```bash
-cd notification-service && npm run dev  # nodemon ts-node (PORT 6001)
+cd notification-service && npm run dev  # nodemon ts-node (PORT 6000)
 ```
 
 ### Client  
@@ -185,7 +194,7 @@ All TypeScript services use `ts-node-dev` or `nodemon` with TypeScript compilati
 - `SMTP_*` - Email configuration
 - `BROKER_URL` - RabbitMQ for message queuing
 - `AI_SERVER_URL`, `UPSKILL_ENGINE_URL` - Service integration
-- `PORT` - Default 6001
+- `PORT` - Default 6000
 
 ## Socket.IO & Real-time Features
 
@@ -294,9 +303,9 @@ All TypeScript services use `ts-node-dev` or `nodemon` with TypeScript compilati
 - WebSocket: Real-time video processing with Python worker integration
 - AI Analysis: Emotion and engagement detection during interviews
 
-### Notification Service (6001)
+### Notification Service (6000)
 - Notifications: `GET/POST /api/notifications`  
-- WebSocket: Real-time notification delivery on port 6001
+- WebSocket: Real-time notification delivery on port 6000
 - Email: SMTP integration with RabbitMQ queuing
 
 ### Client Integration Notes
@@ -309,3 +318,74 @@ All TypeScript services use `ts-node-dev` or `nodemon` with TypeScript compilati
 - Material-UI (MUI) components and charts integration
 - Tailwind CSS 4 with enhanced animation support
 - Enhanced TypeScript integration across all services
+
+## Modern AI Integration Patterns
+
+### OpenRouter API Integration
+```typescript
+// Consistent OpenRouter usage across services
+const openRouterConfig = {
+  baseURL: 'https://openrouter.ai/api/v1',
+  headers: { 'Authorization': `Bearer ${OPENROUTER_API_KEY}` }
+};
+// Used in Resume Service for content analysis and Job Service for compatibility scoring
+```
+
+### Vapi AI Voice Integration (Client)
+```typescript
+// Voice interview integration with real-time speech processing
+import { useVapi } from '@vapi-ai/web';
+const { start, stop, isLoading } = useVapi({
+  publicKey: process.env.NEXT_PUBLIC_VAPI_KEY,
+  assistant: { voice: 'bengali-friendly-ai' }
+});
+```
+
+### Pinecone Vector Database Patterns
+```typescript
+// Industry-based namespace structure for semantic search
+const namespaces = [
+  'STEM & Technical', 'Business, Finance & Administration', 
+  'Healthcare & Life Sciences', 'Creative & Media'
+];
+// Record format: {email}_skills, {email}_education, {email}_projects, {email}_experience
+// Access pattern: response.result.hits[].fields.candidate_email (NOT response.records[])
+```
+
+## Critical TypeScript Development Patterns
+
+### Zod Validation Pattern (All TypeScript Services)
+```typescript
+// Consistent validation across Resume, Job, Interview, and Notification services
+import { z } from 'zod';
+const RequestSchema = z.object({
+  email: z.string().email(),
+  data: z.record(z.unknown())
+});
+const validation = RequestSchema.safeParse(req.body);
+if (!validation.success) {
+  throw new BadRequestError(`Validation failed: ${validation.error.issues.map(i => i.message).join(', ')}`);
+}
+```
+
+### Async Error Handling (Modern TypeScript Services)
+```typescript
+// Centralized error wrapper - no try-catch needed in controllers
+import { asyncHandler } from '../utils/asyncHandler';
+export const controller = asyncHandler(async (req: Request, res: Response) => {
+  // Business logic - errors automatically caught and handled
+  const result = await serviceMethod(req.body);
+  res.json({ success: true, data: result });
+});
+```
+
+### Winston Logging Pattern (Enhanced Services)
+```typescript
+// Structured logging with metadata across all TypeScript services
+import { logger } from '../utils/logger';
+logger.info('Resume processing started', {
+  userId: req.user?.id,
+  fileName: file.originalname,
+  correlationId: req.headers['x-correlation-id']
+});
+```
