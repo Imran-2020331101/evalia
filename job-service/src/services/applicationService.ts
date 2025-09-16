@@ -11,6 +11,7 @@ enum ApplicationStatus {
   Pending = 'PENDING',
   Shortlisted = 'SHORTLISTED',
   Rejected = 'REJECTED',
+  Accepted = 'ACCEPTED',
 }
 import { JobDetailsModel, IJobDetailsDocument } from '../models/JobDetails';
 import { sendNotification } from '../utils/notify';
@@ -109,6 +110,31 @@ class ApplicationService{
 
     return job;
   }
+
+  async finalizeCandidate(jobId: string, candidates : Array<CandidateInfo>): Promise<IJobDetailsDocument | null> {
+    
+    const candidateIds = candidates.map(candidate => candidate.candidateId);
+    
+    const job = await JobDetailsModel.findOneAndUpdate(
+      { 
+        _id: jobId, 
+        "applications.candidateId": { $in: candidateIds } 
+      },
+      { 
+        $set: { 
+          "applications.$[elem].status": ApplicationStatus.Accepted,
+        } 
+      },
+      { 
+        new: true,
+        arrayFilters: [{ "elem.candidateId": { $in: candidateIds } }]
+      }
+    ).orFail();
+
+    this.sendFinalistNotification(candidates,jobId);
+
+    return job;
+  }
   
   async sendInterviewInvitation(candidates: CandidateInfo[], jobId: string): Promise<void> {
 
@@ -147,6 +173,31 @@ class ApplicationService{
         deadline         : interview.deadline,
         guideLink        : 'https://github.com/Imran-2020331101',
         interviewLink : `${process.env.FRONTEND_URL}/workspace/interviews/on-going/${interview.interviewId}`,
+      };
+      console.log(notification);
+
+      sendNotification(notification, "email-notification");
+    }
+  }
+
+
+  async sendFinalistNotification(candidates: CandidateInfo[], jobId: string): Promise<void> {
+    
+    const job = await JobDetailsModel.findById(jobId).orFail();
+
+    for (const candidate of candidates) {
+      
+      //sending email to the candidate
+      const notification  = {
+        type             : EventTypes.JOB_APPLICATION_ACCEPTED,
+        candidateId      : candidate.candidateId,
+        candidateName    : candidate.candidateName,
+        candidateEmail   : candidate.candidateEmail,
+        jobTitle         : job.title,
+        OrganizationId   : job.company.OrganizationId,
+        OrganizationName : job.company.OrganizationName || " No name Found ",
+        OrganizationEmail: job.company.OrganizationEmail,
+        guideLink        : 'https://github.com/Imran-2020331101',
       };
       console.log(notification);
 

@@ -120,7 +120,7 @@ export default function SupportContainer() {
                   <div>
                     <div className="text-xs text-slate-500">Email</div>
                     <div className="text-sm text-slate-500">
-                      <a href="mailto:support@evallia.com" className="underline">support@evallia.com</a>
+                      <a href="mailto:evalia.apostrophe@gmail.com" className="underline">evalia.apostrophe@gmail.com</a>
                     </div>
                   </div>
                 </li>
@@ -137,7 +137,7 @@ export default function SupportContainer() {
                   <Phone size={18} className="mt-1 text-slate-200" />
                   <div>
                     <div className="text-xs text-slate-500">Phone</div>
-                    <div className="text-sm text-slate-500">+880-1234-567890</div>
+                    <div className="text-sm text-slate-500">+880-1567893310</div>
                   </div>
                 </li>
               </ul>

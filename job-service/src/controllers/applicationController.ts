@@ -96,7 +96,6 @@ export class ApplicationController{
     const { candidates } = ShortlistRequest.parse(req.body);
     const { jobId } = req.params;
 
-    console.log(candidates);
     logger.info(jobId);
 
     const result = await applicationService.shortlistCandidate(jobId, candidates);
@@ -106,6 +105,20 @@ export class ApplicationController{
       data   : result
     });
   });
+
+  finalizeCandidates = asyncHandler(async (req: Request , res: Response): Promise<void> =>{
+    const { candidates } = ShortlistRequest.parse(req.body);
+    const { jobId } = req.params;
+
+    logger.info(jobId);
+
+    const result = await applicationService.finalizeCandidate(jobId, candidates);
+
+    res.status(200).json({
+      success: true,
+      data   : result
+    });
+  })
 
   
 

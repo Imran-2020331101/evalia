@@ -53,6 +53,10 @@ public interface JobProxy {
     ResponseEntity<String> shortlistCandidatesOfAJob     (@PathVariable("jobId") String jobId,
                                                           @RequestBody ShortlistForwardWrapper shortlistForwardWrapper);
 
+    @PostMapping   (value = "/{jobId}/finalist", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> finalistCandidatesOfAJob     (@PathVariable("jobId") String jobId,
+                                                          @RequestBody ShortlistForwardWrapper shortlistForwardWrapper);
+
     @GetMapping(value = "/{jobId}/interview-questions")
     ResponseEntity<String> getInterviewQuestionsOfAJob(@PathVariable("jobId") String jobId);
 
