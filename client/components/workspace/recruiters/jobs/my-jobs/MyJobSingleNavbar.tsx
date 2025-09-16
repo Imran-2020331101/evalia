@@ -1,5 +1,6 @@
 'use client'
 
+import ProgressLink from "@/components/utils/ProgressLink"
 import Link from "next/link"
 import { useParams , usePathname} from "next/navigation"
 import { useEffect } from "react"
@@ -13,17 +14,17 @@ const MyJobSingleNavbar = () => {
   useEffect(()=>console.log(pathList,'pathlist'))
   return (
       <div className="w-full h-full flex justify-start pl-[20px] items-center gap-[10px]">
-        <Link prefetch href={`/workspace/jobs/${pathList[2]}/my-jobs/${pathList[4]}/applicants`} className={`px-1 py-1  cursor-pointer  hover:text-blue-400 transition-colors duration-300 ${currentRoute==='applicants'?'text-blue-400':'text-white '}`}>
+        <ProgressLink prefetch href={`/workspace/jobs/${pathList[2]}/my-jobs/${pathList[4]}/applicants`} className={`px-1 py-1  cursor-pointer  hover:text-blue-400 transition-colors duration-300 ${currentRoute==='applicants'?'text-blue-400':'text-white '}`}>
           <p className="text-[12px] font-semibold tracking-wider ">Applicants</p>
-        </Link>
+        </ProgressLink>
         <div className="h-[30%] w-[1px] bg-gray-200"></div>
-        <Link prefetch href={`/workspace/jobs/${pathList[2]}/my-jobs/${pathList[4]}/shortlist`}className={`px-1 py-1 cursor-pointer  hover:text-blue-400 transition-colors duration-300 ${currentRoute==='shortlist'?'text-blue-400 ':'text-white '}`}>
+        <ProgressLink prefetch href={`/workspace/jobs/${pathList[2]}/my-jobs/${pathList[4]}/shortlist`}className={`px-1 py-1 cursor-pointer  hover:text-blue-400 transition-colors duration-300 ${currentRoute==='shortlist'?'text-blue-400 ':'text-white '}`}>
           <p className="text-[12px] font-semibold tracking-wider ">Shortlist</p>
-        </Link>
+        </ProgressLink>
         <div className="h-[30%] w-[1px] bg-gray-200"></div>
-        <Link prefetch href={`/workspace/jobs/${pathList[2]}/my-jobs/${pathList[4]}/finalist`} className={`px-1 py-1   cursor-pointer hover:text-blue-400 transition-colors duration-300 ${currentRoute==='finalist'?'text-blue-400 ':'text-white'}`}>
+        <ProgressLink prefetch href={`/workspace/jobs/${pathList[2]}/my-jobs/${pathList[4]}/finalist`} className={`px-1 py-1   cursor-pointer hover:text-blue-400 transition-colors duration-300 ${currentRoute==='finalist'?'text-blue-400 ':'text-white'}`}>
           <p className="text-[12px] font-semibold tracking-wider ">Finalist</p>
-        </Link>
+        </ProgressLink>
       </div>
   )
 }

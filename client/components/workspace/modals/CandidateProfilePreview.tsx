@@ -3,7 +3,7 @@
 import Image from "next/image"
 import axios from "axios"
 import bg from '../../../public/gradient_bg.jpg'
-import {  Mail, MapPin, SlidersVertical, X } from "lucide-react"
+import {  Mail, MapPin, Menu, SlidersVertical, User, X } from "lucide-react"
 
 import linkedIn from '../../../public/linkedin.svg'
 import github from '../../../public/github.svg'
@@ -48,7 +48,6 @@ const CandidateProfilePreview = () => {
             ) {
                 setIsShowModal(false);
                 setCompatibilityReport(null);
-                console.log('test click')
                 dispatch(setPreviewedCandidate(null));
             }
         };
@@ -71,9 +70,21 @@ const CandidateProfilePreview = () => {
                     <Image width={500} height={800} className="w-full h-full object-cover rounded-md" src={bg} alt=''/>
                 </div>
                 <div className="absolute top-0 left-0 w-full h-full bg-gray-900/90 flex flex-col justify-start items-center pt-[15%] gap-2">
-                    <div className="w-[150px] h-[150px] rounded-full bg-slate-900">
+                    <div className="w-[150px] h-[150px] flex justify-center items-center rounded-full bg-slate-900">
                        {
-                        candidate?  <Image width={150} height={150} className="w-full h-full object-cover rounded-full" src={candidate?.profilePictureUrl || ''} alt=""/>:null
+                        candidate?  
+                        candidate?.profilePictureUrl ? (
+                            <Image
+                            width={200}
+                            height={200}
+                            alt="profile pic"
+                            src={candidate?.profilePictureUrl}
+                            className="w-full h-full object-cover rounded-full"
+                            />
+                        ) : (
+                            <User className="text-gray-300 w-10 h-10" />
+                        )
+                        :null
                        }
                     </div>
                     <p className="text-lg font-semibold tracking-widest scale-120 mt-2">{candidate?.name||''}</p>
@@ -104,7 +115,7 @@ const CandidateProfilePreview = () => {
             <section className='w-1/2 h-full shrink-0 bg-slate-900 border-l-[1px] border-slate-700 relative flex flex-col'>
                 <section className="absolute top-2 right-2 z-10">
                     <button onClick={()=>setIsShowModal((prev)=>!prev)} className="cursor-pointer text-gray-200 hover:text-white ">
-                        <SlidersVertical size={20} />
+                        <Menu size={20} />
                     </button>
                 </section>
                 <CandidatesResumePanel resumeData={resumeData} isScroll={true}/>

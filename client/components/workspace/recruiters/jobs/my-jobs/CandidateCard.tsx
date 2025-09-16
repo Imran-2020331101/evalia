@@ -3,6 +3,7 @@ import { markAsShortListed, markShortlistedStatus, recruitersSelectedJob } from 
 import { setCompatibilityReviewId, setPreviewedCandidate } from "@/redux/features/utils"
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
 import axios from "axios"
+import { User } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { ClipLoader } from "react-spinners"
@@ -63,9 +64,22 @@ const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candi
         {
             applicantStatus==='PENDING' && <input checked={isChecked} onChange={handleSelectChange} type="checkbox" className="self-start mt-2 size-3" />
         }
-        <button onClick={handleViewProfile} className="w-[40px] h-[40px] rounded-full ">
-            <Image width={40} height={40} alt="profile pic" src={applicant?.user?.profilePictureUrl} className="w-full h-full object-cover rounded-full"/>
-        </button>
+        {
+            applicantStatus==='SHORTLISTED' && <input checked={isChecked} onChange={handleSelectChange} type="checkbox" className="self-start mt-2 size-3" />
+        }
+        <div className="w-[40px] h-[40px]  rounded-full overflow-hidden bg-gray-700 flex items-center justify-center">
+            {applicant?.user?.profilePictureUrl ? (
+                <Image
+                width={40}
+                height={40}
+                alt="profile pic"
+                src={applicant?.user?.profilePictureUrl}
+                className="w-full h-full object-cover"
+                />
+            ) : (
+                <User className="text-gray-300 w-6 h-6" />
+            )}
+        </div>
         <button onClick={handleViewProfile} className="flex-1 h-[40px] flex flex-col items-start gap-1">
             <p className='font-semibold'>{applicant?.user?.name||''}</p>
             <div className="w-full flex-1 flex justify-start items-center gap-2 text-[11px] ">

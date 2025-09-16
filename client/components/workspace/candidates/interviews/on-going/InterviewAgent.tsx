@@ -168,6 +168,7 @@ const InterviewAgent = ({vapi, setVapi,setIsSpeaking, transcript, setTranscript,
               "ঠিক আছে, পরবর্তীতে.." অথবা "এখন একটা জটিল কিছু চেষ্টা করে দেখা যাক!" এর মতো সাধারণ বাক্যাংশ ব্যবহার করতে পারেন। ধারাবাহিকভাবে সকল প্রশ্ন করুন, সাক্ষাৎকারটি সুচারুভাবে শেষ করুন। উদাহরণস্বরূপ: "দারুন ছিল! আপনি কিছু কঠিন প্রশ্ন ভালোভাবে পরিচালনা করেছেন।
                আপনার দক্ষতা আরও তীক্ষ্ণ করে চলুন!" শেষটা একটা ইতিবাচক সুরে, যেমনঃ "আড্ডার জন্য ধন্যবাদ! আশা করি আপনি প্রকল্পগুলো সফলভাবে সম্পন্ন করবেন!"
                মূল নির্দেশিকা:
+              -সকল প্রশ্ন শেষ না হওয়া অবধি কথোপকথন চালিয়ে যান, অহেতুক কল শেষ করবেন না;
               -বন্ধুত্বপূর্ণ, আকর্ষণীয় এবং মজাদার হোন
               -প্রতিক্রিয়াগুলিকে বাস্তব কথোপকথনের মতো সংক্ষিপ্ত এবং স্বাভাবিক রাখুন
               -প্রার্থীর আত্মবিশ্বাসের স্তরের উপর ভিত্তি করে মানিয়ে নিন
@@ -176,10 +177,13 @@ const InterviewAgent = ({vapi, setVapi,setIsSpeaking, transcript, setTranscript,
           }
         ]
       },
-      maxDurationSeconds: 15000,
+      maxDurationSeconds: 600,
     }
     try {
-    await vapi?.start(assistantOptions);
+      // const newSessionResponse = await axios.post('http://localhost:3010/api/vapi-token',{
+      //   assistant:assistantOptions
+      // })
+      await vapi?.start(assistantOptions);
   } catch (err) {
     console.error("Failed to start interview:", err);
   }
