@@ -11,8 +11,8 @@ const router = Router();
 router.get("/:userId", notificationController.fetchNotificationsOfAUser.bind(notificationController) );
 
 router.put("/:notificationId/read", notificationController.readNotification.bind(notificationController));
-
 router.put("/:userId/read-all", notificationController.readAllNotification.bind(notificationController));
+router.delete("/:notificationId", notificationController.deleteNotification.bind(notificationController));
 
 // New endpoint for batch rejection feedback
 router.post("/batch-rejection-feedback", async (req, res) => {
@@ -81,38 +81,6 @@ router.post("/batch-rejection-feedback", async (req, res) => {
   }
 });
 
-// Alternative direct endpoint (bypassing event system)
-router.post("/batch-rejection-feedback/direct", async (req, res) => {
-  try {
-    const batchRequest = req.body;
 
-    // Validate required fields
-    if (!batchRequest.jobId || !batchRequest.jobTitle || !batchRequest.companyName || 
-        !batchRequest.shortlistedCandidates || !batchRequest.allApplicants || !batchRequest.recruiterId) {
-      return res.status(400).json({
-        error: "Missing required fields"
-      });
-    }
-
-    logger.info(`Direct batch rejection request for job: ${batchRequest.jobId}`);
-
-    // const result = await batchFeedbackService.processBatchRejectionFeedback(batchRequest);
-
-    res.json({
-      // success: result.success,
-      // processed: result.processed,
-      // failed: result.failed,
-      // details: result.details,
-      // message: `Batch processing completed: ${result.processed} successful, ${result.failed} failed`
-    });
-
-  } catch (error) {
-    logger.error("Direct batch rejection feedback error:", error);
-    res.status(500).json({
-      error: "Internal server error",
-      message: error instanceof Error ? error.message : "Unknown error"
-    });
-  }
-});
 
 export default router;

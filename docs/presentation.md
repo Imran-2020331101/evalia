@@ -167,12 +167,283 @@ Thank you for your time today. I'm excited to answer any questions you might hav
 - **Energy:** Build excitement gradually, peak during demo and future vision sections
 - **Conclusion:** End with confidence and clear next steps
 
+---
+
+## The Technology Behind Evalia: How It Actually Works
+
+Now, let me take you under the hood and show you the sophisticated technology that makes all of this possible. For those of you who are technically inclined, this is where Evalia truly shines.
+
+### Microservices Architecture Overview
+
+Evalia isn't built as a monolithic application – it's a carefully orchestrated ecosystem of specialized microservices, each designed to excel at specific tasks.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    EVALIA ECOSYSTEM                         │
+├─────────────────────────────────────────────────────────────┤
+│  Frontend (Next.js 15 + React 19)  │  Port: 3000           │
+├─────────────────────────────────────┼─────────────────────────┤
+│  Auth Gateway (Spring Boot)        │  Port: 8080           │
+│  Resume Service (Node.js/TS)       │  Port: 5000           │
+│  Job Service (Node.js/TS)          │  Port: 7000           │
+│  Interview Engine (Node.js/TS)     │  Port: 4000           │
+│  Notification Service (Node.js/TS) │  Port: 6000           │
+└─────────────────────────────────────────────────────────────┘
+```
+
+Each service is independently scalable, fault-tolerant, and optimized for its specific domain. This means when you're processing thousands of resumes, only the Resume Service scales up, while other services continue operating normally.
+
+### The Resume Processing Pipeline: From PDF to Intelligence
+
+Let me walk you through what happens when someone uploads their resume to Evalia.
+
+#### Step 1: Document Ingestion and Parsing
+```
+PDF Upload → Cloudinary Storage → Advanced PDF Parser
+     ↓
+Text Extraction + Structure Recognition
+     ↓
+Multi-language Support (English, Bengali, Hindi)
+```
+
+Our system doesn't just extract text – it understands document structure. It can differentiate between headers, bullet points, contact information, and content sections, preserving the semantic meaning of the document layout.
+
+#### Step 2: AI-Powered Content Analysis
+```
+Raw Text → OpenRouter/OpenAI LLM Analysis
+     ↓
+┌─────────────────────────────────────────────────┐
+│  STRUCTURED EXTRACTION                          │
+├─────────────────────────────────────────────────┤
+│  • Skills & Technologies                       │
+│  • Work Experience (roles, companies, dates)   │
+│  • Education (degrees, institutions, years)    │
+│  • Projects (descriptions, technologies used)  │
+│  • Certifications & Achievements               │
+│  • Industry Context & Domain Expertise         │
+└─────────────────────────────────────────────────┘
+```
+
+Our AI doesn't just look for keywords. It understands context. When someone writes "Led a team of 5 developers in building a scalable microservices architecture," our system extracts:
+- Leadership experience (team size: 5)
+- Technical expertise (microservices, architecture)
+- Seniority level (leadership role)
+- Project scope (scalable systems)
+
+#### Step 3: Vectorization and Semantic Encoding
+
+Here's where the magic happens. Each piece of extracted information gets converted into high-dimensional vectors that capture semantic meaning.
+
+```
+Structured Data → Embedding Models → Vector Representations
+     ↓
+┌─────────────────────────────────────────────────┐
+│  VECTOR STORAGE IN QDRANT                      │
+├─────────────────────────────────────────────────┤
+│  Industry-Based Collections:                   │
+│  • "STEM & Technical"                          │
+│  • "Business, Finance & Administration"        │
+│  • "Healthcare & Life Sciences"               │
+│  • "Creative & Media"                         │
+│                                                │
+│  Per-Candidate Vectors:                       │
+│  • {email}_skills                             │
+│  • {email}_experience                         │
+│  • {email}_education                          │
+│  • {email}_projects                           │
+└─────────────────────────────────────────────────┘
+```
+
+Think of vectors as "semantic fingerprints." Similar skills, even described differently, end up close together in vector space. "Machine Learning Engineer" and "AI Developer" become neighbors, while "Java Programming" and "Backend Development" cluster together.
+
+### Job Processing and Requirement Analysis
+
+The job processing pipeline mirrors resume processing but focuses on extracting requirements and expectations.
+
+#### Job Description Intelligence
+```
+Job Posting → AI Analysis → Structured Requirements
+     ↓
+┌─────────────────────────────────────────────────┐
+│  EXTRACTED JOB INTELLIGENCE                     │
+├─────────────────────────────────────────────────┤
+│  • Required Skills (must-have vs nice-to-have) │
+│  • Experience Level (junior, mid, senior)      │
+│  • Industry Context & Domain                   │
+│  • Role Responsibilities                       │
+│  • Company Culture Indicators                  │
+│  • Growth Opportunities                        │
+└─────────────────────────────────────────────────┘
+     ↓
+Vector Representation for Semantic Matching
+```
+
+### The Semantic Matching Engine: Where AI Meets Human Intelligence
+
+Now comes the sophisticated part – how we match candidates to jobs using semantic understanding rather than keyword matching.
+
+#### Multi-Dimensional Compatibility Scoring
+```
+Job Vector + Candidate Vectors → Similarity Calculation
+     ↓
+┌─────────────────────────────────────────────────┐
+│  COMPATIBILITY ANALYSIS                         │
+├─────────────────────────────────────────────────┤
+│  • Technical Skills Match (0-100%)             │
+│  • Experience Level Alignment                  │
+│  • Industry Context Relevance                  │
+│  • Career Trajectory Fit                       │
+│  • Growth Potential Assessment                 │
+│  • Cultural Compatibility Indicators           │
+└─────────────────────────────────────────────────┘
+     ↓
+Ranked Candidate List with Explainable Recommendations
+```
+
+#### Real-World Example: How Semantic Matching Works
+
+Let me show you a concrete example:
+
+**Job Requirement**: "Senior Full-Stack Developer with React experience"
+
+**Traditional Keyword Matching** would miss:
+- A candidate who mentions "Frontend development with JavaScript frameworks"
+- Someone who lists "Component-based UI development"
+- A developer who worked with "Modern JavaScript ecosystems"
+
+**Evalia's Semantic Matching** understands that:
+```
+Vector Similarity Analysis:
+"React experience" ≈ "JavaScript frameworks" (85% similarity)
+"Frontend development" ≈ "UI development" (92% similarity)
+"Component-based" ≈ "React patterns" (88% similarity)
+```
+
+The result? We find qualified candidates that traditional systems miss entirely.
+
+### Real-Time Interview Processing Architecture
+
+Our interview system represents one of the most sophisticated real-time AI analysis pipelines in recruitment.
+
+```
+┌─────────────────────────────────────────────────┐
+│  REAL-TIME INTERVIEW ANALYSIS PIPELINE         │
+├─────────────────────────────────────────────────┤
+│                                                │
+│  Video Stream → Python Workers                 │
+│       ↓                                        │
+│  ┌─────────────────────────────────────────┐   │
+│  │  PARALLEL ANALYSIS STREAMS              │   │
+│  │  • Speech-to-Text (Real-time)           │   │
+│  │  • Emotion Detection                    │   │
+│  │  • Engagement Scoring                   │   │
+│  │  • Communication Clarity               │   │
+│  │  • Technical Accuracy Assessment       │   │
+│  └─────────────────────────────────────────┘   │
+│       ↓                                        │
+│  Socket.IO → Live Dashboard Updates            │
+│       ↓                                        │
+│  AI Summary Generation → Final Report          │
+└─────────────────────────────────────────────────┘
+```
+
+#### Multi-Modal Analysis Engine
+
+During interviews, we're analyzing multiple data streams simultaneously:
+
+1. **Linguistic Analysis**: Understanding technical accuracy, communication clarity, and problem-solving approach
+2. **Behavioral Analysis**: Measuring confidence, engagement, and interpersonal skills
+3. **Cognitive Assessment**: Evaluating logical reasoning and adaptability through responses
+4. **Cultural Fit Indicators**: Assessing alignment with company values and team dynamics
+
+### Data Flow and Service Integration
+
+Here's how our microservices work together to deliver seamless experiences:
+
+```
+User Action Flow:
+┌─────────────────────────────────────────────────────────────┐
+│  Candidate Search Request                                   │
+├─────────────────────────────────────────────────────────────┤
+│  Frontend → Job Service (process requirements)             │
+│      ↓                                                     │
+│  Job Service → Resume Service (semantic search)            │
+│      ↓                                                     │
+│  Resume Service → Qdrant (vector similarity search)       │
+│      ↓                                                     │
+│  Aggregated Results → Compatibility Scoring               │
+│      ↓                                                     │
+│  Ranked Candidates → Frontend Display                     │
+│                                                           │
+│  Background: Notification Service logs activity          │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Performance and Scalability Architecture
+
+#### Vector Database Optimization
+- **Industry-Based Partitioning**: Searches only relevant candidate pools
+- **Caching Layer**: Redis for frequently accessed candidate profiles
+- **Async Processing**: Non-blocking operations for real-time responsiveness
+
+#### Horizontal Scaling Strategy
+```
+Load Balancer
+    ↓
+┌─────────────────────────────────────────┐
+│  Service Replicas (Auto-scaling)       │
+├─────────────────────────────────────────┤
+│  Resume Service: 2-10 instances        │
+│  Job Service: 1-5 instances            │
+│  Interview Engine: 1-3 instances       │
+│  Notification Service: 1-2 instances   │
+└─────────────────────────────────────────┘
+    ↓
+Shared Database Layer (MongoDB + Qdrant)
+```
+
+### Security and Data Privacy Architecture
+
+#### Multi-Layered Security
+```
+┌─────────────────────────────────────────────────┐
+│  SECURITY LAYERS                               │
+├─────────────────────────────────────────────────┤
+│  • JWT Authentication (Spring Boot Gateway)    │
+│  • API Rate Limiting                          │
+│  • Request Validation (Zod schemas)           │
+│  • File Upload Sanitization                   │
+│  • Database Query Protection                  │
+│  • Encrypted Vector Storage                   │
+│  • Audit Logging (Winston)                    │
+└─────────────────────────────────────────────────┘
+```
+
+#### Data Privacy Compliance
+- **Anonymized Vector Storage**: Personal identifiers separated from searchable vectors
+- **GDPR Compliance**: Right to deletion, data portability
+- **Encrypted Communications**: All inter-service communication secured
+
+### Why This Architecture Matters
+
+This isn't just technical complexity for its own sake. Every architectural decision serves a specific business purpose:
+
+1. **Speed**: Semantic search returns results in milliseconds, not minutes
+2. **Accuracy**: Multi-dimensional analysis finds better matches than keyword systems
+3. **Scalability**: Handle thousands of candidates and jobs without performance degradation
+4. **Reliability**: Service isolation means one component failure doesn't crash the system
+5. **Intelligence**: Each interaction makes the system smarter through learning loops
+
+The result is a recruitment platform that doesn't just automate existing processes – it fundamentally transforms what's possible in talent acquisition.
+
+---
+
 ## Technical Backup Information:
 If asked specific technical questions, you can reference:
 - Built on Next.js 15.3.5, React 19, TypeScript 5
 - Microservices architecture with 6 core services
 - AI powered by OpenRouter and OpenAI APIs
-- Vector search using Pinecone database
+- Vector search using Qdrant database (migrated from Pinecone)
 - Real-time video analysis during interviews
 - Socket.IO for real-time notifications
 - Enterprise-grade security and scalability

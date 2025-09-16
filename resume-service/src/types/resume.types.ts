@@ -203,9 +203,9 @@ export class ResumeDTO {
   processedAt: Date;  
 
 
-  constructor(data: ResumeAnalysis) {
-    this.filename = "";
-    this.fileLink = "";
+  constructor(data: any) {
+    this.filename = data.filename;
+    this.fileLink = data.fileLink;
     this.industry = data.industry || 'Others';
     this.skills = {
       technical: data.skills?.technical || [],

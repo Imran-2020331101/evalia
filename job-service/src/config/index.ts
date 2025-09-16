@@ -9,7 +9,6 @@ interface Config {
   CORS_ORIGINS: string[];
   MONGODB_URI: string;
   OPENAI_API_KEY?: string;
-  PINECONE_API_KEY?: string;
   JWT_SECRET: string;
   CLOUDINARY_URL?: string;
 }
@@ -28,7 +27,6 @@ const config: Config = {
 
   // External APIs
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
-  PINECONE_API_KEY: process.env.PINECONE_API_KEY,
 
   // Other configurations
   JWT_SECRET: process.env.JWT_SECRET || "your-secret-key",
