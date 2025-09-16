@@ -13,39 +13,43 @@ import {
   Users,
   Video
 } from 'lucide-react'
+import { FAQ } from '@/Data/faq'
 
 export default function SupportContainer() {
   const [query, setQuery] = useState('')
   const [openFaq, setOpenFaq] = useState<Record<string, boolean>>({})
+  
+  const faqs = FAQ;
+
   const faqData = [
     {
       id: 'account',
       title: 'Account & Login',
       items: [
-        'How to create an Evalia account',
-        'How to reset your password',
-        'How to manage your profile and settings',
-        'How to enable two-factor authentication'
+        'How to create an Evalia account?',
+        'How to reset your password?',
+        'How to manage your profile and settings?',
+        'How to enable two-factor authentication?'
       ]
     },
     {
       id: 'jobs',
       title: 'Job Posting / Applications',
       items: [
-        'How recruiters can create a job posting',
-        'How to manage job postings',
-        'How candidates can apply to a job',
-        'How to track application status'
+        'How recruiters can create a job posting?',
+        'How to manage job postings?',
+        'How candidates can apply to a job?',
+        'How to track application status?'
       ]
     },
     {
       id: 'interview',
       title: 'Interview & Evaluation Tools',
       items: [
-        'How to schedule AI-driven interviews',
-        'How to view candidate evaluation results',
-        'Understanding scoring metrics and video analysis',
-        'How to export interview reports'
+        'How to schedule AI-driven interviews?',
+        'How to view candidate evaluation results?',
+        'Understanding scoring metrics and video analysis?',
+        'How to export interview reports?'
       ]
     },
     {
@@ -62,9 +66,16 @@ export default function SupportContainer() {
       id: 'tech',
       title: 'Technical Issues',
       items: [
-        'Browser and device compatibility',
-        'Troubleshooting audio/video issues during interviews',
-        'Error reporting and logging'
+        'Browser and device compatibility?',
+        'Troubleshooting audio/video issues?',
+        'Error reporting and logging?'
+      ]
+    },
+    {
+      id: 'support',
+      title: 'Additional Support',
+      items: [
+        'Additional support options?'
       ]
     }
   ]
@@ -109,7 +120,7 @@ export default function SupportContainer() {
                   <div>
                     <div className="text-xs text-slate-500">Email</div>
                     <div className="text-sm text-slate-500">
-                      <a href="mailto:support@evallia.com" className="underline">support@evallia.com</a>
+                      <a href="mailto:evalia.apostrophe@gmail.com" className="underline">evalia.apostrophe@gmail.com</a>
                     </div>
                   </div>
                 </li>
@@ -126,7 +137,7 @@ export default function SupportContainer() {
                   <Phone size={18} className="mt-1 text-slate-200" />
                   <div>
                     <div className="text-xs text-slate-500">Phone</div>
-                    <div className="text-sm text-slate-500">+880-1234-567890</div>
+                    <div className="text-sm text-slate-500">+880-1567893310</div>
                   </div>
                 </li>
               </ul>
@@ -189,9 +200,26 @@ export default function SupportContainer() {
                     {openFaq[cat.id] && (
                       <ul className="mt-2 border-t border-slate-700 pt-2 text-sm text-slate-400 space-y-2">
                         {cat.items.length ? (
-                          cat.items.map((it, i) => (
-                            <li key={i} className="py-1 px-3 rounded hover:bg-gray-800/50">{it}</li>
-                          ))
+                          cat.items.map((question, i) => {
+                            const faqItem = faqs.find(faq => faq.question === question);
+                            return (
+                              <li key={i} className="py-1 px-3 rounded hover:bg-gray-800/50">
+                                <details className="group">
+                                  <summary className="cursor-pointer text-slate-300 hover:text-white list-none">
+                                    <span className="flex items-center justify-between">
+                                      {question}
+                                      <ChevronDown size={14} className="group-open:rotate-180 transition-transform" />
+                                    </span>
+                                  </summary>
+                                  {faqItem && (
+                                    <div className="mt-2 pl-2 text-xs text-slate-400 whitespace-pre-line border-l-2 border-slate-600">
+                                      {faqItem.answer.trim()}
+                                    </div>
+                                  )}
+                                </details>
+                              </li>
+                            );
+                          })
                         ) : (
                           <li className="py-1 px-3 text-xs text-slate-500">No matching topics.</li>
                         )}

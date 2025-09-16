@@ -24,6 +24,7 @@ router.post("/generate/interview-questions", jobController.generateInterviewQues
 
 // Job-specific (dynamic)
 router.post("/:jobId/shortlist", applicationController.shortListCandidates.bind(applicationController));
+router.post("/:jobId/finalist", applicationController.finalizeCandidates.bind(applicationController));
 router.get("/:jobId", jobController.getJobById.bind(jobController));
 router.delete("/:jobId", jobController.deleteJob.bind(jobController));
 router.put("/:jobId/status", jobController.updateJobStatus.bind(jobController));
