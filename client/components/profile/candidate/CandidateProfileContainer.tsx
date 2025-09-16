@@ -359,7 +359,7 @@ const CandidateProfileContainer = () => {
                   {
                     currentAllCoursesStatus==='pending'?<Loading/>:
                     currentAllCourses.length?
-                    currentAllCourses.map((item:any)=><CourseCard fromProfile={true} course={item}/>)
+                    currentAllCourses.map((item:any)=><CourseCard key={item.videoId} fromProfile={true} course={item}/>)
                     :<section className="flex flex-col w-full h-full items-center justify-center text-center px-4">
                       <div className="flex flex-col items-center">
                         <div className="p-2 rounded-full bg-gray-100 mb-4">
