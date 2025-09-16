@@ -1,4 +1,5 @@
 'use client'
+import { setPreviewedInterviewSummaryId } from "@/redux/features/interview"
 import { markAsShortListed, markShortlistedStatus, recruitersSelectedJob } from "@/redux/features/job"
 import { setCompatibilityReviewId, setPreviewedCandidate } from "@/redux/features/utils"
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
@@ -13,6 +14,7 @@ interface propType{candidateEmail:any,applicantId:any, applicantStatus:any, appl
 
 const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candidateEmail, selected, toggleSelectSingle}:propType) => {
     const [applicant, setApplicant]= useState<any>(null);
+    const [interviewDetails, setInterviewDetails]= useState<any>(null);
     const [isChecked, setIsChecked]=useState<boolean>(false);
 
     const dispatch = useAppDispatch()
@@ -54,6 +56,23 @@ const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candi
         }
          fetchApplicantsData();
     },[])
+    useEffect(()=>{
+        const fetchInterviewSummary = async()=>{
+            const jobId = currentSelectedRecruiterJob?._id;
+            const candidateId = applicantId;
+            try {
+                const interviewResponse = await axios.get(`http://localhost:8080/api/interviews/job/${jobId}/candidate/${candidateId}`,{withCredentials:true});
+                setInterviewDetails(interviewResponse.data.data);
+                console.log(interviewResponse.data,'interviewResponse data');
+            } catch (error:any) {
+                console.log(error, 'error fetching interview summary')
+            }
+        }
+        if(currentSelectedRecruiterJob?._id && applicantId) {
+             fetchInterviewSummary();
+        }
+       
+    },[currentSelectedRecruiterJob?._id, applicantId])
     // useEffect(()=>{
     //     console.log('reviewId', reviewId)
     //     if(reviewId) dispatch(setCompatibilityReviewId(reviewId))
@@ -106,6 +125,18 @@ const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candi
                         <button className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-teal-600 cursor-pointer">
                             Mark as Finalist
                         </button>
+                        <button className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-red-600 cursor-pointer">
+                            Reject
+                        </button>
+                    </>
+                }
+                {
+                    applicantStatus==='SHORTLISTED' && <>
+                        {
+                            interviewDetails.interviewStatus==='COMPLETED'?<button onClick={()=>dispatch(setPreviewedInterviewSummaryId(interviewDetails?.id))} className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-teal-600 cursor-pointer">
+                                View Interview Summary
+                            </button>:null
+                        }
                         <button className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-red-600 cursor-pointer">
                             Reject
                         </button>

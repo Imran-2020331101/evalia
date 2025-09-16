@@ -62,8 +62,7 @@ export default function ConsentPage({ setIsStarted }: ConsentPageProps) {
                 questions or want to change this later, contact{" "}
                 <a
                   className="text-blue-300 underline"
-                  href={`mailto:${CONTACT_EMAIL}`}
-                >
+                  href={`mailto:${CONTACT_EMAIL}`}>
                   {CONTACT_EMAIL}
                 </a>
                 .
@@ -159,6 +158,146 @@ export default function ConsentPage({ setIsStarted }: ConsentPageProps) {
               human oversight for decisions. If you have concerns about
               fairness, contact us.
             </p>
+          </section>
+
+          {/* New: Integrity Score section (English translation of provided content) */}
+          <section className="mb-4">
+            <h3 className="font-medium text-white">What is the Integrity Score?</h3>
+            <p className="text-sm text-slate-300 mt-1">
+              During your interview our AI system measures indicators of
+              honesty and behavioral trustworthiness and produces an <em>Integrity
+              Score</em>. The score ranges from <strong>0 to 100</strong>, where
+              100 is the highest (best) score.
+            </p>
+
+            <h4 className="mt-3 font-medium text-white">How the Integrity Score is calculated</h4>
+            <p className="text-sm text-slate-300 mt-1">
+              The system computes the score from four main categories:
+            </p>
+
+            <ul className="list-disc list-inside text-sm text-slate-300 mt-2 space-y-2">
+              <li>
+                <strong>1. Face Presence (Face Detection)</strong>
+                <div className="text-xs text-slate-400">Weight: 2 (most important)</div>
+                <div className="text-sm text-slate-300 mt-1">Your face should be clearly visible in the camera. Avoid multiple faces in frame.</div>
+              </li>
+
+              <li>
+                <strong>2. Eye Contact / Gaze</strong>
+                <div className="text-xs text-slate-400">Weight: 1</div>
+                <div className="text-sm text-slate-300 mt-1">Look toward the camera and avoid continuously looking away.</div>
+              </li>
+
+              <li>
+                <strong>3. Speaking Pattern</strong>
+                <div className="text-xs text-slate-400">Weight: 1</div>
+                <div className="text-sm text-slate-300 mt-1">Speak naturally when answering questions and avoid long periods of silence.</div>
+              </li>
+
+              <li>
+                <strong>4. Blink Rate</strong>
+                <div className="text-xs text-slate-400">Weight: 1</div>
+                <div className="text-sm text-slate-300 mt-1">Maintain a normal blink rate (roughly 15–20 blinks per minute).</div>
+              </li>
+            </ul>
+
+            <h4 className="mt-3 font-medium text-white">How to get a good Integrity Score</h4>
+
+            <div className="text-sm text-slate-300 mt-2 space-y-2">
+              <p className="font-medium text-white">What to do:</p>
+
+              <p className="text-xs text-slate-400">Camera setup:</p>
+              <ul className="list-disc list-inside text-sm text-slate-300 mt-1 space-y-1">
+                <li>Sit in a well-lit area</li>
+                <li>Keep the camera at eye level</li>
+                <li>Look directly at the camera (not at the screen)</li>
+                <li>Ensure your full face is visible in the frame</li>
+              </ul>
+
+              <p className="text-xs text-slate-400">During the conversation:</p>
+              <ul className="list-disc list-inside text-sm text-slate-300 mt-1 space-y-1">
+                <li>Look at the camera when listening and answering</li>
+                <li>Speak clearly and at a natural pace</li>
+                <li>You may take 2–3 seconds to think before answering</li>
+                <li>Blink at a natural rate</li>
+              </ul>
+
+              <p className="text-xs text-slate-400">Behavior:</p>
+              <ul className="list-disc list-inside text-sm text-slate-300 mt-1 space-y-1">
+                <li>Sit calm and still</li>
+                <li>Avoid excessive movement</li>
+                <li>Be confident and natural</li>
+              </ul>
+
+              <p className="font-medium text-white mt-2">What NOT to do:</p>
+              <ul className="list-disc list-inside text-sm text-slate-300 mt-1 space-y-1">
+                <li>Avoid multiple people in the camera frame</li>
+                <li>Do not remove your face from the camera for more than 3 seconds</li>
+                <li>Avoid continuously looking away (more than 10 seconds)</li>
+                <li>Do not remain silent for long periods</li>
+                <li>Do not look at a phone or other device, or read answers from paper or another screen</li>
+              </ul>
+            </div>
+
+            <h4 className="mt-3 font-medium text-white">Penalty system — how violations affect score</h4>
+            <p className="text-sm text-slate-300 mt-1">
+              Penalties are applied for detected violations before the final score is given.
+            </p>
+
+            <ul className="list-disc list-inside text-sm text-slate-300 mt-2 space-y-2">
+              <li>
+                <strong>Severe violations:</strong>
+                <ul className="list-disc list-inside text-sm text-slate-300 mt-1 space-y-1">
+                  <li>Multiple faces shown: score reduction of 50% per minute</li>
+                  <li>Absent from camera for more than 5 seconds: score may be set to 0</li>
+                  <li>Poor eye contact for more than 10 seconds: score reduction of 60%</li>
+                </ul>
+              </li>
+
+              <li>
+                <strong>Moderate violations:</strong>
+                <ul className="list-disc list-inside text-sm text-slate-300 mt-1 space-y-1">
+                  <li>3 seconds of multiple faces: flagged as a violation</li>
+                  <li>3 seconds of absence: flagged as a violation</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h4 className="mt-3 font-medium text-white">How the score is computed</h4>
+            <p className="text-sm text-slate-300 mt-1">Final score = (face × 2 + eyes × 1 + speaking × 1 + blink × 1) ÷ 5. Penalties are then applied and the final score is normalized to a 0–100 range.</p>
+
+            <h4 className="mt-3 font-medium text-white">Score ranges — what they mean</h4>
+            <ul className="list-disc list-inside text-sm text-slate-300 mt-2 space-y-1">
+              <li><strong>90–100</strong>: Excellent integrity — all guidelines followed</li>
+              <li><strong>80–89</strong>: Very good — minor improvements suggested</li>
+              <li><strong>70–79</strong>: Good — some behavioral issues noted</li>
+              <li><strong>60–69</strong>: Average — follow guidelines more closely</li>
+              <li><strong>50–59</strong>: Weak — serious issues noted</li>
+              <li><strong>0–49</strong>: Unacceptable — a re-interview may be required</li>
+            </ul>
+
+            <h4 className="mt-3 font-medium text-white">Tips & special instructions</h4>
+            <p className="text-sm text-slate-300 mt-1">Preparation:</p>
+            <ol className="list-decimal list-inside text-sm text-slate-300 mt-1 space-y-1">
+              <li>Test your camera and microphone before the interview</li>
+              <li>Ensure a stable internet connection</li>
+              <li>Set up a quiet, private space</li>
+              <li>Inform household members not to enter the room during the interview</li>
+            </ol>
+
+            <p className="text-sm text-slate-300 mt-2">During the interview:</p>
+            <ul className="list-disc list-inside text-sm text-slate-300 mt-1 space-y-1">
+              <li>Be natural and relaxed</li>
+              <li>Speak honestly and avoid overthinking</li>
+              <li>If you do not understand a question, politely ask for clarification</li>
+              <li>Answer truthfully</li>
+            </ul>
+
+            <p className="text-sm text-slate-300 mt-2">Technical issues: if you experience technical problems, report them immediately. Our system will attempt to distinguish technical faults from intentional violations.</p>
+
+            <p className="text-sm text-slate-300 mt-3">Remember: the Integrity Scoring system is designed to promote fairness, not to embarrass you. If you follow these guidelines your Integrity Score is likely to be favorable.</p>
+
+            <p className="text-sm text-slate-300 mt-2 font-medium">Good luck with your interview!</p>
           </section>
 
           <section className="mb-4">

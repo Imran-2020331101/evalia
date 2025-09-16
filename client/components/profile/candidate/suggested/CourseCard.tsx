@@ -1,25 +1,55 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Play, User, Calendar, ExternalLink, Bookmark } from 'lucide-react'
-// import type { CourseSchema } from './CourseCard'
+import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks'
+import { saveCourse, savedCourses, setUnsaveCourseStatus, unsaveCourse, unsaveCourseStatus } from '@/redux/features/course'
 
-type Props = {
-  course?: any
-  className?: string
+export interface CourseSchema {
+  videoId: string
+  title: string
+  description?: string
+  channelId?: string
+  channelTitle?: string
+  thumbnails?: {
+    default?: { url?: string }
+    medium?: { url?: string }
+    high?: { url?: string }
+  }
+  publishedAt?: string
 }
 
-export default function CourseCardCompact({ course, className = '' }: Props) {
+type Props = {
+  course: CourseSchema
+  className?: string,
+  fromProfile?:boolean
+}
+
+export default function CourseCard({ course,fromProfile=false,  className = '' }: Props) {
   const thumb =
-    course?.thumbnails?.medium?.url || course?.thumbnails?.high?.url || course?.thumbnails?.default?.url || ''
+    course.thumbnails?.medium?.url || course.thumbnails?.high?.url || course.thumbnails?.default?.url || ''
 
-  const videoUrl = `https://www.youtube.com/watch?v=${course?.videoId}`
-  const channelUrl = course?.channelId ? `https://www.youtube.com/channel/${course?.channelId}` : undefined
+  const videoUrl = `https://www.youtube.com/watch?v=${course.videoId}`
+  const channelUrl = course.channelId ? `https://www.youtube.com/channel/${course.channelId}` : undefined
 
-  const [saved, setSaved] = useState<boolean>(false)
+  const [saved, setSaved] = useState<boolean>(false) // hardcoded initial state
+  const [isUnsave, setIsUnsave]=useState<boolean>(false)
+  const dispatch = useAppDispatch();
 
-  function toggleSave() {
-    setSaved((s) => !s)
+  const currentSavedCourses = useAppSelector(savedCourses);
+  const currentUnsaveCourseStatus = useAppSelector(unsaveCourseStatus);
+
+  function handleSave() {
+    // implement saving logic here
+    // setSaved((s) => !s)
+    if(saved){
+      setIsUnsave(true);
+      dispatch(unsaveCourse({videoId:course.videoId}))
+      return;
+    }
+
+    dispatch(saveCourse({data:course}))
+    
   }
 
   const formatDate = (iso?: string) => {
@@ -31,82 +61,101 @@ export default function CourseCardCompact({ course, className = '' }: Props) {
       return iso
     }
   }
+  useEffect(()=>{
+    currentSavedCourses?.forEach((item:any)=>{
+     if( item?.videoId===course?.videoId){
+      setSaved(true);
+     }
+    })
+  },[currentSavedCourses?.length])
 
+  useEffect(()=>{
+    if(currentUnsaveCourseStatus==='success' && isUnsave){
+      setSaved(false);
+      dispatch(setUnsaveCourseStatus('idle'));
+    }
+    if(currentUnsaveCourseStatus==='error'){
+      setIsUnsave(false);
+    }
+  },[currentUnsaveCourseStatus])
   return (
     <article
-      className={`bg-gray-900/70 border border-gray-800 rounded-xl overflow-hidden shadow-sm flex flex-col gap-2 p-3 ${className}`}
-      aria-label={`Course: ${course?.title}`}
+      className={`bg-gray-900/70 border border-gray-800 rounded-2xl overflow-hidden shadow-sm transition-shadow hover:shadow-md flex flex-col md:flex-row gap-4 p-4 shrink-0 ${className}`}
+      aria-label={`Course: ${course.title}`}
     >
-      {/* Thumbnail */}
       <a
         href={videoUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="relative block w-full h-32 rounded-lg overflow-hidden"
+        className="relative block w-full md:w-40 h-40 md:h-28 rounded-lg overflow-hidden flex-shrink-0"
       >
         {thumb ? (
           <img
             src={thumb}
-            alt={`${course?.title} thumbnail`}
+            alt={`${course.title} thumbnail`}
             className="w-full h-full object-cover"
             loading="lazy"
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-700 flex items-center justify-center">
-            <Play size={28} />
+            <Play size={34} />
           </div>
         )}
 
-        {/* overlay play icon */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-8 h-8 rounded-full bg-black/50 flex items-center justify-center">
-            <Play size={14} />
+        {/* play overlay */}
+        <div className="absolute inset-0 h-full w-full flex items-center justify-center pointer-events-none">
+          <div className="h-full w-full bg-black/50 flex items-center justify-center">
+            <Play size={16} />
           </div>
         </div>
       </a>
 
-      {/* Content */}
       <div className="flex-1 min-w-0 flex flex-col">
         <a href={videoUrl} target="_blank" rel="noopener noreferrer" className="group">
-          <h3 className="text-sm font-medium text-slate-100 line-clamp-2 group-hover:text-indigo-400">
-            {course?.title}
+          <h3 className="text-sm font-semibold text-slate-100 truncate group-hover:text-indigo-400">
+            {course.title}
           </h3>
         </a>
 
-        <p className="mt-1 text-xs text-slate-400 line-clamp-2">
-          {course?.description || 'No description available.'}
+        <p className="mt-1 text-xs text-slate-400 line-clamp-3 overflow-hidden max-h-12">
+          {course.description || 'No description available.'}
         </p>
 
-        <div className="mt-2 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-[11px] text-slate-400">
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 text-xs text-slate-400">
             <a
               href={channelUrl || '#'}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1 hover:text-indigo-400"
-              aria-label={`Open channel ${course?.channelTitle || 'channel'}`}
+              className="flex items-center gap-2 hover:text-indigo-400"
+              aria-label={`Open channel ${course.channelTitle || 'channel'}`}
             >
-              <User size={12} />
-              <span className="truncate max-w-[6rem]">{course?.channelTitle || 'Unknown'}</span>
-              {channelUrl && <ExternalLink size={11} className="ml-0.5" />}
+              <User size={14} />
+              <span className="truncate max-w-[10rem]">{course.channelTitle || 'Unknown channel'}</span>
+              {channelUrl && <ExternalLink size={12} className="ml-1" />}
             </a>
-            <span className="flex items-center gap-0.5">
-              <Calendar size={11} />
-              <time className="text-[11px] text-slate-500" dateTime={course?.publishedAt || ''}>
-                {formatDate(course?.publishedAt)}
+
+            {
+              !fromProfile?<span className="flex items-center gap-1">
+              <Calendar size={12} />
+              <time className="text-xs text-slate-500" dateTime={course.publishedAt || ''}>
+                {formatDate(course.publishedAt)}
               </time>
-            </span>
+            </span>:null
+            }
           </div>
 
-          <button
-            type="button"
-            onClick={toggleSave}
-            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] transition-colors ${
-              saved ? 'bg-indigo-600 text-white' : 'bg-slate-700 text-slate-300'
-            }`}
-          >
-            <Bookmark size={11} /> {saved ? 'Saved' : 'Save'}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleSave}
+              className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] transition-colors ${
+                saved ? 'bg-indigo-600 text-white' : 'bg-slate-700 text-slate-300'
+              }`}
+            >
+              <Bookmark size={12} /> {saved ? 'Saved' : 'Save'}
+            </button>
+          </div>
         </div>
       </div>
     </article>
