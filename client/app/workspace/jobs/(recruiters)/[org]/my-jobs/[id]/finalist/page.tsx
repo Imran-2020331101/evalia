@@ -1,9 +1,9 @@
-import React from 'react'
+import FinalistContainer from '@/components/workspace/recruiters/jobs/my-jobs/finalist/FinalistContainer'
 
 const FinalistPage = () => {
   return (
-    <div className='w-full h-full bg-red-600'>
-      
+    <div className='w-full h-full '>
+      <FinalistContainer/>
     </div>
   )
 }

@@ -114,6 +114,16 @@ export const markAsShortListedByAI = createAsyncThunk('job/markAsShortListedByAI
 })
 
 
+export const markAsFinalist = createAsyncThunk('job/markAsFinalist', async({jobId, data}:{jobId:any, data:any},thunkAPI)=>{
+    try {
+        const response = await axios.post(`http://localhost:8080/api/job/${jobId}/finalist`,data, {withCredentials:true});
+        return response.data;
+    } catch (error:any) {
+        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed marking as finalist' })
+    }
+})
+
+
 
 
 type statusType = 'idle' | 'pending' | 'success' | 'error';
@@ -124,6 +134,7 @@ interface initialStateType {
     applyJobStatus: statusType,
     saveJobStatus: statusType,
     markShortlistedStatus: statusType,
+    markFinalistStatus: statusType,
     markShortlistedByAiStatus:statusType,
     applyJobId:string|null,
     saveJobId:string|null,
@@ -148,6 +159,7 @@ const initialState :initialStateType = {
     previewedShortListedCandidate:[],
     shortListedCandidate:[],
     markShortlistedStatus:'idle',
+    markFinalistStatus:'idle',
     markShortlistedByAiStatus:'idle',
     createJobStatus:'idle',
     fetchJobStatus:'idle',
@@ -348,6 +360,21 @@ const jobSlice = createSlice({
             console.log(action.payload, 'inside markShortlisted AI thunk'); 
             state.markShortlistedStatus='success'
         })
+        .addCase(markAsFinalist.pending,(state)=>{
+            state.markFinalistStatus='pending'
+            state.markShortlistedByAiStatus='pending'
+        })
+        .addCase(markAsFinalist.rejected,(state)=>{
+            state.markFinalistStatus='error'
+            // state.markShortlistedByAiStatus='error'
+        })
+        .addCase(markAsFinalist.fulfilled,(state,action)=>{
+            state.recruitersSelectedJob=action.payload.data;
+
+            console.log(action.payload, 'inside markFinalist thunk'); 
+            state.markFinalistStatus='success'
+            // state.markShortlistedByAiStatus='success'
+        })
     }
 })
 
@@ -371,3 +398,4 @@ export const recruitersSelectedJob = (state:RootState)=>state.job.recruitersSele
 export const shortListedCandidate = (state:RootState)=>state.job.shortListedCandidate;
 export const previewedShortListedCandidate = (state:RootState)=>state.job.previewedShortListedCandidate;
 export const markShortlistedByAiStatus = (state:RootState)=>state.job.markShortlistedByAiStatus;
+export const markFinalistStatus = (state:RootState)=>state.job.markFinalistStatus;
