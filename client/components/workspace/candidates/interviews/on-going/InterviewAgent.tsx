@@ -10,6 +10,7 @@ import { user } from '@/redux/features/auth';
 import { useDeepCompareEffect } from '@/custom-hooks/useDeepCompareEffect';
 import { ClipLoader } from 'react-spinners';
 import { setPreviewedInterviewSummaryId } from '@/redux/features/interview';
+import { Loader2 } from 'lucide-react';
 
 
 const Questions = [
@@ -214,10 +215,13 @@ const InterviewAgent = ({vapi, setVapi,setIsSpeaking, transcript, setTranscript,
       {
         isEndEvaluation?
           <div className="fixed inset-0 w-full h-full backdrop-blur-sm z-50 flex justify-center items-center">
-            <div className="flex flex-col bg-slate-900/80 items-center gap-5 py-[200px] px-[50px] rounded-lg">
-              <ClipLoader size={30} color='white'/>
-              <h1 className='text-3xl font-thin text-center'>Hold tight! <br/> Your interview evaluation is under process ...</h1>
-            </div>
+             <div className="flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-sm p-12 rounded-2xl shadow-lg gap-6 text-white">
+                <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
+                <h1 className="text-2xl font-light text-center leading-relaxed">
+                  Hold tight! <br />
+                  <span className="text-slate-300">Your interview evaluation is in progress...</span>
+                </h1>
+              </div>
           </div>
         :null
       }
