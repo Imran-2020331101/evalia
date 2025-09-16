@@ -211,10 +211,10 @@ const PreviewInterviewSummary = () => {
   },[currentPreviewedInterviewSummaryId])
   useEffect(()=>{
     if(interviewDetails?.questionsAnswers?.length && !filteredTranscript.length){
-      const filtered = interviewDetails?.questionsAnswers?.length?.questionsAnswers?.filter(
-        (q:any) => (q.duration && q.duration > 0) || (q.candidateAnswer && q.candidateAnswer.trim() !== '')
-      )
-      setFilteredTranscript(filtered);
+      // const filtered = interviewDetails?.questionsAnswers?.length?.questionsAnswers?.filter(
+      //   (q:any) => (q.duration && q.duration > 0) || (q.candidateAnswer && q.candidateAnswer.trim() !== '')
+      // )
+      setFilteredTranscript(interviewDetails.questionsAnswers);
     }
   },[interviewDetails?.questionsAnswers?.length])
   useEffect(()=>console.log(interviewDetails, 'interviewDetails'))
@@ -223,8 +223,8 @@ const PreviewInterviewSummary = () => {
       {
         isLoading?
         <div className="w-full h-full backdrop-blur-2xl flex justify-center items-center">
-          <div  className="w-[70%] h-[90%] overflow-y-scroll scrollbar-hidden bg-gray-900">
-            <ScaleLoader barCount={30} color='white'/>
+          <div  className="w-[70%] h-[90%] overflow-y-scroll flex justify-center items-center scrollbar-hidden bg-gray-900">
+            <ScaleLoader barCount={4} color='white'/>
           </div>
         </div>:
         <div className="w-full h-full flex justify-center items-center backdrop-blur-sm">
@@ -387,7 +387,7 @@ const PreviewInterviewSummary = () => {
                         <FileText size={14}  className='self-start mt-1'/>
                         <div className='w-full h-auto'>
                         <div className="text-sm text-slate-200">Summary</div>
-                        <div className="text-xs text-slate-400 mt-1 w-full h-auto">{newEval?.summaryText || 'No summary available.'}</div>
+                        <div className="text-xs text-slate-400 mt-1 w-full h-auto">{interviewDetails?.summary || 'No summary available.'}</div>
                         </div>
                     </div>
                     </div>
@@ -404,14 +404,6 @@ const PreviewInterviewSummary = () => {
                     </div>
                     </div>
                 </div>
-
-                <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-3 text-xs text-slate-400">
-                    <h4 className="text-xs text-slate-300">Actions</h4>
-                    <div className="mt-2 flex flex-col gap-2">
-                    <button className="text-left px-3 py-2 rounded hover:bg-slate-800/50 text-slate-200 text-sm">Open full evaluation</button>
-                    <button className="text-left px-3 py-2 rounded hover:bg-slate-800/50 text-slate-200 text-sm">Add reviewer note</button>
-                    </div>
-                </div>
                 <div className="w-full h-auto">
                   {
                     !filteredTranscript?.length?
@@ -419,7 +411,7 @@ const PreviewInterviewSummary = () => {
                         No transcript available.
                       </div>
                     :
-                    <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 space-y-4 max-h-[500px] overflow-y-auto">
+                    <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4 space-y-4 max-h-[500px] overflow-y-scroll scrollbar-hidden">
                       <h3 className="text-sm font-semibold text-slate-100 flex items-center gap-2">
                         <MessageCircle size={16} className="text-indigo-400" />
                         Transcript Preview
@@ -450,7 +442,7 @@ const PreviewInterviewSummary = () => {
                               </div>
                             )}
 
-                            {/* Reference Answer */}
+                            {/* Reference Answer
                             <div className="flex items-start gap-2">
                               <div className="w-6 h-6 flex items-center justify-center rounded-full bg-slate-700 text-slate-200">
                                 <Bot size={14} />
@@ -458,7 +450,7 @@ const PreviewInterviewSummary = () => {
                               <div className="bg-slate-800 text-slate-300 text-sm rounded-lg px-3 py-2 max-w-[80%] italic">
                                 <span className="text-slate-400 font-medium">Reference:</span> {qa.referenceAnswer}
                               </div>
-                            </div>
+                            </div> */}
                           </div>
                         ))}
                       </div>
