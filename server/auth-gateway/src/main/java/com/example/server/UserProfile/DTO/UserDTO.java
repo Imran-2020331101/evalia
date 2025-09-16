@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 public class UserDTO {
-    private ObjectId id;
+    private String id;
     private String name;
     private String email;
     private boolean emailVerified;

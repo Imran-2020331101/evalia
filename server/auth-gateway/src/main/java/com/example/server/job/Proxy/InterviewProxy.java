@@ -1,12 +1,9 @@
 package com.example.server.job.Proxy;
 
-import com.example.server.job.DTO.TranscriptDTO;
 import com.example.server.job.DTO.TranscriptWrapperDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @FeignClient(name = "interviewClient",
              url  = "${interview.service.url}/api/interview")
@@ -19,6 +16,10 @@ public interface InterviewProxy {
 
     @GetMapping(value = "/{interviewId}")
     ResponseEntity<String> getInterviewById(@PathVariable("interviewId") String interviewId);
+
+    @GetMapping(value = "/job/{jobId}/candidate/{candidateId}")
+    ResponseEntity<String> getInterviewByJobAndCandidate(@PathVariable("jobId") String jobId,
+                                                         @PathVariable("candidateId") String candidateId);
 
     @PutMapping(value = "/{interviewId}/transcript")
     ResponseEntity<String> addTranscriptToInterview(@PathVariable("interviewId") String interviewId,
