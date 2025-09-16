@@ -195,12 +195,19 @@ export class QdrantService {
    */
   async deletePointsByUserId( candidateId: string,  collection?: string): Promise<any> {
       try {
-        const targetCollection = collection || this.defaultCollection;
+        const targetCollection = collection || this.defaultCollection || 'resume';
         
         // First check if points exist
         const existingPoints = await this.client.query(targetCollection, {
           query: Array(1536).fill(0), // Dummy vector for existence check
-          filter: { must: { key: "candidate-id", match: candidateId } },
+          "filter": {
+          "must": [
+            {
+              "key": "candidate-id",
+              "match": { "value": candidateId }
+            }
+          ]
+        },
           limit: 1,
           with_payload: true,
         });
@@ -210,10 +217,19 @@ export class QdrantService {
           return { status: 'ok', operation_id: null };
         }
         
-        const deleteResult = await this.client.delete(targetCollection, {
-          filter : { must: { key: "candidate-id", match: candidateId } },
-          wait: true
-        });
+        const deleteResult = await this.client.delete(targetCollection, 
+        {
+          "filter": {
+            "must": [
+              {
+                "key": "candidate-id",
+                "match": { "value": candidateId }
+              }
+            ]
+          }
+        }
+  
+        );
         
         logger.info(`Delete operation completed for candidate ${candidateId}:`, {
           status: deleteResult.status,

@@ -24,6 +24,10 @@ class InAppNotificationService {
       { $set: { isRead: true } }
     ).orFail();
   }
+  
+  deleteNotification = async (notificationId: string) => {
+    return Notification.findByIdAndDelete(notificationId).orFail();
+  };
 
   notifyInterviewCreation = async (notification: InterviewCreatedNotification) => {
     console.log('notifyInterviewCreation called with:', notification);
