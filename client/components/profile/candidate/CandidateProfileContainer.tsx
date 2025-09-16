@@ -2,7 +2,7 @@
 import CourseCard from "@/components/profile/candidate/suggested/CourseCard"
 import JobCard from "@/components/profile/candidate/suggested/JobCard"
 import CandidatesResumePanel from "@/components/utils/CandidatesResumePanel"
-import { Edit, Edit3, File, ImagePlus, Save, X , User, Search} from "lucide-react"
+import { Edit, Edit3, File, ImagePlus, Save, X , User, Search, Book} from "lucide-react"
 import { ClipLoader, ScaleLoader } from "react-spinners"
 import Image from "next/image"
 import { useRef, useState , useEffect} from "react"
@@ -12,6 +12,8 @@ import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
 import { userCoverPhotoUpdateStatus, userProfilePhotoUpdateStatus, userBasicInfoUpdateStatus , updateUserCoverPhoto, updateUserProfilePhoto, updateUserData, setUserBasicInfoUpdateStatus, analyzedUserResume, user} from "@/redux/features/auth"
 import AnalyzeResumeSection from "./Resume/AnalyzeResumeSection"
 import axios from "axios"
+import { allCourses, allCourseStatus, getAllCourses } from "@/redux/features/course"
+import Loading from "@/components/utils/Loading"
 
 
 interface propType {
@@ -47,6 +49,8 @@ const CandidateProfileContainer = () => {
     const currentProfilePhotoStatus = useAppSelector(userProfilePhotoUpdateStatus)
     const currentUserBasicInfoUpdateStatus = useAppSelector(userBasicInfoUpdateStatus)
     const currentAnalyzedUserResume = useAppSelector(analyzedUserResume)
+    const currentAllCourses = useAppSelector(allCourses)
+    const currentAllCoursesStatus = useAppSelector(allCourseStatus)
 
   const handleBasicInfoChange = (e: React.ChangeEvent<HTMLInputElement>|React.ChangeEvent<HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -122,6 +126,9 @@ const CandidateProfileContainer = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isUploadResume, isShowResume]);
+  useEffect(()=>{
+    if(!currentAllCourses?.length) dispatch(getAllCourses());
+  },[])
   useEffect(()=>console.log(currentUser,'current user'))
   return (
       <div className="w-full h-full bg-gray-950/80 flex items-start justify-center py-[10px] ">
@@ -349,13 +356,24 @@ const CandidateProfileContainer = () => {
               <section className="w-full h-1/2 shrink-0 flex flex-col gap-3">
                 <p className="text-lg text-gray-300 font-semibold pb-2 border-b-[1px] border-gray-700">Suggested Courses : </p>
                 <div className="w-full flex-1 flex flex-col overflow-y-scroll scroll-container">
-                  <CourseCard/>
-                  <CourseCard/>
-                  <CourseCard/>
-                  <CourseCard/>
-                  <CourseCard/>
-                  <CourseCard/>
-                  <CourseCard/>
+                  {
+                    currentAllCoursesStatus==='pending'?<Loading/>:
+                    currentAllCourses.length?
+                    currentAllCourses.map((item:any)=><CourseCard fromProfile={true} course={item}/>)
+                    :<section className="flex flex-col w-full h-full items-center justify-center text-center px-4">
+                      <div className="flex flex-col items-center">
+                        <div className="p-2 rounded-full bg-gray-100 mb-4">
+                          <Book className="w-6 h-6 text-gray-500" />
+                        </div>
+                        <h2 className="text-lg font-semibold text-gray-300">
+                          No Suggested courses Available
+                        </h2>
+                        <p className="mt-2 text-sm text-gray-400 max-w-md">
+                          Currently, there are no suggested courses available for you. Please check back later for new opportunities.
+                        </p>
+                      </div>
+                    </section>
+                  }
                 </div>
               </section>
           </section>
