@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { Users, Briefcase, ClipboardList, Calendar, ShieldCheck, BookOpen, Mail, HelpCircle } from 'lucide-react'
+import Link from 'next/link'
 
 export default function RecruitmentAndGuidelineContainer() {
   return (
@@ -149,8 +150,8 @@ export default function RecruitmentAndGuidelineContainer() {
             <div className="mt-3 text-sm text-slate-300">
               <p className="text-xs text-slate-400">If you have questions about the recruitment process:</p>
               <ul className="list-inside list-disc text-xs text-slate-400 space-y-1 mt-2">
-                <li>Visit the <a href="#" className="underline text-indigo-500">Support Page</a></li>
-                <li>Email: <a href="mailto:support@evallia.com" className="underline text-indigo-500">support@evallia.com</a></li>
+                <li>Visit the <Link href={'/profile/support'} className="underline text-indigo-500">Support Page</Link> </li>
+                <li>Email: <a href="mailto:evalia.apostrophe@gmail.com" className="underline text-indigo-500">evalia.apostrophe@gmail.com</a></li>
                 <li>Access tutorials in the <a href="#" className="underline text-indigo-500">Help Center</a></li>
               </ul>
             </div>

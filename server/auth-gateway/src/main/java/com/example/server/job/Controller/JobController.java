@@ -5,6 +5,7 @@ import com.example.server.UserProfile.Service.UserService;
 import com.example.server.UserProfile.models.OrganizationEntity;
 import com.example.server.job.DTO.*;
 import com.example.server.job.Proxy.JobProxy;
+import com.example.server.job.Service.JobService;
 import com.example.server.resume.exception.ResumeNotFoundException;
 import com.example.server.security.models.userEntity;
 import org.springframework.http.HttpStatus;
@@ -23,19 +24,22 @@ public class JobController {
     private static final Logger             logger = Logger.getLogger(JobController.class.getName());
     private        final JobProxy           jobProxy;
     private        final UserDetailsService userDetailsService;
-    private final UserService userService;
-    private final OrganizationService organizationService;
+    private final UserService               userService;
+    private final OrganizationService       organizationService;
+    private final JobService jobService;
 
 
     public JobController(JobProxy            jobProxy,
                          UserDetailsService  userDetailsService,
                          UserService         userService,
-                         OrganizationService organizationService) {
+                         OrganizationService organizationService,
+                         JobService          jobService) {
 
-        this.userDetailsService = userDetailsService;
-        this.jobProxy           = jobProxy;
-        this.userService = userService;
+        this.userDetailsService  = userDetailsService;
+        this.jobProxy            = jobProxy;
+        this.userService         = userService;
         this.organizationService = organizationService;
+        this.jobService          = jobService;
     }
 
     @GetMapping("/active-jobs")
@@ -199,26 +203,29 @@ public class JobController {
 
     @PostMapping("/{jobId}/shortlist")
     public ResponseEntity<String> shortlistCandidatesOfAJob(@PathVariable("jobId") String jobId, @RequestBody ShortlistRequest shortlistRequest) {
-        logger.info("shortlistCandidatesOfAJob " + jobId + " " + shortlistRequest.toString());
-        List<candidateInfo> candidates = shortlistRequest.candidateIds().stream().map(
-                candidateId -> {
-                    userEntity user = userService.loadUserById(candidateId);
-                    logger.info("user: " + candidateId + " " + user.getId());
-                    return new candidateInfo(
-                            user.getId().toString(),
-                            user.getDisplayName(),
-                            user.getEmail()
-                    );
-                }
-        ).toList();
 
-        logger.info(candidates.toString());
-
+        List<candidateInfo> candidates  = jobService.mapToCandidateInfo(shortlistRequest);
         ResponseEntity<String> response = jobProxy.shortlistCandidatesOfAJob(jobId, new ShortlistForwardWrapper(candidates));
+
         logger.info(response.getBody());
         return ResponseEntity.status(response.getStatusCode())
                 .body(response.getBody());
     }
+
+    @PostMapping("/{jobId}/finalist")
+    public ResponseEntity<String> finalistCandidatesOfAJob(@PathVariable("jobId") String jobId, @RequestBody ShortlistRequest shortlistRequest) {
+
+        logger.info("finalistCandidatesOfAJob " + jobId + " " + shortlistRequest.toString());
+
+        List<candidateInfo> candidates  = jobService.mapToCandidateInfo(shortlistRequest);
+        ResponseEntity<String> response = jobProxy.finalistCandidatesOfAJob(jobId, new ShortlistForwardWrapper(candidates));
+
+        logger.info(response.getBody());
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
+    }
+
+
 
     @GetMapping("/{jobId}/questions")
     public ResponseEntity<String> getInterviewQuestionsOfAJob(@PathVariable("jobId") String jobId, Principal principal) {
