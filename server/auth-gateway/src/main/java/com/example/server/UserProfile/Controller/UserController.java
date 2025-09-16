@@ -28,19 +28,13 @@ public class UserController {
 
     private static final Logger logger = Logger.getLogger(UserController.class.getName());
     private final UserService userService;
-    private final ResumeJsonProxy resumeJsonProxy;
-    private final ModelMapper modelMapper;
     private final Cloudinary cloudinary;
 
     public UserController(UserService userService,
-            ResumeJsonProxy resumeJsonProxy,
-            ModelMapper modelMapper,
-            Cloudinary cloudinary) {
+                           Cloudinary cloudinary) {
 
         this.userService = userService;
-        this.resumeJsonProxy = resumeJsonProxy;
-        this.modelMapper = modelMapper;
-        this.cloudinary = cloudinary;
+        this.cloudinary  = cloudinary;
     }
 
     @GetMapping("/{userId}/single")

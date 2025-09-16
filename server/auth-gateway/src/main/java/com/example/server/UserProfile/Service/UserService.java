@@ -73,7 +73,7 @@ public class UserService {
      */
     public UserDTO toUserDTO(userEntity user) {
         UserDTO dto = new UserDTO();
-        dto.setId(user.getId());
+        dto.setId(user.getId().toString());
         dto.setName(user.getName());
         dto.setEmail(user.getEmail());
         dto.setEmailVerified(user.isEmailVerified());
@@ -98,9 +98,10 @@ public class UserService {
         return dto;
     }
 
-    public Profile obtainCandidateProfileFromResume(String name) throws IOException {
-        userEntity user = userRepository.findByEmail(name)
-                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + name));
+    public Profile obtainCandidateProfileFromResume(String email) throws IOException {
+        userEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
+
         if (!user.isHasResume()) {
             return new Profile(null, toUserDTO(user));
         }

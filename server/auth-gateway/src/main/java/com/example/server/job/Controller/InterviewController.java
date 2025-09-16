@@ -45,6 +45,14 @@ public class InterviewController {
                 .body(response.getBody());
     }
 
+    @GetMapping("/job/{jobId}/candidate/{candidateId}")
+    private ResponseEntity<String> getInterviewByJobAndCandidate(@PathVariable("jobId") String jobId,
+                                                                @PathVariable("candidateId") String candidateId) {
+        ResponseEntity<String> response = interviewProxy.getInterviewByJobAndCandidate(jobId, candidateId);
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
+    }
+
     @PostMapping("/{interviewId}/transcript")
     private ResponseEntity<String> addTranscriptToInterview(@PathVariable("interviewId") String interviewId,
                                                             @RequestBody TranscriptWrapperDTO transcript) {
