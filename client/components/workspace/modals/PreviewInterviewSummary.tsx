@@ -156,7 +156,7 @@ const PreviewInterviewSummary = () => {
       case 'advance':
         return { label: 'Advance', tone: 'bg-green-700', icon: <CheckCircle size={16} /> }
       case 'review':
-        return { label: 'Review', tone: 'bg-amber-700', icon: <AlertTriangle size={16} /> }
+        return { label: 'Review', tone: 'bg-indigo-700', icon: <AlertTriangle size={16} /> }
       case 'reject':
         return { label: 'Reject', tone: 'bg-red-700', icon: <AlertTriangle size={16} /> }
       default:

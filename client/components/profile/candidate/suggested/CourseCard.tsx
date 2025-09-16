@@ -104,7 +104,7 @@ export default function CourseCard({ course,fromProfile=false,  className = '' }
 
         {/* play overlay */}
         <div className="absolute inset-0 h-full w-full flex items-center justify-center pointer-events-none">
-          <div className="h-full w-full rounded-full bg-black/50 flex items-center justify-center">
+          <div className="h-full w-full bg-black/50 flex items-center justify-center">
             <Play size={16} />
           </div>
         </div>

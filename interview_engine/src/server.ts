@@ -77,7 +77,7 @@ io.on('connection', (socket: Socket) => {
     Interview.findByIdAndUpdate(interviewId,{
       $set: {integrityScore : finalScore}
     })
-    //  interviewService.markInterviewAsCompleted(interviewId);
+     interviewService.markInterviewAsCompleted(interviewId);
   })
 });
 

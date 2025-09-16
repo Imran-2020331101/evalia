@@ -60,7 +60,7 @@ class InterviewService{
         return await Interview.findById(interviewId).orFail();
     }
     async getInterviewByJobAndCandidate ( jobId: string, candidateId: string){
-        return await Interview.findOne({candidateId, jobId}).orFail();
+        return await Interview.findOne({candidateId, jobId});
     }
     
     async fetchSummaryById ( interviewId: string ){
