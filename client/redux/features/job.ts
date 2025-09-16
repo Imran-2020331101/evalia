@@ -272,7 +272,7 @@ const jobSlice = createSlice({
             state.saveJobId=null
         })
         .addCase(saveJob.fulfilled,(state,action)=>{
-            state.savedJobs.push(action.payload?.data);
+            state.savedJobs?.push(action.payload?.data);
             console.log(action.payload.data, 'inside save jobs...'); 
             state.saveJobStatus='success'
             state.saveJobId=null

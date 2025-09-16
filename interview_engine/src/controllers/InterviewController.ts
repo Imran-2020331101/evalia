@@ -143,6 +143,21 @@ export class InterviewController {
     })
   })
 
+  getInterviewByJobAndCandidate = asyncHandler(async( req: Request, res: Response ) : Promise<void> => {
+    const { jobId, candidateId } = req.params;
+    
+    // Validate interviewId parameter
+    this.validateInterviewId(jobId);
+    this.validateInterviewId(candidateId)
+
+    const interview = await interviewService.getInterviewByJobAndCandidate( jobId, candidateId );
+
+    res.status(200).json({
+      success: true,
+      data   : interview
+    })
+  })
+
   getSummaryOfAnInterview = asyncHandler(async( req: Request, res: Response) => {
     const { interviewId } = req.params;
     
