@@ -92,7 +92,7 @@ class ResumeController {
 
   saveResume = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { resumeData , userId, userName, userEmail } :{
-      resumeData : ResumeDTO , userId: string, userName: string, userEmail: string
+      resumeData : any, userId: string, userName: string, userEmail: string
     } = req.body;
 
     console.log("Recieved resume data : ",resumeData);
@@ -191,6 +191,8 @@ class ResumeController {
     if (!resume) {
       throw new ResumeNotFoundError(`email: ${email}`);
     }
+
+    // console.log("fetched resume from db: ",resume);
     
     const resumeDTO = mapToResumeDTO(resume.toObject() as any);
 
