@@ -33,13 +33,19 @@ class NotificationController{
     
     const response = new ApiResponse(200, updated, "Notification marked as read successfully");
     res.status(200).json(response);
-  })
+  });
 
   readAllNotification = asyncHandler(async(req: Request, res: Response) =>{
     const { userId } = req.params;
     const updated = inAppNotificationService.markAllAsRead(userId);
     res.status(200).json(new ApiResponse(200, updated , "All Notifications marked as read successfully"));
-  })
+  });
+
+  deleteNotification = asyncHandler(async(req: Request, res: Response)=>{
+    const {notificationId} = req.params;
+    const deletedNotification = inAppNotificationService.deleteNotification(notificationId);
+    res.status(200).json(new ApiResponse(200, deletedNotification , "Notification deleted Successfully"));
+  });
 }
 
 export const notificationController = new NotificationController();

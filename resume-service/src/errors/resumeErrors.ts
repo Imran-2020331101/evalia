@@ -107,13 +107,6 @@ export class VectorSearchError extends CustomApiError {
   }
 }
 
-export class PineconeConnectionError extends CustomApiError {
-  constructor() {
-    super('Failed to connect to Pinecone vector database', 503, ['PINECONE_CONNECTION_ERROR']);
-    this.name = 'PineconeConnectionError';
-  }
-}
-
 // ============ JOB MATCHING ERRORS ============
 
 export class JobDescriptionParsingError extends CustomApiError {

@@ -192,7 +192,7 @@ class ResumeService {
 
 
 
-  async updateResume(resume : ResumeData, candidateId: string ): Promise<IResume> {
+  async updateResume(resume : any, candidateId: string ): Promise<IResume> {
   
     // Ensure One resume per email
     const existingResume = await Resume.findOne({
