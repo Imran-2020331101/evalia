@@ -17,10 +17,10 @@ const InterviewContainer = ({interviews}:{interviews:any}) => {
   return (
     <div className="w-full h-full flex flex-col items-center">
       <div className="w-full h-[40px] shrink-0  flex justify-start pl-[20px] items-center relative">
-        <button onClick={()=>setIsShowFilter((prev)=>!prev)} className=' cursor-pointer flex gap-2 w-auto h-full items-center'>
+        {/* <button onClick={()=>setIsShowFilter((prev)=>!prev)} className=' cursor-pointer flex gap-2 w-auto h-full items-center'>
           <Image src={filterLogo} alt='filter logo' className='w-[15px] h-auto'/>
           <p className='text-[12px] text-gray-300'>Filter</p>
-        </button>
+        </button> */}
         {
           isShowFilter && <div className="absolute top-[100%] left-[40px] w-[120px] h-[80px] bg-gray-900 border border-gray-700 z-20 flex flex-col">
                             <div className="w-full h-[40px] border-b-[1px] border-gray-700 text-[12px] font-semibold text-gray-300 flex justify-between px-2 items-center relative group">

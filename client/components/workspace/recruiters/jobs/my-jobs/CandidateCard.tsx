@@ -16,7 +16,7 @@ const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candi
     const [applicant, setApplicant]= useState<any>(null);
     const [interviewDetails, setInterviewDetails]= useState<any>(null);
     const [isChecked, setIsChecked]=useState<boolean>(false);
-
+    const candidateStatus = applicantStatus==='PENDING'?'text-blue-500':applicantStatus==='SHORTLISTED'?`text-indigo-400`:`text-teal-500`;
     const dispatch = useAppDispatch()
 
     const currentSelectedRecruiterJob = useAppSelector(recruitersSelectedJob);
@@ -102,7 +102,7 @@ const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candi
         <button onClick={handleViewProfile} className="flex-1 h-[40px] flex flex-col items-start gap-1">
             <p className='font-semibold'>{applicant?.user?.name||''}</p>
             <div className="w-full flex-1 flex justify-start items-center gap-2 text-[11px] ">
-                <p className={`text-teal-500`}>{applicantStatus||''}</p><p className='text-[13px] font-extrabold'>{` . `}</p>
+                <p className={candidateStatus}>{applicantStatus||''}</p><p className='text-[13px] font-extrabold'>{` . `}</p>
                 <p>{applicant?.user?.location}</p><p className='text-[13px] font-extrabold'>{` . `}</p>
                 {
                     appliedAt?<p>{`Applied : ${format(appliedAt)}`}</p>:null
@@ -133,7 +133,7 @@ const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candi
                 {
                     applicantStatus==='SHORTLISTED' && <>
                         {
-                            interviewDetails.interviewStatus==='COMPLETED'?<button onClick={()=>dispatch(setPreviewedInterviewSummaryId(interviewDetails?.id))} className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-teal-600 cursor-pointer">
+                            interviewDetails?.interviewStatus==='COMPLETED'?<button onClick={()=>dispatch(setPreviewedInterviewSummaryId(interviewDetails?.id))} className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-teal-600 cursor-pointer">
                                 View Interview Summary
                             </button>:null
                         }
