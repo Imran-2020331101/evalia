@@ -31,7 +31,8 @@ Evalia is a comprehensive 3-tier AI-powered platform that revolutionizes resume 
 
 Evalia follows a microservices architecture with clear separation of concerns:
 
-![alt text](https://github.com/Imran-2020331101/evalia/blob/Resources/evalia_architecture.png?raw=true)
+<img src="/Resources/evalia_architecture.png" height="350" width="100%" alt="Architecture Diagram of Evalia App">
+
 ### 🔧 Technology Stack
 
 #### Frontend (Client)
@@ -273,6 +274,8 @@ WebSocket: /socket.io (Port 6001)     # Real-time notifications
 4. **Vectorization** → Pinecone stores embeddings by industry
 5. **Analysis** → OpenAI provides insights and recommendations
 
+<img src="/Resources/resume_processing_pipeline.png" height="350" width="100%" alt="Resume Processing Pipeline">
+
 ### Job Matching Flow
 1. **Query** → User searches for opportunities
 2. **Vector Search** → Pinecone finds similar profiles
@@ -375,12 +378,12 @@ if (contentType?.includes('application/json')) {
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👥 Team
+##  Team
 
-- **Imran** - Full Stack Developer
-- **Azwoad** - Backend Developer
+- **Imran** - Backend Developer
+- **Azwoad** - Frontend Developer
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - OpenAI for GPT models
 - Pinecone for vector database
