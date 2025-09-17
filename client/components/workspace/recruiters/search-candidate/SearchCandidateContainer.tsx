@@ -37,15 +37,18 @@ const SearchCandidateContainer = () => {
 
                 <h1 className="text-xl font-semibold text-gray-100">Search candidates by job description</h1>
                 <p className="mt-1 text-sm text-gray-400 max-w-xl">
-                    Quickly find the best matches by searching skills, responsibilities, and role requirements directly from job descriptions.
+                    Paste your job description and let AI extract, classify, and prioritize key requirements for better candidate matching.
                 </p>
 
-                {/* bullets */}
-                <ul className="mt-3 ml-0 space-y-1 text-xs  text-gray-300">
-                    <li>• Matches candidates by skill keywords and role responsibilities</li>
-                    <li>• Prioritizes recent experience and relevant projects</li>
-                    <li>• Supports boolean-style and natural-language queries for flexible search</li>
+                <ul className="mt-3 ml-0 space-y-1 text-xs text-gray-300">
+                    <li>• Extracts skills, experience, education, and project needs</li>
+                    <li>• Categorizes roles into industry-specific collections</li>
+                    <li>• Distinguishes must-have vs. nice-to-have qualifications</li>
+                    <li>• Detects experience level (junior, mid, senior)</li>
+                    <li>• Converts requirements into semantic embeddings</li>
+                    <li>• Enables multi-dimensional search across skills, roles, projects, and education</li>
                 </ul>
+
             </section>
       </section>
       <div className="w-[1px] h-[70%] bg-gray-700 self-center mx-3"></div>
