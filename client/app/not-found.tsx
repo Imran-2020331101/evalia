@@ -11,13 +11,13 @@ export default function NotFound() {
         </p>
         <div className="flex gap-3 justify-center text-sm">
           <Link 
-            href="/"
+            href="/workspace"
             className="px-4 py-2 bg-[#503C3C] text-[#c5b2b2] hover:bg-[#473535] rounded text-sm transition-colors"
           >
-            Go to home page
+            Go back to Workspace
           </Link>
           <Link 
-            href="/help"
+            href="/profile/support"
             className="px-4 py-2 border border-neutral-600 hover:border-neutral-500 rounded text-sm transition-colors"
           >
             Visit Help Center
