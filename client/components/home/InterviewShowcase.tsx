@@ -66,7 +66,7 @@ const InterviewShowcase = () => {
               playsInline
               controls={false}
             >
-              <source src={'https://videos.pexels.com/video-files/18473278/18473278-uhd_2560_1440_60fps.mp4'} type="video/mp4" />
+              <source src={'https://www.pexels.com/download/video/9783698/'} type="video/mp4" />
               Your browser does not support the video tag.
             </video>
             <div className={` ${isPlay?'hidden':'flex'} group-hover:flex absolute top-0 left-0 right-0 w-full h-full rounded-4xl bg-gray-950/30  items-center`}>
