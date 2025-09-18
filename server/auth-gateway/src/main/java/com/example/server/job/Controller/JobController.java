@@ -225,6 +225,21 @@ public class JobController {
                 .body(response.getBody());
     }
 
+    @PostMapping("/{jobId}/reject/status/{status}")
+    public ResponseEntity<String> rejectCandidatesOfAJob(@PathVariable("jobId") String jobId,
+                                                         @PathVariable("status") String status,
+                                                         @RequestBody ShortlistRequest shortlistRequest) {
+
+        logger.info("rejectCandidatesOfAJob " + jobId + " " + shortlistRequest.toString());
+
+        List<candidateInfo> candidates  = jobService.mapToCandidateInfo(shortlistRequest);
+        ResponseEntity<String> response = jobProxy.rejectCandidatesOfAJob(jobId,status, new ShortlistForwardWrapper(candidates));
+
+        logger.info(response.getBody());
+        return ResponseEntity.status(response.getStatusCode())
+                .body(response.getBody());
+    }
+
 
 
     @GetMapping("/{jobId}/questions")

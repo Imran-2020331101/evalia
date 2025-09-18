@@ -57,6 +57,11 @@ public interface JobProxy {
     ResponseEntity<String> finalistCandidatesOfAJob     (@PathVariable("jobId") String jobId,
                                                           @RequestBody ShortlistForwardWrapper shortlistForwardWrapper);
 
+    @PostMapping   (value = "/{jobId}/reject/status/{status}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> rejectCandidatesOfAJob     (@PathVariable("jobId") String jobId,
+                                                        @PathVariable("status") String status,
+                                                          @RequestBody ShortlistForwardWrapper shortlistForwardWrapper);
+
     @GetMapping(value = "/{jobId}/interview-questions")
     ResponseEntity<String> getInterviewQuestionsOfAJob(@PathVariable("jobId") String jobId);
 

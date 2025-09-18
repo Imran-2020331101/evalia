@@ -34,7 +34,7 @@ router.get("/:jobId/description", jobController.getDescriptionOfAJob.bind(jobCon
 // Applications
 router.post("/apply", applicationController.applyToJob.bind(applicationController));
 router.post("/:jobId/withdraw", applicationController.withDrawApplicationFromAJob.bind(applicationController));
-router.post("/reject", applicationController.rejectRemainingCandidates.bind(applicationController));
+router.post("/:jobId/reject/status/:status", applicationController.rejectRemainingCandidates.bind(applicationController));
 
 // Suggestions:
 router.get("/candidates/:candidateId/suggestions", jobController.getJobSuggestions.bind(jobController));
