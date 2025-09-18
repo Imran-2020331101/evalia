@@ -11,6 +11,7 @@ import gsap from 'gsap'
 import { SplitText } from 'gsap/all'
 import { fetchUserData, isSignedIn, setIsSingedIn, user } from '@/redux/features/auth'
 import { useEffect, useState } from 'react'
+import { useProgressRouter } from '@/custom-hooks/useProgressRouter'
 
 gsap.registerPlugin(SplitText)
 
@@ -31,7 +32,7 @@ const HamburgerMenu = () => {
   const currentUser = useAppSelector(user);
 
   const dispatch = useAppDispatch()
-  const router  = useRouter()
+  const router  = useProgressRouter()
 
   const handleNavToWorkspace = ()=>{
     dispatch(toggleIsShowHamburgerMenu());
