@@ -123,20 +123,17 @@ export class ApplicationController{
   
 
   rejectRemainingCandidates = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const { jobId, currentStatus } = req.body;
+    const { candidates } = ShortlistRequest.parse(req.body);
+    const { jobId, status } = req.params;
 
-    if (!ApplicationStatus.options.includes(currentStatus)) {
-      res.status(400).json({
-        success : false,
-        error   : "Invalid status type. You must include a valid current status of the candidates",
-      } as ApiResponse);
-      return ;
-    }
+    logger.info(jobId);
 
-    const result = await JobService.bulkRejectApplications(jobId, currentStatus);
+    const result = await applicationService.rejectCandidate(jobId, status, candidates);
 
-    const statusCode = result.success ? 200 : 400;
-    res.status(statusCode).json(result);
+    res.status(200).json({
+      success: true,
+      data   : result
+    });
   });
 
   test = asyncHandler(async( req: Request, res: Response) : Promise<void> => {
