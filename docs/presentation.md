@@ -192,8 +192,8 @@ Evalia isn't built as a monolithic application – it's a carefully orchestrated
 ```
 
 Each service is independently scalable, fault-tolerant, and optimized for its specific domain. This means when you're processing thousands of resumes, only the Resume Service scales up, while other services continue operating normally.
-
-### The Resume Processing Pipeline: From PDF to Intelligence
+he Resume Processing Pipeline:
+###  From PDF to Intelligence
 
 Let me walk you through what happens when someone uploads their resume to Evalia.
 
