@@ -4,8 +4,8 @@ import DynamicBreadcrumbs from "@/components/ui/dynamicBreadCrumb";
 import { Major_Mono_Display } from "next/font/google";
 import { ArrowUpRight, LogOut, User } from "lucide-react";
 import ProfileSideBar from "@/components/profile/ProfileSideBar";
-import { useAppSelector } from "@/redux/lib/hooks";
-import { user } from "@/redux/features/auth";
+import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks";
+import { resetUser, user } from "@/redux/features/auth";
 import ProgressLink from "@/components/utils/ProgressLink";
 import { useProgressRouter } from "@/custom-hooks/useProgressRouter";
 
@@ -14,12 +14,14 @@ const majorMono = Major_Mono_Display({ weight: '400', subsets: ['latin'] });
 const ProfileLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
 
   const router = useProgressRouter()
+  const dispatch = useAppDispatch()
 
   const currentUser = useAppSelector(user)
 
   const handleLogout = async()=>{
     await fetch('/api/auth/logout', { method: 'POST' });
     console.log('logged out')
+    await dispatch(resetUser());
     router.push('/auth/login')
     
   }
