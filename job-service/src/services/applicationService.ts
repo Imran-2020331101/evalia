@@ -243,7 +243,7 @@ class ApplicationService{
     for (const candidate of candidates) {
       let data : { stage: any, review: any, interviewEvaluation: any }=  {
           stage : "Initial Stage",
-          review : CompatibilityReviewModel.findOne({jobId: jobId, candidateEmail: candidate.candidateEmail}),
+          review : await CompatibilityReviewModel.findOne({jobId: jobId, candidateEmail: candidate.candidateEmail}),
           interviewEvaluation: "",
         }
       if(  status == ApplicationStatus.Shortlisted && job.interviewQA?.length && job.interviewQA?.length > 0){
