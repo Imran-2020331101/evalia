@@ -3,7 +3,7 @@
 import Image from "next/image"
 import axios from "axios"
 import bg from '../../../public/gradient_bg.jpg'
-import {  Mail, MapPin, Menu, SlidersVertical, User, X } from "lucide-react"
+import {  File, Mail, MapPin, Menu, SlidersVertical, User, X } from "lucide-react"
 
 import linkedIn from '../../../public/linkedin.svg'
 import github from '../../../public/github.svg'
@@ -16,8 +16,10 @@ import CandidatesResumePanel from "../../utils/CandidatesResumePanel"
 
 const CandidateProfilePreview = () => {
     const modalRef = useRef<HTMLDivElement>(null)
+    const resumePreviewContainerRef = useRef<HTMLDivElement>(null)
     const [isShowModal , setIsShowModal] = useState(false)
     const [compatibilityReport, setCompatibilityReport] = useState<any>(null)
+    const [isShowResume, setIsShowResume]=useState<boolean>(false);
 
     const dispatch = useAppDispatch()
 
@@ -57,6 +59,19 @@ const CandidateProfilePreview = () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
+
+     useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+          if (resumePreviewContainerRef.current && !resumePreviewContainerRef.current.contains(event.target as Node)) {
+             setIsShowResume(false);
+          }
+        }
+    
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+          document.removeEventListener("mousedown", handleClickOutside);
+        };
+      }, [ isShowResume]);
     useEffect(()=>console.log(currentReviewId,'current review id '))
   return (
     <div className={`z-[130] top-0 left-0 right-0 bottom-0 backdrop-blur-sm ${currentPreviewedCandidate?'fixed':'hidden'} `}>
@@ -88,29 +103,47 @@ const CandidateProfilePreview = () => {
                        }
                     </div>
                     <p className="text-lg font-semibold tracking-widest scale-120 mt-2">{candidate?.name||''}</p>
-                    <div className="flex text-sm items-center gap-3 text-gray-200">
+                    <div className="flex text-sm items-center gap-3 text-gray-300">
                         <div className="flex items-center gap-1">
-                            <MapPin size={20} className="text-blue-400"/> 
+                            <MapPin size={14} className="text-blue-400"/> 
                             <p>{candidate?.location || ''}</p>
                         </div>
                         <p>|</p>
                         <div className="flex items-center gap-1">
-                            <Mail size={20} className="text-blue-400"/> 
+                            <Mail size={14} className="text-blue-400"/> 
                             <p>{candidate?.email || ''}</p>
                         </div>
+                        {
+                    candidate?.resumeUrl && <div className="flex gap-2 items-center ">
+                            <p>|</p>
+                            <File size={14} className="text-blue-400 "/>
+                            <button onClick={()=>setIsShowResume(true)} className="flex flex-col text-[11px] text-gray-300">
+                            <p className="">Resume.pdf</p>
+                            {/* <p className="">200.20kb</p> */}
+                            </button>
+                        </div>
+                    }
                     </div>
                     <div className="w-[65%] h-auto mt-2">
-                        <p className="text-center text-[12px] text-gray-200">{candidate?.aboutMe || ''}</p>
+                        <p className="text-center text-[12px] text-gray-300">{candidate?.aboutMe || ''}</p>
                     </div>
+                    {
+                          isShowResume && <div className="fixed top-0 left-0 right-0 bottom-0 backdrop-blur-sm z-[150] flex justify-center items-center">
+                              <div ref={resumePreviewContainerRef} className="w-[50%] h-[95%] shrink-0 bg-gray-200 rounded-lg overflow-y-scroll scroll-container">
+                                <iframe src={candidate.resumeUrl || ''} width="100%" height="auto" className="w-full h-full object-contain"></iframe>
+                              </div>
+                        </div>
+                        }
+                    
                 </div>
-                <div className="absolute bottom-0 w-full h-[120px]  z-10 flex justify-center items-center gap-6">
+                {/* <div className="absolute bottom-0 w-full h-[120px]  z-10 flex justify-center items-center gap-6">
                     <button className="p-1 cursor-pointer rounded-full border border-blue-500">
                         <Image  className="w-[25px] h-auto object-contain" src={linkedIn} alt=""/>
                     </button>
                     <button className="p-1 cursor-pointer rounded-full border border-blue-500">
                         <Image  className="w-[25px] h-auto object-contain" src={github} alt=""/>
                     </button>
-                </div>
+                </div> */}
             </section>
             <section className='w-1/2 h-full shrink-0 bg-slate-900 border-l-[1px] border-slate-700 relative flex flex-col'>
                 <section className="absolute top-2 right-2 z-10">
