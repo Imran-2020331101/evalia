@@ -26,26 +26,14 @@ const ConfidenceAnalysis = ({setOverallPerformance,isEndEvaluation}:propType) =>
     const prevEyeRef = useRef(1);
     const prevFaceRef = useRef(1);
     const prevBlinkRef = useRef(1);
+    const overAllPerfRef = useRef(0);
 
     const updatePerformance = (metrics: any) => {
-        const { faceCount, eyeContact, blinkRate } = metrics;
-
-        let faceInstant = (faceCount === 1) ? 1 : Math.max(0, 1 - Math.abs(faceCount - 1) * 0.5);
-        let eyeInstant = Math.min(Math.max(eyeContact, 0), 1);
-        const maxBlink = 30;
-        let blinkInstant = Math.max(0, 1 - blinkRate / maxBlink);
-
-        const alpha = 0.2;
-        prevFaceRef.current = prevFaceRef.current * (1 - alpha) + faceInstant * alpha;
-        prevEyeRef.current = prevEyeRef.current * (1 - alpha) + eyeInstant * alpha;
-        prevBlinkRef.current = prevBlinkRef.current * (1 - alpha) + blinkInstant * alpha;
-
-        const overallPerf =
-            prevFaceRef.current * 0.4 +
-            prevEyeRef.current * 0.4 +
-            prevBlinkRef.current * 0.2;
-
-        setOverallPerformance(overallPerf);
+        const { faceCount, eyeContact, blinkRate , aggregateScore} = metrics;
+        // console.log(metrics, 'metrics');
+        const score = Math.floor(parseFloat(metrics.smoothedScore) *100);
+        console.log(score, metrics.smoothedScore)
+        setOverallPerformance(score);
     };
 
     useEffect(()=>{
@@ -77,7 +65,6 @@ const ConfidenceAnalysis = ({setOverallPerformance,isEndEvaluation}:propType) =>
 
         socketRef.current.on("metrics", (data) => {
             updatePerformance(data)
-            console.log("Performance metrics:", data);
         });
 
         // cleanup on unmount
