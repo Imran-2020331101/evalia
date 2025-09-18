@@ -149,7 +149,7 @@ const CandidateProfileContainer = () => {
                         <ImagePlus className=" w-[60px] h-[60px] text-gray-500"/>
                       </div>
                     }
-                    <div className="absolute bottom-[-25%] left-[5%] w-[150px] h-[150px] rounded-full">
+                    <div className="absolute bottom-[-22%] min-[1600px]:bottom-[-25%] left-[5%] w-[120px] h-[120px] min-[1600px]:w-[150px] min-[1600px]:h-[150px] rounded-full">
                         <input ref={profilePhotoRef} type="file" accept="image" hidden onChange={handleUploadProfilePhoto} />
                         <button className="cursor-pointer rounded-full relative w-full h-full" onClick={()=>profilePhotoRef.current?.click()} >
                           {
@@ -326,7 +326,7 @@ const CandidateProfileContainer = () => {
         </div>
         <div className="w-[40%] h-full   gap-[14px] ">
           <section className="w-full h-full bg-slate-900 rounded-xl flex flex-col overflow-y-scroll scrollbar-hidden gap-3 p-[16px]">
-              <section className="w-full h-1/2 shrink-0 flex flex-col gap-3">
+              <section className="w-full h-[45%] shrink-0 flex flex-col gap-3">
                 <p className="text-lg text-gray-300 font-semibold pb-2 border-b-[1px] border-gray-700">Suggested Jobs : </p>
                 <div className="w-full flex-1 gap-2 flex flex-col overflow-y-scroll scroll-container">
                   {
@@ -353,7 +353,7 @@ const CandidateProfileContainer = () => {
                   }
                 </div>
               </section>
-              <section className="w-full h-1/2 shrink-0 flex flex-col gap-3">
+              <section className="w-full h-[55%] shrink-0 flex flex-col gap-3">
                 <p className="text-lg text-gray-300 font-semibold pb-2 border-b-[1px] border-gray-700">Suggested Courses : </p>
                 <div className="w-full flex-1 flex flex-col overflow-y-scroll scroll-container">
                   {

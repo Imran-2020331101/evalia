@@ -80,14 +80,14 @@ export default function CourseCard({ course,fromProfile=false,  className = '' }
   },[currentUnsaveCourseStatus])
   return (
     <article
-      className={`bg-gray-900/70 border border-gray-800 rounded-2xl overflow-hidden shadow-sm transition-shadow hover:shadow-md flex flex-col md:flex-row gap-4 p-4 shrink-0 ${className}`}
+      className={`bg-gray-900/70  rounded-2xl overflow-hidden shadow-sm transition-shadow hover:shadow-md flex flex-col md:flex-row gap-4 py-4 shrink-0 ${className}`}
       aria-label={`Course: ${course.title}`}
     >
       <a
         href={videoUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="relative block w-full md:w-40 h-40 md:h-28 rounded-lg overflow-hidden flex-shrink-0"
+        className="relative block w-full md:w-30 h-40 md:h-20 rounded-lg overflow-hidden flex-shrink-0"
       >
         {thumb ? (
           <img
@@ -104,7 +104,7 @@ export default function CourseCard({ course,fromProfile=false,  className = '' }
 
         {/* play overlay */}
         <div className="absolute inset-0 h-full w-full flex items-center justify-center pointer-events-none">
-          <div className="h-full w-full bg-black/50 flex items-center justify-center">
+          <div className="h-full w-full flex items-center justify-center">
             <Play size={16} />
           </div>
         </div>
@@ -117,12 +117,12 @@ export default function CourseCard({ course,fromProfile=false,  className = '' }
           </h3>
         </a>
 
-        <p className="mt-1 text-xs text-slate-400 line-clamp-3 overflow-hidden max-h-12">
+        <p className="mt-1 text-xs text-slate-400 line-clamp-3 overflow-hidden max-h-8">
           {course.description || 'No description available.'}
         </p>
 
         <div className="mt-3 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 text-xs text-slate-400">
+          <div className="flex items-center gap-3 text-xs text-slate-400 self-start">
             <a
               href={channelUrl || '#'}
               target="_blank"

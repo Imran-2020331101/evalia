@@ -418,7 +418,7 @@ const PreviewInterviewSummary = () => {
                       </h3>
 
                       <div className="space-y-5">
-                        {filteredTranscript?.map((qa:any, idx:any) => (
+                        {filteredTranscript?.map((qa:any, idx:any) => (qa.candidateAnswer?
                           <div key={idx} className="space-y-2">
                             {/* Question */}
                             <div className="flex items-start gap-2">
@@ -451,7 +451,7 @@ const PreviewInterviewSummary = () => {
                                 <span className="text-slate-400 font-medium">Reference:</span> {qa.referenceAnswer}
                               </div>
                             </div> */}
-                          </div>
+                          </div>:null
                         ))}
                       </div>
                     </div>

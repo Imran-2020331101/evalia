@@ -103,7 +103,7 @@ export default function CourseCard({ course, className = '' }: Props) {
 
         {/* play overlay */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-full h-full  bg-black/50 flex items-center justify-center">
+          <div className="w-full h-full flex items-center justify-center">
             <Play size={16} />
           </div>
         </div>
