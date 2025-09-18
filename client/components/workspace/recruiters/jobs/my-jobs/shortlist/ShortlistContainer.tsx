@@ -1,11 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react';
-import { SlidersHorizontal ,UserCheck, Target, MenuSquare, ArrowUpRight, FileQuestion} from 'lucide-react';
+import { SlidersHorizontal ,UserCheck, Target, MenuSquare, ArrowUpRight, FileQuestion, Loader2, Ban} from 'lucide-react';
 
 import CandidateCard from '../CandidateCard'
 import { useAppDispatch, useAppSelector } from '@/redux/lib/hooks';
-import { markAsFinalist, markFinalistStatus, recruitersSelectedJob, setShortListedCandidate, shortListedCandidate } from '@/redux/features/job';
+import { markAsFinalist, markFinalistStatus, recruitersSelectedJob, rejectCandidate, rejectCandidateStatus, setShortListedCandidate, shortListedCandidate } from '@/redux/features/job';
 import { useDeepCompareEffect } from '@/custom-hooks/useDeepCompareEffect';
 import { ClipLoader } from 'react-spinners';
 
@@ -55,12 +55,24 @@ const ShortListContainer = () => {
   
   const currentMarkFinalistStatus = useAppSelector(markFinalistStatus)
   const currentSelectedRecruiterJob = useAppSelector(recruitersSelectedJob);
+  const currentRejectCandidateStatus = useAppSelector(rejectCandidateStatus);
   const {applications}=currentSelectedRecruiterJob || [];
   const currentShortListedCandidates = useAppSelector(shortListedCandidate)
     const handleSubmit =()=>{
 
       // const shortListed = applications.filter((item:any)=>item.status==='SHORTLISTED')
   }
+
+  const handleRejectRemaining = ()=>{
+      const candidateIds = shortListedCandidates?.map((item:any)=>item?.candidateId)
+      const data = {
+        "candidateIds":candidateIds
+      }
+      const jobId = currentSelectedRecruiterJob._id;
+      const status='SHORTLISTED';
+      dispatch(rejectCandidate({data,jobId,status}));
+    }
+  
   useDeepCompareEffect(()=>{
     const shortListed = currentSelectedRecruiterJob?.applications.filter((item:any)=>item.status==='SHORTLISTED')
     setShortListedCandidates(shortListed||[]);
@@ -99,6 +111,19 @@ const ShortListContainer = () => {
           <button onClick={handleGenerateFinalist} disabled={selectedToBeFinalist.length?false:true} className={` text-xs tracking-normal ${selectedToBeFinalist.length?'hover:bg-blue-600 hover:text-white bg-blue-700 cursor-pointer':'bg-gray-400 cursor-not-allowed'} px-2 py-[2px] rounded-md font-bold flex gap-1 items-center`}> <ArrowUpRight size={14} color='white'/>
            Create Finalist
           </button>
+          <button onClick={handleRejectRemaining} disabled={currentRejectCandidateStatus.length?false:true} className={` text-xs tracking-normal hover:bg-red-600 text-gray-200 bg-red-700 cursor-pointer px-2 py-[2px] rounded-md font-bold flex gap-1 items-center`}> 
+              {
+                currentRejectCandidateStatus==='pending'?
+                <div className="flex items-center gap-1">
+                  <Loader2 className='size-1 animate-spin'/>
+                  Rejecting remaining
+                </div>:
+                <div className="flex items-center gap-1">
+                  <Ban size={14} color='white'/>
+                  Reject Remaining
+                </div>
+              }
+            </button>
         </div>
       {/* <div className="w-full h-auto flex justify-end items-center shrink-0">
         <button onClick={()=>setIsShowModal((prev)=>!prev)} className=' mb-4 relative group'>
