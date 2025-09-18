@@ -66,7 +66,7 @@ export const generateRejectionFeedbackEmail = (
         <p style="margin-top: 20px; color: #94a3b8;">
           We truly appreciate the effort you invested and wish you every success in your career ahead.
         </p>
-        <p><strong style="color: #38bdf8;">The Hiring Team</strong></p>
+        <p><strong style="color: #38bdf8;">Team Evalia</strong></p>
       </body>
     </html>
   `;
