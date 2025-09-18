@@ -153,6 +153,9 @@ const authSlice = createSlice({
         }){
             state.registerFormData[action.payload.name] = action.payload.value as any;
         },
+        resetUser(state){
+            state.user=null;
+        },
         setOrgCreationStatus(state, action){
             state.orgCreationStatus=action.payload
         },
@@ -300,7 +303,7 @@ const authSlice = createSlice({
 })
 
 export default authSlice.reducer;
-export const {setFormData, setOrgCreationStatus, setOrgFetchStatus,setOrgUpdateStatus, setUserBasicInfoUpdateStatus, setResume, setAnalyzeUserResumeStatus, setIsSingedIn}= authSlice.actions;
+export const {resetUser,setFormData, setOrgCreationStatus, setOrgFetchStatus,setOrgUpdateStatus, setUserBasicInfoUpdateStatus, setResume, setAnalyzeUserResumeStatus, setIsSingedIn}= authSlice.actions;
 export const currentFormData = (state:RootState)=>state.auth.registerFormData
 export const user = (state:RootState) => state.auth.user;
 export const userStatus = (state:RootState) => state.auth.userStatus;

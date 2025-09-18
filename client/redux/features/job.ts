@@ -123,7 +123,14 @@ export const markAsFinalist = createAsyncThunk('job/markAsFinalist', async({jobI
     }
 })
 
-
+export const rejectCandidate = createAsyncThunk('job/rejectCandidate', async({data,jobId, status}:{data:any, jobId:any, status:any},thunkAPI)=>{
+    try {
+        const response = await axios.post(`http://localhost:8080/api/job/${jobId}/reject/status/${status}`,data, {withCredentials:true});
+        return response.data;
+    } catch (error:any) {
+        return thunkAPI.rejectWithValue(error.response? { message: error.response.data } : { message: 'Failed marking as finalist' })
+    }
+})
 
 
 type statusType = 'idle' | 'pending' | 'success' | 'error';
@@ -134,6 +141,7 @@ interface initialStateType {
     applyJobStatus: statusType,
     saveJobStatus: statusType,
     markShortlistedStatus: statusType,
+    rejectCandidateStatus: statusType,
     markFinalistStatus: statusType,
     markShortlistedByAiStatus:statusType,
     applyJobId:string|null,
@@ -161,6 +169,7 @@ const initialState :initialStateType = {
     markShortlistedStatus:'idle',
     markFinalistStatus:'idle',
     markShortlistedByAiStatus:'idle',
+    rejectCandidateStatus:'idle',
     createJobStatus:'idle',
     fetchJobStatus:'idle',
     getAllJobsStatus:'idle',
@@ -175,6 +184,9 @@ const jobSlice = createSlice({
     name:'job',
     initialState,
     reducers:{
+        setRejectCandidateStatus(state,action){
+            state.rejectCandidateStatus = action.payload
+        },
         setMarkShortListedByAiStatus(state,action){
             state.markShortlistedByAiStatus=action.payload;
         },
@@ -375,11 +387,23 @@ const jobSlice = createSlice({
             state.markFinalistStatus='success'
             // state.markShortlistedByAiStatus='success'
         })
+        .addCase(rejectCandidate.pending,(state)=>{
+            state.rejectCandidateStatus='pending'
+        })
+        .addCase(rejectCandidate.rejected,(state)=>{
+            state.rejectCandidateStatus='error'
+        })
+        .addCase(rejectCandidate.fulfilled,(state,action)=>{
+            state.recruitersSelectedJob=action.payload.data;
+
+            console.log(action.payload, 'inside reject candidate thunk'); 
+            state.rejectCandidateStatus='success'
+        })
     }
 })
 
 export default jobSlice.reducer;
-export const {setMarkShortListedByAiStatus,setPreviewedShortListedCandidate, setSelectedOrgId, setSelectedOrg, setApplyJobStatus, setGetAllJobStatus, setApplyJobId, setSaveJobId, setRecruiterSelectedJob, setCreateJobStatus,setMarkShortListedStatus, setShortListedCandidate}=jobSlice.actions;
+export const {setRejectCandidateStatus,setMarkShortListedByAiStatus,setPreviewedShortListedCandidate, setSelectedOrgId, setSelectedOrg, setApplyJobStatus, setGetAllJobStatus, setApplyJobId, setSaveJobId, setRecruiterSelectedJob, setCreateJobStatus,setMarkShortListedStatus, setShortListedCandidate}=jobSlice.actions;
 export const exploreJobs = (state:RootState)=>state.job.exploreJobs;
 export const appliedJobs = (state:RootState)=>state.job.appliedJobs;
 export const savedJobs = (state:RootState)=>state.job.savedJobs;
@@ -399,3 +423,4 @@ export const shortListedCandidate = (state:RootState)=>state.job.shortListedCand
 export const previewedShortListedCandidate = (state:RootState)=>state.job.previewedShortListedCandidate;
 export const markShortlistedByAiStatus = (state:RootState)=>state.job.markShortlistedByAiStatus;
 export const markFinalistStatus = (state:RootState)=>state.job.markFinalistStatus;
+export const rejectCandidateStatus = (state:RootState)=>state.job.rejectCandidateStatus;

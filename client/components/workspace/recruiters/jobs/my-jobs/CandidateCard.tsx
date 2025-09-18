@@ -1,10 +1,10 @@
 'use client'
 import { setPreviewedInterviewSummaryId } from "@/redux/features/interview"
-import { markAsShortListed, markShortlistedStatus, recruitersSelectedJob } from "@/redux/features/job"
+import { markAsFinalist, markAsShortListed, markShortlistedStatus, recruitersSelectedJob, rejectCandidate, rejectCandidateStatus } from "@/redux/features/job"
 import { setCompatibilityReviewId, setPreviewedCandidate } from "@/redux/features/utils"
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
 import axios from "axios"
-import { User } from "lucide-react"
+import { Loader, User } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { ClipLoader } from "react-spinners"
@@ -20,6 +20,7 @@ const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candi
     const dispatch = useAppDispatch()
 
     const currentSelectedRecruiterJob = useAppSelector(recruitersSelectedJob);
+    const currentRejectCandidateStatus = useAppSelector(rejectCandidateStatus);
     const currentMarkShortlistStatus = useAppSelector(markShortlistedStatus)
 
     const handleViewProfile = ()=>{
@@ -37,6 +38,28 @@ const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candi
         toggleSelectSingle(applicantId);
         // setIsChecked((prev)=>!prev);
     }
+
+    const handleMarkSingleFinalist = ()=>{
+              const data = {
+                "candidateIds":[applicantId]
+              }
+              const jobId = currentSelectedRecruiterJob._id;
+              console.log(data, 'submitted data')
+        
+              dispatch(markAsFinalist({data, jobId}));
+          
+    }
+    const handleRejectCandidate = ()=>{
+        const data = {
+                "candidateIds":[applicantId]
+              }
+        const jobId = currentSelectedRecruiterJob._id;
+        const status = applicantStatus;
+        dispatch(rejectCandidate({data,jobId,status}));
+    }
+    useEffect(()=>{
+        // if(currentRejectCandidateStatus==='success')
+    },[currentRejectCandidateStatus])
     useEffect(()=>{
         const isSelected = selected?.find((item:string)=>item===applicantId);
         if(isSelected) setIsChecked(true)
@@ -122,11 +145,17 @@ const CandidateCard = ({applicantId, applicantStatus, appliedAt, reviewId, candi
                 </button> */}
                 {
                     applicantStatus==='PENDING' && <>
-                        <button className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-teal-600 cursor-pointer">
+                        <button onClick={handleMarkSingleFinalist} className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-teal-600 cursor-pointer">
                             Mark as Finalist
                         </button>
-                        <button className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-red-600 cursor-pointer">
-                            Reject
+                        <button disabled={currentRejectCandidateStatus==='pending'?true:false} onClick={handleRejectCandidate} className=" flex justify-center items-center w-full h-[30px] border-b-[1px] border-gray-700 hover:border-red-600 cursor-pointer">
+                            {
+                                currentRejectCandidateStatus==='pending'?
+                                <div className=" flex gap-1 items-center">
+                                    <Loader className="animate-spin size-4" />
+                                    Reject
+                                </div>:'Reject'
+                            }
                         </button>
                     </>
                 }
