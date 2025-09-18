@@ -17,6 +17,8 @@ import { JobDetailsModel, IJobDetailsDocument } from '../models/JobDetails';
 import { sendNotification } from '../utils/notify';
 import { EventTypes, INotification } from '../types/notifications.types';
 import logger from '../config/logger';
+import { ApplicationCompatibilityService } from './ApplicationCompatibilityService';
+import { CompatibilityReviewModel } from '../models/CompatibilityReview';
 
 class ApplicationService{
 
@@ -135,6 +137,35 @@ class ApplicationService{
 
     return job;
   }
+
+  /**
+   *  
+   */
+
+  async rejectCandidate(jobId: string, status : string, candidates : Array<CandidateInfo>): Promise<IJobDetailsDocument | null> {
+    
+    const candidateIds = candidates.map(candidate => candidate.candidateId);
+    
+    const job = await JobDetailsModel.findOneAndUpdate(
+      { 
+        _id: jobId, 
+        "applications.candidateId": { $in: candidateIds } 
+      },
+      { 
+        $set: { 
+          "applications.$[elem].status": ApplicationStatus.Rejected,
+        } 
+      },
+      { 
+        new: true,
+        arrayFilters: [{ "elem.candidateId": { $in: candidateIds } }]
+      }
+    ).orFail();
+
+    this.sendRejectionNotification(jobId, status, candidates);
+
+    return job;
+  }
   
   async sendInterviewInvitation(candidates: CandidateInfo[], jobId: string): Promise<void> {
 
@@ -198,6 +229,38 @@ class ApplicationService{
         OrganizationName : job.company.OrganizationName || " No name Found ",
         OrganizationEmail: job.company.OrganizationEmail,
         guideLink        : 'https://github.com/Imran-2020331101',
+      };
+      console.log(notification);
+
+      sendNotification(notification, "email-notification");
+    }
+  }
+
+  async sendRejectionNotification( jobId: string, status: string, candidates: CandidateInfo[],): Promise<void> {
+    
+    const job = await JobDetailsModel.findById(jobId).orFail();
+
+    for (const candidate of candidates) {
+      let data : { stage: any, review: any, interviewEvaluation: any }=  {
+          stage : "Initial Stage",
+          review : CompatibilityReviewModel.findOne({jobId: jobId, candidateEmail: candidate.candidateEmail}),
+          interviewEvaluation: "",
+        }
+      if(  status == ApplicationStatus.Shortlisted && job.interviewQA?.length && job.interviewQA?.length > 0){
+          data.interviewEvaluation = `${process.env.FRONTEND_URL}/workspace/interviews/all`
+      }
+      
+      //sending email to the candidate
+      const notification  = {
+        type             : EventTypes.JOB_APPLICATION_REJECTED,
+        candidateId      : candidate.candidateId,
+        candidateName    : candidate.candidateName,
+        candidateEmail   : candidate.candidateEmail,
+        jobTitle         : job.title,
+        OrganizationId   : job.company.OrganizationId,
+        OrganizationName : job.company.OrganizationName || " No name Found ",
+        OrganizationEmail: job.company.OrganizationEmail,
+        data,
       };
       console.log(notification);
 

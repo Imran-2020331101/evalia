@@ -3,8 +3,8 @@ import { RejectionMailPayload} from "../types/rejection-mail.type"
 export const generateRejectionFeedbackEmail = (
   notification:RejectionMailPayload
 ): string => {
-  const { candidateName, jobTitle, stage, compatibilityReview } = notification;
-  const { matchPercentage, fit, strengths, weaknesses } = compatibilityReview;
+  const { candidateName, jobTitle, data } = notification;
+  const { matchPercentage, fit, strengths, weaknesses  } = data.review;
 
   return `
     <html>
@@ -20,7 +20,7 @@ export const generateRejectionFeedbackEmail = (
           Thank you sincerely for the time and effort you put into applying for the 
           <strong style="color: #60a5fa;">${jobTitle}</strong> role. 
           After a thorough review at the 
-          <strong style="color: #60a5fa;">${stage}</strong> stage, we regret to inform you 
+          <strong style="color: #60a5fa;">${data.stage}</strong> stage, we regret to inform you 
           that we have decided not to move forward with your application. 
           This was not an easy decision, as we truly value the commitment shown by every candidate.
         </p>
@@ -52,6 +52,10 @@ export const generateRejectionFeedbackEmail = (
             }
           </ul>
         </div>
+
+        ${
+          data?.interviewEvaluation && `Check your interview evaluation here : ${data.interviewEvaluation}`
+        }
 
         <p style="margin-bottom: 20px;">
           Please don’t be discouraged — every step in the process adds value to your journey. 
