@@ -31,7 +31,7 @@ const InterviewOngoingPage = () => {
               <div className="absolute group-hover:block hidden z-20 text-[12px] top-[105%] bg-slate-800 rounded-lg px-4 py-1  left-[70%] text-center">Confidence Level</div>
               <div className="w-[70px] h-[70px]">
                 <Gauge
-                  value={Math.floor(overallPerf*100)}
+                  value={Math.floor(overallPerf)}
                   startAngle={0}
                   endAngle={360}
                   innerRadius="80%"
