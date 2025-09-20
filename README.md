@@ -35,50 +35,8 @@ Evalia follows a microservices architecture with clear separation of concerns:
 
 ### 🔧 Technology Stack
 
-#### Frontend (Client)
-- **Framework**: Next.js 15 with App Router
-- **Language**: TypeScript
-- **UI**: React 19, Tailwind CSS 4, Material-UI (MUI)
-- **State Management**: Redux Toolkit
-- **Real-time**: Socket.io Client
-- **Animations**: GSAP, tw-animate-css
-- **Voice**: Vapi AI Integration
-- **Charts**: MUI X-Charts
-- **Icons**: Lucide React
+<img src="/Resources/tech-stack.png" height="350" width="100%" alt="Technology Stack of Evalia App">
 
-#### Backend Services
-
-##### Resume Service (TypeScript)
-- **Runtime**: Node.js with Express + TypeScript
-- **Database**: MongoDB (Resume storage)
-- **Vector DB**: Pinecone (Semantic search)
-- **File Storage**: Cloudinary (PDF management)
-- **AI**: OpenAI/OpenRouter for analysis
-- **Logging**: Winston with structured format
-
-##### Job Service (TypeScript)
-- **Runtime**: Node.js with Express + TypeScript
-- **Purpose**: Job matching and career recommendations
-- **AI**: OpenRouter for resume-job comparison
-- **Features**: Application management, interview questions
-
-##### Interview Engine (TypeScript)
-- **Runtime**: Node.js with Express + TypeScript
-- **Real-time**: Socket.IO for video processing
-- **AI Analysis**: Python integration for emotion detection
-- **Purpose**: Interview scheduling and analysis
-
-##### Auth Gateway (Spring Boot)
-- **Framework**: Spring Boot 3.5.3
-- **Language**: Java 17
-- **Authentication**: JWT + OTP verification
-- **Response Format**: Plain text responses
-
-##### Notification Service (TypeScript)
-- **Runtime**: Node.js with Express + TypeScript
-- **Real-time**: Socket.io server (port 6001)
-- **Message Queue**: RabbitMQ (AMQP)
-- **Database**: MongoDB (Notification persistence)
 
 ## 🚀 Quick Start
 
@@ -86,60 +44,11 @@ Evalia follows a microservices architecture with clear separation of concerns:
 - Node.js 18+
 - Java 17+
 - MongoDB
-- Redis (optional)
 - Maven
 
 ### Environment Variables
 
-Create `.env` files in each service directory:
-
-#### Client (`.env.local`)
-```env
-NEXT_PUBLIC_API_URL=http://localhost:5000
-NEXT_PUBLIC_AUTH_URL=http://localhost:8080
-NEXT_PUBLIC_JOB_SERVICE_URL=http://localhost:7000
-NEXT_PUBLIC_NOTIFICATION_URL=http://localhost:6001
-NEXT_PUBLIC_INTERVIEW_URL=http://localhost:5000
-```
-
-#### Resume Service (`.env`)
-```env
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/evalia_ai
-PINECONE_API_KEY=your_pinecone_key
-OPENAI_API_KEY=your_openai_key
-OPENROUTER_API_KEY=your_openrouter_key
-CLOUDINARY_URL=your_cloudinary_url
-LOG_LEVEL=info
-LOG_DIR=./logs
-```
-
-#### Job Service (`.env`)
-```env
-PORT=7000
-MONGODB_URI=mongodb://localhost:27017/evalia
-OPEN_ROUTER_API_KEY=your_openrouter_key
-AI_SERVER_URL=http://localhost:5000
-```
-
-#### Interview Engine (`.env`)
-```env
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/evalia
-```
-
-#### Notification Service (`.env`)
-```env
-PORT=6001
-MONGO_URI=mongodb://localhost:27017/evalia
-BROKER_URL=amqp://localhost
-JWT_SECRET=your_jwt_secret
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your_email
-SMTP_PASS=your_app_password
-AI_SERVER_URL=http://localhost:5000
-```
+Create `.env` files in each service directory and add application.json file in the auth-gateway server. follow the .env.example files for details.
 
 #### Auth Server (`application.properties`)
 ```properties
@@ -159,59 +68,25 @@ cd evalia
 
 2. **Install dependencies for all services**
 ```bash
-# Root dependencies
-npm install
 
-# Frontend
-cd client && npm install
-
-# Resume Service
-cd ../resume-service && npm install
-
-# Job Service
-cd ../job-service && npm install
-
-# Interview Engine
-cd ../interview_engine && npm install
-
-# Notification Service
-cd ../notification-service && npm install
+cd {server-name} && npm install
 
 # Auth Gateway (Maven)
 cd ../server/auth-gateway && ./mvnw clean install
 ```
 
-3. **Start all services**
+3. **Start all services in separate terminals**
 
-**Terminal 1: Frontend**
+**In each terminl run:**
 ```bash
-cd client && npm run dev
+cd {server-name} && npm run dev
 ```
 
-**Terminal 2: Resume Service**
-```bash
-cd resume-service && npm run dev
-```
-
-**Terminal 3: Job Service**
-```bash
-cd job-service && npm run dev
-```
-
-**Terminal 4: Interview Engine**
-```bash
-cd interview_engine && npm run dev
-```
-
-**Terminal 5: Notification Service**
-```bash
-cd notification-service && npm run dev
-```
-
-**Terminal 6: Auth Gateway**
+**Auth Gateway**
 ```bash
 cd server/auth-gateway && ./mvnw spring-boot:run
 ```
+**For detailed installation guide check indivisual readme**
 
 6. **Access the application**
 - Frontend: http://localhost:3000
@@ -258,7 +133,7 @@ POST   /api/auth/resend-otp           # Resend OTP
 GET    /api/auth/profile              # Get user profile
 ```
 
-### Notification Service (Port 6001)
+### Notification Service (Port 6000)
 ```
 GET    /api/notifications             # Get user notifications
 POST   /api/notifications             # Create notification
@@ -276,12 +151,31 @@ WebSocket: /socket.io (Port 6001)     # Real-time notifications
 
 <img src="/Resources/resume_processing_pipeline.png" height="350" width="100%" alt="Resume Processing Pipeline">
 
+### Vector Database Partition
+To store the vector values of the Resume we used Qdrant. For better searching efficiency we separated the table by **industry**. This virtual separation is done by storing industry metadata in each point.
+
+<img src="/Resources/VectorDB_Segmantation.png" height="350" width="100%" alt="Segmentation details of the vector database">
+
+### Interview Flow
+1. **join** -> User joins the interview using the link 
+2. **Interview Agent: Monke** → Our interview agent 
+3. **Aggregation** → Results grouped by candidate
+4. **Ranking** → Scored by relevance and skills match
+5. **Presentation** → Formatted results with recommendations
+
+### Video Processing Pipeline
+
+<img src="/Resources/Video_Processing_Pipeline.png" height="350" width="100%" alt="Anti-cheating video pipeline architecture">
+
+
 ### Job Matching Flow
 1. **Query** → User searches for opportunities
 2. **Vector Search** → Pinecone finds similar profiles
 3. **Aggregation** → Results grouped by candidate
 4. **Ranking** → Scored by relevance and skills match
 5. **Presentation** → Formatted results with recommendations
+
+
 
 ### Notification System
 1. **Event Trigger** → Microservice publishes event
@@ -290,46 +184,6 @@ WebSocket: /socket.io (Port 6001)     # Real-time notifications
 4. **Delivery** → WebSocket pushes to frontend
 5. **Display** → Redux store updates UI
 
-## 🔧 Development Guidelines
-
-### Code Structure
-```
-evalia/
-├── client/               # Next.js frontend
-│   ├── app/             # App router pages
-│   ├── components/      # Reusable components
-│   ├── redux/           # State management
-│   └── types/           # TypeScript definitions
-├── resume-service/      # Resume analysis service
-│   ├── src/
-│   │   ├── controllers/ # Route handlers
-│   │   ├── services/    # Business logic
-│   │   ├── models/      # MongoDB schemas
-│   │   ├── config/      # Configuration
-│   │   └── utils/       # Helper functions
-├── job-service/         # Job matching service
-├── interview_engine/    # Interview analysis service
-├── notification-service/ # Real-time notifications
-└── server/
-    └── auth-gateway/    # Spring Boot authentication
-```
-
-### Component Architecture
-- Break large components into focused pieces
-- Use TypeScript interfaces from `types/resume.ts`
-- Centralized candidate aggregation in `resumeHelper.js`
-- Follow Redux Toolkit patterns for state management
-
-### API Response Handling
-```typescript
-// Handle both JSON and plain text from Spring Boot
-const contentType = response.headers.get('content-type')
-if (contentType?.includes('application/json')) {
-  result = await response.json()
-} else {
-  result = { message: await response.text() }
-}
-```
 
 ## 🎨 UI/UX Guidelines
 
@@ -352,27 +206,14 @@ if (contentType?.includes('application/json')) {
 ### Logging
 - **Winston**: Structured logging across Node.js services
 - **Console Logs**: Vector search debugging
-- **Error Handling**: Specific status codes with graceful degradation
+- **Error Handling**: Specific status codes with graceful degradation within global error handling
 
 ### Common Issues
 1. **CORS**: Ensure all services have proper CORS configuration
 2. **Environment Variables**: Check all required env vars are set
 3. **MongoDB Connection**: Verify connection strings and database access
-4. **Pinecone**: Confirm API key and index configuration
+4. **Qdrant & OpenAI**: Confirm API key
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Development Workflow
-- Follow TypeScript strict mode
-- Use ESLint and Prettier for code formatting
-- Write unit tests for new features
-- Update documentation for API changes
 
 ## 📄 License
 
@@ -380,17 +221,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ##  Team
 
-- **Imran** - Backend Developer
 - **Azwoad** - Frontend Developer
+- **Imran** - Backend Developer
 
 ##  Acknowledgments
 
 - OpenAI for GPT models
-- Pinecone for vector database
+- Qdrant for vector database
 - Cloudinary for file storage
 - Material-UI for component library
-- All contributors and open-source projects used
-
 ---
 
 <div align="center">
