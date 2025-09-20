@@ -156,7 +156,7 @@ To store the vector values of the Resume we used Qdrant. For better searching ef
 3. **Aggregation** → Results grouped by candidate
 4. **Ranking** → Scored by relevance and skills match
 5. **Presentation** → Formatted results with recommendations
-
+<img src="/Resources/Interview_Process.png" height="350" width="100%" alt="Interview Process">
 ### Video Processing Pipeline
 
 <img src="/Resources/Video_Processing_Pipeline.png" height="350" width="100%" alt="Anti-cheating video pipeline architecture">
@@ -177,37 +177,16 @@ To store the vector values of the Resume we used Qdrant. For better searching ef
 3. **Persistence** → MongoDB stores notification
 4. **Delivery** → WebSocket pushes to frontend
 5. **Display** → Redux store updates UI
-
-
-## 🎨 UI/UX Guidelines
-
-### Design System
-- **Font**: Roboto Mono for form inputs
-- **Theme**: Dark theme with colors:
-  - Background: `bg-[#3E3232]`
-  - Text: `text-[#c5b2b2]`
-  - Borders: `border-[#ac8e8e]`
-- **Components**: Tailwind CSS with consistent spacing
-- **Interactions**: Smooth hover states and animations
-
+6. 
 ### Notification Strategy
 - **Persistent Notifications**: Important events requiring user attention
 - **Toast Notifications**: Immediate feedback (using React Toastify)
 - **Real-time Updates**: WebSocket for live notifications
 
-## 🐛 Debugging & Monitoring
-
 ### Logging
 - **Winston**: Structured logging across Node.js services
 - **Console Logs**: Vector search debugging
 - **Error Handling**: Specific status codes with graceful degradation within global error handling
-
-### Common Issues
-1. **CORS**: Ensure all services have proper CORS configuration
-2. **Environment Variables**: Check all required env vars are set
-3. **MongoDB Connection**: Verify connection strings and database access
-4. **Qdrant & OpenAI**: Confirm API key
-
 
 ## 📄 License
 
@@ -234,5 +213,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   </p>
 
 </div>
+
 
 
