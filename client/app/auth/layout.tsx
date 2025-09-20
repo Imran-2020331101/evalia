@@ -34,7 +34,7 @@ const AuthLayout = ({
                       {children}
                   </div>
                 </div>
-                <div className={`w-full h-full absolute top-0 left-0  ${currentIsShowAuthRole?'flex':'hidden'}`}>
+                <div className={`w-full h-full absolute top-0 left-0 z-[140] ${currentIsShowAuthRole?'flex':'hidden'}`}>
                   <div className="w-full h-full overflow-hidden">
                     <RequirementContainer  userType={userType} setUserType={setUserType} />
                   </div>

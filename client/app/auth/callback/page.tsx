@@ -46,7 +46,7 @@ const CallbackPage = () => {
 
   if (status === 'loading') {
     return (
-      <div className="fixed z-[150] top-0 bottom-0 left-0 right-0 flex justify-center items-center backdrop-blur-2xl">
+      <div className="fixed z-[210] top-0 bottom-0 left-0 right-0 flex justify-center items-center backdrop-blur-2xl">
         <div className=" w-full h-full flex flex-col items-center justify-center min-h-screen bg-gray-950/70">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-700"></div>
           <p className="mt-4 text-gray-400">Processing authentication...</p>
@@ -57,7 +57,7 @@ const CallbackPage = () => {
 
   if (status === 'success') {
     return (
-      <div className="fixed z-[150] top-0 bottom-0 left-0 right-0 flex justify-center items-center backdrop-blur-2xl">
+      <div className="fixed z-[210] top-0 bottom-0 left-0 right-0 flex justify-center items-center backdrop-blur-2xl">
         <div className="w-full h-full flex flex-col items-center justify-center min-h-screen bg-gray-950/70">
           <div className="text-green-500 text-6xl mb-4">✓</div>
           <p className="text-gray-400 text-xl">Authentication successful!</p>
@@ -68,7 +68,7 @@ const CallbackPage = () => {
   }
 
   return (
-    <div className="fixed z-[150] top-0 bottom-0 left-0 right-0 flex justify-center items-center backdrop-blur-2xl">
+    <div className="fixed z-[210] top-0 bottom-0 left-0 right-0 flex justify-center items-center backdrop-blur-2xl">
       <div className="w-full h-full flex flex-col items-center justify-center min-h-screen bg-gray-950/70">
         <div className="text-red-500 text-6xl mb-4">✗</div>
         <p className="text-gray-400 text-xl">Authentication failed!</p>

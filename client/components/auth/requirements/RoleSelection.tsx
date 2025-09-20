@@ -26,45 +26,18 @@ const RoleSelection = ({ userType, setUserType, setIsNext }: propType) => {
   const candidateRef = useRef<HTMLDivElement | null>(null)
   const recruiterRef = useRef<HTMLDivElement | null>(null)
 
-  useEffect(() => {
-    const candidate = candidateRef.current
-    const recruiter = recruiterRef.current
+  const selectRole = (role: 'recruiter' | 'candidate') => {
+    setUserType(role)
+    dispatch(setFormData({ name: "role", value: role === 'candidate' ? "USER" : "RECRUITER" }))
+  }
 
-    if (candidate) {
-      candidate.addEventListener("mouseenter", () => {
-        gsap.to(candidate, { scale: 1.03, duration: 0.2, ease: "power2.out" })
-      })
-      candidate.addEventListener("mouseleave", () => {
-        gsap.to(candidate, { scale: 1, duration: 0.2, ease: "power2.inOut" })
-      })
-      candidate.addEventListener("mousedown", () => {
-        gsap.to(candidate, { scale: 0.97, duration: 0.1 })
-      })
-      candidate.addEventListener("mouseup", () => {
-        gsap.to(candidate, { scale: 1.03, duration: 0.2 })
-      })
+  const handleKeySelect =
+    (e: React.KeyboardEvent, role: 'recruiter' | 'candidate') => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        selectRole(role)
+      }
     }
-
-    if (recruiter) {
-      recruiter.addEventListener("mouseenter", () => {
-        gsap.to(recruiter, { scale: 1.03, duration: 0.2, ease: "power2.out" })
-      })
-      recruiter.addEventListener("mouseleave", () => {
-        gsap.to(recruiter, { scale: 1, duration: 0.2, ease: "power2.inOut" })
-      })
-      recruiter.addEventListener("mousedown", () => {
-        gsap.to(recruiter, { scale: 0.97, duration: 0.1 })
-      })
-      recruiter.addEventListener("mouseup", () => {
-        gsap.to(recruiter, { scale: 1.03, duration: 0.2 })
-      })
-    }
-
-    return () => {
-      candidate?.replaceWith(candidate.cloneNode(true))
-      recruiter?.replaceWith(recruiter.cloneNode(true))
-    }
-  }, [])
 
   const handleSignUp = async () => {
     if (!userType) {
@@ -73,7 +46,6 @@ const RoleSelection = ({ userType, setUserType, setIsNext }: propType) => {
     }
     try {
       setLoading(true)
-      console.log(formData, 'formData')
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -81,7 +53,6 @@ const RoleSelection = ({ userType, setUserType, setIsNext }: propType) => {
       })
 
       const data = await response.json()
-      console.log(data,'registered user')
 
       if (data.success) {
         setIsNext(true)
@@ -99,11 +70,50 @@ const RoleSelection = ({ userType, setUserType, setIsNext }: propType) => {
     }
   }
 
+  useEffect(() => {
+    // Use gsap.context to scope and auto-cleanup
+    const ctx = gsap.context(() => {
+      const wireUp = (el: HTMLElement | null) => {
+        if (!el) return
+
+        const onEnter = () => gsap.to(el, { scale: 1.03, duration: 0.18, ease: "power2.out" })
+        const onLeave = () => gsap.to(el, { scale: 1, duration: 0.2, ease: "power2.inOut" })
+        const onDown  = () => gsap.to(el, { scale: 0.97, duration: 0.09 })
+        const onUp    = () => gsap.to(el, { scale: 1.03, duration: 0.18 })
+        const onCancel= () => gsap.to(el, { scale: 1, duration: 0.12 })
+
+        el.addEventListener("pointerenter", onEnter)
+        el.addEventListener("pointerleave", onLeave)
+        el.addEventListener("pointerdown", onDown)
+        el.addEventListener("pointerup", onUp)
+        el.addEventListener("pointercancel", onCancel)
+
+        // return remover for manual teardown if needed
+        return () => {
+          el.removeEventListener("pointerenter", onEnter)
+          el.removeEventListener("pointerleave", onLeave)
+          el.removeEventListener("pointerdown", onDown)
+          el.removeEventListener("pointerup", onUp)
+          el.removeEventListener("pointercancel", onCancel)
+          gsap.killTweensOf(el)
+        }
+      }
+
+      // wire up both refs
+      wireUp(candidateRef.current)
+      wireUp(recruiterRef.current)
+    })
+
+    return () => {
+      ctx.revert() // cleans up listeners and GSAP context
+    }
+  }, []) // refs are stable
+
   return (
     <div className="w-full h-full flex flex-col justify-start pt-[10%] gap-6 items-center relative">
       {/* Loader Overlay */}
       {loading && (
-        <div className="absolute inset-0 z-50 backdrop-blur-sm flex justify-center items-center rounded-xl">
+        <div className="absolute inset-0 z-[160] backdrop-blur-sm flex justify-center items-center rounded-xl">
           <DotLoader size={50} color="white" />
         </div>
       )}
@@ -117,12 +127,16 @@ const RoleSelection = ({ userType, setUserType, setIsNext }: propType) => {
       {/* Candidate Option */}
       <div
         ref={candidateRef}
+        role="radio"
+        aria-checked={userType === 'candidate'}
+        tabIndex={0}
+        onKeyDown={(e) => handleKeySelect(e, 'candidate')}
+        onClick={() => selectRole('candidate')}
         className={`w-[70%] h-[70px] rounded-xl flex justify-between items-center px-6 cursor-pointer shadow-md transition-all
           ${userType === 'candidate'
             ? 'bg-blue-600 text-white shadow-blue-500/40'
             : 'bg-gray-800 text-gray-200 hover:bg-gray-700'
           }`}
-        onClick={() => { setUserType('candidate'); dispatch(setFormData({ name: "role", value: "USER" })) }}
       >
         <span className="font-medium">Continue as Candidate</span>
         <input
@@ -130,6 +144,7 @@ const RoleSelection = ({ userType, setUserType, setIsNext }: propType) => {
           checked={userType === 'candidate'}
           onChange={() => { }}
           className="hidden"
+          aria-hidden
         />
         <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all 
           ${userType === 'candidate' ? 'border-white bg-white' : 'border-gray-400'}`}>
@@ -140,12 +155,16 @@ const RoleSelection = ({ userType, setUserType, setIsNext }: propType) => {
       {/* Recruiter Option */}
       <div
         ref={recruiterRef}
+        role="radio"
+        aria-checked={userType === 'recruiter'}
+        tabIndex={0}
+        onKeyDown={(e) => handleKeySelect(e, 'recruiter')}
+        onClick={() => selectRole('recruiter')}
         className={`w-[70%] h-[70px] rounded-xl flex justify-between items-center px-6 cursor-pointer shadow-md transition-all
           ${userType === 'recruiter'
             ? 'bg-blue-600 text-white shadow-blue-500/40'
             : 'bg-gray-800 text-gray-200 hover:bg-gray-700'
           }`}
-        onClick={() => { setUserType('recruiter'); dispatch(setFormData({ name: "role", value: "RECRUITER" })) }}
       >
         <span className="font-medium">Continue as Recruiter</span>
         <input
@@ -153,19 +172,19 @@ const RoleSelection = ({ userType, setUserType, setIsNext }: propType) => {
           checked={userType === 'recruiter'}
           onChange={() => { }}
           className="hidden"
+          aria-hidden
         />
         <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all 
           ${userType === 'recruiter' ? 'border-white bg-white' : 'border-gray-400'}`}>
           {userType === 'recruiter' && <div className="w-2.5 h-2.5 bg-blue-600 rounded-full" />}
         </div>
       </div>
-      
 
       {/* Next Button */}
-      <div className="absolute bottom-8 left-0  w-full flex justify-end px-6">
+      <div className="absolute bottom-8 left-0 w-full flex justify-end px-6">
         <button
           onClick={handleSignUp}
-          className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-800 transition-all text-white font-medium  justify-center mt-[30px] rounded-xl shadow-md shadow-blue-500/30"
+          className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-800 transition-all text-white font-medium justify-center mt-[30px] rounded-xl shadow-md shadow-blue-500/30"
         >
           Next <ChevronRight size={20} />
         </button>
