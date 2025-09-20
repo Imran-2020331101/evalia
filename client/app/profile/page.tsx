@@ -3,13 +3,15 @@
 import CandidateProfileContainer from "@/components/profile/candidate/CandidateProfileContainer"
 import RecruiterProfileContainer from "@/components/profile/recruiter/RecruiterProfileContainer"
 import Error from "@/components/utils/Error"
+import Loading from "@/components/utils/Loading"
 import { fetchUserData, user, userStatus } from "@/redux/features/auth"
 import { appliedJobs, getAllAppliedJobs, getAllJobsStatus } from "@/redux/features/job"
 import { useAppDispatch, useAppSelector } from "@/redux/lib/hooks"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { ScaleLoader } from "react-spinners"
 
 const ProfilePage = () => {
+  const [isMounted, setIsMounted]=useState(false);
   const currentUser:any = useAppSelector(user)
   const currentUserStatus = useAppSelector(userStatus)
 
@@ -26,9 +28,12 @@ const ProfilePage = () => {
 
   useEffect(()=>{
     if(!currentUser) dispatch(fetchUserData())
+    setIsMounted(true);
   },[])
 
-  if(currentUserStatus==='pending' || !currentUserStatus) return <div className="flex w-full h-full justify-center items-center">
+  if(!isMounted) return <Loading/>
+
+  if(currentUserStatus==='pending' ) return <div className="flex w-full h-full justify-center items-center">
     <ScaleLoader barCount={4} color="white"/>
   </div>
   if(currentUserStatus==='error') return <div className="flex w-full h-full justify-center items-center">
