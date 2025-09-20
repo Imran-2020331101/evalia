@@ -86,15 +86,9 @@ cd {server-name} && npm run dev
 ```bash
 cd server/auth-gateway && ./mvnw spring-boot:run
 ```
-**For detailed installation guide check indivisual readme**
+**For detailed installation guide check individual readme**
 
-6. **Access the application**
-- Frontend: http://localhost:3000
-- Resume Service: http://localhost:5000
-- Job Service: http://localhost:7000
-- Interview Engine: http://localhost:5000
-- Notification Service: http://localhost:6000
-- Auth Gateway: http://localhost:8080
+
 
 ## 📋 API Documentation
 
@@ -240,3 +234,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   </p>
 
 </div>
+
