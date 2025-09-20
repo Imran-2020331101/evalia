@@ -35,7 +35,7 @@ Evalia follows a microservices architecture with clear separation of concerns:
 
 ### 🔧 Technology Stack
 
-<img src="/Resources/tech-stack.png" height="350" width="100%" alt="Technology Stack of Evalia App">
+<img src="/Resources/tech_stack.png" height="350" width="100%" alt="Technology Stack of Evalia App">
 
 
 ## 🚀 Quick Start
@@ -234,4 +234,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   </p>
 
 </div>
+
 
