@@ -131,7 +131,7 @@ const VerifyOTPPage = () => {
 
   if (!email) {
     return (
-      <div className="fixed top-0 left-0 right-0 bottom-0 z-[150] flex justify-center items-center backdrop-blur-2xl">
+      <div className="fixed top-0 left-0 right-0 bottom-0 z-[180] flex justify-center items-center backdrop-blur-2xl">
         <div className="flex flex-col items-center justify-center min-h-screen bg-[#3E3232] text-white p-6">
           <div className="bg-red-900/30 border border-red-500 rounded-lg p-4 mb-4">
             <p className="text-red-400">Email not found. Please try registering again.</p>
@@ -148,7 +148,7 @@ const VerifyOTPPage = () => {
   }
 
   return (
-    <div className="fixed z-[150] top-0 left-0 right-0 bottom-0 flex justify-center items-center backdrop-blur-2xl">
+    <div className="fixed z-[180] top-0 left-0 right-0 bottom-0 flex justify-center items-center backdrop-blur-2xl">
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-950/70 text-white p-6">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
