@@ -145,9 +145,9 @@ export default function CourseCard({ course, className = "" }: Props) {
       </div>
 
       {/* Clickable content — open video in new tab */}
-      <a
-        href={videoUrl}
-        target="_blank"
+      <div
+        // href={videoUrl}
+        // target="_blank"
         rel="noopener noreferrer"
         className="relative z-10 block w-full h-full"
         aria-label={`Open video: ${course.title}`}
@@ -208,7 +208,7 @@ export default function CourseCard({ course, className = "" }: Props) {
             </div>
           </div>
         </div>
-      </a>
+      </div>
     </article>
   );
 }
