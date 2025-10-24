@@ -33,6 +33,60 @@ Evalia follows a microservices architecture with clear separation of concerns:
 
 <img src="/Resources/evalia_architecture.png" height="350" width="100%" alt="Architecture Diagram of Evalia App">
 
+## 🗄️ Data Flow
+
+### Resume Processing Pipeline
+1. **Upload** → PDF uploaded to Cloudinary
+2. **Parsing** → AI extracts structured data
+3. **Storage** → MongoDB stores resume data
+4. **Vectorization** → Pinecone stores embeddings by industry
+5. **Analysis** → OpenAI provides insights and recommendations
+
+<img src="/Resources/resume_processing_pipeline.png" height="350" width="100%" alt="Resume Processing Pipeline">
+
+### Vector Database Partition
+To store the vector values of the Resume we used Qdrant. For better searching efficiency we separated the table by **industry**. This virtual separation is done by storing industry metadata in each point.
+
+<img src="/Resources/VectorDB_Segmantation.png" height="350" width="100%" alt="Segmentation details of the vector database">
+
+### Interview Flow
+1. **join** -> User joins the interview using the link 
+2. **Interview Agent: Monke** → Our interview agent 
+3. **Aggregation** → Results grouped by candidate
+4. **Ranking** → Scored by relevance and skills match
+5. **Presentation** → Formatted results with recommendations
+<img src="/Resources/Interview_Process.png" height="350" width="100%" alt="Interview Process">
+### Video Processing Pipeline
+
+<img src="/Resources/Video_Processing_Pipeline.png" height="350" width="100%" alt="Anti-cheating video pipeline architecture">
+
+
+### Job Matching Flow
+1. **Query** → User searches for opportunities
+2. **Vector Search** → Pinecone finds similar profiles
+3. **Aggregation** → Results grouped by candidate
+4. **Ranking** → Scored by relevance and skills match
+5. **Presentation** → Formatted results with recommendations
+
+
+
+### Notification System
+1. **Event Trigger** → Microservice publishes event
+2. **Processing** → Notification service handles event
+3. **Persistence** → MongoDB stores notification
+4. **Delivery** → WebSocket pushes to frontend
+5. **Display** → Redux store updates UI
+6. 
+### Notification Strategy
+- **Persistent Notifications**: Important events requiring user attention
+- **Toast Notifications**: Immediate feedback (using React Toastify)
+- **Real-time Updates**: WebSocket for live notifications
+
+### Logging
+- **Winston**: Structured logging across Node.js services
+- **Console Logs**: Vector search debugging
+- **Error Handling**: Specific status codes with graceful degradation within global error handling
+
 ### 🔧 Technology Stack
 
 <img src="/Resources/tech_stack.png" height="350" width="100%" alt="Technology Stack of Evalia App">
@@ -134,59 +188,6 @@ POST   /api/notifications             # Create notification
 WebSocket: /socket.io (Port 6001)     # Real-time notifications
 ```
 
-## 🗄️ Data Flow
-
-### Resume Processing Pipeline
-1. **Upload** → PDF uploaded to Cloudinary
-2. **Parsing** → AI extracts structured data
-3. **Storage** → MongoDB stores resume data
-4. **Vectorization** → Pinecone stores embeddings by industry
-5. **Analysis** → OpenAI provides insights and recommendations
-
-<img src="/Resources/resume_processing_pipeline.png" height="350" width="100%" alt="Resume Processing Pipeline">
-
-### Vector Database Partition
-To store the vector values of the Resume we used Qdrant. For better searching efficiency we separated the table by **industry**. This virtual separation is done by storing industry metadata in each point.
-
-<img src="/Resources/VectorDB_Segmantation.png" height="350" width="100%" alt="Segmentation details of the vector database">
-
-### Interview Flow
-1. **join** -> User joins the interview using the link 
-2. **Interview Agent: Monke** → Our interview agent 
-3. **Aggregation** → Results grouped by candidate
-4. **Ranking** → Scored by relevance and skills match
-5. **Presentation** → Formatted results with recommendations
-<img src="/Resources/Interview_Process.png" height="350" width="100%" alt="Interview Process">
-### Video Processing Pipeline
-
-<img src="/Resources/Video_Processing_Pipeline.png" height="350" width="100%" alt="Anti-cheating video pipeline architecture">
-
-
-### Job Matching Flow
-1. **Query** → User searches for opportunities
-2. **Vector Search** → Pinecone finds similar profiles
-3. **Aggregation** → Results grouped by candidate
-4. **Ranking** → Scored by relevance and skills match
-5. **Presentation** → Formatted results with recommendations
-
-
-
-### Notification System
-1. **Event Trigger** → Microservice publishes event
-2. **Processing** → Notification service handles event
-3. **Persistence** → MongoDB stores notification
-4. **Delivery** → WebSocket pushes to frontend
-5. **Display** → Redux store updates UI
-6. 
-### Notification Strategy
-- **Persistent Notifications**: Important events requiring user attention
-- **Toast Notifications**: Immediate feedback (using React Toastify)
-- **Real-time Updates**: WebSocket for live notifications
-
-### Logging
-- **Winston**: Structured logging across Node.js services
-- **Console Logs**: Vector search debugging
-- **Error Handling**: Specific status codes with graceful degradation within global error handling
 
 ## 📄 License
 
@@ -213,6 +214,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   </p>
 
 </div>
+
 
 
 
