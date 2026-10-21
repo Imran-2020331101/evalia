@@ -6,6 +6,7 @@ import { addNotification } from "../../redux/features/notification";
 import { isSignedIn, user } from "@/redux/features/auth";
 import { useAppDispatch } from "@/redux/lib/hooks";
 import { toast } from "sonner";
+import { DEMO } from "@/lib/demo/config";
 
 
 export default function NotificationListener() {
@@ -17,6 +18,7 @@ export default function NotificationListener() {
   const SOCKET_URL = "http://localhost:6001";
 
   useEffect(() => {
+    if (DEMO) return; // no websocket server in the hosted demo
 
     const socket = io(SOCKET_URL, { 
       withCredentials: true, 

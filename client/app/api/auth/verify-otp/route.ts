@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { DEMO } from '@/lib/demo/config'
+import { demoLogin, demoOk } from '@/lib/demo/auth'
 
 export async function POST(request: NextRequest) {
   try {
     const { email, otp } = await request.json()
+
+    if (DEMO) return demoLogin(email)
 
     // Basic validation
     if (!email || !otp) {

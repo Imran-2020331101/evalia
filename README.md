@@ -12,6 +12,19 @@
   [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
 </div>
 
+## 🌐 Live Demo
+
+**Try it:** _add your Vercel URL here after deploying_ - click **Demo as Candidate** or **Demo as Recruiter** on the login page. No sign-up needed.
+
+The hosted demo runs the real Next.js frontend against an in-browser mock API (`client/lib/demo`) with sample data, because the full stack needs MongoDB, Qdrant, OpenAI, Cloudinary, SMTP and five services. Live AI interviews and real resume parsing need the full backend; run it locally with the steps below. To use the real backend locally, leave `NEXT_PUBLIC_DEMO_MODE` unset (or `false`).
+
+### Tests & CI
+```bash
+cd client && npm test        # Vitest unit tests (client/tests)
+cd client && npm run typecheck
+```
+GitHub Actions (`.github/workflows/ci.yml`) runs typecheck, tests and a production build on every push and PR.
+
 ## 🚀 Overview
 
 Evalia is a comprehensive 3-tier AI-powered platform that revolutionizes resume analysis and job matching. It combines advanced AI technologies with modern web development to provide intelligent insights, personalized career recommendations, and seamless job matching experiences.
