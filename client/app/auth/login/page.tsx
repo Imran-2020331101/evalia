@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeClosed } from 'lucide-react'
+import { DEMO, DEMO_CANDIDATE_EMAIL, DEMO_RECRUITER_EMAIL } from '@/lib/demo/config'
 
 const LoginPage = () => {
   const [email, setEmail] = useState('')
@@ -50,8 +51,37 @@ const LoginPage = () => {
     }
   }
 
+  const demoSignIn = async (demoEmail: string) => {
+    setIsLoading(true)
+    setError('')
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: demoEmail, password: 'demo' }),
+      })
+      const data = await response.json()
+      if (!data.success) throw new Error(data.message)
+      localStorage.setItem('isSignedIn', JSON.stringify(true))
+      router.push('/workspace')
+    } catch {
+      setError('Demo sign-in failed. Please try again.')
+      setIsLoading(false)
+    }
+  }
+
   return (
       <form onSubmit={handleSubmit} className='space-y-6'>
+        {DEMO && (
+          <div className='w-full p-3 border border-indigo-500/40 bg-indigo-900/20 rounded-lg text-sm space-y-2'>
+            <p className='font-semibold text-indigo-200'>Recruiter? Explore the live demo</p>
+            <p className='text-xs text-gray-300'>No sign-up needed. Pick a role to explore with sample data.</p>
+            <div className='flex gap-2'>
+              <button type='button' disabled={isLoading} onClick={() => demoSignIn(DEMO_CANDIDATE_EMAIL)} className='flex-1 py-2 rounded-md bg-indigo-700 hover:bg-indigo-600 text-xs font-semibold disabled:opacity-50'>Demo as Candidate</button>
+              <button type='button' disabled={isLoading} onClick={() => demoSignIn(DEMO_RECRUITER_EMAIL)} className='flex-1 py-2 rounded-md bg-gray-700 hover:bg-gray-600 text-xs font-semibold disabled:opacity-50'>Demo as Recruiter</button>
+            </div>
+          </div>
+        )}
         {error && (
           <div className="w-full p-3 mb-4 text-red-400 bg-red-900/20 border border-red-700 rounded-lg text-sm">
             {error}

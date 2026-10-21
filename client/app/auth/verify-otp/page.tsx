@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAppDispatch } from '@/redux/lib/hooks'
 import { toggleIsShowAuthRole } from '@/redux/features/utils'
 
-const VerifyOTPPage = () => {
+const VerifyOTPContent = () => {
   const [otp, setOtp] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -241,5 +241,11 @@ const VerifyOTPPage = () => {
     </div>
   )
 }
+
+const VerifyOTPPage = () => (
+  <Suspense fallback={null}>
+    <VerifyOTPContent />
+  </Suspense>
+)
 
 export default VerifyOTPPage

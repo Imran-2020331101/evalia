@@ -23,7 +23,9 @@ __pycache__/
 *.pyc
 uploads/
 logs/
-.github/
+.github/*
+!.github/workflows/
+!.github/copilot-instructions.md
 
 # Logs
 logs/

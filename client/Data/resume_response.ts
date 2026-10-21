@@ -1,9 +1,12 @@
+import type { ResumeData } from "@/app/types/ResumeData"
+
 export const ResumeResponse: ResumeData={
     "success": true,
     "data": {
         "filename": "Parsed Resume",
         "originalName": "",
         "fileLink": "http://res.cloudinary.com/dzfshqxkp/raw/upload/v1756551388/evalia/resume/pdf/68b18d803251cbe49b371e8e.pdf",
+        "downloadUrl": "",
         "industry": "STEM & Technical",
         "skills": {
             "technical": [
@@ -79,9 +82,10 @@ export const ResumeResponse: ResumeData={
             "characterCount": 1300,
             "hasEmail": true,
             "hasPhone": true,
+            "sections": [],
             "keywords": []
         },
         "uploadedBy": "imranbinazad777@gmail.com",
-        "processedAt": "2025-08-30T11:07:40.824Z"
+        "processedAt": new Date("2025-08-30T11:07:40.824Z")
     }
 }

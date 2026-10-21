@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
+import { DEMO } from '@/lib/demo/config'
+import { demoLogin } from '@/lib/demo/auth'
 
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json()
+
+    if (DEMO) return demoLogin(email)
 
     const response = await fetch('http://localhost:8080/api/auth/login', {
       method: 'POST',

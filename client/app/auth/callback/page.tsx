@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAppDispatch } from '@/redux/lib/hooks'
 import { toggleIsShowAuthRole } from '@/redux/features/utils'
 
-const CallbackPage = () => {
+const CallbackContent = () => {
   const router = useRouter()
   const dispatch = useAppDispatch()
   const searchParams = useSearchParams()
@@ -82,5 +82,11 @@ const CallbackPage = () => {
     </div>
   )
 }
+
+const CallbackPage = () => (
+  <Suspense fallback={null}>
+    <CallbackContent />
+  </Suspense>
+)
 
 export default CallbackPage
