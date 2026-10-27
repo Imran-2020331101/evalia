@@ -4,8 +4,9 @@
   "description": "",
   "main": "server.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --exec ts-node ./src/server.ts"
+    "test": "vitest run",
+    "dev": "nodemon --exec ts-node ./src/server.ts",
+    "test:coverage": "vitest run --coverage"
   },
   "author": "",
   "license": "ISC",
@@ -30,7 +31,12 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.2.1",
     "@types/socket.io": "^3.0.2",
+    "@types/supertest": "^7.2.1",
+    "@vitest/coverage-v8": "^3.2.7",
+    "socket.io-client": "^4.8.4",
+    "supertest": "^7.3.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.7"
   }
 }

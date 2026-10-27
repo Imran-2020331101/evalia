@@ -10,7 +10,9 @@
     "start:dev": "nodemon --exec ts-node src/server.ts",
     "clean": "rimraf dist",
     "prebuild": "npm run clean",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "author": "Imran & Azwoad",
   "license": "ISC",
@@ -37,10 +39,14 @@
     "@types/node": "^22.8.7",
     "@types/pdf-parse": "^1.1.4",
     "@types/streamifier": "^0.1.2",
+    "@types/supertest": "^7.2.1",
+    "@vitest/coverage-v8": "^5.0.5",
     "nodemon": "^3.1.10",
     "rimraf": "^6.0.1",
+    "supertest": "^7.3.1",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^5.0.5"
   }
 }
