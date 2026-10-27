@@ -13,9 +13,6 @@ const didact_gothic = Didact_Gothic({ weight: ['400'], subsets: ['latin'] })
 
 interface RecruitersSingleJobLayoutProps {
   children: React.ReactNode
-  params: {
-    id: string
-  }
 }
 
 
