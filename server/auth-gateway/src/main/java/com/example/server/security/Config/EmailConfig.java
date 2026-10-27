@@ -25,7 +25,7 @@ public class EmailConfig {
         String host = env.getProperty("EMAIL_HOST", "smtp.gmail.com");
         int port = Integer.parseInt(env.getProperty("EMAIL_PORT", "587"));
         String username = env.getProperty("EMAIL_USERNAME", "imranbinazad777@gmail.com");
-        String password = env.getProperty("EMAIL_PASSWORD", "***REMOVED***");
+        String password = env.getProperty("EMAIL_PASSWORD");
         String auth = env.getProperty("EMAIL_SMTP_AUTH", "true");
         String starttls = env.getProperty("EMAIL_SMTP_STARTTLS", "true");
         String sslTrust = env.getProperty("EMAIL_SMTP_SSL_TRUST", "smtp.gmail.com");
